@@ -1,4 +1,13 @@
+var img = ImageLoader.loadImage("sprite.png", function (response) {
+    alert(response.isSuccessful());
+});
+img = ImageLoader.loadImage("sprite.png", function (response) {
+    alert(response.isSuccessful());
+});
+
+
 var settings = {
+    target: "canvas"
 };
 
 var game = new Game(settings);
@@ -14,3 +23,4 @@ gameScene.update = function(delta) {
 };
 
 game.changeScene(gameScene);
+
