@@ -22,11 +22,16 @@ var Game = (function () {
         _this.gameScene = params.scene;
         _this.totalElapsedTime = null;
 
+        // the target container is defined?
         if (isString(params.target)) {
             this.setTarget(params.target);
         }
     }
 
+    /**
+     *
+     * @param timestamp
+     */
     function onAnimationFrame(timestamp) {
         // is this the first run?
         if (_this.totalElapsedTime === null) {
@@ -74,6 +79,7 @@ var Game = (function () {
         _this.canvas = isString(target) ? document.getElementById(target) : null;
 
         if (isObjectAssigned(_this.canvas)) {
+            // OPTIONAL: for now there is only WebGL Context, add more if needed:
             // assign the render context..
             _this.renderContext = new WebGLContext({
                 renderContainer: _this.canvas

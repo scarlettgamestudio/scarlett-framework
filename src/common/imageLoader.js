@@ -18,6 +18,7 @@ ImageLoader.loaded = {};
 ImageLoader.loadImage = function(path, callback) {
     var image;
 
+    // is the image on cache?
     if(ImageLoader.loaded.hasOwnProperty(path)) {
         // the image is already cached. let's use it!
         image = loaded[path];
