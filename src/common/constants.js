@@ -1,0 +1,3 @@
+var SCARLETT = {
+	WEBGL: "webgl"
+};

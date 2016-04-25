@@ -1,8 +1,8 @@
 var img = ImageLoader.loadImage("sprite.png", function (response) {
-    alert(response.isSuccessful());
+   // alert(response.isSuccessful());
 });
 img = ImageLoader.loadImage("sprite.png", function (response) {
-    alert(response.isSuccessful());
+    //alert(response.isSuccessful());
 });
 
 

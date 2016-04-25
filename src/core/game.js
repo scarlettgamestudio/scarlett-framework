@@ -75,6 +75,10 @@ var Game = (function () {
         _this.initalized = true;
     };
 
+    Game.prototype.getRenderContext = function() {
+      return _this.renderContext;
+    };
+
     Game.prototype.setTarget = function (target) {
         _this.canvas = isString(target) ? document.getElementById(target) : null;
 
@@ -88,12 +92,15 @@ var Game = (function () {
     };
 
     Game.prototype.changeScene = function (scene) {
-        if (isGameScene(_this.gameScene)) {
-            // unload the active scene:
-            _this.gameScene.unload();
-        }
+        if(isGameScene(scene)) {
+            if (isGameScene(_this.gameScene)) {
+                // unload the active scene:
+                _this.gameScene.unload();
+            }
 
-        _this.gameScene = scene;
+            _this.gameScene = scene;
+            _this.gameScene.setGame(this);
+        }
     };
 
     Game.prototype.getTotalElapsedTime = function () {
