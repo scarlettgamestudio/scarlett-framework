@@ -17,9 +17,8 @@ var GameScene = (function () {
         this.name = params.name || "GameScene";
 
         // private properties:
-
         _this.game = params.game || null;
-        _this.camera = new Camera2D(); // the default scene camera
+        _this.camera = new Camera2D(0, 0, _this.game.getVirtualResolution().width, _this.game.getVirtualResolution().height); // the default scene camera
         _this.backgroundColor = params.backgroundColor || Color.CornflowerBlue;
         _this.entities = [];
     }
@@ -60,7 +59,7 @@ var GameScene = (function () {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     };
 
-    GameScene.prototype.render = function(delta) {
+    GameScene.prototype.sceneRender = function(delta) {
         // TODO: implement
     };
 

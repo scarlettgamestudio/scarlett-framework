@@ -14,13 +14,12 @@ var PrimitiveShader = (function () {
                 'attribute vec3 aVertexPosition;',
                 'attribute vec4 aColor;',
 
-                'uniform mat4 translationMatrix;',
-                'uniform mat4 projectionMatrix;',
+                'uniform mat4 uMatrix;',
 
                 'varying vec4 vColor;',
 
                 'void main(void) {',
-                '   gl_Position = projectionMatrix * translationMatrix * vec4(aVertexPosition, 1.0);',
+                '   gl_Position = uMatrix * vec4(aVertexPosition, 1.0);',
                 '   vColor = aColor;',
                 '}'
             ].join('\n'),
@@ -36,8 +35,7 @@ var PrimitiveShader = (function () {
             ].join('\n'),
             // uniforms:
             {
-                translationMatrix: {type: 'mat4', value: new Float32Array(16)},
-                projectionMatrix: {type: 'mat4', value: new Float32Array(16)}
+                uMatrix: {type: 'mat4', value: new Float32Array(16)}
             },
             // attributes:
             {

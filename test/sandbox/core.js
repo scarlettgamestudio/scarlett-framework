@@ -25,16 +25,11 @@ var gl;
 var angle = 0.0;
 var mvMatrix = mat4.create(),
     pMatrix = mat4.create();
-var displayWidth;
-var displayHeight;
+var displayWidth = 640;
+var displayHeight = 360;
 
 gameScene.initialize = function () {
     canvas = document.getElementById("canvas");
-
-     displayWidth  = canvas.clientWidth;
-     displayHeight = canvas.clientHeight;
-    canvas.width  = displayWidth;
-    canvas.height = displayHeight;
 
     game.setVirtualResolution(displayWidth, displayHeight);
 
@@ -42,9 +37,9 @@ gameScene.initialize = function () {
     gl = GameManager.renderContext.getContext();
 
     var triangleVerticeColors = [
-        0.0, 1.0, 0.0, 1.0,
-        1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0
+        0.2, 0.4, 1.0, 1.0,
+        0.1, 0.4, 1.0, 1.0,
+        0.4, 0.3, 1.0, 1.0
     ];
 
     trianglesColorBuffer = gl.createBuffer();
@@ -62,7 +57,7 @@ gameScene.initialize = function () {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
 };
 var mv = 0, mvy = 0;
-gameScene.preRender = function (delta) {
+gameScene.lateRender = function (delta) {
     //mat4.perspective(pMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
     mat4.ortho(pMatrix, 0, displayWidth, 0, displayHeight, 0.0, 100);
 

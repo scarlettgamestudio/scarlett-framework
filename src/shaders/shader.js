@@ -20,15 +20,14 @@ var Shader = (function () {
         }
 
         // public properties:
-
+        this.uniforms = uniforms || {};
+        this.attributes = attributes || {};
 
         // private properties:
         _this.gl = GameManager.renderContext.getContext();
         _this.program = null;
         _this.vertexScript = vertexScript;
         _this.fragmentScript = fragmentScript;
-        _this.uniforms = uniforms || {};
-        _this.attributes = attributes || {};
         _this.textureCount = 1;
 
         // setup the shader:
@@ -43,8 +42,8 @@ var Shader = (function () {
             _this.gl.useProgram(_this.program);
 
             // cache some script locations:
-            this.cacheUniformLocations(Object.keys(_this.uniforms));
-            this.cacheAttributeLocations(Object.keys(_this.attributes));
+            this.cacheUniformLocations(Object.keys(this.uniforms));
+            this.cacheAttributeLocations(Object.keys(this.attributes));
         } else {
             debug.error("Shader setup failed");
         }
@@ -74,7 +73,7 @@ var Shader = (function () {
      */
     Shader.prototype.cacheUniformLocations = function (keys) {
         for (var i = 0; i < keys.length; ++i) {
-            _this.uniforms[keys[i]]._location = _this.gl.getUniformLocation(_this.program, keys[i]);
+            this.uniforms[keys[i]]._location = _this.gl.getUniformLocation(_this.program, keys[i]);
         }
     };
 
@@ -84,7 +83,7 @@ var Shader = (function () {
      */
     Shader.prototype.cacheAttributeLocations = function (keys) {
         for (var i = 0; i < keys.length; ++i) {
-            _this.attributes[keys[i]]._location = _this.gl.getAttribLocation(_this.program, keys[i]);
+            this.attributes[keys[i]] = _this.gl.getAttribLocation(_this.program, keys[i]);
         }
     };
 
@@ -94,8 +93,8 @@ var Shader = (function () {
     Shader.prototype.syncUniforms = function () {
         _this.textureCount = 1;
 
-        for (var key in _this.uniforms) {
-            this.syncUniform(_this.uniforms[key]);
+        for (var key in this.uniforms) {
+            this.syncUniform(this.uniforms[key]);
         }
     };
 

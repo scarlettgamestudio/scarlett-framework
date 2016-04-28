@@ -31,6 +31,15 @@ function isNumber(obj) {
 }
 
 /**
+ * Validates if the given object is a game object
+ * @param obj
+ * @returns {boolean}
+ */
+function isGame(obj) {
+    return obj instanceof Game;
+}
+
+/**
  * Validates if the given object is a game scene
  * @param obj
  * @returns {boolean}

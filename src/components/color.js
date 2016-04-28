@@ -26,18 +26,30 @@ var Color = (function () {
 		return JSON.stringify(this);
 	};
 
+	Color.prototype.toArray = function() {
+		return [this.r, this.g, this.b, this.a];
+	};
+
+	Color.prototype.toFloat32Array = function() {
+		return new Float32Array([this.r, this.g, this.b, this.a]);
+	};
+
 	Color.prototype.unload = function () {
 		_this = null;
 	};
 
-	Color.FromRGBA = function(red, green, blue, alpha) {
+	Color.fromRGBA = function(red, green, blue, alpha) {
 		return new Color({r: red / 255.0, g: green / 255.0, b: blue / 255.0, a: alpha});
+	};
+
+	Color.fromRGB = function(red, green, blue) {
+		return new Color({r: red / 255.0, g: green / 255.0, b: blue / 255.0, a: 1.0});
 	};
 
 	/**
 	 * Default colors
 	 */
-	Color.CornflowerBlue = Color.FromRGBA(100, 149, 237, 1.0);
+	Color.CornflowerBlue = Color.fromRGBA(100, 149, 237, 1.0);
 
 	return Color;
 
