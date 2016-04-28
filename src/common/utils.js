@@ -40,10 +40,28 @@ function isGameScene(obj) {
 }
 
 /**
+ * Validates if the given object is a texture2d
+ * @param obj
+ * @returns {boolean}
+ */
+function isTexture2D(obj) {
+    return obj instanceof Texture2D;
+}
+
+/**
  * Validates if the given object is a function
  * @param obj
  * @returns {boolean}
  */
 function isFunction(obj) {
     return typeof obj === "function";
+}
+
+/**
+ * Creates inheritance between classes by cloning the prototype
+ * @param child
+ * @param parent
+ */
+function inheritsFrom(child, parent) {
+    child.prototype = Object.create(parent.prototype);
 }

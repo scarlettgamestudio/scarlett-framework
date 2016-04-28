@@ -30,6 +30,15 @@ var Color = (function () {
 		_this = null;
 	};
 
+	Color.FromRGBA = function(red, green, blue, alpha) {
+		return new Color({r: red / 255.0, g: green / 255.0, b: blue / 255.0, a: alpha});
+	};
+
+	/**
+	 * Default colors
+	 */
+	Color.CornflowerBlue = Color.FromRGBA(100, 149, 237, 1.0);
+
 	return Color;
 
 })();

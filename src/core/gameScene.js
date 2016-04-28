@@ -19,9 +19,14 @@ var GameScene = (function () {
         // private properties:
 
         _this.game = params.game || null;
-        _this.backgroundColor = new Color();
+        _this.camera = new Camera2D(); // the default scene camera
+        _this.backgroundColor = params.backgroundColor || Color.CornflowerBlue;
         _this.entities = [];
     }
+
+    GameScene.prototype.getCamera = function() {
+        return _this.camera
+    };
 
     GameScene.prototype.setGame = function(game) {
         _this.game = game;
@@ -47,12 +52,15 @@ var GameScene = (function () {
         // TODO: implement
     };
 
-    GameScene.prototype.render = function(delta) {
-        // background color:
+    GameScene.prototype.prepareRender = function() {
         var gl = _this.game.getRenderContext().getContext();
-        gl.clearColor(_this.backgroundColor.r, _this.backgroundColor.g, _this.backgroundColor.b, _this.backgroundColor.a);
-        gl.clear(gl.COLOR_BUFFER_BIT);
 
+        // set clear color and clear the screen:
+        gl.clearColor(_this.backgroundColor.r, _this.backgroundColor.g, _this.backgroundColor.b, _this.backgroundColor.a);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    };
+
+    GameScene.prototype.render = function(delta) {
         // TODO: implement
     };
 

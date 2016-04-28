@@ -1,5 +1,7 @@
 module.exports = function(grunt) {
 
+    var sortDependencies = require("sort-dependencies");
+
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -8,7 +10,7 @@ module.exports = function(grunt) {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
-                src: 'src/**/*.js',
+                src: 'build/<%= pkg.name %>.js',
                 dest: 'build/<%= pkg.name %>.min.js'
             }
         },
@@ -17,7 +19,8 @@ module.exports = function(grunt) {
                 separator: ';'
             },
             dist: {
-                src: ['src/**/*.js'],
+                //src: ['src/**/*.js'],
+                src: sortDependencies.sortFiles("src/**/*.js"),
                 dest: 'build/<%= pkg.name %>.js'
             }
         },

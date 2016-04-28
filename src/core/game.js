@@ -3,6 +3,9 @@
  */
 var Game = (function () {
 
+    var DEFAULT_VIRTUAL_WIDTH = 800,
+        DEFAULT_VIRTUAL_HEIGHT = 640;
+
     // private properties
     var _this = {};
 
@@ -21,6 +24,10 @@ var Game = (function () {
         _this.initialized = false;
         _this.gameScene = params.scene;
         _this.totalElapsedTime = null;
+        _this.virtualResolution = null;
+
+        // set the default virtual resolution
+        this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
 
         // the target container is defined?
         if (isString(params.target)) {
@@ -51,6 +58,13 @@ var Game = (function () {
                 _this.gameScene.update(delta);
             }
 
+            _this.gameScene.prepareRender();
+
+            // the user defined the game scene pre-render function?
+            if(isFunction(_this.gameScene.preRender)) {
+                _this.gameScene.preRender(delta);
+            }
+
             // call internal scene render function:
             _this.gameScene.render(delta);
         }
@@ -75,8 +89,27 @@ var Game = (function () {
         _this.initalized = true;
     };
 
-    Game.prototype.getRenderContext = function() {
-      return _this.renderContext;
+    Game.prototype.setVirtualResolution = function (width, height) {
+        _this.virtualResolution = {
+            width: width,
+            height: height
+        };
+
+        if(isObjectAssigned(_this.renderContext)) {
+            _this.renderContext.setVirtualResolution(width, height);
+        }
+    };
+
+    Game.prototype.refreshVirtualResolution = function () {
+      _this.renderContext.setVirtualResolution(_this.virtualResolution.width, _this.virtualResolution.height);
+    };
+
+    Game.prototype.getVirtualResolution = function () {
+        return _this.virtualResolution;
+    };
+
+    Game.prototype.getRenderContext = function () {
+        return _this.renderContext;
     };
 
     Game.prototype.setTarget = function (target) {
@@ -88,11 +121,16 @@ var Game = (function () {
             _this.renderContext = new WebGLContext({
                 renderContainer: _this.canvas
             });
+
+            // setting the global active render as the one selected for this game:
+            GameManager.renderContext = _this.renderContext;
+
+            this.refreshVirtualResolution();
         }
     };
 
     Game.prototype.changeScene = function (scene) {
-        if(isGameScene(scene)) {
+        if (isGameScene(scene)) {
             if (isGameScene(_this.gameScene)) {
                 // unload the active scene:
                 _this.gameScene.unload();
@@ -100,6 +138,12 @@ var Game = (function () {
 
             _this.gameScene = scene;
             _this.gameScene.setGame(this);
+
+            // the user defined the game scene initialize function?
+            if (isFunction(_this.gameScene.initialize)) {
+                // call user defined update function:
+                _this.gameScene.initialize();
+            }
         }
     };
 

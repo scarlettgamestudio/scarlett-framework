@@ -38,3 +38,6 @@ var Logger = (function () {
     return Logger;
 
 })();
+
+// General Debug Logger
+var debug = new Logger("Debug");
