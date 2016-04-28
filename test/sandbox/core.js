@@ -25,10 +25,18 @@ var gl;
 var angle = 0.0;
 var mvMatrix = mat4.create(),
     pMatrix = mat4.create();
+var displayWidth;
+var displayHeight;
 
 gameScene.initialize = function () {
     canvas = document.getElementById("canvas");
-    game.setVirtualResolution(canvas.clientWidth, canvas.clientHeight);
+
+     displayWidth  = canvas.clientWidth;
+     displayHeight = canvas.clientHeight;
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+
+    game.setVirtualResolution(displayWidth, displayHeight);
 
     primitiveShader = new PrimitiveShader();
     gl = GameManager.renderContext.getContext();
@@ -44,9 +52,9 @@ gameScene.initialize = function () {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColors), gl.STATIC_DRAW);
 
     var triangleVertices = [
-        0.0, 100.0, 0.0,
-        -100.0, 0.0, 0.0,
-        100.0, 0.0, 0.0
+        0.0, displayHeight, 0.0,
+        0.0, 0.0, 0.0,
+        displayWidth, 0.0, 0.0
     ];
 
     trianglesVerticeBuffer = gl.createBuffer();
@@ -56,15 +64,16 @@ gameScene.initialize = function () {
 var mv = 0, mvy = 0;
 gameScene.preRender = function (delta) {
     //mat4.perspective(pMatrix, 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0);
-    mat4.ortho(pMatrix, 0, canvas.clientWidth, 0, canvas.clientHeight, 0.0, 10.0);
+    mat4.ortho(pMatrix, 0, displayWidth, 0, displayHeight, 0.0, 100);
+
 
     mat4.identity(mvMatrix);
     //var translation = vec3.create();
     //vec3.set(translation, mv, 0.0, -1.0);
     mat4.translate(mvMatrix, mvMatrix, [mv, mvy, 0.0]);
 
-    mv += delta / 100.0;
-    mvy += delta / 100.0;
+    //mv += delta / 600.0;
+    //mvy += delta / 600.0;
 
     // do stuff here:
     //console.log("hello " + this.name);
