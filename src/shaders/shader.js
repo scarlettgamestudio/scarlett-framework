@@ -29,6 +29,7 @@ var Shader = (function () {
         _this.vertexScript = vertexScript;
         _this.fragmentScript = fragmentScript;
         _this.textureCount = 1;
+        _this.uid = generateUID();
 
         // setup the shader:
         this.setup();
@@ -65,6 +66,13 @@ var Shader = (function () {
         }
 
         return false;
+    };
+
+    /**
+     * Gets the unique id of this shader instance
+     */
+    Shader.prototype.getUID = function() {
+        return _this.uid;
     };
 
     /**

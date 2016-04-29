@@ -74,3 +74,13 @@ function isFunction(obj) {
 function inheritsFrom(child, parent) {
     child.prototype = Object.create(parent.prototype);
 }
+
+/**
+ * Generates a unique natural number
+ * @type {number}
+ * @private
+ */
+var _SS_UID = 0;
+function generateUID() {
+    return ++_SS_UID;
+}

@@ -25,6 +25,7 @@ var Game = (function () {
         _this.gameScene = params.scene;
         _this.totalElapsedTime = null;
         _this.virtualResolution = null;
+        _this.shaderManager = null;
         _this.executionPhase = SCARLETT.EXECUTION_PHASES.WAITING;
 
         // set the default virtual resolution
@@ -95,6 +96,10 @@ var Game = (function () {
         }
     }
 
+    Game.prototype.getShaderManager = function() {
+        return _this.shaderManager;
+    };
+
     Game.prototype.getActiveCamera = function() {
       return _this.gameScene.getCamera();
     };
@@ -154,6 +159,7 @@ var Game = (function () {
 
             // setting the global active render as the one selected for this game:
             GameManager.renderContext = _this.renderContext;
+            _this.shaderManager = new ShaderManager(this);
 
             this.refreshVirtualResolution();
         }

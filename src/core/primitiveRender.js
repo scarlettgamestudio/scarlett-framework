@@ -43,6 +43,8 @@ var PrimitiveRender = (function () {
 			vectorB.x, vectorB.y, 0.0
 		];
 
+		_this.game.getShaderManager().useShader(_this.primitiveShader);
+
 		gl.lineWidth(thickness);
 
 		// position buffer
