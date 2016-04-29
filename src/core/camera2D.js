@@ -23,7 +23,7 @@ var Camera2D = (function () {
     }
 
     Camera2D.prototype.calculateMatrix = function() {
-        // FIXME optimize this
+        // FIXME optimize this?
         var ortho = mat4.create();
         mat4.ortho(ortho, -this.viewWidth / 2.0, this.viewWidth / 2.0, this.viewHeight / 2.0, -this.viewHeight / 2.0, 0.0, 1.0);
 
