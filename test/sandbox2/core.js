@@ -24,13 +24,13 @@ gameScene.initialize = function () {
     primitiveRender = new PrimitiveRender(game);
 };
 
-gameScene.update = function(delta) {
-  py += 0.05 * delta;
+gameScene.update = function (delta) {
+    py += 0.05 * delta;
 };
 
 gameScene.lateRender = function (delta) {
-    for(var i = 0; i < 10; i++) {
-        primitiveRender.drawLine(new Vector2(-displayWidth / 2.0 , -displayHeight / 2.0 + (i * 5) + py), new Vector2(displayWidth / 2.0, 0), 40, i % 2 == 0 ? redColor : greenColor);
+    for (var i = 0; i < 10; i++) {
+        primitiveRender.drawLine(new Vector2(-displayWidth / 2.0, -displayHeight / 2.0 + (i * 5) + py), new Vector2(displayWidth / 2.0, 0), 4, i % 2 == 0 ? redColor : greenColor);
     }
 };
 

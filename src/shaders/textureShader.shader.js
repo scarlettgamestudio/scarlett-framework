@@ -17,15 +17,16 @@ var TextureShader = (function () {
                 'attribute vec2 aTextureCoord;',
                 'attribute vec4 aColor;',
 
-                'uniform mat3 projectionMatrix;',
+                'uniform mat4 uMatrix;',
 
                 'varying vec2 vTextureCoord;',
                 'varying vec4 vColor;',
 
                 'void main(void){',
-                '   gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);',
+                '   gl_Position = uMatrix * vec4(aVertexPosition, 1.0, 0.0, 1.0);',
                 '   vTextureCoord = aTextureCoord;',
-                '   vColor = vec4(aColor.rgb * aColor.a, aColor.a);',
+                //'   //vColor = vec4(aColor.rgb * aColor.a, aColor.a);',
+                '   vColor = aColor',
                 '}'
             ].join('\n'),
             // inline-fragment shader
@@ -38,7 +39,7 @@ var TextureShader = (function () {
                 'uniform sampler2D uSampler;',
 
                 'void main(void){',
-                '   gl_FragColor = texture2D(uSampler, vTextureCoord) * vColor ;',
+                '   gl_FragColor = texture2D(uSampler, vTextureCoord) * vColor;',
                 '}'
             ].join('\n'),
             // uniforms:
