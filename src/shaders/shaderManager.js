@@ -1,37 +1,24 @@
 /**
  * ShaderManager class
  */
-var ShaderManager = (function () {
+/**
+ * @constructor
+ */
+function ShaderManager(game) {
+	// private variables
+	this._game = game;
+	this._gl = this._game.getRenderContext().getContext();
+	this._activeShader = null;
+}
 
-	// private properties
-	var _this = {};
+ShaderManager.prototype.unload = function () {
 
-	/**
-	 * @constructor
-	 */
-	function ShaderManager(game) {
-		// private variables
-		_this.game = game;
-		_this.gl = _this.game.getRenderContext().getContext();
-		_this.activeShader = null;
+};
+
+ShaderManager.prototype.useShader = function(shader) {
+	// is this the same shader that is being used?
+	if(!isObjectAssigned(this._activeShader) || this._activeShader.getUID() !== shader.getUID()) {
+		this._activeShader = shader;
+		this._gl.useProgram(shader.getProgram());
 	}
-
-	ShaderManager.prototype.unload = function () {
-		_this = null;
-	};
-	
-	ShaderManager.prototype.useShader = function(shader) {
-		// is this the same shader that is being used?
-		if(!isObjectAssigned(_this.activeShader) || _this.activeShader.getUID() !== shader.getUID()) {
-			_this.activeShader = shader;
-			_this.gl.useProgram(shader.getProgram());
-		}
-	};
-
-	/**
-	 * Static methods
-	 */
-	
-	return ShaderManager;
-
-})();
+};

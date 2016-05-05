@@ -1,43 +1,22 @@
-/**
- * Logger class
- */
-var Logger = (function () {
+function Logger(params) {
+    params = params || {};
 
-    // private properties
-    var _this = {};
+    // private properties:
+    this._context = params.context || "Default";
+}
 
-    /**
-     * @constructor
-     */
-    function Logger(params) {
-        params = params || {};
+// functions
+Logger.prototype.log = function(message) {
+    console.log(this._context + " | " + message);
+};
 
-        // public properties:
+Logger.prototype.warn = function(message) {
+    console.warn(this._context + " | " + message);
+};
 
-
-        // private properties:
-        _this.context = params.context || "Default";
-    }
-
-    Logger.prototype.log = function(message) {
-        console.log(_this.context + " | " + message);
-    };
-
-    Logger.prototype.warn = function(message) {
-        console.warn(_this.context + " | " + message);
-    };
-
-    Logger.prototype.error = function(message) {
-        console.error(_this.context + " | " + message);
-    };
-
-    Logger.prototype.unload = function () {
-        _this = null;
-    };
-
-    return Logger;
-
-})();
+Logger.prototype.error = function(message) {
+    console.error(this._context + " | " + message);
+};
 
 // General Debug Logger
 var debug = new Logger("Debug");

@@ -1,77 +1,65 @@
 /**
  * GameScene class
  */
-var GameScene = (function () {
+function GameScene(params) {
+    params = params || {};
 
-    // private properties
-    var _this = {};
+    // public properties:
 
-    /**
-     * @constructor
-     */
-    function GameScene(params) {
-        params = params || {};
+    this.name = params.name || "GameScene";
 
-        // public properties:
+    // private properties:
+    this._game = params.game || null;
+    this._camera = new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
+    this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
+    this._entities = [];
+}
 
-        this.name = params.name || "GameScene";
+GameScene.prototype.getCamera = function() {
+    return this._camera
+};
 
-        // private properties:
-        _this.game = params.game || null;
-        _this.camera = new Camera2D(0, 0, _this.game.getVirtualResolution().width, _this.game.getVirtualResolution().height); // the default scene camera
-        _this.backgroundColor = params.backgroundColor || Color.CornflowerBlue;
-        _this.entities = [];
-    }
+GameScene.prototype.setGame = function(game) {
+    this._game = game;
+};
 
-    GameScene.prototype.getCamera = function() {
-        return _this.camera
-    };
+GameScene.prototype.getGame = function() {
+    return this._game;
+};
 
-    GameScene.prototype.setGame = function(game) {
-        _this.game = game;
-    };
+GameScene.prototype.setBackgroundColor = function(color) {
+    this._backgroundColor = color;
+};
 
-    GameScene.prototype.getGame = function() {
-      return _this.game;
-    };
+GameScene.prototype.getBackgroundColor = function() {
+    return this._backgroundColor;
+};
 
-    GameScene.prototype.setBackgroundColor = function(color) {
-      _this.backgroundColor = color;
-    };
+GameScene.prototype.addEntity = function (entity) {
+    this._entities.push(entity);
+};
 
-    GameScene.prototype.getBackgroundColor = function() {
-      return _this.backgroundColor;
-    };
+GameScene.prototype.removeEntity = function (entity) {
+    // TODO: implement
+};
 
-    GameScene.prototype.addEntity = function (entity) {
-        _this.entities.push(entity);
-    };
+GameScene.prototype.prepareRender = function() {
+    var gl = this._game.getRenderContext().getContext();
 
-    GameScene.prototype.removeEntity = function (entity) {
-        // TODO: implement
-    };
+    // set clear color and clear the screen:
+    gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+};
 
-    GameScene.prototype.prepareRender = function() {
-        var gl = _this.game.getRenderContext().getContext();
+GameScene.prototype.sceneRender = function(delta) {
+    // TODO: implement
+};
 
-        // set clear color and clear the screen:
-        gl.clearColor(_this.backgroundColor.r, _this.backgroundColor.g, _this.backgroundColor.b, _this.backgroundColor.a);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    };
+GameScene.prototype.toJSON = function() {
+    // TODO: implement
+    return "";
+};
 
-    GameScene.prototype.sceneRender = function(delta) {
-        // TODO: implement
-    };
+GameScene.prototype.unload = function () {
 
-    GameScene.prototype.toJSON = function() {
-        // TODO: implement
-        return "";
-    };
-
-    GameScene.prototype.unload = function () {
-        _this = null;
-    };
-
-    return GameScene;
-
-})();
+};

@@ -1,33 +1,22 @@
 /**
  * Transform class
  */
-var Transform = (function () {
+function Transform(params) {
+    params = params || {};
 
-    // private properties
-    var _this = {};
-
-    /**
-     * @constructor
-     */
-    function Transform(params) {
-        params = params || {};
-
-        // public properties:
+    // public properties:
 
 
-        // private properties:
-        _this.parent = params.parent;
-    }
-    
-    Transform.prototype.toJSON = function() {
-        // TODO: implement
-        return "";
-    };
+    // private properties:
+    this.parent = params._parent;
 
-    Transform.prototype.unload = function () {
-        _this = null;
-    };
+}
 
-    return Transform;
+Transform.prototype.toJSON = function() {
+    // TODO: implement
+    return "";
+};
 
-})();
+Transform.prototype.unload = function () {
+
+};

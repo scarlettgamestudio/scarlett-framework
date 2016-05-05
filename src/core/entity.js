@@ -1,33 +1,23 @@
 /**
- * Transform class
+ * Entity class
  */
-var Entity = (function () {
+function Entity(params) {
+    params = params || {};
 
-    // private properties
-    var _this = {};
-
-    /**
-     * @constructor
-     */
-    function Entity(params) {
-        params = params || {};
-
-        // public properties:
+    // public properties:
 
 
-        // private properties:
-        _this.parent = params.parent;
-    }
+    // private properties:
+    this.parent = params.parent;
+}
 
-    Entity.prototype.toJSON = function() {
-        // TODO: implement
-        return "";
-    };
+// functions:
+Entity.prototype.toJSON = function() {
+    // TODO: implement
+    return "";
+};
 
-    Entity.prototype.unload = function () {
-        _this = null;
-    };
+Entity.prototype.unload = function () {
 
-    return Entity;
+};
 
-})();
