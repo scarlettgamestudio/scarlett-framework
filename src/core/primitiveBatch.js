@@ -64,7 +64,7 @@ PrimitiveBatch.prototype.flush = function() {
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
 
 		gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-		gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 3, this._gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 3, gl.FLOAT, false, 0, 0);
 
 		// set uniforms
 		gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);

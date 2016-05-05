@@ -39,8 +39,10 @@ WebGLContext.prototype.assignContextFromContainer = function(canvas) {
 
     // default settings
     gl.disable(gl.CULL_FACE);
+    gl.disable(gl.DEPTH_TEST);
+
     gl.enable(gl.BLEND);
-    gl.enable(gl.DEPTH_TEST);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
 
 WebGLContext.prototype.getName = function() {

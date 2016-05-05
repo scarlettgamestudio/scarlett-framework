@@ -31,7 +31,8 @@ ImageLoader.loadImage = function(path, callback) {
 
             if(isFunction(callback)) {
                 callback(new CallbackResponse({
-                    success: true
+                    success: true,
+                    data: image
                 }));
             }
         };
