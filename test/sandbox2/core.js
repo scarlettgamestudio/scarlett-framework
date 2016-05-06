@@ -29,7 +29,7 @@ gameScene.initialize = function () {
     primitiveRender = new PrimitiveRender(game);
     primitiveBatch = new PrimitiveBatch(game);
 
-    var bWidth = 64.0, bHeight = 24.0;
+    var bWidth = 10.0, bHeight = 8.0;
     var bCountX = parseInt(displayWidth / bWidth);
     var bCountY = parseInt(displayHeight / bHeight);
     console.log(bCountX * bCountY);
@@ -63,6 +63,7 @@ gameScene.lateRender = function (delta) {
         }
     }
 
+    meter.tick();
 
 
     /*primitiveRender.drawRectangle(rect, redColor);

@@ -13,6 +13,11 @@ function Vector2(x, y) {
 
 }
 
+Vector2.prototype.set = function(x, y) {
+	this.x = x;
+	this.y = y;
+};
+
 Vector2.prototype.toJSON = function() {
 	return JSON.stringify({
 		x: this.x,

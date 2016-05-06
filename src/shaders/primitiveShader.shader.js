@@ -9,7 +9,7 @@ function PrimitiveShader() {
     Shader.call(this,
         // inline-vertex shader:
         [
-            'attribute vec3 aVertexPosition;',
+            'attribute vec2 aVertexPosition;',
 
             'uniform mat4 uMatrix;',
             'uniform mat4 uTransform;',
@@ -17,7 +17,7 @@ function PrimitiveShader() {
 
             'void main(void) {',
             '   gl_PointSize = uPointSize;',
-            '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 1.0);',
+            '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
             '}'
         ].join('\n'),
         // inline-fragment shader

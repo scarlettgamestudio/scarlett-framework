@@ -21,13 +21,12 @@ function PrimitiveBatch(game) {
 	this._rectangleCount = 0;
 	this._transformMatrix = mat4.create();
 	this._rectangleData = [
-		0.0, 1.0, 0.0,                                              // TOP LEFT
-		0.0, 0.0, 0.0,                                              // BOTTOM LEFT
-		1.0, 0.0, 0.0,                                              // BOTTOM RIGHT
-
-		1.0, 1.0, 0.0,                                              // TOP RIGHT
-		0.0, 1.0, 0.0,                                              // TOP LEFT
-		1.0, 0.0, 0.0                                               // BOTTOM RIGHT
+		0.0,  0.0,
+		1.0,  0.0,
+		0.0,  1.0,
+		0.0,  1.0,
+		1.0,  0.0,
+		1.0,  1.0
 	];
 }
 
@@ -64,7 +63,7 @@ PrimitiveBatch.prototype.flush = function() {
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
 
 		gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-		gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 3, gl.FLOAT, false, 0, 0);
+		gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
 		// set uniforms
 		gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);

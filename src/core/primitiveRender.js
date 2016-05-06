@@ -15,11 +15,18 @@ function PrimitiveRender(game) {
     this._primitiveShader = new PrimitiveShader();
     this._vertexBuffer = this._gl.createBuffer();
     this._transformMatrix = mat4.create();
+    this._rectangleData = [
+        0.0,  0.0,
+        1.0,  0.0,
+        0.0,  1.0,
+        0.0,  1.0,
+        1.0,  0.0,
+        1.0,  1.0
+    ];
 }
 
 PrimitiveRender.prototype.unload = function () {
     gl.deleteBuffer(this._vertexBuffer);
-    gl.deleteBuffer(this._colorBuffer);
 
     this._primitiveShader.unload();
 };
@@ -28,7 +35,7 @@ PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
     var gl = this._gl;
 
     var vertices = [
-        0.0, 0.0, 0.0
+        0.0, 0.0
     ];
 
     this._game.getShaderManager().useShader(this._primitiveShader);
@@ -38,7 +45,7 @@ PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 3, this._gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
     // calculate transformation matrix:
     mat4.identity(this._transformMatrix);
@@ -56,24 +63,14 @@ PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
 PrimitiveRender.prototype.drawRectangle = function (rectangle, color) {
     var gl = this._gl;
 
-    var vertices = [
-        0.0, 1.0, 0.0,                                              // TOP LEFT
-        0.0, 0.0, 0.0,                                              // BOTTOM LEFT
-        1.0, 0.0, 0.0,                                              // BOTTOM RIGHT
-
-        1.0, 1.0, 0.0,                                              // TOP RIGHT
-        0.0, 1.0, 0.0,                                              // TOP LEFT
-        1.0, 0.0, 0.0                                               // BOTTOM RIGHT
-    ];
-
     this._game.getShaderManager().useShader(this._primitiveShader);
 
     // position buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 3, this._gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
     // calculate transformation matrix:
     mat4.identity(this._transformMatrix);

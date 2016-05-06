@@ -38,15 +38,7 @@ gameScene.lateRender = function (delta) {
     gl = GameManager.renderContext.getContext();
 
     if(tex2D.isReady()) {
-        /*var squareVertices = [
-            0.0, 1.0,                                              // TOP LEFT
-            1.0, 1.0,                                             // TOP RIGHT
-            0.0, 0.0,                                              // BOTTOM LEFT
 
-            0.0, 0.0,                                              // BOTTOM LEFT
-            1.0, 1.0,                                             // TOP RIGHT
-            1.0, 0.0                                              // BOTTOM RIGHT
-        ];*/
         var squareVertices = [
             0.0,  0.0,
             1.0,  0.0,
@@ -71,8 +63,7 @@ gameScene.lateRender = function (delta) {
         gl.enableVertexAttribArray(textureShader.attributes.aTextureCoord);
         gl.vertexAttribPointer(textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
-
-        for(var i = 0; i < 10; i ++) {
+        for(var i = 0; i < 100; i ++) {
             var transformMatrix = mat4.create();
             mat4.identity(transformMatrix);
             mat4.translate(transformMatrix, transformMatrix, [10 * i, 10 * i, 0]);
@@ -92,6 +83,8 @@ gameScene.lateRender = function (delta) {
         }
 
     }
+
+    meter.tick();
 };
 
 game.changeScene(gameScene);

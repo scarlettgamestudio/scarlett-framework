@@ -6,6 +6,7 @@
         to start a simple python http server:
         \> python -m SimpleHTTPServer  (unix systems)
     -->
+    <script src="../common/fpsmeter.js"></script>
     <style>
 
         html, body {
@@ -24,6 +25,15 @@
     </style>
 </head>
 <body>
+    <script>
+        var meter = new FPSMeter({
+            theme: 'dark',
+            heat:  0,
+            graph:   1, // Whether to show history graph.
+            history: 20 // How many history states to show in a graph.
+        });
+    </script>
+
     <!-- canvas -->
     <canvas id="canvas"></canvas>
 

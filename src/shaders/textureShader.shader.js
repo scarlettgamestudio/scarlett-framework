@@ -6,7 +6,7 @@ function TextureShader() {
     Shader.call(this,
         // inline-vertex shader:
         [
-            'precision lowp float;',
+            'precision mediump float;',
 
             'attribute vec2 aVertexPosition;',
             'attribute vec2 aTextureCoord;',
@@ -27,7 +27,7 @@ function TextureShader() {
         ].join('\n'),
         // inline-fragment shader
         [
-            'precision lowp float;',
+            'precision mediump float;',
 
             'varying vec2 vTextureCoord;',
             'varying vec4 vColor;',
