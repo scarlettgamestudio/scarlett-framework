@@ -16,6 +16,7 @@ function SpriteBatch(game) {
 	this._texBuffer = this._gl.createBuffer();
 	this._transformMatrix = mat4.create();
 	this._textureShader = new TextureShader();
+	this._lastTexUID = -1;
 	this._sprites = [];
 	this._rectangleData = [
 		0.0,  0.0,
@@ -72,6 +73,12 @@ SpriteBatch.prototype.flush = function() {
 	for(var i = 0; i < this._sprites.length; i++) {
 		var texture = this._sprites[i].getTexture();
 		if(texture && texture.isReady()) {
+
+			if(this._lastTexUID != texture.getUID()) {
+				texture.bind();
+				this._lastTexUID = texture.getUID();
+			}
+
 			var spritePosition = this._sprites[i].transform.getPosition();
 			var spriteScale = this._sprites[i].transform.getScale();
 			var width = texture.getImageData().width * spriteScale.x;
@@ -79,8 +86,11 @@ SpriteBatch.prototype.flush = function() {
 
 			mat4.identity(this._transformMatrix);
 			mat4.translate(this._transformMatrix, this._transformMatrix, [spritePosition.x, spritePosition.y, 0]);
+			mat4.translate(this._transformMatrix, this._transformMatrix, [width/2, height/2, 0]);
+			mat4.rotate(this._transformMatrix, this._transformMatrix, this._sprites[i].transform.getRotation(), [0.0, 0.0, 1.0]);
+			mat4.translate(this._transformMatrix, this._transformMatrix, [-width/2, -height/2, 0]);
 			mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
-
+			
 			gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._transformMatrix);
 			//gl.uniform4f(this._primitiveShader.uniforms.uColor._location, this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
 

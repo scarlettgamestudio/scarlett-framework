@@ -14,15 +14,16 @@ function Texture2D(source) {
     this._hasLoaded = false;
     this._texture = null;
     this._gl = GameManager.renderContext.getContext();
+    this._uid = generateUID();
 
     var self = this;
     this._imageData = ImageLoader.loadImage(source, function (response) {
         if (response.isSuccessful()) {
             var gl = self._gl;
 
-            self.texture = gl.createTexture();
-            
-            gl.bindTexture(gl.TEXTURE_2D, self.texture);
+            self._texture = gl.createTexture();
+
+            gl.bindTexture(gl.TEXTURE_2D, self._texture);
 
             // Set the parameters so we can render any size image.
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -41,6 +42,14 @@ function Texture2D(source) {
         }
     });
 }
+
+Texture2D.prototype.getUID = function() {
+    return this._uid;
+};
+
+Texture2D.prototype.bind = function() {
+    this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+};
 
 Texture2D.prototype.setImageData = function(imageData) {
     this._imageData = imageData;
