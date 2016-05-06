@@ -9,7 +9,7 @@
  * @returns {boolean}
  */
 function isObjectAssigned(obj) {
-    return (typeof obj !== "undefined" && obj !== null);
+	return (typeof obj !== "undefined" && obj !== null);
 }
 
 /**
@@ -18,7 +18,7 @@ function isObjectAssigned(obj) {
  * @returns {boolean}
  */
 function isString(obj) {
-    return typeof obj === "string";
+	return typeof obj === "string";
 }
 
 /**
@@ -27,7 +27,7 @@ function isString(obj) {
  * @returns {boolean}
  */
 function isNumber(obj) {
-    return typeof obj === "number";
+	return typeof obj === "number";
 }
 
 /**
@@ -36,7 +36,7 @@ function isNumber(obj) {
  * @returns {boolean}
  */
 function isGame(obj) {
-    return obj instanceof Game;
+	return obj instanceof Game;
 }
 
 /**
@@ -45,7 +45,7 @@ function isGame(obj) {
  * @returns {boolean}
  */
 function isGameScene(obj) {
-    return obj instanceof GameScene;
+	return obj instanceof GameScene;
 }
 
 /**
@@ -54,7 +54,7 @@ function isGameScene(obj) {
  * @returns {boolean}
  */
 function isTexture2D(obj) {
-    return obj instanceof Texture2D;
+	return obj instanceof Texture2D;
 }
 
 /**
@@ -63,7 +63,16 @@ function isTexture2D(obj) {
  * @returns {boolean}
  */
 function isFunction(obj) {
-    return typeof obj === "function";
+	return typeof obj === "function";
+}
+
+/**
+ * Validates if the given object is a sprite
+ * @param obj
+ * @returns {boolean}
+ */
+function isSprite(obj) {
+    return obj instanceof Sprite;
 }
 
 /**
@@ -72,7 +81,7 @@ function isFunction(obj) {
  * @param parent
  */
 function inheritsFrom(child, parent) {
-    child.prototype = Object.create(parent.prototype);
+	child.prototype = Object.create(parent.prototype);
 }
 
 /**
@@ -82,5 +91,5 @@ function inheritsFrom(child, parent) {
  */
 var _SS_UID = 0;
 function generateUID() {
-    return ++_SS_UID;
+	return ++_SS_UID;
 }

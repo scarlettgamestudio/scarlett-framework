@@ -19,6 +19,9 @@ function Game(params) {
     this._virtualResolution = null;
     this._shaderManager = null;
     this._executionPhase = SCARLETT.EXECUTION_PHASES.WAITING;
+    this._physicsEngine = Matter.Engine.create();
+    this._physicsEngine.enableSleeping = true;
+    Matter.Engine.run(this._physicsEngine);
 
     // set the default virtual resolution
     this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
@@ -28,6 +31,14 @@ function Game(params) {
         this.setTarget(params.target);
     }
 }
+
+/**
+ * 
+ * @returns {engine|*}
+ */
+Game.prototype.getPhysicsEngine = function () {
+    return this._physicsEngine;
+};
 
 /**
  *
@@ -58,6 +69,8 @@ Game.prototype._onAnimationFrame = function(timestamp) {
             this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
             this._gameScene.lateUpdate(delta);
         }
+
+        this._gameScene.sceneLateUpdate(delta);
 
         // prepare the webgl context for rendering:
         this._gameScene.prepareRender();
@@ -163,6 +176,8 @@ Game.prototype.changeScene = function (scene) {
 
         this._gameScene = scene;
         this._gameScene.setGame(this);
+
+        GameManager.activeScene = scene;
 
         // the user defined the game scene initialize function?
         if (isFunction(this._gameScene.initialize)) {

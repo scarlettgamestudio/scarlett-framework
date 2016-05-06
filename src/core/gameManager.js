@@ -8,3 +8,4 @@ var GameManager = function() {};
  * @type {renderContext}
  */
 GameManager.renderContext = null;
+GameManager.activeScene = null;

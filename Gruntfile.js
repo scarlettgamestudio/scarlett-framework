@@ -20,7 +20,9 @@ module.exports = function(grunt) {
             },
             dist: {
                 //src: ['src/**/*.js'],
-                src: sortDependencies.sortFiles("src/**/*.js"),
+                src: [
+                    'node_modules/matter-js/build/matter.js',
+                    sortDependencies.sortFiles("src/**/*.js")],
                 dest: 'build/<%= pkg.name %>.js'
             }
         },
