@@ -33,7 +33,7 @@ gameScene.initialize = function () {
     var rbody = new RigidBody({static:true});
     ground.addComponent(rbody);
     ground.transform.setPosition(0, halfHeight);
-    ground.transform.setScale(1000, 20);
+    ground.transform.setScale(1500, 20);
 
 
     var bWidth = 120, bHeight = 80;

@@ -5,8 +5,8 @@ function Transform(params) {
 	params = params || {};
 
 	// public properties:
+	AttributeDictionary.addRule(this, "gameObject", {visible: false});
 	this.gameObject = params.gameObject || null;
-
 
 	// private properties:
 	this._position = new Vector2();
@@ -18,15 +18,15 @@ function Transform(params) {
 	this._overrideScaleFunction = null;
 }
 
-Transform.prototype.clearPositionGetter = function() {
+Transform.prototype.clearPositionGetter = function () {
 	this._overridePositionFunction = null;
 };
 
-Transform.prototype.clearRotationGetter = function() {
+Transform.prototype.clearRotationGetter = function () {
 	this._overrideRotationFunction = null;
 };
 
-Transform.prototype.clearScaleGetter = function() {
+Transform.prototype.clearScaleGetter = function () {
 	this._overrideScaleFunction = null;
 };
 

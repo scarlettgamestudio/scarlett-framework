@@ -5,8 +5,8 @@ function RigidBody (params) {
 	this._isStatic = params.static || false;
 	this._mass = params.mass || null;
 	this._friction = params.friction || null;
-	this._gameObject;
-	this._body;
+	this._gameObject = null;
+	this._body = null;
 
 }
 

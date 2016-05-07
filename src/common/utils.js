@@ -72,7 +72,7 @@ function isFunction(obj) {
  * @returns {boolean}
  */
 function isSprite(obj) {
-    return obj instanceof Sprite;
+	return obj instanceof Sprite;
 }
 
 /**
@@ -92,4 +92,37 @@ function inheritsFrom(child, parent) {
 var _SS_UID = 0;
 function generateUID() {
 	return ++_SS_UID;
+}
+
+/**
+ * Capitalizes a string
+ * @param string
+ * @returns {*}
+ */
+function capitalize(string) {
+	if (string.length >= 2) {
+		return string.charAt(0).toUpperCase() + string.slice(1);
+	} else if(string.length == 1) {
+		return string.charAt(0).toUpperCase();
+	}
+	return string;
+}
+
+/**
+ * Split camel case
+ * @param string
+ * @returns {string}
+ */
+function splitCamelCase(string) {
+	return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
+}
+
+/**
+ * Gets the type of the object
+ * @param object
+ * @returns {*}
+ */
+function getType(object) {
+	if(object===null) return "[object Null]"; // special case
+	return object.constructor.name || Object.prototype.toString.call(object);
 }
