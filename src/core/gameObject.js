@@ -5,9 +5,12 @@ function GameObject(params) {
 	params = params || {};
 
 	// public properties:
-	this.name = params.name || "Entity";
+	this.name = params.name || "GameObject";
+
+	AttributeDictionary.addRule(this, "parent", {visible:false});
 	this.parent = params.parent || null;
 
+	AttributeDictionary.addRule(this, "transform", {ownContainer: true});
 	this.transform = new Transform({
 		gameObject: this
 	});

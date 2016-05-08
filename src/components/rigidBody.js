@@ -65,6 +65,10 @@ RigidBody.prototype.setMass = function(mass) {
 	Matter.Body.setMass(this._body, this._mass);
 };
 
+RigidBody.prototype.getMass = function() {
+	return this.mass;
+};
+
 RigidBody.prototype.setGameObject = function(gameObject) {
 	this._gameObject = gameObject;
 	this._sync();

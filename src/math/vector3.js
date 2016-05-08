@@ -1,6 +1,8 @@
 /**
  * Vector3 class for tri dimensional point references
  */
+SetterDictionary.addRule("vector3", ["x", "y", "z"]);
+
 function Vector3(x, y, z) {
 	// public properties:
 	this.x = x || 0;
@@ -11,12 +13,18 @@ function Vector3(x, y, z) {
 
 }
 
+Vector3.prototype.set = function(x, y, z) {
+	this.x = x;
+	this.y = y;
+	this.z = z;
+};
+
 Vector3.prototype.toJSON = function() {
-	return JSON.stringify({
+	return {
 		x: this.x,
 		y: this.y,
 		z: this.z
-	});
+	};
 };
 
 Vector3.prototype.unload = function () {

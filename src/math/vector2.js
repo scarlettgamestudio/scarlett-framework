@@ -4,6 +4,8 @@
 /**
  * @constructor
  */
+SetterDictionary.addRule("vector2", ["x", "y"]);
+
 function Vector2(x, y) {
 	// public properties:
 	this.x = x || 0;
@@ -19,10 +21,10 @@ Vector2.prototype.set = function(x, y) {
 };
 
 Vector2.prototype.toJSON = function() {
-	return JSON.stringify({
+	return {
 		x: this.x,
 		y: this.y
-	});
+	};
 };
 
 Vector2.prototype.unload = function () {

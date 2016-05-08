@@ -4,6 +4,8 @@
 /**
  * @constructor
  */
+SetterDictionary.addRule("rectangle", ["x", "y", "width", "height"]);
+
 function Rectangle(x, y, width, height) {
     // public properties:
     this.x = x || 0;
@@ -15,13 +17,20 @@ function Rectangle(x, y, width, height) {
 
 }
 
+Vector3.prototype.set = function(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+};
+
 Rectangle.prototype.toJSON = function() {
-    return JSON.stringify({
+    return {
         x: this.x,
         y: this.y,
         width: this.width,
         height: this.height
-    });
+    };
 };
 
 Rectangle.prototype.unload = function () {
