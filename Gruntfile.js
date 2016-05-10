@@ -51,6 +51,6 @@ module.exports = function(grunt) {
     grunt.registerTask('watcher', ['watch']);
     grunt.registerTask('dist', ['uglify']);
     grunt.registerTask('dev', ['concat', 'watch']);
-    grunt.registerTask('dev-concat', ['concat']);
+    grunt.registerTask('dev-concat', ['concat']); 
 
 };

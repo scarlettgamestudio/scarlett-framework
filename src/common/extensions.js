@@ -24,3 +24,12 @@ if (!String.prototype.endsWith) {
 		return lastIndex !== -1 && lastIndex === position;
 	};
 }
+
+/**
+ * Running the following code before any other code will create Array.isArray() if it's not natively available.
+ */
+if (!Array.isArray) {
+	Array.isArray = function(arg) {
+		return Object.prototype.toString.call(arg) === '[object Array]';
+	};
+}

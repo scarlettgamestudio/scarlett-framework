@@ -24,7 +24,11 @@ Vector2.prototype.toJSON = function() {
 	return {
 		x: this.x,
 		y: this.y
-	};
+	}; 
+};
+
+Vector2.prototype.equals = function(obj) {
+	return (obj.x === this.x && obj.y === this.y);
 };
 
 Vector2.prototype.unload = function () {
