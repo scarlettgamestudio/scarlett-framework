@@ -27,6 +27,10 @@ Vector3.prototype.toJSON = function() {
 	};
 };
 
+Vector3.prototype.equals = function(obj) {
+	return (obj.x === this.x && obj.y === this.y && obj.z === this.z);
+};
+
 Vector3.prototype.unload = function () {
 
 };

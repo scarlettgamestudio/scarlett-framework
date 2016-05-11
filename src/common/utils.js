@@ -126,3 +126,16 @@ function getType(object) {
 	if(object===null) return "[object Null]"; // special case
 	return object.constructor.name || Object.prototype.toString.call(object);
 }
+
+/**
+ * The following function compares both given objects applying the 'equal' function if it exist in the first
+ * @param a
+ * @param b
+ */
+function isEqual(a, b) {
+	if(isFunction(a.equals)) {
+		return a.equals(b);
+	}
+
+	return a === b;
+}

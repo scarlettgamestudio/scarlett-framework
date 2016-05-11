@@ -33,6 +33,10 @@ Rectangle.prototype.toJSON = function() {
     };
 };
 
+Rectangle.prototype.equals = function(obj) {
+    return (obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height);
+};
+
 Rectangle.prototype.unload = function () {
 
 };

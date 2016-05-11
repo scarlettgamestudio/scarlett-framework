@@ -30,6 +30,10 @@ Vector4.prototype.toJSON = function() {
 	};
 };
 
+Vector4.prototype.equals = function(obj) {
+	return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
+};
+
 Vector4.prototype.unload = function () {
 	
 };
