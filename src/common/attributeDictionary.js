@@ -14,7 +14,7 @@ AttributeDictionary._rules = {};
  */
 AttributeDictionary.addRule = function (context, propertyName, rule) {
 	if(isObjectAssigned(context)) {
-		var contextName = getType(context);
+		var contextName = context.toLowerCase();
 
 		if(!isObjectAssigned(AttributeDictionary._rules[contextName])) {
 			AttributeDictionary._rules[contextName] = {}
@@ -35,6 +35,7 @@ AttributeDictionary.addRule = function (context, propertyName, rule) {
  * @returns {*}
  */
 AttributeDictionary.getRule = function (typeName, propertyName) {
+	typeName = typeName.toLowerCase();
 	if (AttributeDictionary._rules[typeName]) {
 		return AttributeDictionary._rules[typeName][propertyName];
 	}

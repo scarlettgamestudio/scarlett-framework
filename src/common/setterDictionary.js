@@ -2,7 +2,7 @@
  * Attribute dictionary for property definitions
  * @constructor
  */
-var SetterDictionary = function () {};
+var SetterDictionary  = function () {};
 SetterDictionary._rules = {};
 
 /**
@@ -27,6 +27,7 @@ SetterDictionary.addRule = function (context, rule) {
  * @returns {*}
  */
 SetterDictionary.getRule = function (typeName) {
+	typeName = typeName.toLowerCase();
 	if (SetterDictionary._rules[typeName]) {
 		return SetterDictionary._rules[typeName];
 	}
