@@ -1,11 +1,12 @@
 /**
  * Transform class
  */
+AttributeDictionary.addRule("transform", "gameObject", {visible: false});
+
 function Transform(params) {
 	params = params || {};
 
 	// public properties:
-	AttributeDictionary.addRule(this, "gameObject", {visible: false});
 	this.gameObject = params.gameObject || null;
 
 	// private properties:

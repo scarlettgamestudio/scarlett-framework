@@ -1,16 +1,15 @@
 /**
  * GameObject class
  */
+AttributeDictionary.addRule("gameObject", "parent", {visible:false});
+AttributeDictionary.addRule("gameObject", "transform", {visible:false});
+
 function GameObject(params) {
 	params = params || {};
 
 	// public properties:
 	this.name = params.name || "GameObject";
-
-	AttributeDictionary.addRule(this, "parent", {visible:false});
 	this.parent = params.parent || null;
-
-	AttributeDictionary.addRule(this, "transform", {ownContainer: true});
 	this.transform = new Transform({
 		gameObject: this
 	});
@@ -19,6 +18,10 @@ function GameObject(params) {
 	this._uid = generateUID();
 	this._components = [];
 }
+
+GameObject.prototype.getUID = function() {
+	return this._uid;
+};
 
 GameObject.prototype.propagatePropertyUpdate = function (property, value) {
 	for (var i = 0; i < this._components.length; ++i) {
