@@ -29,7 +29,7 @@ gameScene.initialize = function () {
     primitiveRender = new PrimitiveRender(game);
     primitiveBatch = new PrimitiveBatch(game);
 
-    var bWidth = 10.0, bHeight = 8.0;
+    var bWidth = 8.0, bHeight = 6.0;
     var bCountX = parseInt(displayWidth / bWidth);
     var bCountY = parseInt(displayHeight / bHeight);
     console.log(bCountX * bCountY);

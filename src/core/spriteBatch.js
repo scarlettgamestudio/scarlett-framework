@@ -18,22 +18,22 @@ function SpriteBatch(game) {
 	this._textureShader = new TextureShader();
 	this._lastTexUID = -1;
 	this._sprites = [];
-	this._rectangleData = [
+	this._rectangleData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
 		0.0,  1.0,
 		0.0,  1.0,
 		1.0,  0.0,
 		1.0,  1.0
-	];
-	this._textureData = [
+	]);
+	this._textureData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
 		0.0,  1.0,
 		0.0,  1.0,
 		1.0,  0.0,
 		1.0,  1.0
-	];
+	]);
 }
 
 SpriteBatch.prototype.clear = function() {
@@ -56,14 +56,14 @@ SpriteBatch.prototype.flush = function() {
 
 	// position buffer attribute
 	gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
 	gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
 	gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
 	// texture attribute
 	gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._textureData), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
 	gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
 	gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 

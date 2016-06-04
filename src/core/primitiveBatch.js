@@ -20,14 +20,14 @@ function PrimitiveBatch(game) {
 	this._rectangleColorData = [];
 	this._rectangleCount = 0;
 	this._transformMatrix = mat4.create();
-	this._rectangleData = [
+	this._rectangleData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
 		0.0,  1.0,
 		0.0,  1.0,
 		1.0,  0.0,
 		1.0,  1.0
-	];
+	]);
 }
 
 PrimitiveBatch.prototype.unload = function () {
@@ -60,7 +60,7 @@ PrimitiveBatch.prototype.flush = function() {
 	if(this._rectangleCount > 0) {
 		// position buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
+		gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
 		gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
 		gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
@@ -74,7 +74,8 @@ PrimitiveBatch.prototype.flush = function() {
 			mat4.scale(this._transformMatrix, this._transformMatrix, [this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0]);
 
 			gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
-			gl.uniform4f(this._primitiveShader.uniforms.uColor._location, this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
+			gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
+						 this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
 
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		}

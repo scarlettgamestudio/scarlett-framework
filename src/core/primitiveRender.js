@@ -15,14 +15,14 @@ function PrimitiveRender(game) {
     this._primitiveShader = new PrimitiveShader();
     this._vertexBuffer = this._gl.createBuffer();
     this._transformMatrix = mat4.create();
-    this._rectangleData = [
+    this._rectangleData = new Float32Array([
         0.0,  0.0,
         1.0,  0.0,
         0.0,  1.0,
         0.0,  1.0,
         1.0,  0.0,
         1.0,  1.0
-    ];
+    ]);
 }
 
 PrimitiveRender.prototype.unload = function () {
@@ -32,6 +32,7 @@ PrimitiveRender.prototype.unload = function () {
 };
 
 PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
+    // TODO: refactor this method
     var gl = this._gl;
 
     var vertices = [
@@ -67,7 +68,7 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color) {
 
     // position buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
     gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
