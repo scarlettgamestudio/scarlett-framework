@@ -20,6 +20,7 @@ var gl = null;
 var spriteBatch = null;
 
 var texA = new Texture2D("./spriteBox.png", function() {
+
     game.changeScene(gameScene);
 });
 var sprites = [];

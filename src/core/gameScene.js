@@ -12,7 +12,7 @@ function GameScene(params) {
 	this._game = params.game || null;
 	this._camera = new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
 	this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
-	this._entities = [];
+	this._gameObjects = [];
 }
 
 GameScene.prototype.getPhysicsWorld = function () {
@@ -39,8 +39,8 @@ GameScene.prototype.getBackgroundColor = function () {
 	return this._backgroundColor;
 };
 
-GameScene.prototype.addEntity = function (entity) {
-	this._entities.push(entity);
+GameScene.prototype.addGameObject = function (entity) {
+	this._gameObjects.push(entity);
 };
 
 GameScene.prototype.removeEntity = function (entity) {

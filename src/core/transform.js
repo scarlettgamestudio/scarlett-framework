@@ -1,7 +1,7 @@
 /**
  * Transform class
  */
-AttributeDictionary.addRule("transform", "gameObject", {visible: false});
+AttributeDictionary.addRule("transform", "gameObject", {ownContainer: true});
 
 function Transform(params) {
 	params = params || {};

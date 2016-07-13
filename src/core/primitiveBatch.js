@@ -19,6 +19,7 @@ function PrimitiveBatch(game) {
 	this._rectangleVertexData = [];
 	this._rectangleColorData = [];
 	this._rectangleCount = 0;
+	
 	this._transformMatrix = mat4.create();
 	this._rectangleData = new Float32Array([
 		0.0,  0.0,
