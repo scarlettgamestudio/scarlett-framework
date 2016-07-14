@@ -1,7 +1,6 @@
 /**
  * GameObject class
  */
-AttributeDictionary.addRule("gameObject", "parent", {visible:false});
 AttributeDictionary.addRule("gameObject", "transform", {ownContainer:true});
 
 function GameObject(params) {
@@ -9,15 +8,20 @@ function GameObject(params) {
 
 	// public properties:
 	this.name = params.name || "GameObject";
-	this.parent = params.parent || null;
 	this.transform = new Transform({
 		gameObject: this
 	});
 
 	// private properties:
+	this._parent = params.parent || null;
 	this._uid = generateUID();
+	this._children = [];
 	this._components = [];
 }
+
+GameObject.prototype.getType = function() {
+	return "basic";
+};
 
 GameObject.prototype.getUID = function() {
 	return this._uid;
@@ -31,12 +35,33 @@ GameObject.prototype.propagatePropertyUpdate = function (property, value) {
 	}
 };
 
+GameObject.prototype.getParent = function() {
+	return this._parent;
+};
+
+GameObject.prototype.setParent = function(gameObject) {
+	// TODO: check if already had parent, if so, remove first from there..
+	this._parent = gameObject;
+};
+
+GameObject.prototype.getChildren = function() {
+	return this._children;
+};
+
+GameObject.prototype.addChild = function(gameObject) {
+	this._children.push(gameObject);
+};
+
 GameObject.prototype.addComponent = function (component) {
 	if (isFunction(component.setGameObject)) {
 		component.setGameObject(this);
 	}
 
 	this._components.push(component);
+};
+
+GameObject.prototype.render = function(delta, spriteBatch) {
+	// nothing to do here..
 };
 
 GameObject.prototype.getComponents = function () {

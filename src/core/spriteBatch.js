@@ -17,7 +17,7 @@ function SpriteBatch(game) {
 	this._transformMatrix = mat4.create();
 	this._textureShader = new TextureShader();
 	this._lastTexUID = -1;
-	this._sprites = [];
+	this._drawData = [];
 	this._rectangleData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
@@ -37,15 +37,33 @@ function SpriteBatch(game) {
 }
 
 SpriteBatch.prototype.clear = function() {
-	this._sprites = [];
+	this._drawData = [];
 };
 
 SpriteBatch.prototype.storeSprite = function (sprite) {
-	this._sprites.push(sprite);
+	this._drawData.push({
+		texture: sprite.getTexture(),
+		x: sprite.transform.getPosition().x,
+		y: sprite.transform.getPosition().y,
+		scaleX: sprite.transform.getScale().x,
+		scaleY: sprite.transform.getScale().y,
+		rotation: sprite.transform.getRotation()
+	});
+};
+
+SpriteBatch.prototype.store = function(texture, x, y, scaleX, scaleY, rotation) {
+	this._drawData.push({
+		texture: texture,
+		x: x,
+		y: y,
+		scaleX: scaleX,
+		scaleY: scaleY,
+		rotation: rotation
+	});
 };
 
 SpriteBatch.prototype.flush = function() {
-	if(this._sprites.length == 0) {
+	if(this._drawData.length == 0) {
 		return;
 	}
 
@@ -70,24 +88,24 @@ SpriteBatch.prototype.flush = function() {
 	// set uniforms
 	gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-	for(var i = 0; i < this._sprites.length; i++) {
-		var texture = this._sprites[i].getTexture();
+	for(var i = 0; i < this._drawData.length; i++) {
+		var texture = this._drawData[i].texture;
 		if(texture && texture.isReady()) {
 
+			// for performance sake, consider if the texture is the same so we don't need to bind again
+			// TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
 			if(this._lastTexUID != texture.getUID()) {
 				texture.bind();
 				this._lastTexUID = texture.getUID();
 			}
 
-			var spritePosition = this._sprites[i].transform.getPosition();
-			var spriteScale = this._sprites[i].transform.getScale();
-			var width = texture.getImageData().width * spriteScale.x;
-			var height = texture.getImageData().height * spriteScale.y;
+			var width = texture.getImageData().width * this._drawData[i].scaleX;
+			var height = texture.getImageData().height * this._drawData[i].scaleY;
 
 			mat4.identity(this._transformMatrix);
-			mat4.translate(this._transformMatrix, this._transformMatrix, [spritePosition.x, spritePosition.y, 0]);
+			mat4.translate(this._transformMatrix, this._transformMatrix, [this._drawData[i].x, this._drawData[i].y, 0]);
 			mat4.translate(this._transformMatrix, this._transformMatrix, [width/2, height/2, 0]);
-			mat4.rotate(this._transformMatrix, this._transformMatrix, this._sprites[i].transform.getRotation(), [0.0, 0.0, 1.0]);
+			mat4.rotate(this._transformMatrix, this._transformMatrix, this._drawData[i].rotation, [0.0, 0.0, 1.0]);
 			mat4.translate(this._transformMatrix, this._transformMatrix, [-width/2, -height/2, 0]);
 			mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
 			

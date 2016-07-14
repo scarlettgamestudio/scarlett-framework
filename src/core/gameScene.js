@@ -4,6 +4,10 @@
 function GameScene(params) {
 	params = params || {};
 
+	if(!params.game) {
+		throw "cannot create a game scene without the game parameter";
+	}
+
 	// public properties:
 
 	this.name = params.name || "GameScene";
@@ -13,6 +17,7 @@ function GameScene(params) {
 	this._camera = new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
 	this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
 	this._gameObjects = [];
+	this._spriteBatch = new SpriteBatch(params.game);
 }
 
 GameScene.prototype.getPhysicsWorld = function () {
@@ -43,6 +48,10 @@ GameScene.prototype.addGameObject = function (entity) {
 	this._gameObjects.push(entity);
 };
 
+GameScene.prototype.getGameObjects = function() {
+	return this._gameObjects;
+};
+
 GameScene.prototype.removeEntity = function (entity) {
 	// TODO: implement
 };
@@ -60,7 +69,13 @@ GameScene.prototype.sceneLateUpdate = function (delta) {
 };
 
 GameScene.prototype.sceneRender = function (delta) {
-	// TODO: implement
+	// let's render all game objects on scene:
+	for(var i = 0; i < this._gameObjects.length; i++) {
+		this._gameObjects[i].render(delta, this._spriteBatch);
+	}
+
+	// all draw data was stored, now let's actually render stuff into the screen!
+	this._spriteBatch.flush();
 };
 
 GameScene.prototype.toJSON = function () {

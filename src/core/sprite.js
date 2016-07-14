@@ -16,8 +16,16 @@ function Sprite(params) {
 
 inheritsFrom(Sprite, GameObject);
 
+Sprite.prototype.getType = function() {
+	return "sprite";
+};
+
 Sprite.prototype.getTexture = function() {
 	return this._texture;
+};
+
+Sprite.prototype.render = function(delta, spriteBatch) {
+	spriteBatch.storeSprite(this);
 };
 
 // functions:
