@@ -84,7 +84,7 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 	if (isGameScene(this._gameScene)) {
 		// handle the active game scene interactions here:
 
-		try {
+		//try {
 			// the user defined the game scene update function?
 			if (isFunction(this._gameScene.update)) {
 				// call user defined update function:
@@ -125,9 +125,9 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 				this._gameScene.lateRender(delta);
 			}
 
-		} catch (ex) {
-			this._logger.error(ex);
-		}
+		//} catch (ex) {
+		//	this._logger.error(ex);
+		//}
 
 		this._executionPhase = SC.EXECUTION_PHASES.WAITING;
 	}

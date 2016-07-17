@@ -1,44 +1,68 @@
 /**
  * Sprite class
  */
+AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
+AttributeDictionary.addRule("sprite", "transform", {ownContainer:true});
+
 function Sprite(params) {
-	params = params || {};
-	params.name = params.name || "Sprite";
+    params = params || {};
+    params.name = params.name || "Sprite";
 
-	GameObject.call(this, params);
+    GameObject.call(this, params);
 
-	// public properties:
+    // public properties:
 
-	// private properties:
-	this._texture = params.texture;
+
+    // private properties:
+    this._texture = params.texture;
+    this._textureSrc = "";
 
 }
 
 inheritsFrom(Sprite, GameObject);
 
-Sprite.prototype.getType = function() {
-	return "sprite";
+Sprite.prototype.setTextureSrc = function (path) {
+    this._textureSrc = path;
+
+    Texture2D.fromPath(path).then(
+        (function(texture) {
+             this.setTexture(texture);
+        }).bind(this), function(error) {
+            // TODO: log this..
+        }
+    );
 };
 
-Sprite.prototype.getTexture = function() {
-	return this._texture;
+Sprite.prototype.getTextureSrc = function () {
+    return this._textureSrc;
 };
 
-Sprite.prototype.render = function(delta, spriteBatch) {
-	spriteBatch.storeSprite(this);
+Sprite.prototype.getType = function () {
+    return "sprite";
+};
+
+Sprite.prototype.getTexture = function () {
+    return this._texture;
+};
+
+Sprite.prototype.setTexture = function (texture) {
+    this._texture = texture;
+};
+
+Sprite.prototype.render = function (delta, spriteBatch) {
+    spriteBatch.storeSprite(this);
 };
 
 // functions:
-Sprite.prototype.toJSON = function() {
-	// TODO: implement
-	return "";
+Sprite.prototype.toJSON = function () {
+   // TODO: do this
 };
 
 Sprite.prototype.unload = function () {
 
 };
 
-Sprite.prototype.changeSource = function(src) {
+Sprite.prototype.changeSource = function (src) {
 
 };
 

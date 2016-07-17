@@ -1,7 +1,8 @@
 /**
  * Image Loader static class
  */
-var ImageLoader = function() {};
+var ImageLoader = function () {
+};
 
 /**
  *
@@ -15,31 +16,40 @@ ImageLoader.loaded = {};
  * @param callback
  * @returns {*}
  */
-ImageLoader.loadImage = function(path, callback) {
+ImageLoader.loadImage = function (path, callback) {
     var image;
 
     // is the image on cache?
-    if(ImageLoader.loaded.hasOwnProperty(path)) {
+    if (ImageLoader.loaded.hasOwnProperty(path)) {
         // the image is already cached. let's use it!
-        image = loaded[path];
+        image = ImageLoader.loaded[path];
+
+        if (isFunction(callback)) {
+            callback(new CallbackResponse({
+                success: true,
+                data: image
+            }));
+        }
     } else {
         // the image is not in cache, we must load it:
         image = new Image();
         image.src = path;
-        image.onload = function() {
+        image.onload = function () {
             ImageLoader.loaded[path] = image;
 
-            if(isFunction(callback)) {
+            if (isFunction(callback)) {
                 callback(new CallbackResponse({
                     success: true,
                     data: image
                 }));
             }
         };
-        image.onerror = function() {
-            callback(new CallbackResponse({
-                success: false
-            }));
+        image.onerror = function () {
+            if (isFunction(callback)) {
+                callback(new CallbackResponse({
+                    success: false
+                }));
+            }
         };
     }
 

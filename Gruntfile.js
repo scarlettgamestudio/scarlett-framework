@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
 
     var sortDependencies = require("sort-dependencies");
+    var copyToDirectory = "D:\\Workspace\\scarlett-editor\\app\\3rdparty\\";
 
     // Project configuration.
     grunt.initConfig({
@@ -23,7 +24,14 @@ module.exports = function(grunt) {
                 src: [
                     'node_modules/matter-js/build/matter.js',
                     sortDependencies.sortFiles("src/**/*.js")],
-                dest: 'build/<%= pkg.name %>.js'
+                dest:
+                    'build/<%= pkg.name %>.js'
+            }
+        },
+        copy: {
+            main: {
+                src: 'build/<%= pkg.name %>.js',
+                dest:  copyToDirectory + '<%= pkg.name %>.js'
             }
         },
         jshint: {
@@ -32,7 +40,7 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ['src/**/*.js'],
-                tasks: ['dev-concat'],
+                tasks: ['dev-concat', 'copy-to'],
                 options: {
                     interrupt: true
                 }
@@ -45,12 +53,14 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     // Default task(s).
     grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
     grunt.registerTask('watcher', ['watch']);
     grunt.registerTask('dist', ['uglify']);
     grunt.registerTask('dev', ['concat', 'watch']);
-    grunt.registerTask('dev-concat', ['concat']); 
+    grunt.registerTask('dev-concat', ['concat']);
+    grunt.registerTask('copy-to', ['copy']);
 
 };
