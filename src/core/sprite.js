@@ -50,6 +50,10 @@ Sprite.prototype.setTexture = function (texture) {
 };
 
 Sprite.prototype.render = function (delta, spriteBatch) {
+    // parent render function:
+    GameObject.prototype.render.call(this, delta, spriteBatch);
+
+    // just store the sprite to render on flush:
     spriteBatch.storeSprite(this);
 };
 

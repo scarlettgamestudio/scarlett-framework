@@ -2,9 +2,6 @@
  * PrimitiveShader class
  * @depends shader.js
  */
-/**
- * @constructor
- */
 function PrimitiveShader() {
     Shader.call(this,
         // inline-vertex shader:

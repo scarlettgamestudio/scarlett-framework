@@ -40,8 +40,20 @@ GameObject.prototype.getParent = function () {
 };
 
 GameObject.prototype.setParent = function (gameObject) {
-    // TODO: check if already had parent, if so, remove first from there..
+    if (gameObject.getParent() != null) {
+        gameObject.getParent().removeChild(gameObject);
+    }
+
     this._parent = gameObject;
+};
+
+GameObject.prototype.removeChild = function (gameObject) {
+    for (var i = this._children.length - 1; i >= 0; i--) {
+        if (this._children[i].getUID() == gameObject.getUID()) {
+            this._children.splice(i, 1);
+            break;
+        }
+    }
 };
 
 GameObject.prototype.getChildren = function () {
@@ -49,6 +61,10 @@ GameObject.prototype.getChildren = function () {
 };
 
 GameObject.prototype.addChild = function (gameObject) {
+    // update the object parent
+    gameObject.setParent(gameObject);
+
+    // add this to our children array
     this._children.push(gameObject);
 };
 
@@ -60,8 +76,22 @@ GameObject.prototype.addComponent = function (component) {
     this._components.push(component);
 };
 
+GameObject.prototype.update = function (delta) {
+    // update children:
+    this._children.forEach(function (elem) {
+        if (elem.update) {
+            elem.update(delta);
+        }
+    });
+};
+
 GameObject.prototype.render = function (delta, spriteBatch) {
-    // nothing to do here..
+    // render children:
+    this._children.forEach(function (elem) {
+        if (elem.render) {
+            elem.render(delta, spriteBatch);
+        }
+    });
 };
 
 GameObject.prototype.getComponents = function () {

@@ -17,7 +17,7 @@ function Rectangle(x, y, width, height) {
 
 }
 
-Vector3.prototype.set = function(x, y, width, height) {
+Rectangle.prototype.set = function(x, y, width, height) {
     this.x = x;
     this.y = y;
     this.width = width;

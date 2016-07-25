@@ -14,6 +14,8 @@ function Vector4(x, y, z, w) {
 
 }
 
+// instance functions
+
 Vector4.prototype.set = function(x, y, z, w) {
 	this.x = x;
 	this.y = y;
@@ -37,3 +39,5 @@ Vector4.prototype.equals = function(obj) {
 Vector4.prototype.unload = function () {
 	
 };
+
+// static functions

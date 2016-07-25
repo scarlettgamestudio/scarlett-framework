@@ -15,14 +15,8 @@ function Camera2D(x, y, viewWidth, viewHeight) {
 }
 
 Camera2D.prototype.calculateMatrix = function() {
-    // FIXME optimize this?
-    var ortho = mat4.create();
-    mat4.ortho(ortho, -this.viewWidth / 2.0, this.viewWidth / 2.0, this.viewHeight / 2.0, -this.viewHeight / 2.0, 0.0, 1.0);
-
-    var translate = mat4.create();
-    mat4.translate(translate, translate, [this.x, this.y, 0.0]);
-
-    mat4.multiply(this._matrix, ortho, translate);
+    mat4.ortho(this._matrix, -this.viewWidth / 2.0, this.viewWidth / 2.0, this.viewHeight / 2.0, -this.viewHeight / 2.0, 0.0, 1.0);
+    mat4.translate(this._matrix, this._matrix, [this.x, this.y, 0]);
 
     this._lastX = this.x;
     this._lastY = this.y;

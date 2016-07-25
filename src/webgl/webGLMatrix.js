@@ -150,13 +150,13 @@
             var glMatrix = {};
 
             // Configuration Constants
-            glMatrix.EPSILON = 0.000001; 
+            glMatrix.EPSILON = 0.000001;
             glMatrix.ARRAY_TYPE = (typeof Float32Array !== 'undefined') ? Float32Array : Array;
             glMatrix.RANDOM = Math.random;
             glMatrix.ENABLE_SIMD = false;
 
             // Capability detection
-            glMatrix.SIMD_AVAILABLE = (glMatrix.ARRAY_TYPE === Float32Array) && ('SIMD' in this);
+            glMatrix.SIMD_AVAILABLE = (glMatrix.ARRAY_TYPE === this.Float32Array) && ('SIMD' in this);
             glMatrix.USE_SIMD = glMatrix.ENABLE_SIMD && glMatrix.SIMD_AVAILABLE;
 
             /**
@@ -173,7 +173,7 @@
             /**
              * Convert Degree To Radian
              *
-             * @param {Number} Angle in Degrees
+             * @param {Number} a Angle in Degrees
              */
             glMatrix.toRadian = function(a){
                 return a * degree;
@@ -355,7 +355,7 @@
             mat2.invert = function(out, a) {
                 var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3],
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = a0 * a3 - a2 * a1;
 
                 if (!det) {
@@ -503,7 +503,7 @@
             /**
              * Returns a string representation of a mat2
              *
-             * @param {mat2} mat matrix to represent as a string
+             * @param {mat2} a matrix to represent as a string
              * @returns {String} string representation of the matrix
              */
             mat2.str = function (a) {
@@ -1346,7 +1346,7 @@
                     b11 = -a22 * a10 + a12 * a20,
                     b21 = a21 * a10 - a11 * a20,
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = a00 * b01 + a01 * b11 + a02 * b21;
 
                 if (!det) {
@@ -1690,7 +1690,7 @@
                     b10 = a21 * a33 - a23 * a31,
                     b11 = a22 * a33 - a23 * a32,
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
                 if (!det) {
@@ -1716,7 +1716,7 @@
             /**
              * Returns a string representation of a mat3
              *
-             * @param {mat3} mat matrix to represent as a string
+             * @param {mat3} a matrix to represent as a string
              * @returns {String} string representation of the matrix
              */
             mat3.str = function (a) {
@@ -1826,7 +1826,7 @@
                 return out;
             };
 
-            /*
+            /**
              * Returns whether or not the matrices have exactly the same elements in the same position (when compared with ===)
              *
              * @param {mat3} a The first matrix.
@@ -1896,7 +1896,7 @@
              */
             var mat4 = {
                 scalar: {},
-                SIMD: {},
+                SIMD: {}
             };
 
             /**
@@ -2207,7 +2207,7 @@
                     b10 = a21 * a33 - a23 * a31,
                     b11 = a22 * a33 - a23 * a32,
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
                 if (!det) {
@@ -2389,10 +2389,10 @@
                 var tmp1;
                 var minor0, minor1, minor2, minor3;
 
-                var a0 = SIMD.Float32x4.load(a, 0);
-                var a1 = SIMD.Float32x4.load(a, 4);
-                var a2 = SIMD.Float32x4.load(a, 8);
-                var a3 = SIMD.Float32x4.load(a, 12);
+                a0 = SIMD.Float32x4.load(a, 0);
+                a1 = SIMD.Float32x4.load(a, 4);
+                a2 = SIMD.Float32x4.load(a, 8);
+                a3 = SIMD.Float32x4.load(a, 12);
 
                 // Transpose the source matrix.  Sort of.  Not a true transpose operation
                 tmp1 = SIMD.Float32x4.shuffle(a0, a1, 0, 1, 4, 5);
@@ -3812,7 +3812,7 @@
             /**
              * Returns a string representation of a mat4
              *
-             * @param {mat4} mat matrix to represent as a string
+             * @param {mat4} a matrix to represent as a string
              * @returns {String} string representation of the matrix
              */
             mat4.str = function (a) {
@@ -4584,7 +4584,7 @@
             /**
              * Returns a string representation of a quatenion
              *
-             * @param {quat} vec vector to represent as a string
+             * @param {quat} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             quat.str = function (a) {
@@ -5195,7 +5195,7 @@
                 var x = a[0], y = a[1], z = a[2],
                     qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 
-                // calculate quat * vec
+                    // calculate quat * vec
                     ix = qw * x + qy * z - qz * y,
                     iy = qw * y + qz * x - qx * z,
                     iz = qw * z + qx * y - qy * x,
@@ -5359,7 +5359,7 @@
             /**
              * Returns a string representation of a vector
              *
-             * @param {vec3} vec vector to represent as a string
+             * @param {vec3} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             vec3.str = function (a) {
@@ -5915,7 +5915,7 @@
                 var x = a[0], y = a[1], z = a[2],
                     qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 
-                // calculate quat * vec
+                    // calculate quat * vec
                     ix = qw * x + qy * z - qz * y,
                     iy = qw * y + qz * x - qx * z,
                     iz = qw * z + qx * y - qy * x,
@@ -5973,7 +5973,7 @@
             /**
              * Returns a string representation of a vector
              *
-             * @param {vec4} vec vector to represent as a string
+             * @param {vec4} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             vec4.str = function (a) {
@@ -6568,7 +6568,7 @@
             /**
              * Returns a string representation of a vector
              *
-             * @param {vec2} vec vector to represent as a string
+             * @param {vec2} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             vec2.str = function (a) {
