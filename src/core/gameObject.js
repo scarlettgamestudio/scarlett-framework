@@ -2,6 +2,7 @@
  * GameObject class
  */
 AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
+AttributeDictionary.addRule("gameobject", "_parent", {visible: false});
 
 function GameObject(params) {
     params = params || {};
