@@ -13,7 +13,7 @@ function GridExt(params) {
 	// private properties:
 	this._game = params.game || null;
 	this._renderGrid = true;
-	this._gridSize = 32;
+	this._gridSize = 24;
 	this._gridColor = Color.Red;
 	this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
 }
@@ -53,8 +53,8 @@ GridExt.prototype.render = function (delta) {
         // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
         // the following calculations on event:
 		var screenResolution = this._game.getVirtualResolution();
-		var offsetX = this._game.getActiveCamera().x * -1 + (this._game.getActiveCamera().x % this._gridSize);
-		var offsetY = this._game.getActiveCamera().y * -1 + (this._game.getActiveCamera().y % this._gridSize);
+		var offsetX = this._game.getActiveCamera().x - (this._game.getActiveCamera().x % this._gridSize);
+		var offsetY = this._game.getActiveCamera().y - (this._game.getActiveCamera().y % this._gridSize);
         var zoom = this._game.getActiveCamera().zoom;
         var zoomDifX = (zoom * screenResolution.width) * 2.0;
         var zoomDifY = (zoom * screenResolution.height) * 2.0;
@@ -80,5 +80,16 @@ GridExt.prototype.render = function (delta) {
 				{x: left - this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
 				1, this._gridColor);
 		}
+
+		// main "lines" (origin)
+        // vertical
+        this._primitiveRender.drawRectangle(
+            new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
+            this._gridColor);
+
+        // vertical
+        this._primitiveRender.drawRectangle(
+            new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
+            this._gridColor);
 	}
 };

@@ -20,14 +20,11 @@ Camera2D.prototype.calculateMatrix = function () {
     // generate ortho perspective:
     mat4.ortho(
         this._matrix,
-        -this.viewWidth * this.zoom / 2.0,
-        this.viewWidth * this.zoom / 2.0,
-        this.viewHeight * this.zoom / 2.0,
-        -this.viewHeight * this.zoom / 2.0,
+        this.x + -this.viewWidth * this.zoom / 2.0,
+        this.x + this.viewWidth * this.zoom / 2.0,
+        this.y + this.viewHeight * this.zoom / 2.0,
+        this.y + -this.viewHeight * this.zoom / 2.0,
         0.0, 1.0);
-
-    // move to camera position:
-    mat4.translate(this._matrix, this._matrix, [this.x, this.y, 0]);
 
     this._lastX = this.x;
     this._lastY = this.y;

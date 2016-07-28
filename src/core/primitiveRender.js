@@ -87,6 +87,7 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color) {
 
 PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
     var gl = this._gl;
+    //gl.lineWidth(thickness); // not all implementations support this
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 

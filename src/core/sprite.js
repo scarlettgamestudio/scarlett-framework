@@ -3,6 +3,7 @@
  */
 AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "transform", {ownContainer:true});
+AttributeDictionary.addRule("sprite", "_parent", {visible: false});
 
 function Sprite(params) {
     params = params || {};
