@@ -20,10 +20,10 @@ Camera2D.prototype.calculateMatrix = function () {
     // generate ortho perspective:
     mat4.ortho(
         this._matrix,
-        this.x + -this.viewWidth * this.zoom / 2.0,
-        this.x + this.viewWidth * this.zoom / 2.0,
-        this.y + this.viewHeight * this.zoom / 2.0,
-        this.y + -this.viewHeight * this.zoom / 2.0,
+        (this.x + -this.viewWidth) * this.zoom / 2.0,
+        (this.x + this.viewWidth) * this.zoom / 2.0,
+        (this.y + this.viewHeight) * this.zoom / 2.0,
+        (this.y + -this.viewHeight) * this.zoom / 2.0,
         0.0, 1.0);
 
     this._lastX = this.x;
