@@ -15,8 +15,18 @@ function GridExt(params) {
 	this._renderGrid = true;
 	this._gridSize = 24;
 	this._gridColor = Color.Red;
+    this._originLines = true;
 	this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
 }
+
+/**
+ *
+ * @param enable
+ */
+GridExt.prototype.setOriginLines = function (enable) {
+    this._originLines = enable;
+};
+
 
 /**
  *
@@ -82,14 +92,16 @@ GridExt.prototype.render = function (delta) {
 		}
 
 		// main "lines" (origin)
-        // vertical
-        this._primitiveRender.drawRectangle(
-            new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
-            this._gridColor);
+        if (this._originLines) {
+            // vertical
+            this._primitiveRender.drawRectangle(
+                new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
+                this._gridColor);
 
-        // vertical
-        this._primitiveRender.drawRectangle(
-            new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
-            this._gridColor);
+            // horizontal
+            this._primitiveRender.drawRectangle(
+                new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
+                this._gridColor);
+        }
 	}
 };

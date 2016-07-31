@@ -22,6 +22,7 @@ function Game(params) {
 	this._physicsEngine = Matter.Engine.create();
 	this._physicsEngine.enableSleeping = true;
 	this._renderExtensions = {};
+	this._paused = false;
 
 	Matter.Engine.run(this._physicsEngine);
 
@@ -81,9 +82,10 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 	var self = this;
 	this._totalElapsedTime = timestamp;
 
-	if (isGameScene(this._gameScene)) {
+	if (!this._paused && isGameScene(this._gameScene)) {
 		// handle the active game scene interactions here:
 
+		// TODO: before release, add the try here..
 		//try {
 			// the user defined the game scene update function?
 			if (isFunction(this._gameScene.update)) {
@@ -134,6 +136,14 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 
 	// request a new animation frame:
 	requestAnimationFrame(this._onAnimationFrame.bind(this));
+};
+
+Game.prototype.pauseGame = function() {
+	this._pause = true;
+};
+
+Game.prototype.resumeGame = function() {
+	this._pause = false;
 };
 
 Game.prototype.getShaderManager = function () {

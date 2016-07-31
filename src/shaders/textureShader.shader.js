@@ -10,19 +10,15 @@ function TextureShader() {
 
             'attribute vec2 aVertexPosition;',
             'attribute vec2 aTextureCoord;',
-            'attribute vec4 aColor;',
 
             'uniform mat4 uMatrix;',
             'uniform mat4 uTransform;',
 
             'varying vec2 vTextureCoord;',
-            'varying vec4 vColor;',
 
             'void main(void){',
             '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
             '   vTextureCoord = aTextureCoord;',
-            //'   //vColor = vec4(aColor.rgb * aColor.a, aColor.a);',
-            '   vColor = aColor;',
             '}'
         ].join('\n'),
         // inline-fragment shader
@@ -33,22 +29,23 @@ function TextureShader() {
             'varying vec4 vColor;',
 
             'uniform sampler2D uSampler;',
+            'uniform vec4 uColor;',
 
             'void main(void){',
-            '   gl_FragColor = texture2D(uSampler, vTextureCoord) ;',
+            '   gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;',
             '}'
         ].join('\n'),
         // uniforms:
         {
             uSampler: {type: 'tex', value: 0},
             uMatrix: {type: 'mat4', value: mat4.create()},
-            uTransform: {type: 'mat4', value: mat4.create()}
+            uTransform: {type: 'mat4', value: mat4.create()},
+            uColor: [1.0, 1.0, 1.0, 1.0]
         },
         // attributes:
         {
             aVertexPosition:    0,
-            aTextureCoord:      0,
-            aColor:             0
+            aTextureCoord:      0
         });
 }
 

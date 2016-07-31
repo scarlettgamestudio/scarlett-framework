@@ -10,6 +10,7 @@ var ImageLoader = function () {
  */
 ImageLoader.loaded = {};
 
+
 /**
  * loads an image from a specified path into memory
  * @param path
@@ -18,6 +19,11 @@ ImageLoader.loaded = {};
  */
 ImageLoader.loadImage = function (path, callback) {
     var image;
+
+    // is this a relative path?
+    if(GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
+       path = GameManager.activeProjectPath + path;
+    }
 
     // is the image on cache?
     if (ImageLoader.loaded.hasOwnProperty(path)) {

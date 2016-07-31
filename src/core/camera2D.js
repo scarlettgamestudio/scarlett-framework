@@ -17,7 +17,7 @@ function Camera2D(x, y, viewWidth, viewHeight) {
 }
 
 Camera2D.prototype.calculateMatrix = function () {
-    // generate ortho perspective:
+    // generate orthographic perspective:
     mat4.ortho(
         this._matrix,
         this.x + -this.viewWidth * this.zoom / 2.0,

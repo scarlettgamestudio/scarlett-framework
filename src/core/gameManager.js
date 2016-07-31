@@ -9,3 +9,5 @@ var GameManager = function() {};
  */
 GameManager.renderContext = null;
 GameManager.activeScene = null;
+GameManager.activeProject = null;
+GameManager.activeProjectPath = null;
