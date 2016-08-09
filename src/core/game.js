@@ -168,7 +168,17 @@ Game.prototype.init = function () {
 	// request to begin the animation frame handling
 	this._onAnimationFrame(0);
 
+	// set this as the active game:
+	GameManager.activeGame = this;
+
 	this._initalized = true;
+};
+
+/**
+ * Set this as the active game
+ */
+Game.prototype.setActive = function() {
+	GameManager.activeGame = this;
 };
 
 Game.prototype.setVirtualResolution = function (width, height) {
@@ -217,7 +227,7 @@ Game.prototype.setTarget = function (target) {
 
 Game.prototype.changeScene = function (scene) {
 	if (isGameScene(scene)) {
-		if (isGameScene(this._gameScene)) {
+		if(this._gameScene) {
 			// unload the active scene:
 			this._gameScene.unload();
 		}

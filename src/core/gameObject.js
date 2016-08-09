@@ -9,19 +9,22 @@ function GameObject(params) {
 
     // public properties:
     this.name = params.name || "GameObject";
-    this.transform = new Transform({
-        gameObject: this
-    });
+
+    if (params.transform) {
+        params.transform.gameObject = this;
+    }
+
+    this.transform = params.transform || new Transform({gameObject: this});
 
     // private properties:
-    this._parent = params.parent || null;
     this._uid = generateUID();
-    this._children = [];
-    this._components = [];
+    this._parent = params.parent || null;
+    this._children = params.children || [];
+    this._components = params.components || [];
 }
 
 GameObject.prototype.getType = function () {
-    return "gameobject";
+    return "GameObject";
 };
 
 GameObject.prototype.getUID = function () {
@@ -100,9 +103,22 @@ GameObject.prototype.getComponents = function () {
 };
 
 // functions:
-GameObject.prototype.toJSON = function () {
-    // TODO: implement
-    return "";
+GameObject.prototype.objectify = function () {
+    return {
+        name: this.name,
+        transform: this.transform.objectify(),
+        children: Objectify.array(this._children),
+        components: Objectify.array(this._components)
+    };
+};
+
+GameObject.restore = function (data) {
+    return new GameObject({
+        name: data.name,
+        transform: Transform.restore(data.transform),
+        children: Objectify.restoreArray(data.children),
+        components: Objectify.restoreArray(data.components)
+    });
 };
 
 GameObject.prototype.unload = function () {

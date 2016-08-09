@@ -23,7 +23,7 @@ Vector4.prototype.set = function(x, y, z, w) {
 	this.w = w;
 };
 
-Vector4.prototype.toJSON = function() {
+Vector4.prototype.objectify = function() {
 	return {
 		x: this.x,
 		y: this.y,

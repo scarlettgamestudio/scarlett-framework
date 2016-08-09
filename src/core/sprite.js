@@ -11,14 +11,10 @@ function Sprite(params) {
 
     GameObject.call(this, params);
 
-    // public properties:
-
-
     // private properties:
     this._texture = params.texture;
     this._textureSrc = "";
-    this._tint = Color.fromRGB(255, 255, 255);
-
+    this._tint = params.tint || Color.fromRGB(255, 255, 255);
 }
 
 inheritsFrom(Sprite, GameObject);
@@ -34,13 +30,15 @@ Sprite.prototype.getTint = function () {
 Sprite.prototype.setTextureSrc = function (path) {
     this._textureSrc = path;
 
-    Texture2D.fromPath(path).then(
-        (function (texture) {
-            this.setTexture(texture);
-        }).bind(this), function (error) {
-            // TODO: log this..
-        }
-    );
+    if (path && path.length > 0) {
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+            }).bind(this), function (error) {
+                // TODO: log this..
+            }
+        );
+    }
 };
 
 Sprite.prototype.getTextureSrc = function () {
@@ -48,7 +46,7 @@ Sprite.prototype.getTextureSrc = function () {
 };
 
 Sprite.prototype.getType = function () {
-    return "sprite";
+    return "Sprite";
 };
 
 Sprite.prototype.getTexture = function () {
@@ -68,15 +66,25 @@ Sprite.prototype.render = function (delta, spriteBatch) {
 };
 
 // functions:
-Sprite.prototype.toJSON = function () {
-    // TODO: do this
+Sprite.prototype.objectify = function () {
+    var superObjectify = GameObject.prototype.objectify.call(this);
+    return Objectify.extend(superObjectify, {
+        src: this._textureSrc,
+        tint: this._tint.objectify()
+    });
+};
+
+Sprite.restore = function (data) {
+    var gameObject = GameObject.restore(data);
+    var sprite = new Sprite();
+
+    Objectify.extend(sprite, gameObject);
+
+    sprite.setTextureSrc(data.src);
+
+    return sprite;
 };
 
 Sprite.prototype.unload = function () {
 
 };
-
-Sprite.prototype.changeSource = function (src) {
-
-};
-

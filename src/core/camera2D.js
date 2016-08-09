@@ -1,11 +1,11 @@
 /**
  * Camera2D class
  */
-function Camera2D(x, y, viewWidth, viewHeight) {
+function Camera2D(x, y, viewWidth, viewHeight, zoom) {
     // public properties:
     this.x = x || 0;
     this.y = y || 0;
-    this.zoom = 1.0;
+    this.zoom = zoom || 1.0;
     this.viewWidth = viewWidth || 0;
     this.viewHeight = viewHeight || 0;
 
@@ -56,4 +56,16 @@ Camera2D.prototype.getMatrix = function () {
 
 Camera2D.prototype.unload = function () {
 
+};
+
+Camera2D.prototype.objectify = function() {
+    return {
+        x: this.x,
+        y: this.y,
+        zoom: this.zoom
+    }
+};
+
+Camera2D.restore = function(data) {
+    return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
 };

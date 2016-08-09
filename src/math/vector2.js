@@ -22,11 +22,15 @@ Vector2.prototype.set = function (x, y) {
     this.y = y;
 };
 
-Vector2.prototype.toJSON = function () {
+Vector2.prototype.objectify = function () {
     return {
         x: this.x,
         y: this.y
     };
+};
+
+Vector2.restore = function(data) {
+    return new Vector2(data.x, data.y);
 };
 
 Vector2.prototype.equals = function (obj) {

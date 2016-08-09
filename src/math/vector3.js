@@ -19,7 +19,7 @@ Vector3.prototype.set = function(x, y, z) {
 	this.z = z;
 };
 
-Vector3.prototype.toJSON = function() {
+Vector3.prototype.objectify = function() {
 	return {
 		x: this.x,
 		y: this.y,

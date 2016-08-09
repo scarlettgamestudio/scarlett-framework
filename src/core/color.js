@@ -31,7 +31,7 @@ Color.prototype.set = function(r, g, b, a) {
 };
 
 /**
- *
+ * Compares the color object
  * @param obj
  * @returns {boolean}
  */
@@ -40,15 +40,31 @@ Color.prototype.equals = function (obj) {
 };
 
 /**
+ * Compares the color object ignoring the alpha color
+ * @param obj
+ */
+Color.prototype.equalsIgnoreAlpha = function (obj) {
+    return (obj.r === this.r && obj.g === this.g && obj.b === this.b);
+};
+
+/**
  *
  */
-Color.prototype.toJSON = function () {
+Color.prototype.objectify = function () {
     return {
         r: this.r,
         g: this.g,
         b: this.b,
         a: this.a
     };
+};
+
+/**
+ *
+ * @param data
+ */
+Color.restore = function(data) {
+    return new Color(data.r, data.g, data.b, data.a);
 };
 
 /**
