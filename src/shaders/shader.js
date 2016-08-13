@@ -31,11 +31,17 @@ function Shader(vertexScript, fragmentScript, uniforms, attributes) {
  */
 Shader.prototype.setup = function () {
     if (this.compile()) {
-        this._gl.useProgram(this._program);
+        var shaderManager = GameManager.activeGame.getShaderManager();
+        if (shaderManager) {
+            shaderManager.useShader(this);
+        } else {
+            this._gl.useProgram(this._program);
+        }
 
         // cache some script locations:
         this.cacheUniformLocations(Object.keys(this.uniforms));
         this.cacheAttributeLocations(Object.keys(this.attributes));
+
     } else {
         debug.error("Shader setup failed");
     }
@@ -62,7 +68,7 @@ Shader.prototype.compile = function () {
 /**
  * Gets the unique id of this shader instance
  */
-Shader.prototype.getUID = function() {
+Shader.prototype.getUID = function () {
     return this._uid;
 };
 
@@ -163,7 +169,7 @@ Shader.prototype.syncUniform = function (uniform) {
 
             // the texture was already sampled?
             if (!isObjectAssigned(texture)) {
-
+                // TODO: do stuff here? :D
             }
 
             break;
@@ -173,7 +179,7 @@ Shader.prototype.syncUniform = function (uniform) {
     }
 };
 
-Shader.prototype.getProgram = function() {
+Shader.prototype.getProgram = function () {
     return this._program;
 };
 
@@ -183,11 +189,8 @@ Shader.prototype.initSampler2D = function (uniform) {
         return;
     }
 
-    var gl = this._gl;
     var imgData = uniform.value.getImageData();
-
     var texture = imgData.baseTexture;
-
 };
 
 Shader.prototype.unload = function () {
