@@ -21,6 +21,8 @@ function GameObject(params) {
     this._parent = params.parent || null;
     this._children = params.children || [];
     this._components = params.components || [];
+    this._matrixDirty = true;
+    this._transformMatrix = mat4.create();
 }
 
 GameObject.prototype.getType = function () {
@@ -32,11 +34,24 @@ GameObject.prototype.getUID = function () {
 };
 
 GameObject.prototype.propagatePropertyUpdate = function (property, value) {
+    this._matrixDirty = true;
+
     for (var i = 0; i < this._components.length; ++i) {
         if (this._components[i]["onGameObject" + property + "Updated"]) {
             this._components[i]["onGameObject" + property + "Updated"](value);
         }
     }
+};
+
+GameObject.prototype.getMatrix = function () {
+    if (this._matrixDirty || !this._transformMatrix) {
+        mat4.identity(this._transformMatrix);
+        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
+
+        this._matrixDirty = false;
+    }
+
+    return this._transformMatrix;
 };
 
 GameObject.prototype.getParent = function () {
@@ -102,7 +117,25 @@ GameObject.prototype.getComponents = function () {
     return this._components;
 };
 
-// functions:
+GameObject.prototype.getBoundries = function() {
+    var mat = this.getMatrix();
+
+    // calculate the corner positions based on the transformation matrix applied (rotation, scale, position)
+    var tl = Vector2.transformMat4(new Vector2(0, 0), mat);
+    var tr = Vector2.transformMat4(new Vector2(1, 0), mat);
+    var bl = Vector2.transformMat4(new Vector2(0, 1), mat);
+    var br = Vector2.transformMat4(new Vector2(1, 1), mat);
+
+    // find the min and max width to form the rectangle boundary
+    var minX = Math.min(tl.x, tr.x, bl.x, br.x);
+    var maxX = Math.max(tl.x, tr.x, bl.x, br.x);
+    var minY = Math.min(tl.y, tr.y, bl.y, br.y);
+    var maxY = Math.max(tl.y, tr.y, bl.y, br.y);
+
+    // return the generated rectangle:
+    return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+};
+
 GameObject.prototype.objectify = function () {
     return {
         name: this.name,

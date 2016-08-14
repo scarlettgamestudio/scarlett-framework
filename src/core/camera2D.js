@@ -14,6 +14,7 @@ function Camera2D(x, y, viewWidth, viewHeight, zoom) {
     this._lastY = null;
     this._lastZoom = null;
     this._matrix = mat4.create();
+    this._omatrix = mat4.create(); // used for temporary calculations
 }
 
 Camera2D.prototype.calculateMatrix = function () {
@@ -41,6 +42,14 @@ Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
     this.calculateMatrix();
 };
 
+Camera2D.prototype.getViewWidth = function() {
+    return this.viewWidth;
+};
+
+Camera2D.prototype.getViewHeight = function() {
+    return this.viewHeight;
+};
+
 /**
  * Calculates (if necessary) and returns the transformation matrix of the camera
  * @returns {mat4|*}
@@ -53,6 +62,23 @@ Camera2D.prototype.getMatrix = function () {
 
     return this._matrix;
 };
+
+/**
+ * Gets the world coordinates based on the screen X and Y
+ * @param screenX
+ * @param screenY
+ */
+Camera2D.prototype.screenToWorldCoordinates = function(screenX, screenY) {
+    // first we normalize the screen position:
+    var x = (2.0 * screenX) / this.viewWidth - 1.0;
+    var y = 1.0 - (2.0 * screenY) / this.viewHeight;
+
+    // then we calculate and return the world coordinates:
+    mat4.invert(this._omatrix, this.getMatrix());
+
+    return Vector2.transformMat4(new Vector2(x, y), this._omatrix);
+};
+
 
 Camera2D.prototype.unload = function () {
 

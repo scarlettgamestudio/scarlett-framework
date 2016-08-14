@@ -20,11 +20,15 @@ Ray.prototype.set = function(origin, direction) {
     this.direction = direction;
 };
 
-Ray.prototype.toJSON = function() {
+Ray.prototype.objectify = function() {
     return {
         origin: this.origin,
         direction: this.direction
     };
+};
+
+Ray.restore = function(data) {
+    return new Ray(data.origin, data.direction);
 };
 
 Ray.prototype.equals = function(obj) {

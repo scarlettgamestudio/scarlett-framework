@@ -19,14 +19,6 @@ function Transform(params) {
     this._overrideScaleFunction = null;
 }
 
-Transform.prototype.calculateMatrix = function () {
-
-};
-
-Transform.prototype.getMatrix = function () {
-
-};
-
 Transform.prototype.clearPositionGetter = function () {
     this._overridePositionFunction = null;
 };

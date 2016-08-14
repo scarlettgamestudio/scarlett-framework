@@ -27,6 +27,10 @@ Vector3.prototype.objectify = function() {
 	};
 };
 
+Vector3.restore = function(data) {
+	return new Vector3(data.x, data.y, data.z);
+};
+
 Vector3.prototype.equals = function(obj) {
 	return (obj.x === this.x && obj.y === this.y && obj.z === this.z);
 };

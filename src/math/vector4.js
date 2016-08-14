@@ -32,6 +32,10 @@ Vector4.prototype.objectify = function() {
 	};
 };
 
+Vector4.restore = function(data) {
+	return new Vector4(data.x, data.y, data.z, data.w);
+};
+
 Vector4.prototype.equals = function(obj) {
 	return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
 };

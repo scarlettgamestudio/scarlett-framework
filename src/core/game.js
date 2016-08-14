@@ -24,6 +24,7 @@ function Game(params) {
     this._renderExtensions = {};
     this._paused = false;
     this._swapScene = null; // used to contain a temporary scene before swapping
+    this._swappingScenes = false;
 
     Matter.Engine.run(this._physicsEngine);
 
@@ -78,18 +79,18 @@ Game.prototype._onAnimationFrame = function (timestamp) {
         this._totalElapsedTime = timestamp;
     }
 
+    // any scene waiting to be swapped?
+    if (this._swapScene && !this._swappingScenes) {
+        this.changeScene(this._swapScene);
+        this._swapScene = null;
+    }
+
     // calculate the current delta time value:
     var delta = timestamp - this._totalElapsedTime;
     var self = this;
     this._totalElapsedTime = timestamp;
 
-    // any scene waiting to be swapped?
-    if (this._swapScene) {
-        this.changeScene(this._swapScene);
-        this._swapScene = null;
-    }
-
-    if (!this._paused && isGameScene(this._gameScene)) {
+    if (!this._paused && isGameScene(this._gameScene) && !this._swappingScenes) {
         // handle the active game scene interactions here:
 
         // TODO: before release, add the try here..
@@ -242,7 +243,11 @@ Game.prototype.changeScene = function (scene) {
         return;
     }
 
+    // is it safe to swap scenes now?
     if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
+        // flag the swapping state
+        this._swappingScenes = true;
+
         if (this._gameScene) {
             // unload the active scene:
             this._gameScene.unload();
@@ -260,8 +265,10 @@ Game.prototype.changeScene = function (scene) {
             this._gameScene.initialize();
         }
 
+        this._swappingScenes = false;
+
     } else {
-        // store this scene to change in the next animation frame end
+        // nope, store this scene to change in the next animation frame start
         this._swapScene = scene;
     }
 };
