@@ -21,9 +21,9 @@ function GameObject(params) {
     this._parent = params.parent || null;
     this._children = params.children || [];
     this._components = params.components || [];
-    this._matrixDirty = true;
     this._transformMatrix = mat4.create();
 }
+
 
 GameObject.prototype.getType = function () {
     return "GameObject";
@@ -34,8 +34,6 @@ GameObject.prototype.getUID = function () {
 };
 
 GameObject.prototype.propagatePropertyUpdate = function (property, value) {
-    this._matrixDirty = true;
-
     for (var i = 0; i < this._components.length; ++i) {
         if (this._components[i]["onGameObject" + property + "Updated"]) {
             this._components[i]["onGameObject" + property + "Updated"](value);
@@ -44,12 +42,8 @@ GameObject.prototype.propagatePropertyUpdate = function (property, value) {
 };
 
 GameObject.prototype.getMatrix = function () {
-    if (this._matrixDirty || !this._transformMatrix) {
-        mat4.identity(this._transformMatrix);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
-
-        this._matrixDirty = false;
-    }
+    mat4.identity(this._transformMatrix);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
 
     return this._transformMatrix;
 };
@@ -117,28 +111,73 @@ GameObject.prototype.getComponents = function () {
     return this._components;
 };
 
-GameObject.prototype.getBoundaryVertices = function () {
+GameObject.prototype.getBoundary = function () {
     var mat = this.getMatrix();
 
-    return {
-        topLeft: Vector2.transformMat4(new Vector2(0, 0), mat),
-        topRight: Vector2.transformMat4(new Vector2(1, 0), mat),
-        bottomLeft: Vector2.transformMat4(new Vector2(0, 1), mat),
-        bottomRight: Vector2.transformMat4(new Vector2(1, 1), mat)
-    }
+    return new Boundary(
+        Vector2.transformMat4(new Vector2(0, 0), mat),
+        Vector2.transformMat4(new Vector2(1, 0), mat),
+        Vector2.transformMat4(new Vector2(1, 1), mat),
+        Vector2.transformMat4(new Vector2(0, 1), mat)
+    );
 };
 
-GameObject.prototype.getBoundaries = function () {
-    var vertices = this.getBoundaryVertices();
+/**
+ * Fast boundary mapping without taking in consideration rotation
+ * @param bulk
+ * @returns {Rectangle}
+ */
+GameObject.prototype.getRectangleBoundary = function (bulk) {
+    var vertices = this.getBoundary();
+    bulk = bulk || 0;
 
     // find the min and max width to form the rectangle boundary
-    var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
-    var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    var minX = Math.min(vertices.topLeft.x - bulk, vertices.topRight.x + bulk, vertices.bottomLeft.x - bulk, vertices.bottomRight.x + bulk);
+    var maxX = Math.max(vertices.topLeft.x - bulk, vertices.topRight.x + bulk, vertices.bottomLeft.x - bulk, vertices.bottomRight.x + bulk);
+    var minY = Math.min(vertices.topLeft.y - bulk, vertices.topRight.y - bulk, vertices.bottomLeft.y + bulk, vertices.bottomRight.y + bulk);
+    var maxY = Math.max(vertices.topLeft.y - bulk, vertices.topRight.y - bulk, vertices.bottomLeft.y + bulk, vertices.bottomRight.y + bulk);
 
     // return the generated rectangle:
     return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+};
+
+/**
+ * Tests collision with a point
+ * @param point
+ */
+GameObject.prototype.collidesWith = function (point) {
+    // the following collision detection is based on the separating axis theorem:
+    // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+    var boundaryA = this.getBoundary();
+    var boundaryB = new Boundary(new Vector2(point.x, point.y), new Vector2(point.x + 1, point.y), new Vector2(point.x + 1, point.y + 1), new Vector2(point.x, point.y + 1));
+    var normA = this.getBoundary().getNormals();
+    var normB = boundaryB.getNormals();
+
+    function getMinMax (boundary, norm) {
+        var probeA = boundary.topRight.dot(norm);
+        var probeB = boundary.bottomRight.dot(norm);
+        var probeC = boundary.bottomLeft.dot(norm);
+        var probeD = boundary.topLeft.dot(norm);
+
+        return {
+            max: Math.max(probeA, probeB, probeC, probeD),
+            min: Math.min(probeA, probeB, probeC, probeD)
+        }
+    }
+
+    var p1, p2, normNode, norm;
+    for(var i = 0; i < 4; i++) {
+        normNode = i >= 2 ? normB : normA;
+        norm = i % 2 == 0 ? normNode.bottom : normNode.right;
+        p1 = getMinMax(boundaryA, norm);
+        p2 = getMinMax(boundaryB, norm);
+
+        if (p1.max < p2.min || p2.max < p1.min) {
+            return false;
+        }
+    }
+
+    return true;
 };
 
 GameObject.prototype.objectify = function () {

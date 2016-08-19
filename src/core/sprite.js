@@ -22,28 +22,24 @@ function Sprite(params) {
 
 inheritsFrom(Sprite, GameObject);
 
-Sprite.prototype.getTextureWidth = function() {
+Sprite.prototype.getTextureWidth = function () {
     return this._textureWidth;
 };
 
-Sprite.prototype.getTextureHeight = function() {
+Sprite.prototype.getTextureHeight = function () {
     return this._textureHeight;
 };
 
 Sprite.prototype.getMatrix = function () {
-    if (this._matrixDirty || !this._transformMatrix) {
-        var width = this._textureWidth * this.transform.getScale().x;
-        var height = this._textureHeight * this.transform.getScale().y;
+    var width = this._textureWidth * this.transform.getScale().x;
+    var height = this._textureHeight * this.transform.getScale().y;
 
-        mat4.identity(this._transformMatrix);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - this._textureWidth * this._origin.x, this.transform.getPosition().y - this._textureHeight * this._origin.y, 0]);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [width / 2, height / 2, 0]);
-        mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [-width / 2, -height / 2, 0]);
-        mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
-
-        this._matrixDirty = false;
-    }
+    mat4.identity(this._transformMatrix);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - this._textureWidth * this._origin.x, this.transform.getPosition().y - this._textureHeight * this._origin.y, 0]);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [width * this._origin.x, height * this._origin.y, 0]);
+    mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
+    mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
 
     return this._transformMatrix;
 };
@@ -97,7 +93,6 @@ Sprite.prototype.setTexture = function (texture) {
     }
 
     this._texture = texture;
-    this._matrixDirty = true;
 
     // cache the dimensions
     this._textureWidth = this._texture.getWidth();

@@ -29,7 +29,28 @@ Vector2.prototype.objectify = function () {
     };
 };
 
-Vector2.restore = function(data) {
+Vector2.prototype.normalLeft = function () {
+    return new Vector2(this.y, -1 * this.x);
+};
+
+Vector2.prototype.normalRight = function () {
+    return new Vector2(-1 * this.y, this.x);
+};
+
+Vector2.prototype.dot = function (vector) {
+    return this.x * vector.x + this.y * vector.y;
+};
+
+Vector2.prototype.multiply = function (vector) {
+    this.x *= vector.x;
+    this.y *= vector.y;
+};
+
+Vector2.multiply = function (vectorA, vectorB) {
+    return new Vector2(vectorA.x * vectorB.x, vectorA.y * vectorB.y);
+};
+
+Vector2.restore = function (data) {
     return new Vector2(data.x, data.y);
 };
 

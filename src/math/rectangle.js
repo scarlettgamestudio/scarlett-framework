@@ -44,6 +44,19 @@ Rectangle.fromVectors = function (va, vb) {
 // instance methods
 
 /**
+ * Get the rectangle vertices based on the position and width/height
+ * @returns {{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
+ */
+Rectangle.prototype.getVertices = function () {
+    return {
+        topLeft: new Vector2(this.x, this.y),
+        topRight: new Vector2(this.x + this.width, this.y),
+        bottomRight: new Vector2(this.x + this.width, this.y + this.height),
+        bottomLeft: new Vector2(this.x, this.y + this.height)
+    }
+};
+
+/**
  * Checks if the rectangle is intersecting another given rectangle
  * @param rectangle
  * @returns {boolean}
