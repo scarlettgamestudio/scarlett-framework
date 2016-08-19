@@ -82,6 +82,10 @@ Transform.prototype.getScale = function () {
     return this._scale;
 };
 
+Transform.prototype.clone = function() {
+    return Transform.restore(this.objectify());
+};
+
 Transform.prototype.objectify = function () {
     return {
         position: this._position.objectify(),
