@@ -17,9 +17,18 @@ function Sprite(params) {
     this._tint = params.tint || Color.fromRGB(255, 255, 255);
     this._textureWidth = 0;
     this._textureHeight = 0;
+    this._origin = new Vector2(0.5, 0.5);
 }
 
 inheritsFrom(Sprite, GameObject);
+
+Sprite.prototype.getTextureWidth = function() {
+    return this._textureWidth;
+};
+
+Sprite.prototype.getTextureHeight = function() {
+    return this._textureHeight;
+};
 
 Sprite.prototype.getMatrix = function () {
     if (this._matrixDirty || !this._transformMatrix) {
@@ -27,7 +36,7 @@ Sprite.prototype.getMatrix = function () {
         var height = this._textureHeight * this.transform.getScale().y;
 
         mat4.identity(this._transformMatrix);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
+        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - this._textureWidth * this._origin.x, this.transform.getPosition().y - this._textureHeight * this._origin.y, 0]);
         mat4.translate(this._transformMatrix, this._transformMatrix, [width / 2, height / 2, 0]);
         mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
         mat4.translate(this._transformMatrix, this._transformMatrix, [-width / 2, -height / 2, 0]);
@@ -37,6 +46,14 @@ Sprite.prototype.getMatrix = function () {
     }
 
     return this._transformMatrix;
+};
+
+Sprite.prototype.setOrigin = function (origin) {
+    this._origin = origin;
+};
+
+Sprite.prototype.getOrigin = function () {
+    return this._origin;
 };
 
 Sprite.prototype.setTint = function (color) {

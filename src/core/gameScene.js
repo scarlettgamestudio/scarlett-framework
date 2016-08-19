@@ -61,6 +61,24 @@ GameScene.prototype.removeEntity = function (entity) {
     // TODO: implement
 };
 
+/**
+ * Returns an array with all the game objects of this scene. All child game objects are included.
+ */
+GameScene.prototype.getAllGameObjects = function () {
+    var result = [];
+
+    function recursive(gameObjects) {
+        gameObjects.forEach(function (elem) {
+            result.push(elem);
+            recursive(elem.getChildren());
+        });
+    }
+
+    recursive(this._gameObjects);
+
+    return result;
+};
+
 GameScene.prototype.prepareRender = function () {
     var gl = this._game.getRenderContext().getContext();
 

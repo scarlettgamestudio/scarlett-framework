@@ -117,20 +117,25 @@ GameObject.prototype.getComponents = function () {
     return this._components;
 };
 
-GameObject.prototype.getBoundries = function() {
+GameObject.prototype.getBoundaryVertices = function () {
     var mat = this.getMatrix();
 
-    // calculate the corner positions based on the transformation matrix applied (rotation, scale, position)
-    var tl = Vector2.transformMat4(new Vector2(0, 0), mat);
-    var tr = Vector2.transformMat4(new Vector2(1, 0), mat);
-    var bl = Vector2.transformMat4(new Vector2(0, 1), mat);
-    var br = Vector2.transformMat4(new Vector2(1, 1), mat);
+    return {
+        topLeft: Vector2.transformMat4(new Vector2(0, 0), mat),
+        topRight: Vector2.transformMat4(new Vector2(1, 0), mat),
+        bottomLeft: Vector2.transformMat4(new Vector2(0, 1), mat),
+        bottomRight: Vector2.transformMat4(new Vector2(1, 1), mat)
+    }
+};
+
+GameObject.prototype.getBoundaries = function () {
+    var vertices = this.getBoundaryVertices();
 
     // find the min and max width to form the rectangle boundary
-    var minX = Math.min(tl.x, tr.x, bl.x, br.x);
-    var maxX = Math.max(tl.x, tr.x, bl.x, br.x);
-    var minY = Math.min(tl.y, tr.y, bl.y, br.y);
-    var maxY = Math.max(tl.y, tr.y, bl.y, br.y);
+    var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
 
     // return the generated rectangle:
     return new Rectangle(minX, minY, maxX - minX, maxY - minY);
