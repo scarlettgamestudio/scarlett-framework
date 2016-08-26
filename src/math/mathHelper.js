@@ -23,6 +23,18 @@ MathHelper.PI2 = MathHelper.PI * 2.0;
 MathHelper.PI4 = MathHelper.PI * 4.0;
 
 /**
+ * PI divided by two
+ * @type {number}
+ */
+MathHelper.PIo2 = MathHelper.PI / 2.0;
+
+/**
+ * PI divided by four
+ * @type {number}
+ */
+MathHelper.PIo4 = MathHelper.PI / 4.0;
+
+/**
  * Clamp a value between a min and max value
  * @param value
  * @param min

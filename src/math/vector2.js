@@ -46,6 +46,14 @@ Vector2.prototype.multiply = function (vector) {
     this.y *= vector.y;
 };
 
+Vector2.prototype.equals = function (obj) {
+    return (obj.x === this.x && obj.y === this.y);
+};
+
+Vector2.prototype.unload = function () {
+
+};
+
 Vector2.multiply = function (vectorA, vectorB) {
     return new Vector2(vectorA.x * vectorB.x, vectorA.y * vectorB.y);
 };
@@ -54,12 +62,16 @@ Vector2.restore = function (data) {
     return new Vector2(data.x, data.y);
 };
 
-Vector2.prototype.equals = function (obj) {
-    return (obj.x === this.x && obj.y === this.y);
+Vector2.distance = function (vectorA, vectorB) {
+    var v1 = vectorA.x - vectorB.x;
+    var v2 = vectorA.y - vectorB.y;
+    return Math.sqrt((v1 * v1) + (v2 * v2));
 };
 
-Vector2.prototype.unload = function () {
-
+Vector2.sqrDistance = function (vectorA, vectorB) {
+    var v1 = vectorA.x - vectorB.x;
+    var v2 = vectorA.y - vectorB.y;
+    return (v1 * v1) + (v2 * v2);
 };
 
 // static functions:
