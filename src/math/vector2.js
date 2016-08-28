@@ -29,6 +29,25 @@ Vector2.prototype.objectify = function () {
     };
 };
 
+/**
+ * The magnitude, or length, of this vector.
+ * The magnitude is the L2 norm, or Euclidean distance between the origin and
+ * the point represented by the (x, y) components of this Vector object.
+ * @returns {number}
+ */
+Vector2.prototype.magnitude = function() {
+  return Math.sqrt(this.x * this.x + this.y * this.y);
+};
+
+/**
+ * The square of the magnitude, or length, of this vector.
+ * See http://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+ * @returns {number}
+ */
+Vector2.prototype.sqrMagnitude = function () {
+  return this.x * this.x + this.y * this.y;
+};
+
 Vector2.prototype.normalLeft = function () {
     return new Vector2(this.y, -1 * this.x);
 };
