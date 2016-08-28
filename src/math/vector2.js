@@ -76,6 +76,17 @@ Vector2.prototype.cross = function (vector) {
     return this.x * vector.y - this.y * vector.x;
 };
 
+/**
+ * The distance between the point represented by this Vector
+ * object and a point represented by the given Vector object.
+ * @param vector
+ * @returns {number}
+ */
+Vector2.prototype.distanceTo = function (vector) {
+    return Math.sqrt((this.x - vector.x)*(this.x - vector.x) +
+                     (this.y - vector.y) * (this.y - vector.y));
+};
+
 Vector2.prototype.multiply = function (vector) {
     this.x *= vector.x;
     this.y *= vector.y;
