@@ -4,6 +4,7 @@
 AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
+AttributeDictionary.addRule("sprite", "_texture", {visible: false});
 
 function Sprite(params) {
     params = params || {};
