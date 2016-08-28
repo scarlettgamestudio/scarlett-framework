@@ -33,3 +33,15 @@ if (!Array.isArray) {
 		return Object.prototype.toString.call(arg) === '[object Array]';
 	};
 }
+
+/**
+ * Adds index of object to arrays, uses the object "equals()" function if available
+ * @param search
+ * @returns {number}
+ */
+Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
+	for (var i = 0, len = this.length; i < len; i++) {
+		if (isEqual(this[i], search)) return i;
+	}
+	return -1;
+};

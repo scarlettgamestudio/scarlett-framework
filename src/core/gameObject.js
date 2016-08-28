@@ -24,6 +24,14 @@ function GameObject(params) {
     this._transformMatrix = mat4.create();
 }
 
+GameObject.prototype.equals = function (other) {
+    if (other.getUID) {
+        return this._uid === other.getUID();
+    }
+
+    return this === other;
+};
+
 GameObject.prototype.getBaseWidth = function() {
     return 1;
 };
