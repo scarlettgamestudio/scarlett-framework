@@ -13,12 +13,29 @@ This README would normally document whatever steps are necessary to get your app
 * Summary of set up
 Gruntfile.js: change 'copyToDirectory' path to match the local editor path
 
-
-
 * Configuration
 * Dependencies
+
+```
+#!javascript
+
+npm install
+
+
+```
+
 * Database configuration
-* How to run tests
+* How to run
+
+
+```
+#!javascript
+
+grunt dev
+
+```
+
+
 * Deployment instructions
 
 ### Contribution guidelines ###
