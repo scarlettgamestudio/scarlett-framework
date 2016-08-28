@@ -17,18 +17,19 @@ function WebGLContext(params) {
     }
 }
 
-WebGLContext.prototype.setVirtualResolution = function(width, height) {
-    if(isObjectAssigned(this._gl)) {
-        this._canvas.width  = width;
+WebGLContext.prototype.setVirtualResolution = function (width, height) {
+    if (isObjectAssigned(this._gl)) {
+        this._canvas.width = width;
         this._canvas.height = height;
 
         this._gl.viewport(0, 0, width, height);
     }
 };
 
-WebGLContext.prototype.assignContextFromContainer = function(canvas) {
+WebGLContext.prototype.assignContextFromContainer = function (canvas) {
     // let's try to get the webgl context from the given container:
-    var gl = this._gl = canvas.getContext("experimental-webgl") || canvas.getContext("webgl");
+    var gl = this._gl = canvas.getContext("experimental-webgl") || canvas.getContext("webgl") ||
+        canvas.getContext("webkit-3d") || canvas.getContext("moz-webgl");
 
     if (!isObjectAssigned(this._gl)) {
         this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
@@ -46,11 +47,11 @@ WebGLContext.prototype.assignContextFromContainer = function(canvas) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
 
-WebGLContext.prototype.getName = function() {
+WebGLContext.prototype.getName = function () {
     return SCARLETT.WEBGL;
 };
 
-WebGLContext.prototype.getContext = function() {
+WebGLContext.prototype.getContext = function () {
     return this._gl;
 };
 

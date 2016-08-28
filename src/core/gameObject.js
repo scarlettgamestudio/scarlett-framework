@@ -9,6 +9,7 @@ function GameObject(params) {
 
     // public properties:
     this.name = params.name || "GameObject";
+    this.enabled = true;
 
     if (params.transform) {
         params.transform.gameObject = this;
@@ -105,6 +106,10 @@ GameObject.prototype.addComponent = function (component) {
 };
 
 GameObject.prototype.update = function (delta) {
+    if (!this.enabled) {
+        return;
+    }
+
     // update children:
     this._children.forEach(function (elem) {
         if (elem.update) {
@@ -114,6 +119,10 @@ GameObject.prototype.update = function (delta) {
 };
 
 GameObject.prototype.render = function (delta, spriteBatch) {
+    if (!this.enabled) {
+        return;
+    }
+
     // render children:
     this._children.forEach(function (elem) {
         if (elem.render) {
