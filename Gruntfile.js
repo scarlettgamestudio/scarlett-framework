@@ -59,7 +59,7 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
     grunt.registerTask('watcher', ['watch']);
     grunt.registerTask('dist', ['uglify']);
-    grunt.registerTask('dev', ['concat', 'watch']);
+    grunt.registerTask('dev', ['concat', 'copy-to', 'watch']);
     grunt.registerTask('dev-concat', ['concat']);
     grunt.registerTask('copy-to', ['copy']);
 

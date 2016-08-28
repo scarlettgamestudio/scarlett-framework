@@ -100,6 +100,10 @@ Sprite.prototype.setTexture = function (texture) {
 };
 
 Sprite.prototype.render = function (delta, spriteBatch) {
+    if (!this.enabled) {
+        return;
+    }
+
     // just store the sprite to render on flush:
     spriteBatch.storeSprite(this);
 
