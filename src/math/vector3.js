@@ -42,7 +42,7 @@ Vector3.prototype.unload = function () {
 /**
  * The magnitude, or length, of this vector.
  * The magnitude is the L2 norm, or Euclidean distance between the origin and
- * the point represented by the (x, y) components of this Vector object.
+ * the point represented by the (x, y, z) components of this Vector object.
  * @returns {number}
  */
 Vector3.prototype.magnitude = function() {
