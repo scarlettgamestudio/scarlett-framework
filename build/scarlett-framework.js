@@ -9831,6 +9831,58 @@ RigidBody.prototype.onGameObjectScaleUpdated = function(value) {
 RigidBody.prototype.unload = function() {
 	// TODO: do this
 };;/**
+ * Content Object
+ * @param params
+ * @constructor
+ */
+function ContentObject(params) {
+    params = params || {};
+
+    // public properties
+    this.name = params.name;
+};/**
+ * Content Texture
+ * @param params
+ * @constructor
+ */
+function ContentScript(params) {
+    params = params || {};
+
+    ContentObject.call(this, params);
+
+    // public properties:
+    this.source = params.source || null;
+}
+
+inheritsFrom(ContentTexture, ContentObject);;/**
+ * Content Texture
+ * @param params
+ * @constructor
+ */
+function ContentTexture(params) {
+    params = params || {};
+
+    ContentObject.call(this, params);
+
+    // public properties:
+    this.source = params.source || "";
+}
+
+inheritsFrom(ContentTexture, ContentObject);;/**
+ * Content Texture
+ * @param params
+ * @constructor
+ */
+function ContentTextureAtlas(params) {
+    params = params || {};
+
+    ContentObject.call(this, params);
+
+    // public properties:
+    this.source = params.source || null;
+}
+
+inheritsFrom(ContentTexture, ContentObject);;/**
  * Camera2D class
  */
 function Camera2D(x, y, viewWidth, viewHeight, zoom) {
@@ -12043,6 +12095,25 @@ Vector2.prototype.objectify = function () {
     };
 };
 
+/**
+ * The magnitude, or length, of this vector.
+ * The magnitude is the L2 norm, or Euclidean distance between the origin and
+ * the point represented by the (x, y) components of this Vector object.
+ * @returns {number}
+ */
+Vector2.prototype.magnitude = function() {
+  return Math.sqrt(this.x * this.x + this.y * this.y);
+};
+
+/**
+ * The square of the magnitude, or length, of this vector.
+ * See http://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+ * @returns {number}
+ */
+Vector2.prototype.sqrMagnitude = function () {
+  return this.x * this.x + this.y * this.y;
+};
+
 Vector2.prototype.normalLeft = function () {
     return new Vector2(this.y, -1 * this.x);
 };
@@ -12051,8 +12122,35 @@ Vector2.prototype.normalRight = function () {
     return new Vector2(-1 * this.y, this.x);
 };
 
+/**
+ * The dot product of this vector with another vector.
+ * @param vector
+ * @returns {number}
+ */
 Vector2.prototype.dot = function (vector) {
     return this.x * vector.x + this.y * vector.y;
+};
+
+/**
+ * Calculates the magnitude of the vector that would result from a regular 3D cross product of the input vectors,
+ * taking their Z values implicitly as 0 (i.e., treating the 2D space as a plane in the 3D space).
+ * The 3D cross product will be perpendicular to that plane, and thus have 0 X & Y components
+ * (thus the scalar returned is the Z value of the 3D cross product vector).
+ * @param vector
+ */
+Vector2.prototype.cross = function (vector) {
+    return this.x * vector.y - this.y * vector.x;
+};
+
+/**
+ * The distance between the point represented by this Vector
+ * object and a point represented by the given Vector object.
+ * @param vector
+ * @returns {number}
+ */
+Vector2.prototype.distanceTo = function (vector) {
+    return Math.sqrt((this.x - vector.x)*(this.x - vector.x) +
+                     (this.y - vector.y) * (this.y - vector.y));
 };
 
 Vector2.prototype.multiply = function (vector) {
@@ -12076,12 +12174,24 @@ Vector2.restore = function (data) {
     return new Vector2(data.x, data.y);
 };
 
+/**
+ * The distance between the points represented by VectorA and VectorB
+ * @param vectorA
+ * @param vectorB
+ * @returns {number}
+ */
 Vector2.distance = function (vectorA, vectorB) {
     var v1 = vectorA.x - vectorB.x;
     var v2 = vectorA.y - vectorB.y;
     return Math.sqrt((v1 * v1) + (v2 * v2));
 };
 
+/**
+ * The squared distance between the points represented by VectorA and VectorB
+ * @param vectorA
+ * @param vectorB
+ * @returns {number}
+ */
 Vector2.sqrDistance = function (vectorA, vectorB) {
     var v1 = vectorA.x - vectorB.x;
     var v2 = vectorA.y - vectorB.y;
@@ -12140,6 +12250,61 @@ Vector3.prototype.equals = function(obj) {
 
 Vector3.prototype.unload = function () {
 
+};
+
+/**
+ * The magnitude, or length, of this vector.
+ * The magnitude is the L2 norm, or Euclidean distance between the origin and
+ * the point represented by the (x, y, z) components of this Vector object.
+ * @returns {number}
+ */
+Vector3.prototype.magnitude = function() {
+	return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+};
+
+/**
+ * The square of the magnitude, or length, of this vector.
+ * See http://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+ * @returns {number}
+ */
+Vector3.prototype.sqrMagnitude = function () {
+	return this.x * this.x + this.y * this.y + this.z * this.z;
+};
+
+/**
+ * The distance between the point represented by this Vector
+ * object and a point represented by the given Vector object.
+ * @param vector
+ * @returns {number}
+ */
+Vector3.prototype.distanceTo = function (vector) {
+	return Math.sqrt((this.x - vector.x)*(this.x - vector.x) +
+		(this.y - vector.y) * (this.y - vector.y) +
+		(this.z - vector.z) * (this.z - vector.z));
+};
+
+/**
+ * The dot product of this vector with another vector.
+ * @param vector
+ * @returns {number}
+ */
+Vector3.prototype.dot = function (vector) {
+	return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
+};
+
+/**
+ * The cross product of this vector and the given vector.
+ *
+ * The cross product is a vector orthogonal to both original vectors.
+ * It has a magnitude equal to the area of a parallelogram having the
+ * two vectors as sides. The direction of the returned vector is
+ * determined by the right-hand rule.
+ * @param vector
+ */
+Vector3.prototype.cross = function (vector) {
+	return new Vector3((this.y * vector.z) - (this.z * vector.y),
+		(this.z * vector.x) - (this.x * vector.z),
+		(this.x * vector.y) - (this.y * vector.x));
 };;/**
  * Vector4 class for tri dimensional point references
  */
