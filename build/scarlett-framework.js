@@ -11810,6 +11810,189 @@ GridExt.prototype.render = function (delta) {
         }
     }
 };;/**
+ * Global Keyboard handler
+ * @constructor
+ */
+function Keyboard() {
+    // stuff..
+}
+
+// internal key data:
+Keyboard._keys = [];
+
+Keyboard.removeKey = function (key) {
+    var idx = Keyboard._keys.indexOf(key);
+    if (idx >= 0) {
+        Keyboard._keys.splice(idx, 1);
+    }
+};
+
+Keyboard.removeKeys = function (keys) {
+    keys.forEach(function (key) {
+        Keyboard.removeKey(key);
+    });
+};
+
+Keyboard.addKey = function (key) {
+    if (Keyboard._keys.indexOf(key) < 0) {
+        Keyboard._keys.push(key);
+    }
+};
+
+Keyboard.addKeys = function (keys) {
+    keys.forEach(function (key) {
+        Keyboard.addKey(key);
+    })
+};
+
+Keyboard.setKeys = function (keys) {
+    Keyboard._keys = keys;
+};
+
+Keyboard.clearKeys = function () {
+    Keyboard._keys = [];
+};
+
+Keyboard.getState = function () {
+    return new KeyboardState(Keyboard._keys);
+};
+
+;/**
+ * Keyboard state
+ * @param keys
+ * @constructor
+ */
+function KeyboardState (keys) {
+    // now we copy the values to our state array.
+    this._keys = [];
+    keys.forEach((function (key) {
+       this._keys.push(key);
+    }).bind(this));
+}
+
+/**
+ * Gets if the given key is currently being pressed
+ * @param key
+ * @returns {boolean}
+ */
+KeyboardState.prototype.isKeyDown = function(key) {
+    return this._keys.indexOf(key) >= 0;
+};
+
+/**
+ * Gets if the given key is not currently being pressed
+ * @param key
+ * @returns {boolean}
+ */
+KeyboardState.prototype.isKeyUp = function(key) {
+    return this._keys.indexOf(key) < 0;
+};
+;/**
+ *
+ * @constructor
+ */
+function Keys () {}
+
+Keys.Backspace = 8;
+Keys.Tab = 9;
+Keys.Enter = 13;
+Keys.Shift = 16;
+Keys.Ctrl = 17;
+Keys.Alt = 18;
+Keys.Pause = 19;
+Keys.Break = 19;
+Keys.CapsLock = 20;
+Keys.Escape = 27;
+Keys.PageUp = 33;
+Keys.PageDown = 34;
+Keys.End = 35;
+Keys.Home = 36;
+Keys.LeftArrow = 37;
+Keys.UpArrow = 38;
+Keys.RightArrow = 39;
+Keys.DownArrow = 40;
+Keys.Insert = 45;
+Keys.Delete = 46;
+Keys.D0 = 48;
+Keys.D1 = 49;
+Keys.D2 = 50;
+Keys.D3 = 51;
+Keys.D4 = 52;
+Keys.D5 = 53;
+Keys.D6 = 54;
+Keys.D7 = 55;
+Keys.D8 = 56;
+Keys.D9 = 57;
+Keys.A = 65;
+Keys.B = 66;
+Keys.C = 67;
+Keys.D = 68;
+Keys.E = 69;
+Keys.F = 70;
+Keys.G = 71;
+Keys.H = 72;
+Keys.I = 73;
+Keys.J = 74;
+Keys.K = 75;
+Keys.L = 76;
+Keys.M = 77;
+Keys.N = 78;
+Keys.O = 79;
+Keys.P = 80;
+Keys.Q = 81;
+Keys.R = 82;
+Keys.S = 83;
+Keys.T = 84;
+Keys.U = 85;
+Keys.V = 86;
+Keys.W = 87;
+Keys.X = 88;
+Keys.Y = 89;
+Keys.Z = 90;
+Keys.LeftWindowKey = 91;
+Keys.RightWindowKey = 92;
+Keys.SelectKey = 93;
+Keys.NumPad0 = 96;
+Keys.NumPad1 = 97;
+Keys.NumPad2 = 98;
+Keys.NumPad3 = 99;
+Keys.NumPad4 = 100;
+Keys.NumPad5 = 101;
+Keys.NumPad6 = 102;
+Keys.NumPad7 = 103;
+Keys.NumPad8 = 104;
+Keys.NumPad9 = 105;
+Keys.Multiply = 106;
+Keys.Add = 107;
+Keys.Subtract = 109;
+Keys.DecimalPoint = 110;
+Keys.Divide = 111;
+Keys.F1 = 112;
+Keys.F2 = 113;
+Keys.F3 = 114;
+Keys.F4 = 115;
+Keys.F5 = 116;
+Keys.F6 = 117;
+Keys.F7 = 118;
+Keys.F8 = 119;
+Keys.F9 = 120;
+Keys.F10 = 121;
+Keys.F11 = 122;
+Keys.F12 = 123;
+Keys.NumLock = 144;
+Keys.ScrollLock = 145;
+Keys.SemiColon = 186;
+Keys.EqualSign = 187;
+Keys.Comma = 188;
+Keys.Dash = 189;
+Keys.Period = 190;
+Keys.ForwardSlash = 191;
+Keys.GraveAccent = 192;
+Keys.OpenBracket = 219;
+Keys.BackSlash = 220;
+Keys.CloseBraket = 221;
+Keys.SingleQuote = 222;
+;/**
  * Boundary structure
  * @param topLeft
  * @param topRight
