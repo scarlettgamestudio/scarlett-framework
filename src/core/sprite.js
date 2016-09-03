@@ -68,10 +68,12 @@ Sprite.prototype.setTextureSrc = function (path) {
         Texture2D.fromPath(path).then(
             (function (texture) {
                 this.setTexture(texture);
-            }).bind(this), function (error) {
-                // TODO: log this..
-            }
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
         );
+    } else {
+        this.setTexture(null);
     }
 };
 
@@ -90,6 +92,9 @@ Sprite.prototype.getTexture = function () {
 Sprite.prototype.setTexture = function (texture) {
     // is this a ready texture?
     if (!texture || !texture.isReady()) {
+        this._texture = null;
+        this._textureWidth = 0;
+        this._textureHeight = 0;
         return;
     }
 

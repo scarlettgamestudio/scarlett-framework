@@ -9375,7 +9375,8 @@ var SCARLETT = SC = {
  * Event Manager
  * @constructor
  */
-var EventManager = function () {};
+var EventManager = function () {
+};
 
 EventManager._handlers = {};
 
@@ -9385,8 +9386,8 @@ EventManager._handlers = {};
  * @param callback
  * @param context (optional)
  */
-EventManager.subscribe = function(topic, callback, context) {
-    if(!EventManager._handlers.hasOwnProperty(topic)) {
+EventManager.subscribe = function (topic, callback, context) {
+    if (!EventManager._handlers.hasOwnProperty(topic)) {
         EventManager._handlers[topic] = [];
     }
 
@@ -9397,30 +9398,59 @@ EventManager.subscribe = function(topic, callback, context) {
 };
 
 /**
+ * Removes the subscription of a topic
+ * @param topic
+ * @param callback (for reference)
+ */
+EventManager.removeSubscription = function(topic, callback) {
+    if (!EventManager._handlers[topic]) {
+        return;
+    }
+
+    for (var i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
+        if (EventManager._handlers[topic][i].callback == callback) {
+            EventManager._handlers[topic].splice(i, 1);
+        }
+    }
+
+    // no more subscriptions for this topic?
+    if (EventManager._handlers[topic].length == 0) {
+        // nope... let's remove the topic then:
+        delete EventManager._handlers[topic];
+    }
+};
+
+/**
  *
  * @param topic
  */
-EventManager.emit = function(topic) {
+EventManager.emit = function (topic) {
     // get the remaining arguments (if exist)
-    var args = [];
-    if(arguments.length > 1) {
-        for(var i = 1; i < arguments.length; i++) {
+    var args = [], i;
+    if (arguments.length > 1) {
+        for (i = 1; i < arguments.length; i++) {
             args.push(arguments[i]);
         }
     }
 
-    if(EventManager._handlers.hasOwnProperty(topic)) {
-        EventManager._handlers[topic].forEach(function(handler) {
-            // call the function by sending the arguments and applying the given context (might not be available)
-            handler.callback.apply(handler.context, args);
-        });
+    if (EventManager._handlers.hasOwnProperty(topic)) {
+        for (i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
+            if (EventManager._handlers[topic][i].callback) {
+                EventManager._handlers[topic][i].callback.apply(EventManager._handlers[topic][i].context, args);
+
+            } else {
+                // this doesn't seem to exist anymore, let's remove it from the subscribers:
+                EventManager._handlers[topic].splice(i, 1);
+
+            }
+        }
     }
 };
 
 /**
  * Clears all subscriptions
  */
-EventManager.clear = function() {
+EventManager.clear = function () {
     EventManager._handlers = {};
 };;/**
  * Inserts an element at a desirable position
@@ -11186,6 +11216,9 @@ Sprite.prototype.getTexture = function () {
 Sprite.prototype.setTexture = function (texture) {
     // is this a ready texture?
     if (!texture || !texture.isReady()) {
+        this._texture = null;
+        this._textureWidth = 0;
+        this._textureHeight = 0;
         return;
     }
 
@@ -11857,25 +11890,52 @@ Keyboard.getState = function () {
     return new KeyboardState(Keyboard._keys);
 };
 
+/**
+ * Gets if the given key is currently being pressed
+ * @param key
+ * @returns {boolean}
+ */
+Keyboard.isKeyDown = function (key) {
+    return Keyboard._keys.indexOf(key) >= 0;
+};
+
+/**
+ * Gets if the given key is not currently being pressed
+ * @param key
+ * @returns {boolean}
+ */
+Keyboard.isKeyUp = function (key) {
+    return Keyboard._keys.indexOf(key) < 0;
+};
+
+
 ;/**
  * Keyboard state
  * @param keys
  * @constructor
  */
-function KeyboardState (keys) {
+function KeyboardState(keys) {
     // now we copy the values to our state array.
     this._keys = [];
     keys.forEach((function (key) {
-       this._keys.push(key);
+        this._keys.push(key);
     }).bind(this));
 }
+
+/**
+ * Gets the keys currently being pressed
+ * @returns {Array}
+ */
+KeyboardState.prototype.getKeys = function () {
+    return this._keys;
+};
 
 /**
  * Gets if the given key is currently being pressed
  * @param key
  * @returns {boolean}
  */
-KeyboardState.prototype.isKeyDown = function(key) {
+KeyboardState.prototype.isKeyDown = function (key) {
     return this._keys.indexOf(key) >= 0;
 };
 
@@ -11884,7 +11944,7 @@ KeyboardState.prototype.isKeyDown = function(key) {
  * @param key
  * @returns {boolean}
  */
-KeyboardState.prototype.isKeyUp = function(key) {
+KeyboardState.prototype.isKeyUp = function (key) {
     return this._keys.indexOf(key) < 0;
 };
 ;/**

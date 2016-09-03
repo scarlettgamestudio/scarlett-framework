@@ -46,3 +46,22 @@ Keyboard.getState = function () {
     return new KeyboardState(Keyboard._keys);
 };
 
+/**
+ * Gets if the given key is currently being pressed
+ * @param key
+ * @returns {boolean}
+ */
+Keyboard.isKeyDown = function (key) {
+    return Keyboard._keys.indexOf(key) >= 0;
+};
+
+/**
+ * Gets if the given key is not currently being pressed
+ * @param key
+ * @returns {boolean}
+ */
+Keyboard.isKeyUp = function (key) {
+    return Keyboard._keys.indexOf(key) < 0;
+};
+
+
