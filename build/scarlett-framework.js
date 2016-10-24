@@ -9372,12 +9372,115 @@ var SCARLETT = SC = {
 		LATE_RENDER: 15
 	}
 };;/**
+ * Content Loader static class
+ */
+var ContentLoader = function () {
+};
+
+/**
+ * Cached images
+ * @type {{}}
+ * @private
+ */
+ContentLoader._imgLoaded = {};
+
+/**
+ * Cached audio
+ * @type {{}}
+ * @private
+ */
+ContentLoader._audioLoaded = {};
+
+/**
+ *
+ * @param path
+ * @returns {*}
+ * @private
+ */
+ContentLoader._enrichRelativePath = function (path) {
+    // is this a relative path?
+    if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
+        path = GameManager.activeProjectPath + path;
+    }
+
+    return path;
+};
+
+/**
+ * loads an image file from a specified path into memory
+ * @param path
+ * @returns {*}
+ */
+ContentLoader.loadImage = function (path) {
+    return new Promise((function (resolve, reject) {
+        path = ContentLoader._enrichRelativePath(path);
+
+        // is the image on cache?
+        if (ContentLoader._imgLoaded.hasOwnProperty(path)) {
+            // the image is already cached. let's use it!
+            resolve(ContentLoader._imgLoaded[path]);
+
+        } else {
+            // the image is not in cache, we must load it:
+            var image = new Image();
+            image.src = path;
+            image.onload = function () {
+                // cache the loaded image:
+                ContentLoader._imgLoaded[path] = image;
+
+                resolve(image);
+            };
+            image.onerror = function () {
+                // TODO: log this
+                reject();
+            };
+        }
+    }).bind(this));
+};
+
+/**
+ * loads an audio file from a specified path into memory
+ * @param path
+ * @returns {*}
+ */
+ContentLoader.loadAudio = function (path) {
+    return new Promise((function (resolve, reject) {
+        path = ContentLoader._enrichRelativePath(path);
+
+        // is the audio on cache?
+        if (ContentLoader._audioLoaded.hasOwnProperty(path)) {
+            // the audio is already cached. let's use it!
+            resolve(ContentLoader._audioLoaded[path]);
+
+        } else {
+            var audio = new Audio();
+            audio.src = path;
+            audio.oncanplaythrough = function() {
+                // cache the loaded image:
+                ContentLoader._audioLoaded[path] = audio;
+
+                resolve(audio);
+            };
+            audio.onerror = function () {
+                // TODO: log this
+                reject();
+            };
+        }
+
+    }).bind(this));
+};
+;/**
  * Event Manager
  * @constructor
  */
 var EventManager = function () {
 };
 
+/**
+ *
+ * @type {{}}
+ * @private
+ */
 EventManager._handlers = {};
 
 /**
@@ -9402,7 +9505,7 @@ EventManager.subscribe = function (topic, callback, context) {
  * @param topic
  * @param callback (for reference)
  */
-EventManager.removeSubscription = function(topic, callback) {
+EventManager.removeSubscription = function (topic, callback) {
     if (!EventManager._handlers[topic]) {
         return;
     }
@@ -9498,71 +9601,7 @@ Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
 		if (isEqual(this[i], search)) return i;
 	}
 	return -1;
-};;/**
- * Image Loader static class
- */
-var ImageLoader = function () {
-};
-
-/**
- *
- * @type {{}}
- */
-ImageLoader.loaded = {};
-
-
-/**
- * loads an image from a specified path into memory
- * @param path
- * @param callback
- * @returns {*}
- */
-ImageLoader.loadImage = function (path, callback) {
-    var image;
-
-    // is this a relative path?
-    if(GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
-       path = GameManager.activeProjectPath + path;
-    }
-
-    // is the image on cache?
-    if (ImageLoader.loaded.hasOwnProperty(path)) {
-        // the image is already cached. let's use it!
-        image = ImageLoader.loaded[path];
-
-        if (isFunction(callback)) {
-            callback(new CallbackResponse({
-                success: true,
-                data: image
-            }));
-        }
-    } else {
-        // the image is not in cache, we must load it:
-        image = new Image();
-        image.src = path;
-        image.onload = function () {
-            ImageLoader.loaded[path] = image;
-
-            if (isFunction(callback)) {
-                callback(new CallbackResponse({
-                    success: true,
-                    data: image
-                }));
-            }
-        };
-        image.onerror = function () {
-            if (isFunction(callback)) {
-                callback(new CallbackResponse({
-                    success: false
-                }));
-            }
-        };
-    }
-
-    return image;
-};
-
-;function Logger(params) {
+};;function Logger(params) {
     params = params || {};
 
     // private properties:
@@ -11123,6 +11162,80 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
 
     gl.drawArrays(gl.LINES, 0, 2);
 };;/**
+ * Sound class
+ */
+function Sound(audio) {
+    if (!isObjectAssigned(audio)) {
+        throw error("Cannot create Sound without a valid audio source");
+    }
+
+    // private properties
+    this._source = audio;
+}
+
+/**
+ *
+ * @param path
+ * @returns {Promise}
+ */
+Sound.fromPath = function (path) {
+    return new Promise((function (resolve, reject) {
+        ContentLoader.loadAudio(path).then(function (audio) {
+            resolve(new Sound(audio));
+
+        }, function () {
+            reject();
+
+        });
+    }).bind(this));
+};
+
+/**
+ *
+ * @param audio
+ */
+Sound.prototype.setAudioSource = function (audio) {
+    this._source = audio;
+};
+
+/**
+ * plays the current audio source
+ */
+Sound.prototype.play = function () {
+    this._source.play();
+};
+
+/**
+ * pauses the current audio source
+ */
+Sound.prototype.pause = function () {
+    this._source.pause();
+};
+
+/**
+ * stops the current audio source
+ */
+Sound.prototype.stop = function () {
+    this._source.pause();
+    this._source.currentTime = 0;
+};
+
+/**
+ * sets the current audio source loop behavior
+ * @param loop
+ */
+Sound.prototype.setLoop = function (loop) {
+    this._source.loop = loop;
+};
+
+
+/**
+ * sets the current audio source output volume (0 to 1)
+ * @param volume
+ */
+Sound.prototype.setVolume = function (volume) {
+    this._source.volume = volume;
+};;/**
  * Sprite class
  */
 AttributeDictionary.inherit("sprite", "gameobject");
@@ -11505,13 +11618,10 @@ SpriteBatchOld.prototype.unload = function () {
 };;/**
  * Texture2D class
  */
-function Texture2D(source) {
-    if (!isObjectAssigned(source)) {
-        throw error("Cannot create Texture2D without a valid source filename");
+function Texture2D(image) {
+    if (!isObjectAssigned(image)) {
+        throw error("Cannot create Texture2D without an image source");
     }
-
-    // public properties:
-
 
     // private properties:
     this._uid = generateUID();
@@ -11538,21 +11648,15 @@ function Texture2D(source) {
 }
 
 Texture2D.fromPath = function (path) {
-    var promise = new Promise((function (resolve, reject) {
-        ImageLoader.loadImage(path, function (e) {
-            if (e.success) {
-                var texture = new Texture2D(e.data);
-                resolve(texture);
+    return new Promise((function (resolve, reject) {
+        ContentLoader.loadImage(path).then(function (image) {
+            resolve(new Texture2D(image.data));
 
-            } else {
-                reject();
+        }, function () {
+            reject();
 
-                // TODO: log this
-            }
         });
     }).bind(this));
-
-    return promise;
 };
 
 Texture2D.prototype.getUID = function () {

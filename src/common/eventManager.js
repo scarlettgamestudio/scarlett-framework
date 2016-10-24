@@ -5,6 +5,11 @@
 var EventManager = function () {
 };
 
+/**
+ *
+ * @type {{}}
+ * @private
+ */
 EventManager._handlers = {};
 
 /**
@@ -29,7 +34,7 @@ EventManager.subscribe = function (topic, callback, context) {
  * @param topic
  * @param callback (for reference)
  */
-EventManager.removeSubscription = function(topic, callback) {
+EventManager.removeSubscription = function (topic, callback) {
     if (!EventManager._handlers[topic]) {
         return;
     }

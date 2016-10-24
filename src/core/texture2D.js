@@ -1,13 +1,10 @@
 /**
  * Texture2D class
  */
-function Texture2D(source) {
-    if (!isObjectAssigned(source)) {
-        throw error("Cannot create Texture2D without a valid source filename");
+function Texture2D(image) {
+    if (!isObjectAssigned(image)) {
+        throw error("Cannot create Texture2D without an image source");
     }
-
-    // public properties:
-
 
     // private properties:
     this._uid = generateUID();
@@ -34,21 +31,15 @@ function Texture2D(source) {
 }
 
 Texture2D.fromPath = function (path) {
-    var promise = new Promise((function (resolve, reject) {
-        ImageLoader.loadImage(path, function (e) {
-            if (e.success) {
-                var texture = new Texture2D(e.data);
-                resolve(texture);
+    return new Promise((function (resolve, reject) {
+        ContentLoader.loadImage(path).then(function (image) {
+            resolve(new Texture2D(image.data));
 
-            } else {
-                reject();
+        }, function () {
+            reject();
 
-                // TODO: log this
-            }
         });
     }).bind(this));
-
-    return promise;
 };
 
 Texture2D.prototype.getUID = function () {
