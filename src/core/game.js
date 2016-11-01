@@ -25,6 +25,7 @@ function Game(params) {
     this._paused = false;
     this._swapScene = null; // used to contain a temporary scene before swapping
     this._swappingScenes = false;
+    this._inputHandlersBinded = false;
 
     Matter.Engine.run(this._physicsEngine);
 
@@ -67,6 +68,48 @@ Game.prototype.clearRenderExtensions = function () {
  */
 Game.prototype.getPhysicsEngine = function () {
     return this._physicsEngine;
+};
+
+Game.prototype._bindInputHandlers = function() {
+    window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
+    window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
+    this._inputHandlersBinded = true;
+};
+
+Game.prototype._unbindInputHandlers = function() {
+    window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
+    window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
+    this._inputHandlersBinded = false;
+};
+
+Game.prototype._keyUpListener = function(e) {
+    var keys = [e.keyCode];
+
+    if (e.ctrlKey) {
+        keys.push(Keys.Ctrl);
+    }
+
+    if (e.shiftKey) {
+        keys.push(Keys.Shift);
+    }
+
+    // update the keyboard data:
+    Keyboard.removeKeys(keys);
+};
+
+Game.prototype._keyDownListener = function(e) {
+    var keys = [e.keyCode];
+
+    if (e.ctrlKey) {
+        keys.push(Keys.Ctrl);
+    }
+
+    if (e.shiftKey) {
+        keys.push(Keys.Shift);
+    }
+
+    // update the keyboard data:
+    Keyboard.addKeys(keys);
 };
 
 /**
@@ -168,7 +211,9 @@ Game.prototype.getExecutionPhase = function () {
     return this._executionPhase;
 };
 
-Game.prototype.init = function () {
+Game.prototype.init = function (params) {
+    params = params || {};
+
     // context initialization
     if (!isObjectAssigned(this._canvas)) {
         this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
@@ -180,6 +225,10 @@ Game.prototype.init = function () {
 
     // set this as the active game:
     GameManager.activeGame = this;
+
+    if (!params.ignoreInputHandler) {
+        this._bindInputHandlers();
+    }
 
     this._initalized = true;
 };
@@ -280,4 +329,7 @@ Game.prototype.getTotalElapsedTime = function () {
 };
 
 Game.prototype.unload = function () {
+    if (this._inputHandlersBinded) {
+        this._unbindInputHandlers();
+    }
 };

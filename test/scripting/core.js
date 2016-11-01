@@ -12,7 +12,7 @@ var gameScene = new GameScene({
 });
 
 var texture;
-Texture2D.fromPath("./spriteBox.png").then(
+Texture2D.fromPath("./sprite.png").then(
     function (texture2D) {
         texture = texture2D;
         game.changeScene(gameScene);
@@ -23,9 +23,9 @@ gameScene.initialize = function () {
     var sprite = new Sprite({texture: texture});
     this.addGameObject(sprite);
 
-    Scripts.generateComponent("simpleMovement", sprite);
+    Scripts.generateComponent("simpleInput", sprite);
 
-    //game.addRenderExtension("GRID", new GridExt({game: game}));
+    game.addRenderExtension("GRID", new GridExt({game: game, gridColor: Color.Gray}));
 
     primitiveRender = new PrimitiveRender(game);
 };
@@ -36,7 +36,7 @@ gameScene.lateUpdate = function (delta) {
 };
 
 gameScene.render = function() {
-    primitiveRender.drawCircle({x: 20, y: 30}, 30, 8, Color.Black);
+    primitiveRender.drawCircle({x: 0, y: 0}, 10, 8, Color.Gray);
 };
 
 

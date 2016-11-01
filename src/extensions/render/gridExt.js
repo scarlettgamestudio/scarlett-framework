@@ -14,7 +14,7 @@ function GridExt(params) {
     // private properties:
     this._game = params.game || null;
     this._gridSize = params.gridSize || 32;
-    this._gridColor = params.color || Color.Red;
+    this._gridColor = params.gridColor || Color.Red;
     this._originLines = true;
     this._zoomMultiplier = 2;
     this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
