@@ -1,7 +1,6 @@
 var DISPLAY_WIDTH = 1280;
 var DISPLAY_HEIGHT = 720;
 
-var canvas;
 var game = new Game({target: "canvas"});
 game.init();
 
@@ -19,10 +18,19 @@ ContentLoader.load({
     ]
 }).then(function(result) {
     game.changeScene(gameScene);
+    game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 });
 
 gameScene.initialize = function() {
     var playerTex = new Texture2D(ContentLoader.getImage("player"));
     var player = new Sprite({texture: playerTex});
+    player.transform.setPosition(0, 300);
+    player.transform.setScale(0.25);
+    sc.assignScript("playerInput", player);
     gameScene.addGameObject(player);
+};
+
+gameScene.lateUpdate = function (delta) {
+    // show fps UI "tick"
+    meter.tick();
 };

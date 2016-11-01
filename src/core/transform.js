@@ -84,7 +84,7 @@ Transform.prototype.getRotation = function () {
 };
 
 Transform.prototype.setScale = function (x, y) {
-    this._scale.set(x, y);
+    this._scale.set(x, y || x);
     this.gameObject.propagatePropertyUpdate("Scale", this._scale);
 };
 

@@ -50,11 +50,23 @@ Scripts.addScript = function (name) {
 sc.addScript = Scripts.addScript;
 
 /**
+ * Generates and assigns a component to the given game object. The component is returned in the function call
+ * @param scriptName
+ * @param gameObject
+ */
+Scripts.assign = function (scriptName, gameObject) {
+    var component = Scripts.generateComponent(scriptName);
+    gameObject.addComponent(component);
+    return component;
+};
+// alias:
+sc.assignScript = Scripts.assign;
+
+/**
  * Generates a component from one stored script
  * @param scriptName
- * @param gameObject (optional)
  */
-Scripts.generateComponent = function (scriptName, gameObject) {
+Scripts.generateComponent = function (scriptName) {
     if (!Scripts._store[scriptName]) {
         return null;
     }
@@ -71,10 +83,6 @@ Scripts.generateComponent = function (scriptName, gameObject) {
             // assign the default value if exists:
             component[propName] = properties[propName].default;
         });
-    }
-
-    if (gameObject) {
-        gameObject.addComponent(component);
     }
 
     return component;
