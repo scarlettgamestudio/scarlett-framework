@@ -7,7 +7,7 @@
         \> python -m SimpleHTTPServer  (unix systems)
         \> python -m http.server 8080  (python3+)
     -->
-    <script src="../common/fpsmeter.js"></script>
+    <script src="../../test/common/fpsmeter.js"></script>
     <style>
 
         html, body {
@@ -26,21 +26,20 @@
     </style>
 </head>
 <body>
-    <script>
-        var meter = new FPSMeter({
-            theme: 'dark',
-            heat:  1,
-            graph:   1, // Whether to show history graph.
-            history: 20 // How many history states to show in a graph.
-        });
-    </script>
+<script>
+    var meter = new FPSMeter({
+        theme: 'dark',
+        heat:  1,
+        graph:   1, // Whether to show history graph.
+        history: 20 // How many history states to show in a graph.
+    });
+</script>
 
-    <!-- canvas -->
-    <canvas id="canvas"></canvas>
+<!-- canvas -->
+<canvas id="canvas"></canvas>
 
-    <!-- imports -->
-    <script src="../../build/scarlett-framework.js"></script>
-    <script src="scripts.js"></script>
-    <script src="core.js"></script>
+<!-- imports -->
+<script src="../../build/scarlett-framework.js"></script>
+<script src="core.js"></script>
 </body>
 </html>

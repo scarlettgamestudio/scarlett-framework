@@ -21,11 +21,12 @@ Texture2D.fromPath("./sprite.png").then(
 gameScene.initialize = function () {
     game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     var sprite = new Sprite({texture: texture});
+    //sprite.transform.setScale(0.2, 0.2);
     this.addGameObject(sprite);
 
     Scripts.generateComponent("simpleInput", sprite);
 
-    game.addRenderExtension("GRID", new GridExt({game: game, gridColor: Color.Gray}));
+   // game.addRenderExtension("GRID", new GridExt({game: game, gridColor: Color.Gray}));
 
     primitiveRender = new PrimitiveRender(game);
 };
@@ -36,7 +37,7 @@ gameScene.lateUpdate = function (delta) {
 };
 
 gameScene.render = function() {
-    primitiveRender.drawCircle({x: 0, y: 0}, 10, 8, Color.Gray);
+    //primitiveRender.drawCircle({x: 0, y: 0}, 10, 8, Color.Gray);
 };
 
 

@@ -19,7 +19,7 @@ script.prototype.update = function(delta) {
 var script = sc.addScript("simpleInput");
 
 script.properties.add("strength", {
-        default: 0.2
+        default: 0.4
     }
 );
 

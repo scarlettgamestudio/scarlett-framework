@@ -9387,6 +9387,7 @@ var ContentLoader = function () {
  * @private
  */
 ContentLoader._imgLoaded = {};
+ContentLoader._imgAlias = {};
 
 /**
  * Cached audio
@@ -9394,6 +9395,7 @@ ContentLoader._imgLoaded = {};
  * @private
  */
 ContentLoader._audioLoaded = {};
+ContentLoader._audioAlias = {};
 
 /**
  *
@@ -9411,11 +9413,100 @@ ContentLoader._enrichRelativePath = function (path) {
 };
 
 /**
+ * Clears all loaded assets from the content loader
+ */
+ContentLoader.clear = function () {
+    ContentLoader._imgLoaded = {};
+    ContentLoader._imgAlias = {};
+    ContentLoader._audioLoaded = {};
+    ContentLoader._audioAlias = {};
+};
+
+/**
+ * Loads several assets per category (audio, images, ..) and resolves after all are loaded
+ * @param assets
+ */
+ContentLoader.load = function (assets) {
+    return new Promise(function (resolve, reject) {
+        // result holder
+        var result = {
+            success: [],
+            fail: []
+        };
+
+        // counters
+        var toLoad = 0; // number of expected loaded assets
+        var loaded = 0; // number of loaded assets
+
+        function assetLoaded(asset, success) {
+            loaded += 1;
+
+            if (success) {
+                result.success.push(asset);
+            } else {
+                result.fail.push(asset);
+            }
+
+            if (loaded >= toLoad) {
+                resolve(result);
+            }
+        }
+
+        // load all images:
+        assets.images = assets.images || [];
+        assets.images.forEach(function (asset) {
+            if (!asset.path) {
+                return;
+            }
+
+            toLoad++; // count only supposedly valid assets
+
+            ContentLoader.loadImage(asset.path, asset.alias).then(
+                function () {
+                    assetLoaded(asset, true);
+                }, function () {
+                    assetLoaded(asset, false);
+                }
+            )
+        });
+
+        // load all images:
+        assets.audio = assets.audio || [];
+        assets.audio.forEach(function (asset) {
+            if (!asset.path) {
+                return;
+            }
+
+            toLoad++; // count only supposedly valid assets
+
+            ContentLoader.loadAudio(asset.path, asset.alias).then(
+                function () {
+                    assetLoaded(asset, true);
+                }, function () {
+                    assetLoaded(asset, false);
+                }
+            )
+        });
+    });
+};
+
+/**
+ * Returns an image loaded by the given alias (if exists)
+ * @param alias
+ */
+ContentLoader.getImage = function (alias) {
+    if (ContentLoader._imgAlias.hasOwnProperty(alias)) {
+        return ContentLoader._imgLoaded[ContentLoader._imgAlias[alias]]
+    }
+};
+
+/**
  * loads an image file from a specified path into memory
  * @param path
+ * @param alias
  * @returns {*}
  */
-ContentLoader.loadImage = function (path) {
+ContentLoader.loadImage = function (path, alias) {
     return new Promise((function (resolve, reject) {
         path = ContentLoader._enrichRelativePath(path);
 
@@ -9432,6 +9523,10 @@ ContentLoader.loadImage = function (path) {
                 // cache the loaded image:
                 ContentLoader._imgLoaded[path] = image;
 
+                if (alias) {
+                    ContentLoader._imgAlias[alias] = path;
+                }
+
                 resolve(image);
             };
             image.onerror = function () {
@@ -9443,11 +9538,22 @@ ContentLoader.loadImage = function (path) {
 };
 
 /**
+ * Returns an audio loaded by the given alias (if exists)
+ * @param alias
+ */
+ContentLoader.getAudio = function (alias) {
+    if (ContentLoader._audioAlias.hasOwnProperty(alias)) {
+        return ContentLoader._audioLoaded[ContentLoader._audioAlias[alias]]
+    }
+};
+
+/**
  * loads an audio file from a specified path into memory
  * @param path
+ * @param alias
  * @returns {*}
  */
-ContentLoader.loadAudio = function (path) {
+ContentLoader.loadAudio = function (path, alias) {
     return new Promise((function (resolve, reject) {
         path = ContentLoader._enrichRelativePath(path);
 
@@ -9459,9 +9565,13 @@ ContentLoader.loadAudio = function (path) {
         } else {
             var audio = new Audio();
             audio.src = path;
-            audio.oncanplaythrough = function() {
+            audio.oncanplaythrough = function () {
                 // cache the loaded image:
                 ContentLoader._audioLoaded[path] = audio;
+
+                if (alias) {
+                    ContentLoader._audioAlias[alias] = path;
+                }
 
                 resolve(audio);
             };
@@ -11296,7 +11406,7 @@ sc.addScript = Scripts.addScript;
 /**
  * Generates a component from one stored script
  * @param scriptName
- * @param gameObject
+ * @param gameObject (optional)
  */
 Scripts.generateComponent = function (scriptName, gameObject) {
     if (!Scripts._store[scriptName]) {

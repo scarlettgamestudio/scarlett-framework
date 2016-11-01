@@ -52,7 +52,7 @@ sc.addScript = Scripts.addScript;
 /**
  * Generates a component from one stored script
  * @param scriptName
- * @param gameObject
+ * @param gameObject (optional)
  */
 Scripts.generateComponent = function (scriptName, gameObject) {
     if (!Scripts._store[scriptName]) {
