@@ -102,6 +102,8 @@ Game.prototype._onAnimationFrame = function (timestamp) {
             this._gameScene.update(delta);
         }
 
+        this._gameScene.sceneUpdate(delta);
+
         if (isFunction(this._gameScene.lateUpdate)) {
             // call user defined update function:
             this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;

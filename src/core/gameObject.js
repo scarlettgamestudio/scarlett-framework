@@ -102,6 +102,9 @@ GameObject.prototype.addComponent = function (component) {
         component.setGameObject(this);
     }
 
+    // set the related component game object:
+    component.gameObject = this;
+
     this._components.push(component);
 };
 
@@ -116,6 +119,12 @@ GameObject.prototype.update = function (delta) {
             elem.update(delta);
         }
     });
+
+    this._components.forEach(function (component) {
+       if (component.update) {
+           component.update(delta);
+       }
+    });
 };
 
 GameObject.prototype.render = function (delta, spriteBatch) {
@@ -127,6 +136,12 @@ GameObject.prototype.render = function (delta, spriteBatch) {
     this._children.forEach(function (elem) {
         if (elem.render) {
             elem.render(delta, spriteBatch);
+        }
+    });
+
+    this._components.forEach(function (component) {
+        if (component.render) {
+            component.render(delta, spriteBatch);
         }
     });
 };

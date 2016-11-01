@@ -29,7 +29,6 @@ gameScene.initialize = function () {
     game.setVirtualResolution(displayWidth, displayHeight);
     spriteBatch = new SpriteBatch(game);
 
-
     var ground = new GameObject();
     var rbody = new RigidBody({static:true});
     ground.addComponent(rbody);

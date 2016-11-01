@@ -9371,7 +9371,11 @@ var SCARLETT = SC = {
 		SCENE_RENDER: 14,
 		LATE_RENDER: 15
 	}
-};;/**
+};
+
+// function "quickies" holder
+var sc = {};
+;/**
  * Content Loader static class
  */
 var ContentLoader = function () {
@@ -9800,11 +9804,13 @@ function isEqual(a, b) {
 ;function RigidBody (params) {
 	params = params || {};
 
+	// public properties
+	this.gameObject = null;
+
 	// private properties
 	this._isStatic = params.static || false;
 	this._mass = params.mass || null;
 	this._friction = params.friction || null;
-	this._gameObject = null;
 	this._body = null;
 
 }
@@ -9812,20 +9818,20 @@ function isEqual(a, b) {
 RigidBody.prototype._sync = function() {
 	var self = this;
 
-	if(!isObjectAssigned(this._gameObject)) {
+	if(!isObjectAssigned(this.gameObject)) {
 		return;
 	}
 
 	if(!isObjectAssigned(this._body)) {
-		var pos = this._gameObject.transform.getPosition();
+		var pos = this.gameObject.transform.getPosition();
 
 		// TODO assign the body based on the object
 		var width = 1,
 			height = 1;
 		
-		if(isSprite(this._gameObject)) {
-			width = this._gameObject.getTexture().getWidth();
-			height = this._gameObject.getTexture().getHeight();
+		if(isSprite(this.gameObject)) {
+			width = this.gameObject.getTexture().getWidth();
+			height = this.gameObject.getTexture().getHeight();
 		}
 
 		this._body = Matter.Bodies.rectangle(pos.x, pos.y, width, height,
@@ -9835,17 +9841,17 @@ RigidBody.prototype._sync = function() {
 
 		Matter.World.add(GameManager.activeScene.getPhysicsWorld(), [this._body]);
 
-		var objScale = this._gameObject.transform.getScale();
+		var objScale = this.gameObject.transform.getScale();
 		Matter.Body.scale(this._body, objScale.x, objScale.y);
 
-		this._gameObject.transform.overridePositionGetter(function() {
+		this.gameObject.transform.overridePositionGetter(function() {
 			return {
 				x: self._body.position.x,
 				y: self._body.position.y
 			}
 		});
 
-		this._gameObject.transform.overrideRotationGetter(function() {
+		this.gameObject.transform.overrideRotationGetter(function() {
 			return self._body.angle;
 		});
 	}
@@ -9869,14 +9875,13 @@ RigidBody.prototype.getMass = function() {
 };
 
 RigidBody.prototype.setGameObject = function(gameObject) {
-	this._gameObject = gameObject;
 	this._sync();
 };
 
 RigidBody.prototype.onGameObjectDetach = function() {
-	this._gameObject.transform.clearPositionGetter();
-	this._gameObject.transform.clearScaleGetter();
-	this._gameObject.transform.clearRotationGetter();
+	this.gameObject.transform.clearPositionGetter();
+	this.gameObject.transform.clearScaleGetter();
+	this.gameObject.transform.clearRotationGetter();
 };
 
 RigidBody.prototype.onGameObjectPositionUpdated = function(value) {
@@ -10294,6 +10299,8 @@ Game.prototype._onAnimationFrame = function (timestamp) {
             this._gameScene.update(delta);
         }
 
+        this._gameScene.sceneUpdate(delta);
+
         if (isFunction(this._gameScene.lateUpdate)) {
             // call user defined update function:
             this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
@@ -10587,6 +10594,9 @@ GameObject.prototype.addComponent = function (component) {
         component.setGameObject(this);
     }
 
+    // set the related component game object:
+    component.gameObject = this;
+
     this._components.push(component);
 };
 
@@ -10601,6 +10611,12 @@ GameObject.prototype.update = function (delta) {
             elem.update(delta);
         }
     });
+
+    this._components.forEach(function (component) {
+       if (component.update) {
+           component.update(delta);
+       }
+    });
 };
 
 GameObject.prototype.render = function (delta, spriteBatch) {
@@ -10612,6 +10628,12 @@ GameObject.prototype.render = function (delta, spriteBatch) {
     this._children.forEach(function (elem) {
         if (elem.render) {
             elem.render(delta, spriteBatch);
+        }
+    });
+
+    this._components.forEach(function (component) {
+        if (component.render) {
+            component.render(delta, spriteBatch);
         }
     });
 };
@@ -10829,6 +10851,13 @@ GameScene.prototype.prepareRender = function () {
 
 GameScene.prototype.sceneLateUpdate = function (delta) {
     Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
+};
+
+GameScene.prototype.sceneUpdate = function (delta) {
+    // let's render all game objects on scene:
+    for (var i = 0; i < this._gameObjects.length; i++) {
+        this._gameObjects[i].update(delta);
+    }
 };
 
 GameScene.prototype.sceneRender = function (delta) {
@@ -11162,6 +11191,86 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
 
     gl.drawArrays(gl.LINES, 0, 2);
 };;/**
+ * Scripts singleton
+ * @constructor
+ */
+function Scripts() {
+}
+
+Scripts._store = {};
+
+/**
+ * Setup a script adding event handlers and such
+ * @private
+ */
+Scripts._setupScript = function (script) {
+    script.properties = {
+        _store: {},
+        _target: script,
+        add: function (name, attr) {
+            // save on the target's properties store the attributes:
+            this._store[name] = attr;
+        },
+        get: function (name) {
+            return this._store[name];
+        },
+        getAll: function () {
+            return this._store;
+        }
+    };
+};
+
+/**
+ * Clear all the stored scripts
+ */
+Scripts.clear = function () {
+    Scripts._store = {};
+};
+
+/**
+ * Creates and stores a script code
+ * @returns {ObjectComponent}
+ */
+Scripts.addScript = function (name) {
+    var script = function instance() {
+    };
+    Scripts._store[name] = script;
+    Scripts._setupScript(script);
+    return script;
+};
+// alias:
+sc.addScript = Scripts.addScript;
+
+/**
+ * Generates a component from one stored script
+ * @param scriptName
+ * @param gameObject
+ */
+Scripts.generateComponent = function (scriptName, gameObject) {
+    if (!Scripts._store[scriptName]) {
+        return null;
+    }
+
+    var component = Object.create(Scripts._store[scriptName].prototype);
+    component._name = scriptName;
+
+    // now we need to assign all the instance properties defined:
+    var properties = Scripts._store[scriptName].properties.getAll();
+    var propertyNames = Object.keys(properties);
+
+    if (propertyNames && propertyNames.length > 0) {
+        propertyNames.forEach(function (propName) {
+            // assign the default value if exists:
+            component[propName] = properties[propName].default;
+        });
+    }
+
+    if (gameObject) {
+        gameObject.addComponent(component);
+    }
+
+    return component;
+};;/**
  * Sound class
  */
 function Sound(audio) {
@@ -11250,12 +11359,15 @@ function Sprite(params) {
     GameObject.call(this, params);
 
     // private properties:
-    this._texture = params.texture;
     this._textureSrc = "";
     this._tint = params.tint || Color.fromRGB(255, 255, 255);
     this._textureWidth = 0;
     this._textureHeight = 0;
     this._origin = new Vector2(0.5, 0.5);
+
+    if (params.texture) {
+        this.setTexture(params.texture);
+    }
 }
 
 inheritsFrom(Sprite, GameObject);
@@ -11625,7 +11737,7 @@ function Texture2D(image) {
 
     // private properties:
     this._uid = generateUID();
-    this._source = source;
+    this._source = image;
     this._texture = null;
     this._gl = gl = GameManager.renderContext.getContext();
 
@@ -11650,7 +11762,7 @@ function Texture2D(image) {
 Texture2D.fromPath = function (path) {
     return new Promise((function (resolve, reject) {
         ContentLoader.loadImage(path).then(function (image) {
-            resolve(new Texture2D(image.data));
+            resolve(new Texture2D(image));
 
         }, function () {
             reject();
@@ -11751,6 +11863,20 @@ Transform.prototype.getPosition = function () {
     return this._position;
 };
 
+Transform.prototype.translate = function(x, y) {
+    var curPos = this.getPosition();
+    this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+};
+
+Transform.prototype.rotate = function(value) {
+    this.setRotation(this.getRotation() + (value || 0));
+};
+
+Transform.prototype.scale = function(x, y) {
+    var curScale = this.getScale();
+    this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+};
+
 Transform.prototype.setRotation = function (value) {
     this._rotation = value;
     this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
@@ -11815,8 +11941,8 @@ function GridExt(params) {
 
     // private properties:
     this._game = params.game || null;
-    this._gridSize = 32;
-    this._gridColor = Color.Red;
+    this._gridSize = params.gridSize || 32;
+    this._gridColor = params.color || Color.Red;
     this._originLines = true;
     this._zoomMultiplier = 2;
     this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?

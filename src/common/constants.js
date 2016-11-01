@@ -11,3 +11,6 @@ var SCARLETT = SC = {
 		LATE_RENDER: 15
 	}
 };
+
+// function "quickies" holder
+var sc = {};

@@ -8,7 +8,7 @@ function Texture2D(image) {
 
     // private properties:
     this._uid = generateUID();
-    this._source = source;
+    this._source = image;
     this._texture = null;
     this._gl = gl = GameManager.renderContext.getContext();
 
@@ -33,7 +33,7 @@ function Texture2D(image) {
 Texture2D.fromPath = function (path) {
     return new Promise((function (resolve, reject) {
         ContentLoader.loadImage(path).then(function (image) {
-            resolve(new Texture2D(image.data));
+            resolve(new Texture2D(image));
 
         }, function () {
             reject();

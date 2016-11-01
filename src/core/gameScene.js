@@ -91,6 +91,13 @@ GameScene.prototype.sceneLateUpdate = function (delta) {
     Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
 };
 
+GameScene.prototype.sceneUpdate = function (delta) {
+    // let's render all game objects on scene:
+    for (var i = 0; i < this._gameObjects.length; i++) {
+        this._gameObjects[i].update(delta);
+    }
+};
+
 GameScene.prototype.sceneRender = function (delta) {
     // let's render all game objects on scene:
     for (var i = 0; i < this._gameObjects.length; i++) {

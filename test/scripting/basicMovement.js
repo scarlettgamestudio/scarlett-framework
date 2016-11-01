@@ -1,3 +1,0 @@
-scripts.add("basicMovement", function() {
-
-});

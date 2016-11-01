@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 
     var sortDependencies = require("sort-dependencies");
-    var copyToDirectory = "D:\\MyPC\\Documents\\Git\\ScarlettEditor\\app\\3rdparty\\";
+    var copyToDirectory = "D:\\Workspace\\scarlett-editor\\app\\lib\\";
 
     // Project configuration.
     grunt.initConfig({

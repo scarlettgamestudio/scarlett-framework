@@ -1,11 +1,13 @@
 function RigidBody (params) {
 	params = params || {};
 
+	// public properties
+	this.gameObject = null;
+
 	// private properties
 	this._isStatic = params.static || false;
 	this._mass = params.mass || null;
 	this._friction = params.friction || null;
-	this._gameObject = null;
 	this._body = null;
 
 }
@@ -13,20 +15,20 @@ function RigidBody (params) {
 RigidBody.prototype._sync = function() {
 	var self = this;
 
-	if(!isObjectAssigned(this._gameObject)) {
+	if(!isObjectAssigned(this.gameObject)) {
 		return;
 	}
 
 	if(!isObjectAssigned(this._body)) {
-		var pos = this._gameObject.transform.getPosition();
+		var pos = this.gameObject.transform.getPosition();
 
 		// TODO assign the body based on the object
 		var width = 1,
 			height = 1;
 		
-		if(isSprite(this._gameObject)) {
-			width = this._gameObject.getTexture().getWidth();
-			height = this._gameObject.getTexture().getHeight();
+		if(isSprite(this.gameObject)) {
+			width = this.gameObject.getTexture().getWidth();
+			height = this.gameObject.getTexture().getHeight();
 		}
 
 		this._body = Matter.Bodies.rectangle(pos.x, pos.y, width, height,
@@ -36,17 +38,17 @@ RigidBody.prototype._sync = function() {
 
 		Matter.World.add(GameManager.activeScene.getPhysicsWorld(), [this._body]);
 
-		var objScale = this._gameObject.transform.getScale();
+		var objScale = this.gameObject.transform.getScale();
 		Matter.Body.scale(this._body, objScale.x, objScale.y);
 
-		this._gameObject.transform.overridePositionGetter(function() {
+		this.gameObject.transform.overridePositionGetter(function() {
 			return {
 				x: self._body.position.x,
 				y: self._body.position.y
 			}
 		});
 
-		this._gameObject.transform.overrideRotationGetter(function() {
+		this.gameObject.transform.overrideRotationGetter(function() {
 			return self._body.angle;
 		});
 	}
@@ -70,14 +72,13 @@ RigidBody.prototype.getMass = function() {
 };
 
 RigidBody.prototype.setGameObject = function(gameObject) {
-	this._gameObject = gameObject;
 	this._sync();
 };
 
 RigidBody.prototype.onGameObjectDetach = function() {
-	this._gameObject.transform.clearPositionGetter();
-	this._gameObject.transform.clearScaleGetter();
-	this._gameObject.transform.clearRotationGetter();
+	this.gameObject.transform.clearPositionGetter();
+	this.gameObject.transform.clearScaleGetter();
+	this.gameObject.transform.clearRotationGetter();
 };
 
 RigidBody.prototype.onGameObjectPositionUpdated = function(value) {

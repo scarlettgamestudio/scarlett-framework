@@ -13,12 +13,15 @@ function Sprite(params) {
     GameObject.call(this, params);
 
     // private properties:
-    this._texture = params.texture;
     this._textureSrc = "";
     this._tint = params.tint || Color.fromRGB(255, 255, 255);
     this._textureWidth = 0;
     this._textureHeight = 0;
     this._origin = new Vector2(0.5, 0.5);
+
+    if (params.texture) {
+        this.setTexture(params.texture);
+    }
 }
 
 inheritsFrom(Sprite, GameObject);

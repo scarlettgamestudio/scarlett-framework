@@ -56,6 +56,20 @@ Transform.prototype.getPosition = function () {
     return this._position;
 };
 
+Transform.prototype.translate = function(x, y) {
+    var curPos = this.getPosition();
+    this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+};
+
+Transform.prototype.rotate = function(value) {
+    this.setRotation(this.getRotation() + (value || 0));
+};
+
+Transform.prototype.scale = function(x, y) {
+    var curScale = this.getScale();
+    this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+};
+
 Transform.prototype.setRotation = function (value) {
     this._rotation = value;
     this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
