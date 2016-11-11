@@ -49,16 +49,27 @@ GameScene.prototype.getBackgroundColor = function () {
     return this._backgroundColor;
 };
 
-GameScene.prototype.addGameObject = function (entity) {
-    this._gameObjects.push(entity);
+GameScene.prototype.addGameObject = function (gameObject, index) {
+    // let's be safe, make sure to remove parent if any
+    gameObject.removeParent();
+
+    if (isObjectAssigned(index)) {
+        this._gameObjects.insert(index, gameObject);
+    } else {
+        this._gameObjects.push(gameObject);
+    }
 };
 
 GameScene.prototype.getGameObjects = function () {
     return this._gameObjects;
 };
 
-GameScene.prototype.removeEntity = function (entity) {
-    // TODO: implement
+GameScene.prototype.removeGameObject = function (gameObject) {
+    for (var i = this._gameObjects.length - 1; i >= 0; i--) {
+        if (this._gameObjects[i].getUID() == gameObject.getUID()) {
+            return this._gameObjects.splice(i, 1);
+        }
+    }
 };
 
 /**

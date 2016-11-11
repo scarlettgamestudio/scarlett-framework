@@ -33,11 +33,11 @@ GameObject.prototype.equals = function (other) {
     return this === other;
 };
 
-GameObject.prototype.getBaseWidth = function() {
+GameObject.prototype.getBaseWidth = function () {
     return 1;
 };
 
-GameObject.prototype.getBaseHeight = function() {
+GameObject.prototype.getBaseHeight = function () {
     return 1;
 };
 
@@ -68,19 +68,44 @@ GameObject.prototype.getParent = function () {
     return this._parent;
 };
 
-GameObject.prototype.setParent = function (gameObject) {
-    if (gameObject.getParent() != null) {
-        gameObject.getParent().removeChild(gameObject);
+GameObject.prototype.removeParent = function () {
+    if (this._parent) {
+        this._parent.removeChild(this);
+    } else {
+        GameManager.activeScene.removeGameObject(this);
     }
 
-    this._parent = gameObject;
+    this._parent = null;
+};
+
+GameObject.prototype.setParent = function (gameObject) {
+    if (!gameObject) {
+        // since there is no game object specified we will try to look for a scene related to this game object
+        // and then add it to the root hierarchy:
+        if (GameManager.activeScene) {
+            GameManager.activeScene.addGameObject(this);
+        }
+
+    } else {
+        // does the object has a parent?
+        if (this.getParent() != null) {
+            this.getParent().removeChild(this);
+
+        } else {
+            // maybe is part of a game scene root hierarchy? if so try to remove from that
+            if (GameManager.activeScene) {
+                GameManager.activeScene.removeGameObject(this);
+            }
+        }
+
+        gameObject.addChild(this);
+    }
 };
 
 GameObject.prototype.removeChild = function (gameObject) {
     for (var i = this._children.length - 1; i >= 0; i--) {
         if (this._children[i].getUID() == gameObject.getUID()) {
-            this._children.splice(i, 1);
-            break;
+            return this._children.splice(i, 1);
         }
     }
 };
@@ -89,12 +114,45 @@ GameObject.prototype.getChildren = function () {
     return this._children;
 };
 
-GameObject.prototype.addChild = function (gameObject) {
+GameObject.prototype.addChild = function (gameObject, index) {
+    // let's be safe, make sure to remove parent if any
+    gameObject.removeParent();
+
     // update the object parent
-    gameObject.setParent(gameObject);
+    gameObject._parent = this;
 
     // add this to our children array
-    this._children.push(gameObject);
+    if (isObjectAssigned(index)) {
+        this._children.insert(index, gameObject);
+    } else {
+        this._children.push(gameObject);
+    }
+};
+
+GameObject.prototype.getHierarchyHash = function () {
+    if (this._parent) {
+        return this._parent.getHierarchyHash() + "." + this._uid;
+    }
+    return this._uid + "";
+};
+
+GameObject.prototype.isChild = function (gameObject) {
+    // check if is a child simply by getting the hierarchy hash:
+    var hierarchyHash = gameObject.getHierarchyHash().split(".");  // this . x . y . z . other
+    var thisIndex = hierarchyHash.indexOf(this._uid + ""), otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
+    return otherIndex > thisIndex && thisIndex >= 0;
+
+    // this way takes away more resources:
+    /*for (var i = 0; i < this._children.length; ++i) {
+        if (this._children[i].equals(gameObject)) {
+            return true;
+        } else {
+            if (this._children[i].isChild(gameObject)) {
+                return true;
+            }
+        }
+    }
+    return false;*/
 };
 
 GameObject.prototype.addComponent = function (component) {
@@ -121,9 +179,9 @@ GameObject.prototype.update = function (delta) {
     });
 
     this._components.forEach(function (component) {
-       if (component.update) {
-           component.update(delta);
-       }
+        if (component.update) {
+            component.update(delta);
+        }
     });
 };
 
@@ -205,10 +263,7 @@ GameObject.prototype.getRectangleBoundary = function (bulk) {
  * @returns {boolean}
  */
 GameObject.prototype.collidesWith = function (gameObject, bulk, bulkOther) {
-    var boundaryA = this.getBoundary(bulk);
-    var boundaryB = gameObject.getBoundary(bulkOther);
-
-    return Boundary.overlap(boundaryA, boundaryB);
+    return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
 };
 
 /**
