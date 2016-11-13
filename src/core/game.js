@@ -129,7 +129,7 @@ Game.prototype._onAnimationFrame = function (timestamp) {
     }
 
     // calculate the current delta time value:
-    var delta = timestamp - this._totalElapsedTime;
+    var delta = (timestamp - this._totalElapsedTime) / 1000;
     var self = this;
     this._totalElapsedTime = timestamp;
 
