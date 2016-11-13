@@ -43,6 +43,11 @@ Transform.prototype.overrideRotationGetter = function (overrideFunction) {
     this._overrideRotationFunction = overrideFunction;
 };
 
+Transform.prototype.lookAt = function(position) {
+    var direction = this.getPosition().subtract(position).normalize();
+    this.setRotation(Math.atan2(direction.y, direction.x));
+};
+
 Transform.prototype.setPosition = function (x, y) {
     this._position.set(x, y);
     this.gameObject.propagatePropertyUpdate("Position", this._position);

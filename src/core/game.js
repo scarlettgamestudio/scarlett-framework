@@ -70,19 +70,19 @@ Game.prototype.getPhysicsEngine = function () {
     return this._physicsEngine;
 };
 
-Game.prototype._bindInputHandlers = function() {
+Game.prototype._bindInputHandlers = function () {
     window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
     window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
     this._inputHandlersBinded = true;
 };
 
-Game.prototype._unbindInputHandlers = function() {
+Game.prototype._unbindInputHandlers = function () {
     window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
     window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
     this._inputHandlersBinded = false;
 };
 
-Game.prototype._keyUpListener = function(e) {
+Game.prototype._keyUpListener = function (e) {
     var keys = [e.keyCode];
 
     if (e.ctrlKey) {
@@ -97,7 +97,7 @@ Game.prototype._keyUpListener = function(e) {
     Keyboard.removeKeys(keys);
 };
 
-Game.prototype._keyDownListener = function(e) {
+Game.prototype._keyDownListener = function (e) {
     var keys = [e.keyCode];
 
     if (e.ctrlKey) {
@@ -180,8 +180,10 @@ Game.prototype._onAnimationFrame = function (timestamp) {
             this._gameScene.lateRender(delta);
         }
 
+        this._gameScene.flushRender();
+
         //} catch (ex) {
-        //	this._logger.error(ex);
+        //    this._logger.error(ex);
         //}
 
         this._executionPhase = SC.EXECUTION_PHASES.WAITING;

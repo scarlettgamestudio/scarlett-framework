@@ -114,7 +114,9 @@ GameScene.prototype.sceneRender = function (delta) {
     for (var i = 0; i < this._gameObjects.length; i++) {
         this._gameObjects[i].render(delta, this._spriteBatch);
     }
+};
 
+GameScene.prototype.flushRender = function() {
     // all draw data was stored, now let's actually render stuff into the screen!
     this._spriteBatch.flush();
 };

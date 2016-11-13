@@ -24,6 +24,7 @@ Keys.RightArrow = 39;
 Keys.DownArrow = 40;
 Keys.Insert = 45;
 Keys.Delete = 46;
+Keys.Space = 32;
 Keys.D0 = 48;
 Keys.D1 = 49;
 Keys.D2 = 50;

@@ -6,9 +6,6 @@ function SpriteBatch(game) {
         throw error("Cannot create sprite render, the Game object is missing from the parameters");
     }
 
-    // public properties:
-
-
     // private properties:
     this._game = game;
     this._gl = game.getRenderContext().getContext();
@@ -81,6 +78,18 @@ SpriteBatch.prototype.flush = function () {
             if (this._lastTexUID != texture.getUID()) {
                 texture.bind();
                 this._lastTexUID = texture.getUID();
+            }
+
+            switch (this._sprites[i].getWrapMode()) {
+                case WrapMode.REPEAT:
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+                    break;
+
+                case WrapMode.CLAMP:
+                default:
+                    break;
             }
 
             gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._sprites[i].getMatrix());

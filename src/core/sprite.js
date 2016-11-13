@@ -5,6 +5,7 @@ AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 AttributeDictionary.addRule("sprite", "_texture", {visible: false});
+AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
 
 function Sprite(params) {
     params = params || {};
@@ -18,6 +19,7 @@ function Sprite(params) {
     this._textureWidth = 0;
     this._textureHeight = 0;
     this._origin = new Vector2(0.5, 0.5);
+    this._wrapMode = WrapMode.CLAMP;
 
     if (params.texture) {
         this.setTexture(params.texture);
@@ -35,17 +37,46 @@ Sprite.prototype.getBaseHeight = function() {
 };
 
 Sprite.prototype.getMatrix = function () {
-    var width = this._textureWidth * this.transform.getScale().x;
-    var height = this._textureHeight * this.transform.getScale().y;
+    var x, y, width, height;
+
+    x = this.transform.getPosition().x;
+    y = this.transform.getPosition().y;
+
+    switch(this._wrapMode) {
+        case WrapMode.REPEAT:
+            width = 1280;
+            height = 720;
+            break;
+
+        case WrapMode.CLAMP:
+        default:
+            width = this._textureWidth * this.transform.getScale().x;
+            height = this._textureHeight * this.transform.getScale().y;
+            break;
+    }
 
     mat4.identity(this._transformMatrix);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - width * this._origin.x, this.transform.getPosition().y - height * this._origin.y, 0]);
+
+    if (this._wrapMode != WrapMode.REPEAT) {
+        mat4.translate(this._transformMatrix, this._transformMatrix, [x - width * this._origin.x, y - height * this._origin.y, 0]);
+    } else {
+        mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
+    }
+
     mat4.translate(this._transformMatrix, this._transformMatrix, [width * this._origin.x, height * this._origin.y, 0]);
     mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
     mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
     mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
 
     return this._transformMatrix;
+};
+
+Sprite.prototype.setWrapMode = function (wrapMode) {
+    this._wrapMode = wrapMode;
+};
+
+Sprite.prototype.getWrapMode = function () {
+    return this._wrapMode;
 };
 
 Sprite.prototype.setOrigin = function (origin) {

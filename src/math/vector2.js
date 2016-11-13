@@ -56,6 +56,18 @@ Vector2.prototype.normalRight = function () {
     return new Vector2(-1 * this.y, this.x);
 };
 
+Vector2.prototype.normalize = function() {
+    return Vector2.normalize(this);
+};
+
+Vector2.normalize = function (vector) {
+    var val = 1.0 / Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+    vector.x *= val;
+    vector.y *= val;
+
+    return vector;
+};
+
 /**
  * The dot product of this vector with another vector.
  * @param vector
@@ -98,6 +110,22 @@ Vector2.prototype.equals = function (obj) {
 
 Vector2.prototype.unload = function () {
 
+};
+
+Vector2.prototype.subtract = function(vector) {
+    return Vector2.subtract(this, vector);
+};
+
+Vector2.prototype.add = function(vector) {
+    return Vector2.add(this, vector);
+};
+
+Vector2.subtract = function(vectorA, vectorB) {
+    return new Vector2(vectorA.x - vectorB.x, vectorA.y - vectorB.y);
+};
+
+Vector2.add = function(vectorA, vectorB) {
+    return new Vector2(vectorA.x + vectorB.x, vectorA.y + vectorB.y);
 };
 
 Vector2.multiply = function (vectorA, vectorB) {
