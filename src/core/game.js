@@ -174,13 +174,14 @@ Game.prototype._onAnimationFrame = function (timestamp) {
         this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
         this._gameScene.sceneRender(delta);
 
+        this._gameScene.flushRender();
+
         // the user defined the game scene pre-render function?
         if (isFunction(this._gameScene.lateRender)) {
             this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
             this._gameScene.lateRender(delta);
+            this._gameScene.flushRender();
         }
-
-        this._gameScene.flushRender();
 
         //} catch (ex) {
         //    this._logger.error(ex);
