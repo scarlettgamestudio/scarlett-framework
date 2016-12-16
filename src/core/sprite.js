@@ -41,19 +41,8 @@ Sprite.prototype.getMatrix = function () {
 
     x = this.transform.getPosition().x;
     y = this.transform.getPosition().y;
-
-    switch(this._wrapMode) {
-        case WrapMode.REPEAT:
-            width = 1280;
-            height = 720;
-            break;
-
-        case WrapMode.CLAMP:
-        default:
-            width = this._textureWidth * this.transform.getScale().x;
-            height = this._textureHeight * this.transform.getScale().y;
-            break;
-    }
+    width = this._textureWidth * this.transform.getScale().x;
+    height = this._textureHeight * this.transform.getScale().y;
 
     mat4.identity(this._transformMatrix);
 
