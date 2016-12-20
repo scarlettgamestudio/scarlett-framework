@@ -42,6 +42,10 @@ WebGLContext.prototype.assignContextFromContainer = function (canvas) {
     gl.disable(gl.CULL_FACE);
     gl.disable(gl.DEPTH_TEST);
 
+    gl.blendFuncSeparate(
+        gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA,
+        gl.ONE, gl.ONE);
+
     // enable gl functions:
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

@@ -75,10 +75,11 @@ SpriteBatch.prototype.flush = function () {
 
             // for performance sake, consider if the texture is the same so we don't need to bind again
             // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
-            if (this._lastTexUID != texture.getUID()) {
+            // TODO: correct this when using textures outside spritebatch...
+            //if (this._lastTexUID != texture.getUID()) {
                 texture.bind();
                 this._lastTexUID = texture.getUID();
-            }
+            //}
 
             switch (this._sprites[i].getWrapMode()) {
                 case WrapMode.REPEAT:

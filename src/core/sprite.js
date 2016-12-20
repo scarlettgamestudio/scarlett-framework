@@ -21,9 +21,7 @@ function Sprite(params) {
     this._origin = new Vector2(0.5, 0.5);
     this._wrapMode = WrapMode.CLAMP;
 
-    if (params.texture) {
-        this.setTexture(params.texture);
-    }
+    this.setTexture(params.texture);
 }
 
 inheritsFrom(Sprite, GameObject);

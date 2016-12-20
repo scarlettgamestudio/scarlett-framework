@@ -7,6 +7,9 @@ var player;
 var playerTex, playerBulletTex, enemyTex1, enemyTex2, backgroundTex;
 var lastBurst = ENEMY_BURST_DELAY / 2;
 var enemies = [];
+var text;
+var textTexture;
+
 game.init();
 
 var gameScene = new GameScene({
@@ -21,6 +24,7 @@ ContentLoader.load({
         {path: "assets/player_bullet1.png", alias: "playerBullet"},
         {path: "assets/enemy_1.png", alias: "enemy1"},
         {path: "assets/enemy_2.png", alias: "enemy2"},
+        {path: "assets/OpenSans-Regular.png", alias: "fontBitmap"},
         {path: "assets/background.jpg", alias: "background"}
     ]
 }).then(function (result) {
@@ -34,6 +38,9 @@ gameScene.initialize = function () {
     enemyTex1 = new Texture2D(ContentLoader.getImage("enemy1"));
     enemyTex2 = new Texture2D(ContentLoader.getImage("enemy2"));
     backgroundTex = new Texture2D(ContentLoader.getImage("background"));
+    textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
+
+    text = new Text({texture: textTexture, text: "Vai comer bolinhos"});
 
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
@@ -46,6 +53,8 @@ gameScene.initialize = function () {
     player.transform.setRotation(MathHelper.PI);
     sc.assignScript("playerInput", player);
     gameScene.addGameObject(player);
+    //gameScene.addGameObject(text);
+
 };
 
 gameScene.lateUpdate = function (delta) {
@@ -54,19 +63,28 @@ gameScene.lateUpdate = function (delta) {
 
     lastBurst += delta;
     if (lastBurst >= ENEMY_BURST_DELAY) {
-        this.dispatchEnemies();
+        //this.dispatchEnemies();
         lastBurst = 0;
     }
 
     for (var i = 0; i < enemies.length; i++) {
         enemies[i].update(delta);
     }
+
+    if (Keyboard.isKeyDown(Keys.Add)){
+        this._camera.zoom -= 0.01;
+    } else if (Keyboard.isKeyDown(Keys.Subtract)){
+        this._camera.zoom += 0.01;
+    }
+
 };
 
 gameScene.lateRender = function (delta) {
     for (var i = 0; i < enemies.length; i++) {
         this._spriteBatch.storeSprite(enemies[i]);
     }
+
+    text.render(delta, this._spriteBatch);
 };
 
 gameScene.dispatchEnemies = function () {
