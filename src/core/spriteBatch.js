@@ -22,6 +22,17 @@ function SpriteBatch(game) {
         1.0, 0.0,
         1.0, 1.0
     ]);
+     /*
+
+        Texture coordinates in WebGL goes like this:
+
+        0,1----1,1
+        #--------#
+        #--------#
+        #--------#
+        0,0----1,0
+
+     */
     this._textureData = new Float32Array([
         0.0, 0.0,
         1.0, 0.0,
