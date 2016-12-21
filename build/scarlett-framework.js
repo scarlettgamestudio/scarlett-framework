@@ -10020,53 +10020,37 @@ RigidBody.prototype.unload = function() {
  * @constructor
  */
 function ContentObject(params) {
-    params = params || {};
-
-    // public properties
-    this.name = params.name;
 };/**
- * Content Texture
+ * Content Texture Atlas
  * @param params
  * @constructor
  */
-function ContentScript(params) {
+function TextureAtlas(params) {
     params = params || {};
 
     ContentObject.call(this, params);
 
     // public properties:
-    this.source = params.source || null;
+    this.sourcePath = params.sourcePath || "";
 }
 
-inheritsFrom(ContentTexture, ContentObject);;/**
- * Content Texture
- * @param params
- * @constructor
- */
-function ContentTexture(params) {
-    params = params || {};
+inheritsFrom(TextureAtlas, ContentObject);
 
-    ContentObject.call(this, params);
+TextureAtlas.prototype.objectify = function () {
+    return {
+        sourcePath: this.sourcePath
+    };
+};
 
-    // public properties:
-    this.source = params.source || "";
-}
+TextureAtlas.restore = function (data) {
+    return new TextureAtlas({
+        sourcePath: data.sourcePath
+    });
+};
 
-inheritsFrom(ContentTexture, ContentObject);;/**
- * Content Texture
- * @param params
- * @constructor
- */
-function ContentTextureAtlas(params) {
-    params = params || {};
-
-    ContentObject.call(this, params);
-
-    // public properties:
-    this.source = params.source || null;
-}
-
-inheritsFrom(ContentTexture, ContentObject);;/**
+TextureAtlas.prototype.getType = function () {
+    return "TextureAtlas";
+};;/**
  * Camera2D class
  */
 function Camera2D(x, y, viewWidth, viewHeight, zoom) {
@@ -10481,13 +10465,14 @@ Game.prototype._onAnimationFrame = function (timestamp) {
         this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
         this._gameScene.sceneRender(delta);
 
+        this._gameScene.flushRender();
+
         // the user defined the game scene pre-render function?
         if (isFunction(this._gameScene.lateRender)) {
             this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
             this._gameScene.lateRender(delta);
+            this._gameScene.flushRender();
         }
-
-        this._gameScene.flushRender();
 
         //} catch (ex) {
         //    this._logger.error(ex);
@@ -11627,19 +11612,8 @@ Sprite.prototype.getMatrix = function () {
 
     x = this.transform.getPosition().x;
     y = this.transform.getPosition().y;
-
-    switch(this._wrapMode) {
-        case WrapMode.REPEAT:
-            width = 1280;
-            height = 720;
-            break;
-
-        case WrapMode.CLAMP:
-        default:
-            width = this._textureWidth * this.transform.getScale().x;
-            height = this._textureHeight * this.transform.getScale().y;
-            break;
-    }
+    width = this._textureWidth * this.transform.getScale().x;
+    height = this._textureHeight * this.transform.getScale().y;
 
     mat4.identity(this._transformMatrix);
 
@@ -13502,11 +13476,19 @@ Objectify.restoreArray = function (array) {
     var result = [];
     array.forEach(function (elem) {
         if (elem._otype) {
-            result.push(Objectify.restore(elem._otype, elem));
+            result.push(Objectify.restore(elem, elem._otype));
         }
     });
 
     return result;
+};
+
+/**
+ * Creates a valid JSON "stringify" data object
+ * @param object
+ */
+Objectify.createDataString = function(object) {
+    return JSON.stringify(Objectify.create(object));
 };
 
 /**
@@ -13533,18 +13515,28 @@ Objectify.create = function (object) {
 
 /**
  * Restores an object of a given type
- * @param typeName (the name of the type to restore)
  * @param data (the data to restore)
+ * @param typeName (the name of the type to restore - optional if _otype is defined in data)
  */
-Objectify.restore = function (typeName, data) {
+Objectify.restore = function (data, typeName) {
     try {
-        var type = eval(typeName);
+        var type = isObjectAssigned(typeName) ? typeName : data._otype;
+        type = eval(type);
         if (type && type.restore) {
             return type.restore(data);
         }
     } catch (ex) {
         Objectify._logger.error("Failed to restore element: " + ex);
     }
+};
+
+/**
+ * Restores an object from a string
+ * @param jsonString
+ * @param typeName
+ */
+Objectify.restoreFromString = function (jsonString, typeName) {
+    return Objectify.restore(JSON.parse(jsonString), typeName);
 };
 
 /**
@@ -13644,6 +13636,12 @@ Path.relativeTo = function (pathA, pathB) {
 Path.makeRelative = function (basePath, fullPath) {
     return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
 };;/**
+ * General utility class
+ */
+var Utility = function () {
+
+};
+;/**
  * WebGL Context class
  */
 function WebGLContext(params) {

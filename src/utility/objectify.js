@@ -37,11 +37,19 @@ Objectify.restoreArray = function (array) {
     var result = [];
     array.forEach(function (elem) {
         if (elem._otype) {
-            result.push(Objectify.restore(elem._otype, elem));
+            result.push(Objectify.restore(elem, elem._otype));
         }
     });
 
     return result;
+};
+
+/**
+ * Creates a valid JSON "stringify" data object
+ * @param object
+ */
+Objectify.createDataString = function(object) {
+    return JSON.stringify(Objectify.create(object));
 };
 
 /**
@@ -68,18 +76,28 @@ Objectify.create = function (object) {
 
 /**
  * Restores an object of a given type
- * @param typeName (the name of the type to restore)
  * @param data (the data to restore)
+ * @param typeName (the name of the type to restore - optional if _otype is defined in data)
  */
-Objectify.restore = function (typeName, data) {
+Objectify.restore = function (data, typeName) {
     try {
-        var type = eval(typeName);
+        var type = isObjectAssigned(typeName) ? typeName : data._otype;
+        type = eval(type);
         if (type && type.restore) {
             return type.restore(data);
         }
     } catch (ex) {
         Objectify._logger.error("Failed to restore element: " + ex);
     }
+};
+
+/**
+ * Restores an object from a string
+ * @param jsonString
+ * @param typeName
+ */
+Objectify.restoreFromString = function (jsonString, typeName) {
+    return Objectify.restore(JSON.parse(jsonString), typeName);
 };
 
 /**
