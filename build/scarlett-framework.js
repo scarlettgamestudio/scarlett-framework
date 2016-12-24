@@ -10371,8 +10371,12 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
     // retrieve words
     var words = str.split(' ');
 
-    var currentWidth = 0;
+    var currentWordWidth = 0;
     var resultingText = "";
+    var currentLineWordCount = 0;
+
+    var whitespace = " ";
+    var whitespaceWidth = this._measureTextWidth(whitespace, scale);
 
     // iterate through the words
     for (var w = 0; w < words.length; w++){
@@ -10382,23 +10386,39 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
         // calculate word width according to the text scale (not characters length!)
         var wordWidth = this._measureTextWidth(word, scale);
 
-        // simulate width with the current word
-        var tempWidth = currentWidth + wordWidth;
+        var whitespacesInBetweenWidth = 0;
+
+        // we do this so we don't have to recalculate the whole line width
+        if (currentLineWordCount > 1)
+            whitespacesInBetweenWidth = whitespaceWidth * (currentLineWordCount - 1);
+
+        // simulate line width with the current word and whitespaces in between
+        var tempWidth = currentWordWidth + wordWidth + whitespacesInBetweenWidth;
 
         // if it's not the first word, and it doesn't fit in the line
         // note: it wouldn't make sense to add a break before the first word.. we would end up with \n{word}
-        if (w > 0 && tempWidth >= maxLineWidth){
+        if (w > 0 && tempWidth > maxLineWidth){
             // insert break character
             resultingText = resultingText.insert(resultingText.length, brk);
-            // reset
-            currentWidth = 0;
+
+            // reset since we have added another line
+            currentWordWidth = 0;
+            currentLineWordCount = 0;
         }
         else {
+            currentLineWordCount++;
             // update current width
-            currentWidth += wordWidth;
+            currentWordWidth += wordWidth;
         }
+
+        // only add whitespace if there is a word before (i.e., line word count is at least 1)
+        if (currentLineWordCount > 1){
+            word = whitespace + word;
+        }
+
         // insert word and a blank space since the split got rid of them
-        resultingText = resultingText.insert(resultingText.length, word + " ");
+        resultingText = resultingText.insert(resultingText.length, word);
+
     }
 
     return resultingText;
@@ -10434,7 +10454,6 @@ Text.prototype._measure = function (text, size) {
     if (this._wordWrap){
         // initialize resulting text
         var wrappedText = "";
-
         // split text into lines defined by the user
         userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 

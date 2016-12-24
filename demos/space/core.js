@@ -42,6 +42,9 @@ gameScene.initialize = function () {
 
     text = new Text({texture: textTexture, text: "Vai comer\r\nbolinhos"});
 
+    // set initial text area value
+    document.getElementById('str').value = text.getText();
+
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
     sc.assignScript("backgroundAgent", background);
@@ -55,6 +58,16 @@ gameScene.initialize = function () {
     gameScene.addGameObject(player);
     //gameScene.addGameObject(text);
 
+};
+
+
+document.getElementById('str').oninput = updateValues;
+
+function updateValues()
+{
+    var str = document.getElementById('str').value;
+
+    text.setText(str);
 };
 
 gameScene.lateUpdate = function (delta) {
