@@ -44,6 +44,9 @@ gameScene.initialize = function () {
 
     // set initial text area value
     document.getElementById('str').value = text.getText();
+    document.getElementById('stroke').value = text.getStroke().getSize();
+    document.getElementById('scale').value = text.getFontSize();
+    document.getElementById('gamma').value = text.getGamma();
 
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
@@ -57,17 +60,27 @@ gameScene.initialize = function () {
     sc.assignScript("playerInput", player);
     gameScene.addGameObject(player);
     //gameScene.addGameObject(text);
-
 };
 
 
 document.getElementById('str').oninput = updateValues;
 
+document.getElementById('stroke').oninput = updateValues;
+document.getElementById('scale').oninput = updateValues;
+document.getElementById('gamma').oninput = updateValues;
+
 function updateValues()
 {
     var str = document.getElementById('str').value;
+    var stroke = +document.getElementById('stroke').value;
+
+    var scale = +document.getElementById('scale').value;
+    var gamma = +document.getElementById('gamma').value;
 
     text.setText(str);
+    text.setGamma(gamma);
+    text.setFontSize(scale);
+    text.getStroke().setSize(stroke);
 };
 
 gameScene.lateUpdate = function (delta) {

@@ -10124,7 +10124,7 @@ function Text(params) {
     this._color = params.color || Color.fromRGBA(0, 0, 0, 1.0);
     this._text = params.text || "";
 
-    this._fontSize = 70;
+    this._fontSize = 70.0;
     this._gamma = 2;
 
     this._stroke = new Stroke();
@@ -10304,6 +10304,22 @@ Text.prototype.getText = function () {
     return this._text;
 };
 
+Text.prototype.setFontSize = function (size) {
+    this._fontSize = size;
+};
+
+Text.prototype.getFontSize = function () {
+    return this._fontSize;
+};
+
+Text.prototype.setGamma = function (gamma) {
+    this._gamma = gamma;
+};
+
+Text.prototype.getGamma = function () {
+    return this._gamma;
+};
+
 Text.prototype.setTextureSrc = function (path) {
     this._textureSrc = path;
 
@@ -10424,7 +10440,9 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
     return resultingText;
 };
 
-// function to create the definitive lines to draw in the screen
+/*
+ * create the definitive lines to draw in the screen
+ */
 Text.prototype._measure = function (text, size) {
     // create empty array
     var lines = [];
@@ -10435,7 +10453,7 @@ Text.prototype._measure = function (text, size) {
         return lines;
     }
 
-    // create first line
+    // create first line, since it's sure to have some text
     lines.push({
         chars: [],
         advance: 0
@@ -10572,7 +10590,7 @@ Text.prototype._createText = function (str, size) {
         }
 
         // update Y (one more line)
-        currentY += this._fontSize;
+        currentY += this.getFontSize();
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
