@@ -31,6 +31,9 @@ function Text(params) {
 
     this._align = Text.AlignType.CENTER;
 
+    this._wordWrap = true;
+    this._characterWrap = true;
+
     // either 0 or 1
     this._debug = 0;
 
@@ -219,7 +222,7 @@ Text.prototype.getTextureSrc = function () {
 };
 
 
-var maxWidth = 300;
+var maxWidth = 500;
 
 Text.prototype._isCharValid = function(char){
     // if char is not valid (doesn't exist), return false
@@ -230,6 +233,75 @@ Text.prototype._isCharValid = function(char){
     return true;
 };
 
+Text.prototype._measureTextWidth = function(text, scale){
+    if (!text || !scale){
+        return 0;
+    }
+
+    var width = 0;
+
+    // iterate through every character
+    for (var c = 0; c < text.length; c++){
+        if (!this._isCharValid(c)) {
+            continue;
+        }
+
+        // add character width based on the scale
+        width += this._metrics.chars[c][4] * scale;
+    }
+
+    return width;
+};
+
+Array.prototype.insert = function (index) {
+    this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
+};
+
+String.prototype.insert = function (index, string) {
+    if (index > 0)
+        return this.substring(0, index) + string + this.substring(index, this.length);
+    else
+        return string + this;
+};
+
+Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale){
+    // retrieve words
+    var words = str.split(' ');
+
+    var currentWidth = 0;
+    var resultingText = "";
+
+    // iterate through the words
+    for (var w = 0; w < words.length; w++){
+        // retrieve word
+        var word = words[w];
+
+        // calculate word width according to the text scale (not characters length!)
+        var wordWidth = this._measureTextWidth(word, scale);
+
+        // simulate width with the current word
+        var tempWidth = currentWidth + wordWidth;
+
+        // if it's not the first word, and it doesn't fit in the line
+        // note: it wouldn't make sense to add a break before the first word.. we would end up with \n{word}
+        if (w > 0 && tempWidth >= maxLineWidth){
+            // insert break character
+            resultingText = resultingText.insert(resultingText.length, brk);
+            // reset
+            currentWidth = 0;
+        }
+        else {
+            // update current width
+            currentWidth += wordWidth;
+        }
+        // insert word and a blank space since the split got rid of them
+        resultingText = resultingText.insert(resultingText.length, word + " ");
+    }
+
+    return resultingText;
+};
+
+// function to create the definitive lines to draw in the screen
 Text.prototype._measure = function (text, size) {
     // create empty array
     var lines = [];
@@ -240,9 +312,6 @@ Text.prototype._measure = function (text, size) {
         return lines;
     }
 
-    // split text into defined by user lines
-    const userDefinedLines = text.split(/(?:\r\n|\r|\n)/);
-
     // create first line
     lines.push({
         chars: [],
@@ -251,6 +320,37 @@ Text.prototype._measure = function (text, size) {
 
     // calculate text scale
     var scale = size / this._metrics.size;
+
+    // store original text
+    var useText = text;
+
+    // create array for user defined lines
+    var userDefinedLines = [];
+
+    // word wrap by inserting \n in the original text
+    if (this._wordWrap){
+        // initialize resulting text
+        var wrappedText = "";
+
+        // split text into lines defined by the user
+        userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
+
+        // iterate through lines
+        for (var l = 0; l < userDefinedLines.length; l++){
+            // wrap line
+            var wrappedLine = this._wrapWordsByReplacement(userDefinedLines[l], "\n", maxWidth, scale);
+            // always insert a break at the end since the split gets rid of the user defined breaks...
+            wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
+            // concatenate to resulting wrapping text
+            wrappedText = wrappedText.concat(wrappedLine);
+        }
+
+        // assign useText to resulting wrapping text
+        useText = wrappedText;
+    }
+
+    // split text into lines defined by the users (and also word wrapped ;))
+    userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 
     // iterate through user defined lines (with special characters)
     for (var l = 0; l < userDefinedLines.length; l++){
@@ -272,7 +372,7 @@ Text.prototype._measure = function (text, size) {
             var currentLine = lines.length - 1;
 
             // if current line advance + the current character advance is >= than the max width
-            if(lines[currentLine].advance + horiAdvance >= maxWidth){
+            if(this._characterWrap && lines[currentLine].advance + horiAdvance >= maxWidth){
                 // add new line and push the current character
                 lines.push({
                     chars: new Array(char),
@@ -280,12 +380,13 @@ Text.prototype._measure = function (text, size) {
                 });
             }
             else {
-
+                // else, add line advance and push the character
                 lines[currentLine].advance += horiAdvance;
                 lines[currentLine].chars.push(char);
             }
         }
 
+        // add new line (user defined one)
         lines.push({
             chars: [],
             advance: 0
@@ -303,6 +404,7 @@ Text.prototype._createText = function (str, size) {
     var vertexElements = [];
     var textureElements = [];
 
+    // create the lines to draw onto the screen
     var lines = this._measure(str, size);
 
     // center (0,0)
@@ -334,10 +436,12 @@ Text.prototype._createText = function (str, size) {
                 x = 0 - lines[i].advance / 2;
         }
 
+        // create pen with the screen coordinates
         var pen = { x: x, y: currentY };
 
         // iterate through line chars
         for (var j = 0; j < lines[i].chars.length; j++){
+
             // retrieve line char
             var chr = lines[i].chars[j];
 
@@ -345,7 +449,7 @@ Text.prototype._createText = function (str, size) {
             this._drawGlyph(metrics, chr, pen, scale, vertexElements, textureElements);
         }
 
-        // update Y
+        // update Y (one more line)
         currentY += this._fontSize;
     }
 
