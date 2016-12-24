@@ -219,7 +219,7 @@ Text.prototype.getTextureSrc = function () {
 };
 
 
-var maxWidth = 200;
+var maxWidth = 300;
 
 Text.prototype._isCharValid = function(char){
     // if char is not valid (doesn't exist), return false
@@ -252,9 +252,6 @@ Text.prototype._measure = function (text, size) {
     // calculate text scale
     var scale = size / this._metrics.size;
 
-    // current line index
-    var lineIndex = 0;
-
     // iterate through user defined lines (with special characters)
     for (var l = 0; l < userDefinedLines.length; l++){
 
@@ -272,20 +269,20 @@ Text.prototype._measure = function (text, size) {
             // calculate horizontal advance based on the scaling
             var horiAdvance = this._metrics.chars[char][4] * scale;
 
+            var currentLine = lines.length - 1;
+
             // if current line advance + the current character advance is >= than the max width
-            if(lines[lineIndex].advance + horiAdvance >= maxWidth){
+            if(lines[currentLine].advance + horiAdvance >= maxWidth){
                 // add new line and push the current character
                 lines.push({
                     chars: new Array(char),
                     advance: horiAdvance
                 });
-                // increment line index
-                lineIndex++;
             }
             else {
 
-                lines[lineIndex].advance += horiAdvance;
-                lines[lineIndex].chars.push(char);
+                lines[currentLine].advance += horiAdvance;
+                lines[currentLine].chars.push(char);
             }
         }
 
@@ -293,7 +290,6 @@ Text.prototype._measure = function (text, size) {
             chars: [],
             advance: 0
         });
-        lineIndex++;
     }
 
     return lines;
