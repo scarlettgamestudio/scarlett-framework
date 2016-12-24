@@ -6,7 +6,7 @@
  */
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
-AttributeDictionary.addRule("text", "_tint", {displayName: "Tint"});
+AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
 AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
 AttributeDictionary.addRule("text", "_texture", {visible: false});
 
@@ -18,12 +18,19 @@ function Text(params) {
     GameObject.call(this, params);
 
     this._textureSrc = "";
-    this._tint = params.tint || Color.fromRGB(255, 255, 255);
+    this._color = params.color || Color.fromRGBA(0, 0, 0, 1.0);
     this._text = params.text || "";
 
-    this._scale = 70;
+    this._fontSize = 70;
     this._gamma = 2;
-    this._buffer = 0.7;
+
+    this._stroke = new Stroke();
+    // values between 0.1 and 0.7, where 0.1 is the highest stroke value... better to normalize?
+    this._stroke.setSize(0.7);
+    this._stroke.setColor(Color.fromRGBA(255, 255, 255, 1.0));
+
+    this._align = Text.AlignType.CENTER;
+
     // either 0 or 1
     this._debug = 0;
 
@@ -50,20 +57,30 @@ function Text(params) {
 
 inheritsFrom(Text, GameObject);
 
+Text.AlignType = {
+    LEFT: 1,
+    CENTER: 2,
+    RIGHT: 3
+};
+
 Text.prototype.render = function (delta, spriteBatch) {
 
     if (!this.enabled) {
         return;
     }
 
+    // get gl context
     var gl = this._gl;
 
+    // use text shader
     GameManager.activeGame.getShaderManager().useShader(this._textShader);
 
+    // enable shader attributes
     gl.enableVertexAttribArray(this._textShader.attributes.a_pos);
     gl.enableVertexAttribArray(this._textShader.attributes.a_texcoord);
 
-    this._createText(this._text, this._scale);
+    // create text
+    this._createText(this._text, this._fontSize);
 
     var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
 
@@ -78,6 +95,7 @@ Text.prototype.render = function (delta, spriteBatch) {
     // tell the shader which unit you bound the texture to. In this case it's to sampler 0
     gl.uniform1i(this._textShader.uniforms.u_texture._location, 0);
 
+    // debug
     gl.uniform1f(this._textShader.uniforms.u_debug._location, this._debug);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
@@ -86,19 +104,22 @@ Text.prototype.render = function (delta, spriteBatch) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
     gl.vertexAttribPointer(this._textShader.attributes.a_texcoord, 2, gl.FLOAT, false, 0, 0);
 
-    // outline
-    gl.uniform4fv(this._textShader.uniforms.u_color._location, [ 1, 1, 1, 1 ]);
+    // stroke
+    var strokeColor = this.getStroke().getColor();
+    gl.uniform4fv(this._textShader.uniforms.u_color._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
+    // stroke size
+    gl.uniform1f(this._textShader.uniforms.u_buffer._location, this.getStroke().getSize());
 
-    // outline size (buffer)
-    gl.uniform1f(this._textShader.uniforms.u_buffer._location, this._buffer);
     gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
 
+    var color = this.getColor();
+
     // font color (tint)
-    gl.uniform4fv(this._textShader.uniforms.u_color._location, [ 0, 0, 0, 1 ]);
+    gl.uniform4fv(this._textShader.uniforms.u_color._location, [color.r, color.g, color.b, color.a]);
     gl.uniform1f(this._textShader.uniforms.u_buffer._location, 192 / 256);
 
-    // gamma value
-    gl.uniform1f(this._textShader.uniforms.u_gamma._location, this._gamma * 1.4142 / this._scale);
+    // gamma value (how sharp is the text)
+    gl.uniform1f(this._textShader.uniforms.u_gamma._location, this._gamma * 1.4142 / this._fontSize);
     gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
 
     // parent render function:
@@ -153,12 +174,20 @@ Text.prototype.setTexture = function (texture) {
     this._textureHeight = this._texture.getHeight();
 };
 
-Text.prototype.setTint = function (color) {
-    this._tint = color;
+Text.prototype.setColor = function (color) {
+    this._color = color;
 };
 
-Text.prototype.getTint = function () {
-    return this._tint;
+Text.prototype.getColor = function () {
+    return this._color;
+};
+
+Text.prototype.setStroke = function (stroke) {
+    this._stroke = stroke;
+};
+
+Text.prototype.getStroke = function () {
+    return this._stroke;
 };
 
 Text.prototype.setText = function (str) {
@@ -189,19 +218,87 @@ Text.prototype.getTextureSrc = function () {
     return this._textureSrc;
 };
 
-Text.prototype._measure = function (text, size) {
-    var dimensions = {
-        advance: 0
-    };
 
-    var scale = size / this._metrics.size;
-    for (var i = 0; i < text.length; i++) {
-        var horiAdvance = this._metrics.chars[text[i]][4];
-        dimensions.advance += horiAdvance * scale;
+var maxWidth = 200;
+
+Text.prototype._isCharValid = function(char){
+    // if char is not valid (doesn't exist), return false
+    if (!this._metrics.chars[char] || this._metrics.chars[char] === undefined){
+        return false;
+    }
+    // else, return true
+    return true;
+};
+
+Text.prototype._measure = function (text, size) {
+    // create empty array
+    var lines = [];
+
+    // TODO: trim?
+    // if text is empty, no need to go further
+    if (!text){
+        return lines;
     }
 
-    return dimensions;
+    // split text into defined by user lines
+    const userDefinedLines = text.split(/(?:\r\n|\r|\n)/);
+
+    // create first line
+    lines.push({
+        chars: [],
+        advance: 0
+    });
+
+    // calculate text scale
+    var scale = size / this._metrics.size;
+
+    // current line index
+    var lineIndex = 0;
+
+    // iterate through user defined lines (with special characters)
+    for (var l = 0; l < userDefinedLines.length; l++){
+
+        // iterate through every defined line
+        for (var i = 0; i < userDefinedLines[l].length; i++) {
+
+            // retrieve line character
+            var char = userDefinedLines[l][i];
+
+            // if char is invalid, skip
+            if (!this._isCharValid(char)){
+                continue;
+            }
+
+            // calculate horizontal advance based on the scaling
+            var horiAdvance = this._metrics.chars[char][4] * scale;
+
+            // if current line advance + the current character advance is >= than the max width
+            if(lines[lineIndex].advance + horiAdvance >= maxWidth){
+                // add new line and push the current character
+                lines.push({
+                    chars: new Array(char),
+                    advance: horiAdvance
+                });
+                // increment line index
+                lineIndex++;
+            }
+            else {
+
+                lines[lineIndex].advance += horiAdvance;
+                lines[lineIndex].chars.push(char);
+            }
+        }
+
+        lines.push({
+            chars: [],
+            advance: 0
+        });
+        lineIndex++;
+    }
+
+    return lines;
 };
+
 
 Text.prototype._createText = function (str, size) {
 
@@ -210,13 +307,50 @@ Text.prototype._createText = function (str, size) {
     var vertexElements = [];
     var textureElements = [];
 
-    var dimensions = this._measure(str, size);
+    var lines = this._measure(str, size);
 
     // center (0,0)
-    var pen = { x: 0 - dimensions.advance / 2, y: 0 };
-    for (var i = 0; i < str.length; i++) {
-        var chr = str[i];
-        this._drawGlyph(chr, pen, size, vertexElements, textureElements);
+
+    var currentY = 0;
+
+    var metrics = this._metrics;
+    var scale = size / metrics.size;
+
+    this._align = Text.AlignType.LEFT;
+
+    var x;
+
+    switch(this._align) {
+        case Text.AlignType.LEFT:
+            x = 0; // bounding box x
+            break;
+        case Text.AlignType.RIGHT: // x + bounding box width
+            break;
+        default:
+            // do nothing since center it's calculated per line
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+
+        if (this._align == Text.AlignType.CENTER){
+            // text x position - lines[i].advance / 2 or...
+            // x + text width/2 - lines[i].advance / 2 ?
+                x = 0 - lines[i].advance / 2;
+        }
+
+        var pen = { x: x, y: currentY };
+
+        // iterate through line chars
+        for (var j = 0; j < lines[i].chars.length; j++){
+            // retrieve line char
+            var chr = lines[i].chars[j];
+
+            // draw it
+            this._drawGlyph(metrics, chr, pen, scale, vertexElements, textureElements);
+        }
+
+        // update Y
+        currentY += this._fontSize;
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
@@ -228,16 +362,18 @@ Text.prototype._createText = function (str, size) {
     this._textureBuffer.numItems = textureElements.length / 2;
 };
 
-Text.prototype._drawGlyph = function (chr, pen, size, vertexElements, textureElements) {
-    var metrics = this._metrics;
+Text.prototype._drawGlyph = function (metrics, chr, pen, scale, vertexElements, textureElements) {
 
-    var metric = metrics.chars[chr];
-    if (!metric) return;
+    // no need to go further is the char is invalid
+    if(!this._isCharValid(chr)){
+        return;
+    }
 
-    var scale = size / metrics.size;
+    var metric = this._metrics.chars[chr];
 
     var factor = 1;
 
+    // retrieve character metrics
     var width = metric[0];
     var height = metric[1];
     var horiBearingX = metric[2];

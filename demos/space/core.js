@@ -40,7 +40,7 @@ gameScene.initialize = function () {
     backgroundTex = new Texture2D(ContentLoader.getImage("background"));
     textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
 
-    text = new Text({texture: textTexture, text: "Vai comer bolinhos"});
+    text = new Text({texture: textTexture, text: "Vai comer\r\nbolinhos\r\noh"});
 
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
