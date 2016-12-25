@@ -47,6 +47,10 @@ gameScene.initialize = function () {
     document.getElementById('stroke').value = text.getStroke().getSize();
     document.getElementById('scale').value = text.getFontSize();
     document.getElementById('gamma').value = text.getGamma();
+    document.getElementById('debug').checked = text.getDebug();
+
+    document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
+    document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
 
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
@@ -62,12 +66,13 @@ gameScene.initialize = function () {
     //gameScene.addGameObject(text);
 };
 
-
 document.getElementById('str').oninput = updateValues;
-
 document.getElementById('stroke').oninput = updateValues;
 document.getElementById('scale').oninput = updateValues;
 document.getElementById('gamma').oninput = updateValues;
+document.getElementById('debug').onchange = updateValues;
+document.getElementById('alignLeft').onchange = updateValues;
+document.getElementById('alignCenter').onchange = updateValues;
 
 function updateValues()
 {
@@ -77,10 +82,16 @@ function updateValues()
     var scale = +document.getElementById('scale').value;
     var gamma = +document.getElementById('gamma').value;
 
+    var debug = +document.getElementById('debug').checked;
+
+    var align = +document.getElementById('alignLeft').checked ? Text.AlignType.LEFT : Text.AlignType.CENTER;
+
     text.setText(str);
     text.setGamma(gamma);
     text.setFontSize(scale);
     text.getStroke().setSize(stroke);
+    text.setDebug(debug);
+    text.setAlign(align);
 };
 
 gameScene.lateUpdate = function (delta) {

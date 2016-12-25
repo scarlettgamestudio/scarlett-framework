@@ -29,7 +29,7 @@ function Text(params) {
     this._stroke.setSize(0.7);
     this._stroke.setColor(Color.fromRGBA(255, 255, 255, 1.0));
 
-    this._align = Text.AlignType.CENTER;
+    this._align = Text.AlignType.LEFT;
 
     this._wordWrap = true;
     this._characterWrap = true;
@@ -217,6 +217,22 @@ Text.prototype.getGamma = function () {
     return this._gamma;
 };
 
+Text.prototype.setDebug = function (value) {
+    this._debug = value;
+};
+
+Text.prototype.getDebug = function () {
+    return this._debug;
+};
+
+Text.prototype.setAlign = function (alignType) {
+    this._align = alignType;
+};
+
+Text.prototype.getAlign = function () {
+    return this._align;
+};
+
 Text.prototype.setTextureSrc = function (path) {
     this._textureSrc = path;
 
@@ -302,8 +318,8 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
         var whitespacesInBetweenWidth = 0;
 
         // we do this so we don't have to recalculate the whole line width
-        if (currentLineWordCount > 1)
-            whitespacesInBetweenWidth = whitespaceWidth * (currentLineWordCount - 1);
+        if (currentLineWordCount > 0)
+            whitespacesInBetweenWidth = whitespaceWidth * currentLineWordCount;
 
         // simulate line width with the current word and whitespaces in between
         var tempWidth = currentWordWidth + wordWidth + whitespacesInBetweenWidth;
@@ -318,11 +334,11 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
             currentWordWidth = 0;
             currentLineWordCount = 0;
         }
-        else {
-            currentLineWordCount++;
-            // update current width
-            currentWordWidth += wordWidth;
-        }
+
+        // update word width
+        currentLineWordCount++;
+        // update current width; no need to take care of the whitespaces here
+        currentWordWidth += wordWidth;
 
         // only add whitespace if there is a word before (i.e., line word count is at least 1)
         if (currentLineWordCount > 1){
@@ -450,8 +466,6 @@ Text.prototype._createText = function (str, size) {
 
     var metrics = this._metrics;
     var scale = size / metrics.size;
-
-    this._align = Text.AlignType.LEFT;
 
     var x;
 
