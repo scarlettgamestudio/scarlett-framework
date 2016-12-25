@@ -330,12 +330,12 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
             // insert break character
             resultingText = resultingText.insert(resultingText.length, brk);
 
-            // reset since we have added another line
+            // reset count since we have added another line
             currentWordWidth = 0;
             currentLineWordCount = 0;
         }
 
-        // update word width
+        // update word width (will be 1 if a newline was created)
         currentLineWordCount++;
         // update current width; no need to take care of the whitespaces here
         currentWordWidth += wordWidth;
@@ -347,7 +347,6 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
 
         // insert word and a blank space since the split got rid of them
         resultingText = resultingText.insert(resultingText.length, word);
-
     }
 
     return resultingText;
