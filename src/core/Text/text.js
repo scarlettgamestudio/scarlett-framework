@@ -31,7 +31,7 @@ function Text(params) {
 
     this._align = Text.AlignType.LEFT;
 
-    this._wordWrap = true;
+    this._wordWrap = false;
     this._characterWrap = true;
 
     // either 0 or 1
@@ -223,6 +223,22 @@ Text.prototype.setDebug = function (value) {
 
 Text.prototype.getDebug = function () {
     return this._debug;
+};
+
+Text.prototype.setWordWrap = function (wrap) {
+    this._wordWrap = wrap;
+};
+
+Text.prototype.getWordWrap = function () {
+    return this._wordWrap;
+};
+
+Text.prototype.setCharacterWrap = function (wrap) {
+    this._characterWrap = wrap;
+};
+
+Text.prototype.getCharacterWrap = function () {
+    return this._characterWrap;
 };
 
 Text.prototype.setAlign = function (alignType) {
