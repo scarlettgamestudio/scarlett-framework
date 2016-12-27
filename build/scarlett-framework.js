@@ -10462,6 +10462,8 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
         // simulate line width with the current word and whitespaces in between
         var tempWidth = currentWordWidth + wordWidth + whitespacesInBetweenWidth;
 
+        // TODO: character wrap when wordWidth > maxLineWidth
+
         // if it's not the first word, and it doesn't fit in the line
         // note: it wouldn't make sense to add a break before the first word.. we would end up with \n{word}
         if (w > 0 && tempWidth > maxLineWidth){
@@ -10537,6 +10539,25 @@ Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
     return lines;
 };
 
+Text.prototype._convertTextToLine = function(text, scale){
+    // define empty line
+    var line = {
+        chars: Array(),
+        width: 0
+    };
+
+    // return empty if any of the values is invalid
+    if (!text || !scale){
+        return line;
+    }
+
+    // set line characters and width
+    line.chars = text.split("");
+    line.width = this._measureTextWidth(text, scale);
+
+    return line;
+};
+
 /*
  * create the definitive lines to draw in the screen
  */
@@ -10594,7 +10615,7 @@ Text.prototype._measure = function (text, size) {
         useText = wrappedText;
     }
 
-    // split text into lines defined by the users (and also word wrapped now;))
+    // split text into lines defined by the users (and also word wrapped now ;))
     userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 
     // iterate through user defined lines (with special characters)
@@ -10616,26 +10637,6 @@ Text.prototype._measure = function (text, size) {
 
     return resultLines;
 };
-
-Text.prototype._convertTextToLine = function(text, scale){
-    // define empty line
-    var line = {
-        chars: Array(),
-        width: 0
-    };
-
-    // return empty if any of the values is invalid
-    if (!text || !scale){
-        return line;
-    }
-
-    // set line characters and width
-    line.chars = text.split("");
-    line.width = this._measureTextWidth(text, scale);
-
-    return line;
-};
-
 
 Text.prototype._createText = function (str, size) {
 
