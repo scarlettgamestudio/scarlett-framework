@@ -274,11 +274,23 @@ var maxWidth = 500;
 
 Text.prototype._isCharValid = function(char){
     // if char is not valid (doesn't exist), return false
-    if (!this._metrics.chars[char] || this._metrics.chars[char] === undefined){
+    if (!this._metrics || !this._metrics.chars || !this._metrics.chars[char] || this._metrics.chars[char] === undefined){
         return false;
     }
     // else, return true
     return true;
+};
+
+Text.prototype._measureCharacterWidth = function(char, scale){
+    // if parameters are missing or character is invalid
+    if (!char || !scale || !this._isCharValid(char)){
+        return 0;
+    }
+
+    // calculate character width
+    var charWidth = this._metrics.chars[char][4] * scale;
+
+    return charWidth;
 };
 
 Text.prototype._measureTextWidth = function(text, scale){
@@ -290,21 +302,23 @@ Text.prototype._measureTextWidth = function(text, scale){
 
     // iterate through every character
     for (var c = 0; c < text.length; c++){
-        if (!this._isCharValid(c)) {
-            continue;
-        }
+        // retrieve character at position c
+        var char = text[c];
 
-        // add character width based on the scale
-        width += this._metrics.chars[c][4] * scale;
+        // add its width
+        width += this._measureCharacterWidth(char, scale);
     }
 
+    // return total width
     return width;
 };
 
+// TODO: place in another file?
 Array.prototype.insert = function (index) {
     this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
 };
 
+// TODO: place in another file?
 String.prototype.insert = function (index, string) {
     if (index > 0)
         return this.substring(0, index) + string + this.substring(index, this.length);
@@ -321,7 +335,7 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
     var currentLineWordCount = 0;
 
     var whitespace = " ";
-    var whitespaceWidth = this._measureTextWidth(whitespace, scale);
+    var whitespaceWidth = this._measureCharacterWidth(whitespace, scale);
 
     // iterate through the words
     for (var w = 0; w < words.length; w++){
@@ -331,6 +345,7 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
         // calculate word width according to the text scale (not characters length!)
         var wordWidth = this._measureTextWidth(word, scale);
 
+        // set initial whitespaces width as 0
         var whitespacesInBetweenWidth = 0;
 
         // we do this so we don't have to recalculate the whole line width.
@@ -372,23 +387,78 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
     return resultingText;
 };
 
-/*
- * create the definitive lines to draw in the screen
- */
-Text.prototype._measure = function (text, size) {
+// TODO: Line class?
+Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
     // create empty array
     var lines = [];
 
     // TODO: trim?
-    // if text is empty, no need to go further
-    if (!text){
+    // if word or scale are empty, no need to go further
+    if (!text || !scale){
         return lines;
     }
 
     // create first line, since it's sure to have some text
     lines.push({
         chars: [],
-        advance: 0
+        width: 0
+    });
+
+    for (var c = 0; c < text.length; c++){
+        // retrieve text character
+        var char = text[c];
+
+        // retrieve character width
+        var charWidth = this._measureCharacterWidth(char, scale);
+
+        var currentLine = lines.length - 1;
+
+        // current width + char width
+        var tempWidth = lines[currentLine].width + charWidth;
+
+        // if current line width + the current character width is >= than the max width
+        if(tempWidth >= maxLineWidth){
+            // add new line and push the current character
+            lines.push({
+                chars: new Array(char),
+                width: charWidth
+            });
+        }
+        else {
+            // else, add line width and push the character
+            lines[currentLine].width += charWidth;
+            lines[currentLine].chars.push(char);
+        }
+    }
+
+    return lines;
+};
+
+/*
+ * create the definitive lines to draw in the screen
+ */
+Text.prototype._measure = function (text, size) {
+    // create empty array
+    var resultLines = [];
+
+    // TODO: trim text? guess that, at least technically, a lot of spaces should still be drawn...
+    // if text or size or metrics don't exist, no need to go further
+    if (!text || !size || !this._metrics){
+        return resultLines;
+    }
+
+    // retrieve metrics size
+    var metricsSize = this._metrics.size;
+
+    // return is metrics size is invalid
+    if (metricsSize <= 0) {
+        return resultLines;
+    }
+
+    // create first line, since it's sure to have some text
+    resultLines.push({
+        chars: [],
+        width: 0
     });
 
     // calculate text scale
@@ -421,51 +491,46 @@ Text.prototype._measure = function (text, size) {
         useText = wrappedText;
     }
 
-    // split text into lines defined by the users (and also word wrapped ;))
+    // split text into lines defined by the users (and also word wrapped now;))
     userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 
     // iterate through user defined lines (with special characters)
     for (var l = 0; l < userDefinedLines.length; l++){
 
-        // iterate through every defined line
-        for (var i = 0; i < userDefinedLines[l].length; i++) {
+        var userDefinedLine = userDefinedLines[l];
 
-            // retrieve line character
-            var char = userDefinedLines[l][i];
+        var preparedLines = [];
 
-            // if char is invalid, skip
-            if (!this._isCharValid(char)){
-                continue;
-            }
-
-            // calculate horizontal advance based on the scaling
-            var horiAdvance = this._metrics.chars[char][4] * scale;
-
-            var currentLine = lines.length - 1;
-
-            // if current line advance + the current character advance is >= than the max width
-            if(this._characterWrap && lines[currentLine].advance + horiAdvance >= maxWidth){
-                // add new line and push the current character
-                lines.push({
-                    chars: new Array(char),
-                    advance: horiAdvance
-                });
-            }
-            else {
-                // else, add line advance and push the character
-                lines[currentLine].advance += horiAdvance;
-                lines[currentLine].chars.push(char);
-            }
+        if (this._characterWrap) {
+            preparedLines = this._wrapTextByCharacter(userDefinedLine, scale, maxWidth);
+        } else {
+            preparedLines.push(this._convertTextToLine(userDefinedLine, scale));
         }
 
-        // add new line (user defined one)
-        lines.push({
-            chars: [],
-            advance: 0
-        });
+        // extended result array (does not create a new array such as concat)
+        Array.prototype.push.apply(resultLines, preparedLines);
     }
 
-    return lines;
+    return resultLines;
+};
+
+Text.prototype._convertTextToLine = function(text, scale){
+    // define empty line
+    var line = {
+        chars: Array(),
+        width: 0
+    };
+
+    // return empty if any of the values is invalid
+    if (!text || !scale){
+        return line;
+    }
+
+    // set line characters and width
+    line.chars = text.split("");
+    line.width = this._measureTextWidth(text, scale);
+
+    return line;
 };
 
 
@@ -501,9 +566,9 @@ Text.prototype._createText = function (str, size) {
     for (var i = 0; i < lines.length; i++) {
 
         if (this._align == Text.AlignType.CENTER){
-            // text x position - lines[i].advance / 2 or...
-            // x + text width/2 - lines[i].advance / 2 ?
-                x = 0 - lines[i].advance / 2;
+            // text x position - lines[i].width / 2 or...
+            // x + text width/2 - lines[i].width / 2 ?
+                x = 0 - lines[i].width / 2;
         }
 
         // create pen with the screen coordinates
