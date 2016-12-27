@@ -333,7 +333,11 @@ Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale)
 
         var whitespacesInBetweenWidth = 0;
 
-        // we do this so we don't have to recalculate the whole line width
+        // we do this so we don't have to recalculate the whole line width.
+        // it's a simplified form of the following: currentLineWordCount + 1 > 1
+        // where adding 1 would mean counting the new word (from the current iteration);
+        // i.e., having at least 2 words would mean nWords - 1  whitespaces between them.
+        // Thus, the simplified version avoids adding and subtracting 1.
         if (currentLineWordCount > 0)
             whitespacesInBetweenWidth = whitespaceWidth * currentLineWordCount;
 
