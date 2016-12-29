@@ -326,6 +326,96 @@ String.prototype.insert = function (index, string) {
         return string + this;
 };
 
+Text.prototype._wrapWordShortVersion = function(text, maxLineWidth, scale){
+    // retrieve words
+    var words = text.split(' ');
+
+    // no need to go further if there is only 1 word
+    if (words.length == 1){
+        return words;
+    }
+
+    var result = [];
+
+    var whitespace = " ";
+    // get first word and remove it from the array
+    var currentLine = words.shift();
+
+    // iterate through the words
+    for (var w = 0; w < words.length; w++){
+        // retrieve word
+        var word = words[w];
+
+        // simulate line width with the current word and whitespaces in between
+        var tempLine = currentLine + whitespace + word;
+
+        var tempWidth = this._measureTextWidth(tempLine, scale);
+
+        if (tempWidth > maxLineWidth){
+            result.push(currentLine);
+            currentLine = word;
+        }
+        else {
+            currentLine += whitespace + word;
+        }
+    }
+
+    // push last line
+    result.push(currentLine);
+
+    return result;
+};
+
+Text.prototype._wrapWordLongVersion = function(text, maxLineWidth, scale){
+    // retrieve words
+    var words = text.split(' ');
+
+    // no need to go further if there is only 1 word
+    if (words.length == 1){
+        return words;
+    }
+
+    var result = [];
+
+    // get first word and remove it from the array
+    var currentLine = words.shift();
+    // store its width
+    var currentLineWordWidth = this._measureTextWidth(currentLine, scale);
+    var currentLineWordCount = 1;
+
+    var whitespace = " ";
+    var whitespaceWidth = this._measureCharacterWidth(whitespace, scale);
+
+    // iterate through the words
+    for (var w = 0; w < words.length; w++){
+        // retrieve word
+        var word = words[w];
+
+        // calculate word width according to the text scale (not characters length!)
+        var wordWidth = this._measureTextWidth(word, scale);
+
+        // simulate line width with the current word and whitespaces in between
+        var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
+
+        if (tempWidth > maxLineWidth){
+            result.push(currentLine);
+            currentLine = word;
+            currentLineWordCount = 1;
+            currentLineWordWidth = wordWidth;
+        }
+        else {
+            currentLine += whitespace + word;
+            currentLineWordCount++;
+            currentLineWordWidth += whitespaceWidth + wordWidth;
+        }
+    }
+
+    // push last line
+    result.push(currentLine);
+
+    return result;
+};
+
 Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale){
     // retrieve words
     var words = str.split(' ');
@@ -406,6 +496,7 @@ Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
         width: 0
     });
 
+    // iterate through text characters
     for (var c = 0; c < text.length; c++){
         // retrieve text character
         var char = text[c];
@@ -413,24 +504,32 @@ Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
         // retrieve character width
         var charWidth = this._measureCharacterWidth(char, scale);
 
+        // store current line index
         var currentLine = lines.length - 1;
 
         // current width + char width
         var tempWidth = lines[currentLine].width + charWidth;
 
-        // if current line width + the current character width is >= than the max width
-        if(tempWidth >= maxLineWidth){
-            // add new line and push the current character
+        // if current line width + the current character width is > than the max width
+        if(tempWidth > maxLineWidth){
+            // create a new and empty line
             lines.push({
-                chars: new Array(char),
-                width: charWidth
+                chars: [],
+                width: 0
             });
+
+            // update current line index
+            currentLine++;
+
+            // skip if the character is a whitespace
+            if (char === " "){
+                continue;
+            }
         }
-        else {
-            // else, add line width and push the character
-            lines[currentLine].width += charWidth;
-            lines[currentLine].chars.push(char);
-        }
+
+        // add character and its width to current line
+        lines[currentLine].width += charWidth;
+        lines[currentLine].chars.push(char);
     }
 
     return lines;
@@ -501,7 +600,7 @@ Text.prototype._measure = function (text, size) {
         // iterate through lines
         for (var l = 0; l < userDefinedLines.length; l++){
             // wrap line
-            var wrappedLine = this._wrapWordsByReplacement(userDefinedLines[l], "\n", maxWidth, scale);
+            var wrappedLine = this._wrapWordLongVersion(userDefinedLines[l], maxWidth, scale).join('\n');
             // always insert a break at the end since the split gets rid of the user defined breaks...
             wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
             // concatenate to resulting wrapping text
@@ -524,7 +623,8 @@ Text.prototype._measure = function (text, size) {
 
         if (this._characterWrap) {
             preparedLines = this._wrapTextByCharacter(userDefinedLine, scale, maxWidth);
-        } else {
+        }
+        else {
             preparedLines.push(this._convertTextToLine(userDefinedLine, scale));
         }
 
