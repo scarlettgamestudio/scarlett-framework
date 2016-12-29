@@ -768,8 +768,8 @@ Text.prototype._drawText = function (text, size) {
  * @param {string} chr character to prepare to draw
  * @param pen pen to draw with
  * @param {number} scale
- * @param vertexElements
- * @param textureElements
+ * @param {Array} vertexElements array to store the character vertices
+ * @param {Array} textureElements array to store the character texture elements
  * @private
  */
 Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements, textureElements) {
