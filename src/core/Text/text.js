@@ -432,8 +432,10 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
         // calculate word width according to the text scale (not characters length!)
         var wordWidth = this._measureTextWidth(word, scale);
 
-        // simulate line width with the current word and whitespaces in between
+        // simulate line width with the current word and a whitespace in between
         var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
+
+        // TODO: character wrap when wordWidth > maxLineWidth...
 
         if (tempWidth > maxLineWidth){
             result.push(currentLine);
