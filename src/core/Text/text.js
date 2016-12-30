@@ -33,7 +33,7 @@ function Text(params) {
 
     this._align = Text.AlignType.LEFT;
 
-    this._wordWrap = false;
+    this._wordWrap = true;
     this._characterWrap = true;
 
     // either 0 or 1
@@ -416,36 +416,56 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
     }
 
     // get first word and remove it from the array
-    var currentLine = words.shift();
+    var currentLine = "";//words.shift();
     // store its width
-    var currentLineWordWidth = this._measureTextWidth(currentLine, scale);
-    var currentLineWordCount = 1;
+    var currentLineWordWidth = 0;//this._measureTextWidth(currentLine, scale);
 
-    var whitespace = " ";
-    var whitespaceWidth = this._measureCharacterWidth(whitespace, scale);
+    var whitespace = "";// " ";
+    var whitespaceWidth = 0;//this._measureCharacterWidth(whitespace, scale);
 
     // iterate through the words
     for (var w = 0; w < words.length; w++){
         // retrieve word
         var word = words[w];
 
+        // ...... lol
+        if (w == 1){
+            whitespace = " ";
+            whitespaceWidth = this._measureCharacterWidth(whitespace, scale);
+        }
+
         // calculate word width according to the text scale (not characters length!)
         var wordWidth = this._measureTextWidth(word, scale);
+
+        // TODO: think of a cleaner way of doing this? maybe _wrapTextByCharacter shouldn't return line objects?
+        if (this._characterWrap && wordWidth > maxLineWidth){
+            var tempLine = currentLine + whitespace + word;
+
+            var characterWrappedLines = this._wrapTextByCharacter(tempLine, scale, maxLineWidth);
+
+            // currentLine is the last line so maybe next word also fits
+            currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
+            currentLineWordWidth = this._measureTextWidth(currentLine, scale);
+
+            // push the others
+            for (var cline = 0; cline < characterWrappedLines.length; cline++){
+                var characterLine = characterWrappedLines[cline].chars.join("");
+                result.push(characterLine);
+            }
+            // no need to go further in this iteration
+            continue;
+        }
 
         // simulate line width with the current word and a whitespace in between
         var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
 
-        // TODO: character wrap when wordWidth > maxLineWidth...
-
         if (tempWidth > maxLineWidth){
             result.push(currentLine);
             currentLine = word;
-            currentLineWordCount = 1;
             currentLineWordWidth = wordWidth;
         }
         else {
             currentLine += whitespace + word;
-            currentLineWordCount++;
             currentLineWordWidth += whitespaceWidth + wordWidth;
         }
     }
@@ -454,70 +474,6 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
     result.push(currentLine);
 
     return result;
-};
-
-//  TODO: remove?
-Text.prototype._wrapWordsByReplacement = function(str, brk, maxLineWidth, scale){
-    // retrieve words
-    var words = str.split(' ');
-
-    var currentWordWidth = 0;
-    var resultingText = "";
-    var currentLineWordCount = 0;
-
-    var whitespace = " ";
-    var whitespaceWidth = this._measureCharacterWidth(whitespace, scale);
-
-    // iterate through the words
-    for (var w = 0; w < words.length; w++){
-        // retrieve word
-        var word = words[w];
-
-        // calculate word width according to the text scale (not characters length!)
-        var wordWidth = this._measureTextWidth(word, scale);
-
-        // set initial whitespaces width as 0
-        var whitespacesInBetweenWidth = 0;
-
-        // we do this so we don't have to recalculate the whole line width.
-        // it's a simplified form of the following: currentLineWordCount + 1 > 1
-        // where adding 1 would mean counting the new word (from the current iteration);
-        // i.e., having at least 2 words would mean nWords - 1  whitespaces between them.
-        // Thus, the simplified version avoids adding and subtracting 1.
-        if (currentLineWordCount > 0)
-            whitespacesInBetweenWidth = whitespaceWidth * currentLineWordCount;
-
-        // simulate line width with the current word and whitespaces in between
-        var tempWidth = currentWordWidth + wordWidth + whitespacesInBetweenWidth;
-
-        // TODO: character wrap when wordWidth > maxLineWidth
-
-        // if it's not the first word, and it doesn't fit in the line
-        // note: it wouldn't make sense to add a break before the first word.. we would end up with \n{word}
-        if (w > 0 && tempWidth > maxLineWidth){
-            // insert break character
-            resultingText = resultingText.insert(resultingText.length, brk);
-
-            // reset count since we have added another line
-            currentWordWidth = 0;
-            currentLineWordCount = 0;
-        }
-
-        // update word width (will be 1 if a newline was created)
-        currentLineWordCount++;
-        // update current width; no need to take care of the whitespaces here
-        currentWordWidth += wordWidth;
-
-        // only add whitespace if there is a word before (i.e., line word count is at least 1)
-        if (currentLineWordCount > 1){
-            word = whitespace + word;
-        }
-
-        // insert word and a blank space since the split got rid of them
-        resultingText = resultingText.insert(resultingText.length, word);
-    }
-
-    return resultingText;
 };
 
 // TODO: Line class?
@@ -681,7 +637,8 @@ Text.prototype._measureText = function (text, size) {
 
         var preparedLines = [];
 
-        if (this._characterWrap) {
+        // only perform character wrap if word wrap isn't enabled in the first place
+        if (!this._wordWrap && this._characterWrap) {
             preparedLines = this._wrapTextByCharacter(userDefinedLine, scale, maxWidth);
         }
         else {
@@ -739,6 +696,7 @@ Text.prototype._drawText = function (text, size) {
         }
 
         // create pen with the screen coordinates
+        //  TODO: replace by vector2?
         var pen = { x: x, y: currentY };
 
         // iterate through line chars
