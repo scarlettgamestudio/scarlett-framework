@@ -24,7 +24,7 @@ ContentLoader.load({
         {path: "assets/player_bullet1.png", alias: "playerBullet"},
         {path: "assets/enemy_1.png", alias: "enemy1"},
         {path: "assets/enemy_2.png", alias: "enemy2"},
-        {path: "assets/OpenSans-Regular.png", alias: "fontBitmap"},
+        {path: "assets/fnt/DejaVu-sdf.png", alias: "fontBitmap"},
         {path: "assets/background.jpg", alias: "background"}
     ]
 }).then(function (result) {
@@ -40,20 +40,35 @@ gameScene.initialize = function () {
     backgroundTex = new Texture2D(ContentLoader.getImage("background"));
     textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
 
-    text = new Text({texture: textTexture, text: "Lorem ipsum\r\ndolore"});
+    var load = require('load-bmfont');
 
-    // set initial text area value
-    document.getElementById('str').value = text.getText();
-    document.getElementById('stroke').value = text.getStroke().getSize();
-    document.getElementById('scale').value = text.getFontSize();
-    document.getElementById('gamma').value = text.getGamma();
+    load('assets/fnt/DejaVu-sdf.fnt', function(err, font) {
+        if (err)
+            throw err;
 
-    document.getElementById('wordwrap').checked = text.getWordWrap();
-    document.getElementById('charwrap').checked = text.getCharacterWrap();
-    document.getElementById('debug').checked = text.getDebug();
+        //The BMFont spec in JSON form
+        /*console.log(font.common.lineHeight);
+        console.log(font.info);
+        console.log(font.chars);
+        console.log(font.kernings);*/
 
-    document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
-    document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
+        text = new Text({texture: textTexture, font: font, text: "Lorem ipsum\r\ndolore"});
+
+        // set initial text area value
+        document.getElementById('str').value = text.getText();
+        document.getElementById('stroke').value = text.getStroke().getSize();
+        document.getElementById('scale').value = text.getFontSize();
+        document.getElementById('gamma').value = text.getGamma();
+
+        document.getElementById('wordwrap').checked = text.getWordWrap();
+        document.getElementById('charwrap').checked = text.getCharacterWrap();
+        document.getElementById('debug').checked = text.getDebug();
+
+        document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
+        document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
+
+    });
+
 
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
@@ -65,7 +80,7 @@ gameScene.initialize = function () {
     player.transform.setScale(0.50);
     player.transform.setRotation(MathHelper.PI);
     sc.assignScript("playerInput", player);
-    gameScene.addGameObject(player);
+    //gameScene.addGameObject(player);
     //gameScene.addGameObject(text);
 };
 
@@ -130,7 +145,9 @@ gameScene.lateRender = function (delta) {
         this._spriteBatch.storeSprite(enemies[i]);
     }
 
-    text.render(delta, this._spriteBatch);
+    if (text) {
+        text.render(delta, this._spriteBatch);
+    }
 };
 
 gameScene.dispatchEnemies = function () {

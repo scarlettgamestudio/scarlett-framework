@@ -23,7 +23,9 @@ function TextShader() {
         ].join('\n'),
         // inline-fragment shader
         [
-            'precision mediump float;',
+            '#ifdef GL_ES',
+            '   precision mediump float;',
+            '#endif',
 
             'uniform sampler2D u_texture;',
             'uniform vec4 u_color;',
@@ -34,13 +36,13 @@ function TextShader() {
             'varying vec2 v_texcoord;',
 
             'void main() {',
-                'float dist = texture2D(u_texture, v_texcoord).r;',
-                'if (u_debug > 0.0) {',
-                    'gl_FragColor = vec4(dist, dist, dist, 1);',
-                '} else {',
-                    'float alpha = smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, dist);',
-                    'gl_FragColor = vec4(u_color.rgb, alpha * u_color.a);',
-                '}',
+            '  float dist = texture2D(u_texture, v_texcoord).a;',
+            '  if (u_debug > 0.0) {',
+            '     gl_FragColor = vec4(dist, dist, dist, 1);',
+            '  } else {',
+            '     float alpha = smoothstep(0.5 - u_gamma, 0.5 + u_gamma, dist);',
+            '     gl_FragColor = vec4(u_color.rgb, u_color.a * alpha);',
+            '  }',
             '}'
         ].join('\n'),
         // uniforms:
