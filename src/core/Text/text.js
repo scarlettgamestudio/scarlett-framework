@@ -79,6 +79,10 @@ Text.prototype.render = function (delta, spriteBatch) {
     // get gl context
     var gl = this._gl;
 
+    //gl.enable(gl.BLEND);
+
+    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     // use text shader
     GameManager.activeGame.getShaderManager().useShader(this._textShader);
 
