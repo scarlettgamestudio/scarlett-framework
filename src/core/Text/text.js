@@ -28,7 +28,7 @@ function Text(params) {
     this._stroke = new Stroke();
     // TODO: normalize
     // values between 0.1 and 0.7, where 0.1 is the highest stroke value... better to normalize?
-    this._stroke.setSize(0.7);
+    this._stroke.setSize(0.5);
     this._stroke.setColor(Color.fromRGBA(255, 255, 255, 1.0));
 
     this._align = Text.AlignType.LEFT;
@@ -79,10 +79,6 @@ Text.prototype.render = function (delta, spriteBatch) {
     // get gl context
     var gl = this._gl;
 
-    //gl.enable(gl.BLEND);
-
-    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
     // use text shader
     GameManager.activeGame.getShaderManager().useShader(this._textShader);
 
@@ -117,20 +113,23 @@ Text.prototype.render = function (delta, spriteBatch) {
 
     // stroke
     var strokeColor = this.getStroke().getColor();
-    //gl.uniform4fv(this._textShader.uniforms.u_color._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
+    gl.uniform4fv(this._textShader.uniforms.u_outlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
     // stroke size
-    //gl.uniform1f(this._textShader.uniforms.u_buffer._location, this.getStroke().getSize());
+    //  TODO: revert value
+    gl.uniform1f(this._textShader.uniforms.u_outlineDistance._location, this.getStroke().getSize());
 
-    gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
+    //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
 
     var color = this.getColor();
 
     // font color (tint)
     gl.uniform4fv(this._textShader.uniforms.u_color._location, [color.r, color.g, color.b, color.a]);
-    gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50); // 192 / 255
+    //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50); // 192 / 255
 
-    // gamma value (how sharp is the text)
+    // gamma (smoothing) value (how sharp is the text in the edges)
     gl.uniform1f(this._textShader.uniforms.u_gamma._location, this.getGamma() * 1.4142 / this.getFontSize());
+
+    // draw the glyphs
     gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
 
     // parent render function:
