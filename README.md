@@ -11,32 +11,42 @@ This README would normally document whatever steps are necessary to get your app
 ### How do I get set up? ###
 
 * Summary of set up
-Gruntfile.js: change 'copyToDirectory' path to match the local editor path
-
-* Configuration
-* Dependencies
+Gruntfile.js: change 'copyToDirectory' path to match the local scarlett editor path
 
 ```
-#!javascript
+
+var copyToDirectory = "C:\\Workspace\\scarlett-editor\\app\\lib\\";
+
+```
+
+* Dependencies
+```
 
 npm install
 
-
 ```
 
-* Database configuration
-* How to run
-
-
+* Building - will also copy the build file to the specified editor path
 ```
-#!javascript
 
 grunt dev
 
 ```
 
+### How do I run the demos? ###
 
-* Deployment instructions
+* Install python 3.X and create a http server
+
+```
+py -3 -m http.server 8080
+
+```
+
+* Browserify - in case a demo is using node.js
+```
+browserify core.js - o bundle.js
+
+```
 
 ### Contribution guidelines ###
 
