@@ -10122,7 +10122,7 @@ function Text(params) {
     GameObject.call(this, params);
 
     this._textureSrc = "";
-    this._color = params.color || Color.fromRGBA(255, 0, 0, 1.0);
+    this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
     this._text = params.text || "";
 
     this._fontSize = 70.0;
@@ -10132,7 +10132,7 @@ function Text(params) {
     // TODO: normalize
     // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
     this._stroke.setSize(0.5);
-    this._stroke.setColor(Color.fromRGBA(255, 255, 255, 1.0));
+    this._stroke.setColor(Color.fromRGBA(186,85,54, 0.5));
 
     this._dropShadow = new Stroke();
     this._dropShadow.setSize(0.1);
@@ -10559,11 +10559,6 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
 
     // retrieve words
     var words = text.split(' ');
-
-    // no need to go further if there is only 1 word
-    if (words.length == 1){
-        return words;
-    }
 
     // get first word and remove it from the array
     var currentLine = "";//words.shift();
