@@ -28,11 +28,11 @@ function Text(params) {
     this._stroke = new Stroke();
     // TODO: normalize
     // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
-    this._stroke.setSize(0.5);
+    this._stroke.setSize(0.0);
     this._stroke.setColor(Color.fromRGBA(186,85,54, 0.5));
 
     this._dropShadow = new Stroke();
-    this._dropShadow.setSize(0.1);
+    this._dropShadow.setSize(5.0);
     this._dropShadow.setColor(Color.fromRGBA(0, 0, 0, 1.0));
 
     // x and y values have to be between spread (defined in Hiero) / texture size
@@ -123,16 +123,22 @@ Text.prototype.render = function (delta, spriteBatch) {
     // stroke
     var strokeColor = this.getStroke().getColor();
     gl.uniform4fv(this._textShader.uniforms.u_outlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
+
     // stroke size
-    //  TODO: revert value
-    gl.uniform1f(this._textShader.uniforms.u_outlineDistance._location, this.getStroke().getSize());
+    // max shader value is 0.5; bigger than that is considered no outline.
+    // in terms of raw values, we go from 0 to 10, so we calculate the scaled value between 0 and 10
+    var scaledValue = this.getStroke().getSize() * 0.7 / 10;
+
+    // revert the value, so 0 represents less stroke
+    // add 0.1 because 0.0 is visually bad
+    gl.uniform1f(this._textShader.uniforms.u_outlineDistance._location, 0.7 - scaledValue + 0.1);
 
 
     var dropShadowColor = this.getDropShadow().getColor();
     gl.uniform4fv(this._textShader.uniforms.u_dropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
     // stroke size
-    //  TODO: revert value
-    gl.uniform1f(this._textShader.uniforms.u_dropShadowSmoothing._location, this.getDropShadow().getSize());
+    //  (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
+    gl.uniform1f(this._textShader.uniforms.u_dropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
 
     // 4 / 512 = 0.0058 = max smoothing value
     this._dropShadowOffset.set(0.005, 0.005);
