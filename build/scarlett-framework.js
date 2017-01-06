@@ -10122,7 +10122,7 @@ function Text(params) {
     GameObject.call(this, params);
 
     this._textureSrc = "";
-    this._color = params.color || Color.fromRGBA(0, 0, 0, 1.0);
+    this._color = params.color || Color.fromRGBA(255, 0, 0, 1.0);
     this._text = params.text || "";
 
     this._fontSize = 70.0;
@@ -10130,9 +10130,18 @@ function Text(params) {
 
     this._stroke = new Stroke();
     // TODO: normalize
-    // values between 0.1 and 0.7, where 0.1 is the highest stroke value... better to normalize?
+    // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
     this._stroke.setSize(0.5);
     this._stroke.setColor(Color.fromRGBA(255, 255, 255, 1.0));
+
+    this._dropShadow = new Stroke();
+    this._dropShadow.setSize(0.1);
+    this._dropShadow.setColor(Color.fromRGBA(0, 0, 0, 1.0));
+
+    // x and y values have to be between spread (defined in Hiero) / texture size
+    // e.g., 4 / 512
+    // need to normalize between those values
+    this._dropShadowOffset = new Vector2(0, 0);
 
     this._align = Text.AlignType.LEFT;
 
@@ -10221,6 +10230,18 @@ Text.prototype.render = function (delta, spriteBatch) {
     //  TODO: revert value
     gl.uniform1f(this._textShader.uniforms.u_outlineDistance._location, this.getStroke().getSize());
 
+
+    var dropShadowColor = this.getDropShadow().getColor();
+    gl.uniform4fv(this._textShader.uniforms.u_dropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
+    // stroke size
+    //  TODO: revert value
+    gl.uniform1f(this._textShader.uniforms.u_dropShadowSmoothing._location, this.getDropShadow().getSize());
+
+    // 4 / 512 = 0.0058 = max smoothing value
+    this._dropShadowOffset.set(0.005, 0.005);
+    gl.uniform2fv(this._textShader.uniforms.u_dropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
+
+
     //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
 
     var color = this.getColor();
@@ -10302,6 +10323,15 @@ Text.prototype.setStroke = function (stroke) {
 Text.prototype.getStroke = function () {
     return this._stroke;
 };
+
+Text.prototype.getDropShadow = function () {
+    return this._dropShadow;
+};
+
+Text.prototype.setDropShadow = function (shadow) {
+    this._dropShadow = shadow;
+};
+
 
 Text.prototype.setText = function (str) {
     this._text = str;
@@ -14338,29 +14368,43 @@ function TextShader() {
 
             'uniform sampler2D u_texture;',
             'uniform vec4 u_color;',
+            'uniform float u_gamma;',
             'uniform float u_outlineDistance;',
             'uniform vec4 u_outlineColor;',
-            'uniform float u_gamma;',
+
+            'uniform vec4 u_dropShadowColor;',
+            'uniform float u_dropShadowSmoothing;',
+            'uniform vec2 u_dropShadowOffset;',
+
             'uniform float u_debug;',
-            //'uniform float u_outline_color',
 
             'varying vec2 v_texcoord;',
 
             'void main() {',
             '  float distance = texture2D(u_texture, v_texcoord).a;',
-
+            '  vec4 finalColor = u_color;',
             '  if (u_debug > 0.0) {',
             '     gl_FragColor = vec4(distance, distance, distance, 1);',
             '  } else {',
+            // outline effect
             '       if (u_outlineDistance <= 0.5) {',
             '           float outlineFactor = smoothstep(0.5 - u_gamma, 0.5 + u_gamma, distance);',
             '           vec4 color = mix(u_outlineColor, u_color, outlineFactor);',
             '           float alpha = smoothstep(u_outlineDistance - u_gamma, u_outlineDistance + u_gamma, distance);',
-            '           gl_FragColor = vec4(color.rgb, color.a * alpha);',
+            '           finalColor = vec4(color.rgb, color.a * alpha);',
             '       } else {',
             '           float alpha = smoothstep(0.5 - u_gamma, 0.5 + u_gamma, distance);',
-            '           gl_FragColor = vec4(u_color.rgb, u_color.a * alpha);',
+            '           finalColor = vec4(u_color.rgb, u_color.a * alpha);',
             '       }',
+            // drop shadow effect
+            //'       float alpha = smoothstep(0.5 - u_gamma, 0.5 + u_gamma, distance);',
+            //'       vec4 text = vec4(u_color.rgb, u_color.a * alpha);',
+
+            '       float shadowDistance = texture2D(u_texture, v_texcoord - u_dropShadowOffset).a;',
+            '       float shadowAlpha = smoothstep(0.5 - u_dropShadowSmoothing, 0.5 + u_dropShadowSmoothing, shadowDistance);',
+            '       vec4 shadow = vec4(u_dropShadowColor.rgb, u_dropShadowColor.a * shadowAlpha);',
+            // inner effect is the other way around... text, shadow
+            '       gl_FragColor = mix(shadow, finalColor, finalColor.a);',
             '  }',
             '}'
         ].join('\n'),
@@ -14369,8 +14413,11 @@ function TextShader() {
             u_matrix: {type: 'mat4', value: mat4.create()},
             u_texture: {type: 'tex', value: 0},
             u_texsize: {type: '1i', value: 24},
-            u_color: [0.0, 0.0, 0.0, 1.0],
+            u_color: [1.0, 0.0, 0.0, 1.0],
             u_outlineColor: [1.0, 1.0, 1.0, 1.0],
+            u_dropShadowColor: [0.0, 0.0, 0.0, 1.0],
+            u_dropShadowSmoothing: {type: '1i', value: 0},
+            u_dropShadowOffset: [0.0, 0.0],
             u_outlineDistance: {type: '1i', value: 0},
             u_gamma: {type: '1i', value: 0},
             u_debug: {type: '1i', value: 1}

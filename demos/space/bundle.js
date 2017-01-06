@@ -2060,6 +2060,8 @@ gameScene.initialize = function () {
         // set initial text area value
         document.getElementById('str').value = text.getText();
         document.getElementById('stroke').value = text.getStroke().getSize();
+        document.getElementById('dropShadow').value = text.getDropShadow().getSize();
+
         document.getElementById('scale').value = text.getFontSize();
         document.getElementById('gamma').value = text.getGamma();
 
@@ -2096,6 +2098,7 @@ document.getElementById('charwrap').onchange = updateValues;
 document.getElementById('debug').onchange = updateValues;
 document.getElementById('alignLeft').onchange = updateValues;
 document.getElementById('alignCenter').onchange = updateValues;
+document.getElementById('dropShadow').oninput = updateValues;
 
 function updateValues()
 {
@@ -2104,6 +2107,8 @@ function updateValues()
 
     var scale = +document.getElementById('scale').value;
     var gamma = +document.getElementById('gamma').value;
+
+    var dropShadowSmoothing = +document.getElementById('dropShadow').value;
 
     var wordWrap = +document.getElementById('wordwrap').checked;
     var charWrap = +document.getElementById('charwrap').checked;
@@ -2115,6 +2120,7 @@ function updateValues()
     text.setGamma(gamma);
     text.setFontSize(scale);
     text.getStroke().setSize(stroke);
+    text.getDropShadow().setSize(dropShadowSmoothing);
     text.setWordWrap(wordWrap);
     text.setCharacterWrap(charWrap);
     text.setDebug(debug);
