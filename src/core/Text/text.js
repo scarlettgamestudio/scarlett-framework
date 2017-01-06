@@ -55,8 +55,6 @@ function Text(params) {
     this._textShader = new TextShader();
 
     this._font = params.font || {};
-    // hardcode value...
-    this._font.buffer = 4;
 
     // set text texture if defined
     this.setTexture(params.texture);
