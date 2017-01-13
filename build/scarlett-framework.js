@@ -10155,11 +10155,10 @@ function Text(params) {
 
     this._vertexBuffer = this._gl.createBuffer();
     this._textureBuffer = this._gl.createBuffer();
+    this._vertexIndicesBuffer = this._gl.createBuffer();
     this._textShader = new TextShader();
 
     this._font = params.font || {};
-    // hardcode value...
-    this._font.buffer = 4;
 
     // set text texture if defined
     this.setTexture(params.texture);
@@ -10260,7 +10259,8 @@ Text.prototype.render = function (delta, spriteBatch) {
     gl.uniform1f(this._textShader.uniforms.u_gamma._location, this.getGamma() * 1.4142 / this.getFontSize());
 
     // draw the glyphs
-    gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
+    //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
+    gl.drawElements(gl.TRIANGLES, this._vertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
     // parent render function:
     GameObject.prototype.render.call(this, delta, spriteBatch);
@@ -10273,6 +10273,7 @@ Text.prototype.unload = function () {
     //this._textureShader.unload();
 };
 
+// TODO: rotate, scale... probably the same thing as in the sprite
 Text.prototype.getMatrix = function () {
     var x, y;
 
@@ -10419,19 +10420,25 @@ Text.prototype.getTextureSrc = function () {
 var maxWidth = 500;
 
 Text.prototype._findCharID = function(char){
+    // make sure the parameter is valid
     if (!char || !this._font || !this._font.chars || this._font.chars.length == 0){
         return -1;
     }
     // retrieve character's ascii code
     var charCode = char.charCodeAt(0);
 
+    // if code is invalid, no need to go further
     if (!charCode){
         return -1;
     }
 
+    // go through every character
     for (var i = 0; i < this._font.chars.length; i++){
+        // store glyphID (Ascii Code)
         var glyphID = this._font.chars[i].id;
+        // if that's the code we are looking for
         if (glyphID === charCode){
+            // return the iteration number (the position of that character inside the array of characters)
             return i;
         }
     }
@@ -10452,8 +10459,10 @@ Text.prototype._measureCharacterWidth = function(char, scale){
         return 0;
     }
 
+    // retrieve character ID
     var charID = this._findCharID(char);
 
+    // don't go further if char id is invalid
     if (charID < 0){
         return 0;
     }
@@ -10815,6 +10824,7 @@ Text.prototype._drawText = function (text, size) {
 
     var vertexElements = [];
     var textureElements = [];
+    var vertexIndices = [];
 
     // create the lines to draw onto the screen
     var lines = this._measureText(text, size);
@@ -10857,8 +10867,12 @@ Text.prototype._drawText = function (text, size) {
             var chr = lines[i].chars[j];
 
             // draw it
-            this._createGlyph(metrics, chr, pen, scale, vertexElements, textureElements);
+            this._createGlyph(metrics, chr, pen, scale, vertexElements, textureElements, vertexIndices);
+
         }
+
+        // clean last line glyph code
+        lastGlyphCode = 0;
 
         // update Y (one more line) // todo: CHANGE according to bmfont...
         currentY += this.getFontSize();
@@ -10868,10 +10882,16 @@ Text.prototype._drawText = function (text, size) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
     this._vertexBuffer.numItems = vertexElements.length / 2;
 
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._vertexIndicesBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
+    this._vertexIndicesBuffer.numItems = vertexIndices.length;
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
     this._textureBuffer.numItems = textureElements.length / 2;
 };
+
+var lastGlyphCode = 0;
 
 /**
  * Creates the necessary vertices and texture elements to draw a given character
@@ -10883,7 +10903,7 @@ Text.prototype._drawText = function (text, size) {
  * @param {Array} textureElements array to store the character texture elements
  * @private
  */
-Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements, textureElements) {
+Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements, textureElements, vertexIndices) {
 
     var charID = this._findCharID(chr);
 
@@ -10893,30 +10913,42 @@ Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements
 
     var metric = this._font.chars[charID];
 
-    var factor = 1;
-
     // retrieve character metrics
     var width = metric.width;
     var height = metric.height;
-    var horiBearingX = metric.xoffset;
-    var horiBearingY = metric.yoffset;
-    var horiAdvance = metric.xadvance;
+    var xOffset = metric.xoffset;
+    var yOffset = metric.yoffset;
+    var xAdvance = metric.xadvance;
     var posX = metric.x;
     var posY = metric.y;
+
+    // set kerning initial value
+    var kern = 0;
 
     if (width > 0 && height > 0) {
         //width += metrics.buffer * 2;
         //height += metrics.buffer * 2;
 
+        // if there a glyph was created before,
+        if (lastGlyphCode){
+            kern = this.getKerning(lastGlyphCode, metric.id);
+        }
+
+        // TODO: isn't there a way to reuse the indices?
+        var factor = (vertexIndices.length / 6) * 4;
+
+        vertexIndices.push(
+            0 + factor, 1 + factor, 2 + factor,
+            1 + factor, 2 + factor, 3 + factor
+        );
+
         // Add a quad (= two triangles) per glyph.
         vertexElements.push(
-            pen.x + ((horiBearingX ) * scale), pen.y + horiBearingY * scale,
-            pen.x + ((horiBearingX  + width) * scale), pen.y + horiBearingY * scale,
-            pen.x + ((horiBearingX ) * scale), pen.y + (height + horiBearingY) * scale,
+            pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
+            pen.x + ((xOffset + kern + width) * scale), pen.y + yOffset * scale,
+            pen.x + ((xOffset + kern) * scale), pen.y + (height + yOffset) * scale,
 
-            pen.x + ((horiBearingX  + width) * scale), pen.y + horiBearingY * scale,
-            pen.x + ((horiBearingX ) * scale), pen.y + (height + horiBearingY) * scale,
-            pen.x + ((horiBearingX  + width) * scale), pen.y + (height + horiBearingY) * scale
+            pen.x + ((xOffset + kern  + width) * scale), pen.y + (height + yOffset) * scale
         );
 
         /*              ___
@@ -10942,16 +10974,37 @@ Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements
             posX + width, posY,
             posX, posY + height,
 
-            posX + width, posY,
-            posX, posY + height,
             posX + width, posY + height
         );
 
     }
 
-    // pen.x += Math.ceil(horiAdvance * scale);
-    pen.x = pen.x + horiAdvance * scale;
-};;/**
+
+    pen.x = pen.x + (xAdvance + kern) * scale;
+
+    // store the last glyph ascii code
+    lastGlyphCode = metric.id;
+};
+
+Text.prototype.getKerning = function (firstCharCode, secondCharCode) {
+    if (!firstCharCode || !secondCharCode || !this._font || !this._font.kernings || !this._font.kernings.length === 0)
+        return 0;
+
+    // retrieve kernings
+    var table = this._font.kernings;
+
+    // iterate through the kernings
+    for (var i = 0; i < table.length; i++) {
+        var kern = table[i];
+        // if there is a match
+        if (kern.first === firstCharCode && kern.second === secondCharCode)
+            // return kerning
+            return kern.amount;
+    }
+
+    // return 0 if there is no match
+    return 0
+};/**
  * Camera2D class
  */
 function Camera2D(x, y, viewWidth, viewHeight, zoom) {

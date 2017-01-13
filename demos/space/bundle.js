@@ -2027,7 +2027,7 @@ ContentLoader.load({
         {path: "assets/player_bullet1.png", alias: "playerBullet"},
         {path: "assets/enemy_1.png", alias: "enemy1"},
         {path: "assets/enemy_2.png", alias: "enemy2"},
-        {path: "assets/fnt/DejaVu-sdf.png", alias: "fontBitmap"},
+        {path: "assets/fnt/open-sans-sdf.png", alias: "fontBitmap"},
         {path: "assets/background.jpg", alias: "background"}
     ]
 }).then(function (result) {
@@ -2045,7 +2045,7 @@ gameScene.initialize = function () {
 
     var load = require('load-bmfont');
 
-    load('assets/fnt/DejaVu-sdf.fnt', function(err, font) {
+    load('assets/fnt/open-sans-sdf.fnt', function(err, font) {
         if (err)
             throw err;
 
