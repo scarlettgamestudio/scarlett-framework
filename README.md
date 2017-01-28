@@ -25,7 +25,8 @@ This repository contains the Scarlett Framework Module and associated libraries.
 
 ### Development Hints ###
 
-* All main source code can be found in the /src/ folder
+* All main source code can be found in the /src folder
+* Altough this project can be associated to the Scarlett-Editor, it can be used for standalone development (see /demos folder)
 
 ### Who do I talk to? ###
 
