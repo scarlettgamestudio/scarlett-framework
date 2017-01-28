@@ -23,6 +23,10 @@ This repository contains the Scarlett Framework Module and associated libraries.
 * To change the directory output of the build file, change the 'copyToDirectory' target in Gruntfile.js.
 * To create a distribution file (minified and uglified) run "grunt dist"
 
+### Development Hints ###
+
+* All main source code can be found in the /src/ folder
+
 ### Who do I talk to? ###
 
 * Repo owner or admin
