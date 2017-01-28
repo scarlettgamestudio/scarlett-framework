@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+    <title>Sandbox</title>
+    <!--
+        to start a simple python http server:
+        \> python -m SimpleHTTPServer  (unix systems)
+        \> python -m http.server 8080  (python3+)
+    -->
+    <script src="../../test/common/fpsmeter.js"></script>
+    <style>
+
+        html, body {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+    </style>
+</head>
+<body>
+<style>
+    canvas {
+        position: absolute;
+        top:100px;
+        left:0;
+        border:1px solid black;
+    }
+</style>
+<script>
+    var meter = new FPSMeter({
+        theme: 'dark',
+        heat:  1,
+        graph:   1, // Whether to show history graph.
+        history: 20 // How many history states to show in a graph.
+    });
+</script>
+
+<!-- canvas -->
+<canvas id="canvas"></canvas>
+
+<div style="float:left; margin-left: 200px;">
+    <label><textarea cols="40" rows="5" style="width:400px;" value="Lorem ipsum" id="str"></textarea> Text</label><br>
+</div>
+
+<div style="float:left;">
+    <label><input type="range" style="width:400px" value="70" step="0.01" min="6" max="128.0" id="scale">Size</label><br>
+    <label><input type="range" style="width:400px" value="0.7" step="0.01" min="0.1" max="0.7" id="stroke">Stroke Size</label><br>
+    <label><input type="range" style="width:400px" value="2" step="0.01" min="0" max="4" id="gamma">Gamma</label><br>
+</div>
+
+<div style="float:left;">
+    <label><input type="radio" name="group-1" id="alignLeft" value="left">Align Left</label><br>
+    <label><input type="radio" name="group-1" id="alignCenter" value="center">Align Center</label><br>
+
+    <label><input type="checkbox" id="wordwrap">Word Wrap</label><br>
+    <label><input type="checkbox" id="charwrap">Character Wrap</label><br>
+    <label><input type="checkbox" id="debug">Debug Texture</label><br>
+</div>
+
+<!-- imports -->
+<script src="../../build/scarlett-framework.js"></script>
+
+<script src="core.js"></script>
+<script src="components/playerInput.js"></script>
+<script src="components/backgroundAgent.js"></script>
+<script src="components/enemyAgent.js"></script>
+
+</body>
+</html>
