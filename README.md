@@ -1,5 +1,5 @@
 # Scarlett Framework
-Scarlett Framework repository
+Scarlett WebGL Graphics Framework repository
 
 # README #
 
@@ -19,6 +19,7 @@ This repository contains the Scarlett Framework Module and associated libraries.
 
 * To activate automatic project build on code change simply run "grunt dev" on the root folder. 
 * To change the directory output of the build file, change the 'copyToDirectory' target in Gruntfile.js.
+* To create a distribution file (minified and uglified) run "grunt dist"
 
 ### Who do I talk to? ###
 
