@@ -5,11 +5,11 @@ Scarlett WebGL Graphics Framework repository
 
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This README would normally document whatever steps are necessary to get your application up and running. 
 
 ### What is this repository for? ###
 
-This repository contains the Scarlett Framework Module and associated libraries.
+This repository contains the Scarlett Framework Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
 
 ### How do I get set up? ###
 
