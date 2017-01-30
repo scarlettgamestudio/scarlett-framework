@@ -1,13 +1,15 @@
 # Scarlett Framework
-Scarlett Framework repository
+Scarlett WebGL Graphics Framework repository
+
+![alt tag](http://scarlett.anlagehub.com/public/images/framework-banner.png)
 
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This README would normally document whatever steps are necessary to get your application up and running. 
 
 ### What is this repository for? ###
 
-This repository contains the Scarlett Framework Module and associated libraries.
+This repository contains the Scarlett Framework Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
 
 ### How do I get set up? ###
 
@@ -19,6 +21,12 @@ This repository contains the Scarlett Framework Module and associated libraries.
 
 * To activate automatic project build on code change simply run "grunt dev" on the root folder. 
 * To change the directory output of the build file, change the 'copyToDirectory' target in Gruntfile.js.
+* To create a distribution file (minified and uglified) run "grunt dist"
+
+### Development Hints ###
+
+* All main source code can be found in the /src folder
+* Altough this project can be associated to the Scarlett-Editor, it can be used for standalone development (see /demos folder)
 
 ### Who do I talk to? ###
 
