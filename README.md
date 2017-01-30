@@ -1,7 +1,7 @@
 # Scarlett Framework
 Scarlett WebGL Graphics Framework repository
 
-![alt tag](https://anlagehub.com/public/sc/images/framework-banner.png)
+![alt tag](http://scarlett.anlagehub.com/public/images/framework-banner.png)
 
 # README #
 
