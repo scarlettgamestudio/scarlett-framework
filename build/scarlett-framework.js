@@ -10105,7 +10105,7 @@ Stroke.prototype.restore = function (data) {
  * Created by Luis on 16/12/2016.
  */
 /**
- * SpriteBatch class
+ * Text class
  */
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
@@ -10429,7 +10429,7 @@ Text.prototype._findCharID = function(char){
 
     // if code is invalid, no need to go further
     if (!charCode){
-        return -1;
+        return null;
     }
 
     // go through every character
@@ -10442,7 +10442,7 @@ Text.prototype._findCharID = function(char){
             return i;
         }
     }
-    return -1;
+    return null;
 };
 
 /**
@@ -10463,7 +10463,7 @@ Text.prototype._measureCharacterWidth = function(char, scale){
     var charID = this._findCharID(char);
 
     // don't go further if char id is invalid
-    if (charID < 0){
+    if (charID === null){
         return 0;
     }
 
@@ -10833,8 +10833,9 @@ Text.prototype._drawText = function (text, size) {
 
     var currentY = 0;
 
-    var metrics = this._font;
-    var scale = size / metrics.info.size;
+    var scale = size / this._font.info.size;
+
+    var lastGlyphCode = 0;
 
     var x;
 
@@ -10864,10 +10865,11 @@ Text.prototype._drawText = function (text, size) {
         for (var j = 0; j < lines[i].chars.length; j++){
 
             // retrieve line char
-            var chr = lines[i].chars[j];
+            var char = lines[i].chars[j];
 
             // draw it
-            this._createGlyph(metrics, chr, pen, scale, vertexElements, textureElements, vertexIndices);
+            lastGlyphCode = this._createGlyph(char, scale, pen, lastGlyphCode,
+                                                vertexElements, textureElements, vertexIndices);
 
         }
 
@@ -10891,36 +10893,34 @@ Text.prototype._drawText = function (text, size) {
     this._textureBuffer.numItems = textureElements.length / 2;
 };
 
-var lastGlyphCode = 0;
-
 /**
  * Creates the necessary vertices and texture elements to draw a given character
- * @param metrics font metrics
- * @param {string} chr character to prepare to draw
+ * @param {string} char character to prepare to draw
  * @param pen pen to draw with
  * @param {number} scale
  * @param {Array} vertexElements array to store the character vertices
  * @param {Array} textureElements array to store the character texture elements
  * @private
  */
-Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements, textureElements, vertexIndices) {
+Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
+                                        vertexElements, textureElements, vertexIndices) {
 
-    var charID = this._findCharID(chr);
+    var charID = this._findCharID(char);
 
-    if (charID < 0){
+    if (charID === null){
         return;
     }
 
-    var metric = this._font.chars[charID];
+    var metrics = this._font.chars[charID];
 
     // retrieve character metrics
-    var width = metric.width;
-    var height = metric.height;
-    var xOffset = metric.xoffset;
-    var yOffset = metric.yoffset;
-    var xAdvance = metric.xadvance;
-    var posX = metric.x;
-    var posY = metric.y;
+    var width = metrics.width;
+    var height = metrics.height;
+    var xOffset = metrics.xoffset;
+    var yOffset = metrics.yoffset;
+    var xAdvance = metrics.xadvance;
+    var posX = metrics.x;
+    var posY = metrics.y;
 
     // set kerning initial value
     var kern = 0;
@@ -10931,7 +10931,7 @@ Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements
 
         // if there a glyph was created before,
         if (lastGlyphCode){
-            kern = this.getKerning(lastGlyphCode, metric.id);
+            kern = this._getKerning(lastGlyphCode, metrics.id);
         }
 
         // TODO: isn't there a way to reuse the indices?
@@ -10982,11 +10982,11 @@ Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements
 
     pen.x = pen.x + (xAdvance + kern) * scale;
 
-    // store the last glyph ascii code
-    lastGlyphCode = metric.id;
+    // return the last glyph ascii code
+    return metrics.id;
 };
 
-Text.prototype.getKerning = function (firstCharCode, secondCharCode) {
+Text.prototype._getKerning = function (firstCharCode, secondCharCode) {
     if (!firstCharCode || !secondCharCode || !this._font || !this._font.kernings || !this._font.kernings.length === 0)
         return 0;
 
