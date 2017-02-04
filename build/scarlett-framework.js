@@ -10198,7 +10198,7 @@ Text.prototype.render = function (delta, spriteBatch) {
     gl.enableVertexAttribArray(this._textShader.attributes.a_texcoord);
 
     // create text
-    this._drawText(this._text, this._fontSize);
+    this._drawText(this.getText(), this.getFontSize());
 
     var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
 
@@ -10419,10 +10419,16 @@ Text.prototype.getTextureSrc = function () {
 // TODO: remove
 var maxWidth = 500;
 
+/**
+ *
+ * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
+ * @returns {number} font's character's ID or null if invalid
+ * @private
+ */
 Text.prototype._findCharID = function(char){
     // make sure the parameter is valid
     if (!char || !this._font || !this._font.chars || this._font.chars.length == 0){
-        return -1;
+        return null;
     }
     // retrieve character's ascii code
     var charCode = char.charCodeAt(0);
@@ -10704,7 +10710,7 @@ Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
  * Converts a given text into a Line Object, with an array of characters and the line total width
  * @param {string} text text to convert into a line object
  * @param {number} scale scale of the given text
- * @returns {{chars: *, width: number}}
+ * @returns {{chars: Array, width: number}}
  * @private
  */
 Text.prototype._convertTextToLine = function(text, scale){
@@ -10729,25 +10735,17 @@ Text.prototype._convertTextToLine = function(text, scale){
 /**
  * Creates the definitive lines to draw onto the screen
  * @param {string} text text to draw
- * @param {number} size font size of the text
+ * @param {number} scale scale of the text
  * @returns {Array} text split into lines
  * @private
  */
-Text.prototype._measureText = function (text, size) {
+Text.prototype._measureText = function (text, scale) {
     // create empty array
     var resultLines = [];
 
     // TODO: trim text? guess that, at least technically, a lot of spaces should still be drawn...
-    // if text or size or metrics don't exist, no need to go further
-    if (!text || !size || size <= 0 || !this._font){
-        return resultLines;
-    }
-
-    // retrieve metrics size
-    var metricsSize = this._font.info.size;
-
-    // return is metrics size is invalid
-    if (metricsSize <= 0) {
+    // if text or scale don't exist, no need to go further
+    if (!text || !scale || scale <= 0){
         return resultLines;
     }
 
@@ -10756,9 +10754,6 @@ Text.prototype._measureText = function (text, size) {
         chars: [],
         width: 0
     });
-
-    // calculate text scale
-    var scale = size / metricsSize;
 
     // store original text
     var useText = text;
@@ -10813,53 +10808,45 @@ Text.prototype._measureText = function (text, size) {
 };
 
 /**
- * Draws a given text onto the screen
- * @param {string} text text to draw onto the screen
- * @param {number} size font size
+ * Draws the given text lines onto the screen
+ * @param {Array} lines lines to draw
+ * @param {number} scale scale of the text
+ * @param {number} x
  * @private
  */
-Text.prototype._drawText = function (text, size) {
+Text.prototype._drawLines = function(lines, scale, x){
 
+    // if lines or scale don't exist, no need to go further
+    if (!lines || !scale || scale <= 0){
+        return;
+    }
+
+    // retrieve webgl context
     var gl = this._gl;
 
+    // create shader arrays
     var vertexElements = [];
     var textureElements = [];
     var vertexIndices = [];
-
-    // create the lines to draw onto the screen
-    var lines = this._measureText(text, size);
 
     // center (0,0)
 
     var currentY = 0;
 
-    var scale = size / this._font.info.size;
-
+    // set initial glyph code as 0
     var lastGlyphCode = 0;
-
-    var x;
-
-    switch(this._align) {
-        case Text.AlignType.LEFT:
-            x = 0; // bounding box x
-            break;
-        case Text.AlignType.RIGHT: // x + bounding box width
-            break;
-        default:
-            // do nothing since center it's calculated per line
-    }
 
     for (var i = 0; i < lines.length; i++) {
 
         if (this._align == Text.AlignType.CENTER){
             // text x position - lines[i].width / 2 or...
             // x + text width/2 - lines[i].width / 2 ?
-                x = 0 - lines[i].width / 2;
+            x = 0 - lines[i].width / 2;
         }
 
         // create pen with the screen coordinates
         //  TODO: replace by vector2?
-        var pen = { x: x, y: currentY };
+        var pen = { x: x, y: currentY - 350 };
 
         // iterate through line chars
         for (var j = 0; j < lines[i].chars.length; j++){
@@ -10869,7 +10856,7 @@ Text.prototype._drawText = function (text, size) {
 
             // draw it
             lastGlyphCode = this._createGlyph(char, scale, pen, lastGlyphCode,
-                                                vertexElements, textureElements, vertexIndices);
+                vertexElements, textureElements, vertexIndices);
 
         }
 
@@ -10894,23 +10881,77 @@ Text.prototype._drawText = function (text, size) {
 };
 
 /**
+ * Draws a given text onto the screen
+ * @param {string} text text to draw onto the screen
+ * @param {number} size font size
+ * @private
+ */
+Text.prototype._drawText = function (text, size) {
+
+    // no need to go further if parameters or _font are invalid
+    if (!text || !size || size <= 0 || !this._font || !this._font.info ||
+                !this._font.info.size || this._font.info.size <= 0){
+        return;
+    }
+
+    // retrieve metrics size
+    var metricsSize = this._font.info.size;
+
+    // text scale based on the font size
+    var scale = size / metricsSize;
+
+    var x;
+    var lines;
+
+    // create a function for this
+    switch(this._align) {
+        case Text.AlignType.LEFT:
+            x = 0; // bounding box x
+            break;
+        case Text.AlignType.RIGHT: // x + bounding box width
+            break;
+        default:
+        // do nothing since center is calculated per line
+    }
+
+    // create the lines to draw onto the screen
+    lines = this._measureText(text, scale);
+
+    // draws lines
+    // TODO: remove x parameter?
+    this._drawLines(lines, scale, x);
+};
+
+/**
  * Creates the necessary vertices and texture elements to draw a given character
  * @param {string} char character to prepare to draw
- * @param pen pen to draw with
- * @param {number} scale
+ * @param {number} scale text scale
+ * @param {{x: number, y: number}} pen pen to draw with
+ * @param {number} lastGlyphCode last drawn glyph ascii code
  * @param {Array} vertexElements array to store the character vertices
  * @param {Array} textureElements array to store the character texture elements
+ * @param {Array} vertexIndices array to store the vertices indices
+ * @returns {number} drawn glyph ascii code
  * @private
  */
 Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
                                         vertexElements, textureElements, vertexIndices) {
 
-    var charID = this._findCharID(char);
-
-    if (charID === null){
-        return;
+    // if font or any of the parameters is missing, no need to go further
+    if (!this._font || !this._font.chars || !char || !scale || scale <= 0 || !pen  || lastGlyphCode == null ||
+                !vertexElements || !textureElements || !vertexIndices) {
+        return 0;
     }
 
+    // retrieve char ID
+    var charID = this._findCharID(char);
+
+    // return if null
+    if (charID === null){
+        return 0;
+    }
+
+    // retrieve font metrics
     var metrics = this._font.chars[charID];
 
     // retrieve character metrics
