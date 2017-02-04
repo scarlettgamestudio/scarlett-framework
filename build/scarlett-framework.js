@@ -10197,7 +10197,7 @@ Text.prototype.render = function (delta, spriteBatch) {
     gl.enableVertexAttribArray(this._textShader.attributes.a_pos);
     gl.enableVertexAttribArray(this._textShader.attributes.a_texcoord);
 
-    // create text
+    // draw text
     this._drawText(this.getText(), this.getFontSize());
 
     var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
@@ -10808,79 +10808,6 @@ Text.prototype._measureText = function (text, scale) {
 };
 
 /**
- * Draws the given text lines onto the screen
- * @param {Array} lines lines to draw
- * @param {number} scale scale of the text
- * @param {number} x
- * @private
- */
-Text.prototype._drawLines = function(lines, scale, x){
-
-    // if lines or scale don't exist, no need to go further
-    if (!lines || !scale || scale <= 0){
-        return;
-    }
-
-    // retrieve webgl context
-    var gl = this._gl;
-
-    // create shader arrays
-    var vertexElements = [];
-    var textureElements = [];
-    var vertexIndices = [];
-
-    // center (0,0)
-
-    var currentY = 0;
-
-    // set initial glyph code as 0
-    var lastGlyphCode = 0;
-
-    for (var i = 0; i < lines.length; i++) {
-
-        if (this._align == Text.AlignType.CENTER){
-            // text x position - lines[i].width / 2 or...
-            // x + text width/2 - lines[i].width / 2 ?
-            x = 0 - lines[i].width / 2;
-        }
-
-        // create pen with the screen coordinates
-        //  TODO: replace by vector2?
-        var pen = { x: x, y: currentY - 350 };
-
-        // iterate through line chars
-        for (var j = 0; j < lines[i].chars.length; j++){
-
-            // retrieve line char
-            var char = lines[i].chars[j];
-
-            // draw it
-            lastGlyphCode = this._createGlyph(char, scale, pen, lastGlyphCode,
-                vertexElements, textureElements, vertexIndices);
-
-        }
-
-        // clean last line glyph code
-        lastGlyphCode = 0;
-
-        // update Y (one more line) // todo: CHANGE according to bmfont...
-        currentY += this.getFontSize();
-    }
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
-    this._vertexBuffer.numItems = vertexElements.length / 2;
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._vertexIndicesBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
-    this._vertexIndicesBuffer.numItems = vertexIndices.length;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
-    this._textureBuffer.numItems = textureElements.length / 2;
-};
-
-/**
  * Draws a given text onto the screen
  * @param {string} text text to draw onto the screen
  * @param {number} size font size
@@ -10903,7 +10830,7 @@ Text.prototype._drawText = function (text, size) {
     var x;
     var lines;
 
-    // create a function for this
+    // TODO: create a function for this? alignPositionAccordingly
     switch(this._align) {
         case Text.AlignType.LEFT:
             x = 0; // bounding box x
@@ -10911,7 +10838,7 @@ Text.prototype._drawText = function (text, size) {
         case Text.AlignType.RIGHT: // x + bounding box width
             break;
         default:
-        // do nothing since center is calculated per line
+            // do nothing since center is calculated per line
     }
 
     // create the lines to draw onto the screen
@@ -10923,13 +10850,101 @@ Text.prototype._drawText = function (text, size) {
 };
 
 /**
+ * Draws the given text lines onto the screen
+ * @param {Array} lines lines to draw
+ * @param {number} scale scale of the text
+ * @param {number} x
+ * @private
+ */
+Text.prototype._drawLines = function(lines, scale, x){
+
+    // if lines or scale don't exist, no need to go further
+    if (!lines || !scale || scale <= 0){
+        return;
+    }
+
+    // retrieve webgl context
+    var gl = this._gl;
+
+    // create shader arrays, which are filled inside prepareLineToBeDrawn
+    var vertexElements = [];
+    var textureElements = [];
+    var vertexIndices = [];
+
+    // center (0,0)
+
+    var currentY = 0;
+
+    for (var i = 0; i < lines.length; i++) {
+
+        if (this._align == Text.AlignType.CENTER){
+            // text x position - lines[i].width / 2 or...
+            // x + text width/2 - lines[i].width / 2 ?
+            x = 0 - lines[i].width / 2;
+        }
+
+        // create pen with the screen coordinates
+        //  TODO: replace by vector2?
+        var pen = { x: x, y: currentY - 350 };
+
+        // retrieve line characters
+        var line = lines[i].chars;
+
+        // prepare to draw line
+        this._prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices);
+
+        // update Y (one more line) // todo: CHANGE according to bmfont...
+        currentY += this.getFontSize();
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
+    this._vertexBuffer.numItems = vertexElements.length / 2;
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._vertexIndicesBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
+    this._vertexIndicesBuffer.numItems = vertexIndices.length;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
+    this._textureBuffer.numItems = textureElements.length / 2;
+};
+
+/**
+ * Prepares a line to be drawn
+ * @param {Array} line array of characters whose draw is to be prepared
+ * @param {number} scale text desired scale
+ * @param {{x: number, y:number}} pen pen to draw with
+ * @param {Array} vertexElements array to store the characters vertices
+ * @param {Array} textureElements array to store the characters texture elements
+ * @param {Array} vertexIndices array to store the vertices indices
+ * @private
+ */
+Text.prototype._prepareLineToBeDrawn = function(line, scale, pen, vertexElements, textureElements, vertexIndices){
+
+    var lastGlyphCode = 0;
+
+    // iterate through line characters
+    for (var i = 0; i < line.length; i++){
+
+        // retrieve line char
+        var char = line[i];
+
+        // prepare character to be drawn
+        lastGlyphCode = this._createGlyph(char, scale, pen, lastGlyphCode,
+            vertexElements, textureElements, vertexIndices);
+
+    }
+};
+
+/**
  * Creates the necessary vertices and texture elements to draw a given character
  * @param {string} char character to prepare to draw
  * @param {number} scale text scale
  * @param {{x: number, y: number}} pen pen to draw with
  * @param {number} lastGlyphCode last drawn glyph ascii code
- * @param {Array} vertexElements array to store the character vertices
- * @param {Array} textureElements array to store the character texture elements
+ * @param {Array} vertexElements array to store the characters vertices
+ * @param {Array} textureElements array to store the characters texture elements
  * @param {Array} vertexIndices array to store the vertices indices
  * @returns {number} drawn glyph ascii code
  * @private
@@ -10962,6 +10977,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
     var xAdvance = metrics.xadvance;
     var posX = metrics.x;
     var posY = metrics.y;
+    var asciiCode = metrics.id;
 
     // set kerning initial value
     var kern = 0;
@@ -10972,7 +10988,8 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
 
         // if there a glyph was created before,
         if (lastGlyphCode){
-            kern = this._getKerning(lastGlyphCode, metrics.id);
+            // retrieve kerning value between last character and current character
+            kern = this._getKerning(lastGlyphCode, asciiCode);
         }
 
         // TODO: isn't there a way to reuse the indices?
@@ -10997,7 +11014,8 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
            | \           \ |
            |__\ and then  \|
          */
-        /* example without scaling
+        // example without scaling
+        /*
          var bottomLeftX = pen.x + horiBearingX;
          var bottomLeftY = pen.y + horiBearingY;
          vertexElements.push(
@@ -11017,21 +11035,28 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
 
             posX + width, posY + height
         );
-
     }
-
 
     pen.x = pen.x + (xAdvance + kern) * scale;
 
     // return the last glyph ascii code
-    return metrics.id;
+    return asciiCode;
 };
 
+/**
+ * Retrieves Kerning value between the given characters
+ * @param {number} firstCharCode first character ascii code
+ * @param {number} secondCharCode second character ascii code
+ * @returns {number} kerning value or 0 if not found
+ * @private
+ */
 Text.prototype._getKerning = function (firstCharCode, secondCharCode) {
-    if (!firstCharCode || !secondCharCode || !this._font || !this._font.kernings || !this._font.kernings.length === 0)
+    if (!firstCharCode || !secondCharCode || !this._font || !this._font.kernings
+                    || !this._font.kernings.length || this._font.kernings.length === 0) {
         return 0;
+    }
 
-    // retrieve kernings
+    // retrieve kernings' table
     var table = this._font.kernings;
 
     // iterate through the kernings
