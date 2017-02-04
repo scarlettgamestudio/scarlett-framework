@@ -10,7 +10,6 @@ AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
 AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
 AttributeDictionary.addRule("text", "_texture", {visible: false});
 
-
 function Text(params) {
 
     params = params || {};
@@ -26,7 +25,7 @@ function Text(params) {
     this._gamma = 2;
 
     this._stroke = new Stroke();
-    // TODO: normalize
+    // TODO: normalize inside the setters?
     // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
     this._stroke.setSize(0.0);
     this._stroke.setColor(Color.fromRGBA(186,85,54, 0.5));
@@ -67,7 +66,7 @@ function Text(params) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-    gl.uniform2f(this._textShader.uniforms.u_texsize._location, this._texture.getWidth(), this._texture.getHeight());
+    gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
 }
 
 inheritsFrom(Text, GameObject);
@@ -91,37 +90,35 @@ Text.prototype.render = function (delta, spriteBatch) {
     GameManager.activeGame.getShaderManager().useShader(this._textShader);
 
     // enable shader attributes
-    gl.enableVertexAttribArray(this._textShader.attributes.a_pos);
-    gl.enableVertexAttribArray(this._textShader.attributes.a_texcoord);
+    gl.enableVertexAttribArray(this._textShader.attributes.aPos);
+    gl.enableVertexAttribArray(this._textShader.attributes.aTexCoord);
 
     // draw text
     this._drawText(this.getText(), this.getFontSize());
 
     var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
 
-    // TODO: do multiplication inside shader (cf., textureShader)
-    var mvpMatrix = mat4.create();
-    mat4.multiply(mvpMatrix, cameraMatrix, this.getMatrix());
-    gl.uniformMatrix4fv(this._textShader.uniforms.u_matrix._location, false, mvpMatrix);
+    gl.uniformMatrix4fv(this._textShader.uniforms.uMatrix._location, false, cameraMatrix);
+    gl.uniformMatrix4fv(this._textShader.uniforms.uTransform._location, false, this.getMatrix());
 
     // bind to texture unit 0
     gl.activeTexture(gl.TEXTURE0);
     this._texture.bind();
     // tell the shader which unit you bound the texture to. In this case it's to sampler 0
-    gl.uniform1i(this._textShader.uniforms.u_texture._location, 0);
+    gl.uniform1i(this._textShader.uniforms.uTexture._location, 0);
 
     // debug
-    gl.uniform1f(this._textShader.uniforms.u_debug._location, this._debug);
+    gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.vertexAttribPointer(this._textShader.attributes.a_pos, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.vertexAttribPointer(this._textShader.attributes.a_texcoord, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this._textShader.attributes.aTexCoord, 2, gl.FLOAT, false, 0, 0);
 
     // stroke
     var strokeColor = this.getStroke().getColor();
-    gl.uniform4fv(this._textShader.uniforms.u_outlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
+    gl.uniform4fv(this._textShader.uniforms.uOutlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
 
     // stroke size
     // max shader value is 0.5; bigger than that is considered no outline.
@@ -130,18 +127,18 @@ Text.prototype.render = function (delta, spriteBatch) {
 
     // revert the value, so 0 represents less stroke
     // add 0.1 because 0.0 is visually bad
-    gl.uniform1f(this._textShader.uniforms.u_outlineDistance._location, 0.7 - scaledValue + 0.1);
+    gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, 0.7 - scaledValue + 0.1);
 
 
     var dropShadowColor = this.getDropShadow().getColor();
-    gl.uniform4fv(this._textShader.uniforms.u_dropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
+    gl.uniform4fv(this._textShader.uniforms.uDropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
     // stroke size
     //  (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
-    gl.uniform1f(this._textShader.uniforms.u_dropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
+    gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
 
     // 4 / 512 = 0.0058 = max smoothing value
     this._dropShadowOffset.set(0.005, 0.005);
-    gl.uniform2fv(this._textShader.uniforms.u_dropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
+    gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
 
 
     //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
@@ -149,11 +146,11 @@ Text.prototype.render = function (delta, spriteBatch) {
     var color = this.getColor();
 
     // font color (tint)
-    gl.uniform4fv(this._textShader.uniforms.u_color._location, [color.r, color.g, color.b, color.a]);
+    gl.uniform4fv(this._textShader.uniforms.uColor._location, [color.r, color.g, color.b, color.a]);
     //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50); // 192 / 255
 
     // gamma (smoothing) value (how sharp is the text in the edges)
-    gl.uniform1f(this._textShader.uniforms.u_gamma._location, this.getGamma() * 1.4142 / this.getFontSize());
+    gl.uniform1f(this._textShader.uniforms.uGamma._location, this.getGamma() * 1.4142 / this.getFontSize());
 
     // draw the glyphs
     //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
@@ -727,7 +724,7 @@ Text.prototype._drawText = function (text, size) {
     var x;
     var lines;
 
-    // TODO: create a function for this? alignPositionAccordingly
+    // TODO: create a function for this? alignPosition
     switch(this._align) {
         case Text.AlignType.LEFT:
             x = 0; // bounding box x
