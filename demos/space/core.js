@@ -53,6 +53,7 @@ gameScene.initialize = function () {
         console.log(font.kernings);*/
 
         text = new Text({texture: textTexture, font: font, text: "Lorem ipsum\r\ndolore"});
+        text.transform.setPosition(-200, 0);
 
         // set initial text area value
         document.getElementById('str').value = text.getText();
@@ -68,6 +69,7 @@ gameScene.initialize = function () {
 
         document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
         document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
+        document.getElementById('alignRight').checked = text.getAlign() == Text.AlignType.RIGHT;
 
     });
 
@@ -95,6 +97,7 @@ document.getElementById('charwrap').onchange = updateValues;
 document.getElementById('debug').onchange = updateValues;
 document.getElementById('alignLeft').onchange = updateValues;
 document.getElementById('alignCenter').onchange = updateValues;
+document.getElementById('alignRight').onchange = updateValues;
 document.getElementById('dropShadow').oninput = updateValues;
 
 function updateValues()
@@ -111,7 +114,8 @@ function updateValues()
     var charWrap = +document.getElementById('charwrap').checked;
     var debug = +document.getElementById('debug').checked;
 
-    var align = +document.getElementById('alignLeft').checked ? Text.AlignType.LEFT : Text.AlignType.CENTER;
+    var align = +document.getElementById('alignLeft').checked ? Text.AlignType.LEFT :
+                            +document.getElementById('alignCenter').checked ? Text.AlignType.CENTER : Text.AlignType.RIGHT;
 
     text.setText(str);
     text.setGamma(gamma);

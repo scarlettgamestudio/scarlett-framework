@@ -715,6 +715,9 @@ Text.prototype._drawText = function (text, size) {
         return;
     }
 
+    // line height; falls back to font size
+    var lineHeight = this._font.common.lineHeight || this.getFontSize();
+
     // retrieve metrics size
     var metricsSize = this._font.info.size;
 
@@ -725,11 +728,12 @@ Text.prototype._drawText = function (text, size) {
     var lines;
 
     // TODO: create a function for this? alignPosition
-    switch(this._align) {
+    switch(this.getAlign()) {
         case Text.AlignType.LEFT:
-            x = 0; // bounding box x
+            x = this.transform.getPosition().x;
             break;
         case Text.AlignType.RIGHT: // x + bounding box width
+            x = this.transform.getPosition().x + maxWidth; // TODO: replace maxWidth...
             break;
         default:
             // do nothing since center is calculated per line
@@ -740,7 +744,7 @@ Text.prototype._drawText = function (text, size) {
 
     // draws lines
     // TODO: remove x parameter?
-    this._drawLines(lines, scale, x);
+    this._drawLines(lines, scale, x, lineHeight);
 };
 
 /**
@@ -748,12 +752,13 @@ Text.prototype._drawText = function (text, size) {
  * @param {Array} lines lines to draw
  * @param {number} scale scale of the text
  * @param {number} x
+ * * @param {number} lineHeight how much Y should increase to switch line
  * @private
  */
-Text.prototype._drawLines = function(lines, scale, x){
+Text.prototype._drawLines = function(lines, scale, x, lineHeight){
 
-    // if lines or scale don't exist, no need to go further
-    if (!lines || !scale || scale <= 0){
+    // if parameters are invalid, no need to go further
+    if (!lines || !scale || scale <= 0 || !lineHeight){
         return;
     }
 
@@ -787,8 +792,8 @@ Text.prototype._drawLines = function(lines, scale, x){
         // prepare to draw line
         this._prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices);
 
-        // update Y (one more line) // todo: CHANGE according to bmfont...
-        currentY += this.getFontSize();
+        // update Y before drawing another line
+        currentY += lineHeight * scale; // TODO: no need to recalculate this value every time...
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
@@ -840,7 +845,7 @@ Text.prototype._prepareLineToBeDrawn = function(line, scale, pen, vertexElements
  * @param {Array} vertexElements array to store the characters vertices
  * @param {Array} textureElements array to store the characters texture elements
  * @param {Array} vertexIndices array to store the vertices indices
- * @returns {number} drawn glyph ascii code
+ * @returns {number} drawn glyph ascii code or 0 if invalid
  * @private
  */
 Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
@@ -876,11 +881,9 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
     // set kerning initial value
     var kern = 0;
 
+    // only prepare character to be drawn if width and height are valid
     if (width > 0 && height > 0) {
-        //width += metrics.buffer * 2;
-        //height += metrics.buffer * 2;
-
-        // if there a glyph was created before,
+        // if a glyph was created before
         if (lastGlyphCode){
             // retrieve kerning value between last character and current character
             kern = this._getKerning(lastGlyphCode, asciiCode);
@@ -894,33 +897,40 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
             1 + factor, 2 + factor, 3 + factor
         );
 
+        var invert = false;
+
+        if (this.getAlign() === Text.AlignType.RIGHT){
+            invert = true;
+        }
+
+
         // Add a quad (= two triangles) per glyph.
         vertexElements.push(
             pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
             pen.x + ((xOffset + kern + width) * scale), pen.y + yOffset * scale,
             pen.x + ((xOffset + kern) * scale), pen.y + (height + yOffset) * scale,
 
-            pen.x + ((xOffset + kern  + width) * scale), pen.y + (height + yOffset) * scale
+            pen.x + ((xOffset + kern + width) * scale), pen.y + (height + yOffset) * scale
         );
 
         /*              ___
-           |\           \  |
-           | \           \ |
-           |__\ and then  \|
+         |\           \  |
+         | \           \ |
+         |__\ and then  \|
          */
         // example without scaling
         /*
          var bottomLeftX = pen.x + horiBearingX;
          var bottomLeftY = pen.y + horiBearingY;
          vertexElements.push(
-            bottomLeftX, bottomLeftY, // bottom left
-            bottomLeftX + width, bottomLeftY, // bottom right
-            bottomLeftX, bottomLeftY + height, // top left
+             bottomLeftX, bottomLeftY, // bottom left
+             bottomLeftX + width, bottomLeftY, // bottom right
+             bottomLeftX, bottomLeftY + height, // top left
 
-            bottomLeftX + width, bottomLeftY, // bottom right
-            bottomLeftX, bottomLeftY + height, // top left
-            bottomLeftX + width, bottomLeftY + height // top right
-        );*/
+             bottomLeftX + width, bottomLeftY, // bottom right
+             bottomLeftX, bottomLeftY + height, // top left
+             bottomLeftX + width, bottomLeftY + height // top right
+         );*/
 
         textureElements.push(
             posX, posY,
@@ -931,7 +941,12 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
         );
     }
 
-    pen.x = pen.x + (xAdvance + kern) * scale;
+    if (!invert){
+        pen.x = pen.x + ((xAdvance + kern) * scale);
+    }
+    else {
+        pen.x = pen.x - ((xAdvance + kern) * scale);
+    }
 
     // return the last glyph ascii code
     return asciiCode;
