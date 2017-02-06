@@ -26,13 +26,13 @@ function Text(params) {
     this._fontSize = 70.0;
     this._gamma = 2;
 
-    this._stroke = new stroke()
+    this._stroke = new Stroke();
     // TODO: normalize inside the setters?
     // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
     this._stroke.setSize(0.0);
     this._stroke.setColor(Color.fromRGBA(186,85,54, 0.5));
 
-    this._dropShadow = new stroke();
+    this._dropShadow = new Stroke();
     this._dropShadow.setSize(5.0);
     this._dropShadow.setColor(Color.fromRGBA(0, 0, 0, 1.0));
 
