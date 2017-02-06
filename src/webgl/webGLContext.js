@@ -28,8 +28,11 @@ WebGLContext.prototype.setVirtualResolution = function (width, height) {
 
 WebGLContext.prototype.assignContextFromContainer = function (canvas) {
     // let's try to get the webgl context from the given container:
-    var gl = this._gl = canvas.getContext("experimental-webgl") || canvas.getContext("webgl") ||
-        canvas.getContext("webkit-3d") || canvas.getContext("moz-webgl");
+    // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
+    // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
+    var gl = this._gl = canvas.getContext("experimental-webgl", {alpha: false}) ||
+        canvas.getContext("webgl", {alpha: false}) ||
+        canvas.getContext("webkit-3d", {alpha: false}) || canvas.getContext("moz-webgl", {alpha: false});
 
     if (!isObjectAssigned(this._gl)) {
         this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
