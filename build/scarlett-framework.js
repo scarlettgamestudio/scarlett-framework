@@ -9276,8 +9276,7 @@ var Common = require('../core/Common');
  * Attribute dictionary for property definitions
  * @constructor
  */
-var AttributeDictionary = function () {
-};
+var AttributeDictionary = function () {};
 AttributeDictionary._rules = {};
 AttributeDictionary._inheritance = {};
 
@@ -9371,12 +9370,6 @@ var SCARLETT = SC = {
 		RENDER: 13,
 		SCENE_RENDER: 14,
 		LATE_RENDER: 15
-	},
-	CONTENT_EXTENSIONS: {
-		ATLAS: ".atl"
-	},
-	EVENTS: {
-		CONTENT_ASSET_LOADED: "editor_updatePropertyEditorView"
 	}
 };
 
@@ -9387,14 +9380,6 @@ var sc = {};
  */
 var ContentLoader = function () {
 };
-
-/**
- * Cached files
- * @type {{}}
- * @private
- */
-ContentLoader._fileLoaded = {};
-ContentLoader._fileAlias = {};
 
 /**
  * Cached images
@@ -9435,8 +9420,6 @@ ContentLoader.clear = function () {
     ContentLoader._imgAlias = {};
     ContentLoader._audioLoaded = {};
     ContentLoader._audioAlias = {};
-    ContentLoader._fileLoaded = {};
-    ContentLoader._fileAlias = {};
 };
 
 /**
@@ -9497,24 +9480,6 @@ ContentLoader.load = function (assets) {
             toLoad++; // count only supposedly valid assets
 
             ContentLoader.loadAudio(asset.path, asset.alias).then(
-                function () {
-                    assetLoaded(asset, true);
-                }, function () {
-                    assetLoaded(asset, false);
-                }
-            )
-        });
-
-        // load all images:
-        assets.files = assets.files || [];
-        assets.files.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadFile(asset.path, asset.alias).then(
                 function () {
                     assetLoaded(asset, true);
                 }, function () {
@@ -9618,55 +9583,7 @@ ContentLoader.loadAudio = function (path, alias) {
 
     }).bind(this));
 };
-
-/**
- * Returns a file loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getFile = function (alias) {
-    if (ContentLoader._fileAlias.hasOwnProperty(alias)) {
-        return ContentLoader._fileLoaded[ContentLoader._fileAlias[alias]]
-    }
-};
-
-/**
- * loads a file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadFile = function (path, alias) {
-    return new Promise((function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the image on cache?
-        if (ContentLoader._fileLoaded.hasOwnProperty(path)) {
-            // the image is already cached. let's use it!
-            resolve(ContentLoader._fileLoaded[path]);
-
-        } else {
-            var rawFile = new XMLHttpRequest();
-            //rawFile.overrideMimeType("application/json");
-            rawFile.open("GET", path, true);
-            rawFile.onreadystatechange = function() {
-                if (rawFile.readyState === 4 && rawFile.status == "200") {
-                    // cache the loaded image:
-                    ContentLoader._fileLoaded[path] = rawFile.responseText;
-
-                    if (alias) {
-                        ContentLoader._fileAlias[alias] = path;
-                    }
-
-                    resolve(rawFile.responseText);
-
-                } else if (rawFile.readyState === 4 && rawFile.status != "200") {
-                    reject();
-                }
-            };
-            rawFile.send(null);
-        }
-    }).bind(this));
-};;/**
+;/**
  * Event Manager
  * @constructor
  */
@@ -10097,23 +10014,13 @@ RigidBody.prototype.onGameObjectScaleUpdated = function(value) {
 
 RigidBody.prototype.unload = function() {
 	// TODO: do this
-};;function ProjectFile(params) {
-    params = params || {};
-
-    this.name = params.name || "New Project";
-    this.settings = params.settings || {};
-    this.editor = params.editor || {
-            lastScene: null,
-            layout: null
-        };
-    this.content = params.content || {};
-}
-
-ProjectFile.restore = function (data) {
-    return new ProjectFile(data);
-};
-
-;/**
+};;/**
+ * Content Object
+ * @param params
+ * @constructor
+ */
+function ContentObject(params) {
+};/**
  * Content Texture Atlas
  * @param params
  * @constructor
@@ -10121,10 +10028,13 @@ ProjectFile.restore = function (data) {
 function TextureAtlas(params) {
     params = params || {};
 
+    ContentObject.call(this, params);
+
     // public properties:
-    this.sourcePath = params.sourcePath || ""; // should be a relative path
-    this.mapping = [];
+    this.sourcePath = params.sourcePath || "";
 }
+
+inheritsFrom(TextureAtlas, ContentObject);
 
 TextureAtlas.prototype.objectify = function () {
     return {
@@ -10141,6 +10051,1100 @@ TextureAtlas.restore = function (data) {
 TextureAtlas.prototype.getType = function () {
     return "TextureAtlas";
 };;/**
+ * Created by Luis on 23/12/2016.
+ */
+
+function Stroke(color, size) {
+
+    // stroke color
+    this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
+    // stroke size
+    this._size = size || 0.0;
+}
+
+Stroke.prototype.getColor = function(){
+    return this._color;
+};
+
+Stroke.prototype.setColor = function(color){
+    this._color.set(color.r, color.g, color.b, color.a);
+};
+
+Stroke.prototype.setOpacity = function(alpha){
+
+    var currentColor = this.getColor();
+
+    this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
+};
+
+Stroke.prototype.getOpacity = function(){
+    return this.getColor().a;
+}
+
+Stroke.prototype.getSize = function(){
+    return this._size;
+};
+
+Stroke.prototype.setSize = function(size){
+    this._size = size;
+};
+
+Stroke.prototype.objectify = function () {
+    return {
+        color: this._color.objectify(),
+        size: this.getSize()
+    };
+};
+
+Stroke.prototype.restore = function (data) {
+    return {
+        color: this._color.restore(data),
+        size: data.size
+    };
+};;/**
+ * Created by Luis on 16/12/2016.
+ */
+/**
+ * Text class
+ */
+AttributeDictionary.inherit("text", "gameobject");
+AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
+AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
+AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
+AttributeDictionary.addRule("text", "_texture", {visible: false});
+
+function Text(params) {
+
+    params = params || {};
+    params.name = params.name || "Text";
+
+    GameObject.call(this, params);
+
+    this._textureSrc = "";
+    this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
+    this._text = params.text || "";
+
+    this._letterSpacing = params.letterSpacing || 0;
+
+    this._fontSize = 70.0;
+    this._gamma = 2;
+
+    this._stroke = new Stroke();
+    // TODO: normalize inside the setters?
+    // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
+    this._stroke.setSize(0.0);
+    this._stroke.setColor(Color.fromRGBA(186,85,54, 0.5));
+
+    this._dropShadow = new Stroke();
+    this._dropShadow.setSize(5.0);
+    this._dropShadow.setColor(Color.fromRGBA(0, 0, 0, 1.0));
+
+    // x and y values have to be between spread (defined in Hiero) / texture size
+    // e.g., 4 / 512
+    // need to normalize between those values
+    this._dropShadowOffset = new Vector2(0, 0);
+
+    this._align = Text.AlignType.LEFT;
+
+    this._wordWrap = true;
+    this._characterWrap = true;
+
+    // either 0 or 1
+    this._debug = 0;
+
+    this._gl = GameManager.renderContext.getContext();
+
+    this._vertexBuffer = this._gl.createBuffer();
+    this._textureBuffer = this._gl.createBuffer();
+    this._vertexIndicesBuffer = this._gl.createBuffer();
+    this._textShader = new TextShader();
+
+    this._font = params.font || {};
+
+    // set text texture if defined
+    this.setTexture(params.texture);
+
+    // already done when creating a Texture2D with content loader
+    //gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
+}
+
+inheritsFrom(Text, GameObject);
+
+Text.AlignType = {
+    LEFT: 1,
+    CENTER: 2,
+    RIGHT: 3
+};
+
+Text.prototype.render = function (delta, spriteBatch) {
+
+    if (!this.enabled) {
+        return;
+    }
+
+    // get gl context
+    var gl = this._gl;
+
+    // use text shader
+    GameManager.activeGame.getShaderManager().useShader(this._textShader);
+
+    // enable shader attributes
+    gl.enableVertexAttribArray(this._textShader.attributes.aPos);
+    gl.enableVertexAttribArray(this._textShader.attributes.aTexCoord);
+
+    // draw text
+    this._drawText(this.getText(), this.getFontSize());
+
+    var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
+
+    gl.uniformMatrix4fv(this._textShader.uniforms.uMatrix._location, false, cameraMatrix);
+    gl.uniformMatrix4fv(this._textShader.uniforms.uTransform._location, false, this.getMatrix());
+
+    // bind to texture unit 0
+    gl.activeTexture(gl.TEXTURE0);
+    this._texture.bind();
+    // tell the shader which unit you bound the texture to. In this case it's to sampler 0
+    gl.uniform1i(this._textShader.uniforms.uTexture._location, 0);
+
+    // debug
+    gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
+    gl.vertexAttribPointer(this._textShader.attributes.aTexCoord, 2, gl.FLOAT, false, 0, 0);
+
+    // stroke
+    var strokeColor = this.getStroke().getColor();
+    gl.uniform4fv(this._textShader.uniforms.uOutlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
+
+    // stroke size
+    // max shader value is 0.5; bigger than that is considered no outline.
+    // in terms of raw values, we go from 0 to 10, so we calculate the scaled value between 0 and 10
+    var scaledValue = this.getStroke().getSize() * 0.7 / 10;
+
+    // revert the value, so 0 represents less stroke
+    // add 0.1 because 0.0 is visually bad
+    gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, 0.7 - scaledValue + 0.1);
+
+
+    var dropShadowColor = this.getDropShadow().getColor();
+    gl.uniform4fv(this._textShader.uniforms.uDropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
+    // stroke size
+    //  (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
+    gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
+
+    // 4 / 512 = 0.0058 = max smoothing value
+    this._dropShadowOffset.set(0.005, 0.005);
+    gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
+
+
+    //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
+
+    var color = this.getColor();
+
+    // font color (tint)
+    gl.uniform4fv(this._textShader.uniforms.uColor._location, [color.r, color.g, color.b, color.a]);
+    //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50); // 192 / 255
+
+    // gamma (smoothing) value (how sharp is the text in the edges)
+    gl.uniform1f(this._textShader.uniforms.uGamma._location, this.getGamma() * 1.4142 / this.getFontSize());
+
+    // draw the glyphs
+    //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
+    gl.drawElements(gl.TRIANGLES, this._vertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+    // parent render function:
+    GameObject.prototype.render.call(this, delta, spriteBatch);
+};
+
+Text.prototype.unload = function () {
+    //gl.deleteBuffer(this._vertexBuffer);
+    //gl.deleteBuffer(this._texBuffer);
+
+    //this._textureShader.unload();
+};
+
+// TODO: rotate, scale... probably the same thing as in the sprite
+Text.prototype.getMatrix = function () {
+    var x, y;
+
+    x = this.transform.getPosition().x;
+    y = this.transform.getPosition().y;
+
+    mat4.identity(this._transformMatrix);
+
+    //mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
+    //mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
+    //mat4.translate(this._transformMatrix, this._transformMatrix, [-x, -y, 0]);
+
+    mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
+
+    return this._transformMatrix;
+};
+
+Text.prototype.getType = function () {
+    return "Text";
+};
+
+Text.prototype.getTexture = function () {
+    return this._texture;
+};
+
+Text.prototype.setTexture = function (texture) {
+    // is this a ready texture?
+    if (!texture || !texture.isReady()) {
+        this._texture = null;
+        this._textureWidth = 0;
+        this._textureHeight = 0;
+        return;
+    }
+
+    this._texture = texture;
+
+    // cache the dimensions
+    this._textureWidth = this._texture.getWidth();
+    this._textureHeight = this._texture.getHeight();
+};
+
+Text.prototype.setColor = function (color) {
+    this._color = color;
+};
+
+Text.prototype.getColor = function () {
+    return this._color;
+};
+
+Text.prototype.setStroke = function (stroke) {
+    this._stroke = stroke;
+};
+
+Text.prototype.getStroke = function () {
+    return this._stroke;
+};
+
+Text.prototype.getDropShadow = function () {
+    return this._dropShadow;
+};
+
+Text.prototype.setDropShadow = function (shadow) {
+    this._dropShadow = shadow;
+};
+
+
+Text.prototype.setText = function (str) {
+    this._text = str;
+};
+
+Text.prototype.getText = function () {
+    return this._text;
+};
+
+Text.prototype.setFontSize = function (size) {
+    this._fontSize = size;
+};
+
+Text.prototype.getFontSize = function () {
+    return this._fontSize;
+};
+
+Text.prototype.setGamma = function (gamma) {
+    this._gamma = gamma;
+};
+
+Text.prototype.getGamma = function () {
+    return this._gamma;
+};
+
+Text.prototype.setDebug = function (value) {
+    this._debug = value;
+};
+
+Text.prototype.getDebug = function () {
+    return this._debug;
+};
+
+Text.prototype.setWordWrap = function (wrap) {
+    this._wordWrap = wrap;
+};
+
+Text.prototype.getWordWrap = function () {
+    return this._wordWrap;
+};
+
+Text.prototype.setCharacterWrap = function (wrap) {
+    this._characterWrap = wrap;
+};
+
+Text.prototype.getCharacterWrap = function () {
+    return this._characterWrap;
+};
+
+Text.prototype.setAlign = function (alignType) {
+    this._align = alignType;
+};
+
+Text.prototype.getAlign = function () {
+    return this._align;
+};
+
+Text.prototype.setTextureSrc = function (path) {
+    this._textureSrc = path;
+
+    if (path && path.length > 0) {
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
+        );
+    } else {
+        this.setTexture(null);
+    }
+};
+
+Text.prototype.getTextureSrc = function () {
+    return this._textureSrc;
+};
+
+Text.prototype.getLetterSpacing = function(){
+    return this._letterSpacing;
+};
+
+Text.prototype.setLetterSpacing = function(value){
+    this._letterSpacing = value;
+};
+
+// TODO: remove
+var maxWidth = 500;
+
+/**
+ *
+ * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
+ * @returns {number} font's character's ID or null if invalid
+ * @private
+ */
+Text.prototype._findCharID = function(char){
+    // make sure the parameter is valid
+    if (!char || !this._font || !this._font.chars || this._font.chars.length == 0){
+        return null;
+    }
+    // retrieve character's ascii code
+    var charCode = char.charCodeAt(0);
+
+    // if code is invalid, no need to go further
+    if (!charCode){
+        return null;
+    }
+
+    // go through every character
+    for (var i = 0; i < this._font.chars.length; i++){
+        // store glyphID (Ascii Code)
+        var glyphID = this._font.chars[i].id;
+        // if that's the code we are looking for
+        if (glyphID === charCode){
+            // return the iteration number (the position of that character inside the array of characters)
+            return i;
+        }
+    }
+    return null;
+};
+
+/**
+ * Measures a given character's width based on the provided scale
+ * @param {string} char character to measure
+ * @param {number} scale scale of the given character
+ * @returns {number} the character width if valid and 0 if invalid
+ * @private
+ */
+Text.prototype._measureCharacterWidth = function(char, scale){
+
+    // if parameters are missing
+    if (!char || !scale || scale <= 0){
+        return 0;
+    }
+
+    // retrieve character ID
+    var charID = this._findCharID(char);
+
+    // don't go further if char id is invalid
+    if (charID === null){
+        return 0;
+    }
+
+    // calculate character 'width'
+    // xadvance is based not only on the width but also on the padding, thus being used instead of width (?)
+    var charWidth = this._font.chars[charID].xadvance * scale;
+
+    return charWidth;
+};
+
+/**
+ * Measures the given text's width based on the provided scale
+ * @param {string} text text to measure
+ * @param {number} scale scale of the given text
+ * @returns {number} the text width if valid and 0 if invalid
+ * @private
+ */
+Text.prototype._measureTextWidth = function(text, scale){
+    // don't go further if text or scale do not exist
+    if (!text || !scale || scale <= 0){
+        return 0;
+    }
+
+    // set initial width
+    var width = 0;
+    // set initial letter spacing (for the first character, basically)
+    var currentLetterSpacing = 0;
+    // just to keep track of reverting to the original letter spacing value, so we only do it once
+    var revertedToOriginalValue = false;
+
+    // iterate through every character
+    for (var c = 0; c < text.length; c++){
+        // retrieve character at position c
+        var char = text[c];
+
+        // if there is already one or more valid characters, then we can use the actual letter spacing value
+        if (!revertedToOriginalValue && width > 0){
+            // revert to original value
+            currentLetterSpacing = this.getLetterSpacing();
+            // make sure we only enter this condition once
+            revertedToOriginalValue = true;
+        }
+
+        // store character's width temporarily
+        var tempWidth = this._measureCharacterWidth(char, scale);
+
+        // if valid
+        if (tempWidth > 0){
+            // add its width
+            // if tempWidth was 0, adding letter spacing wouldn't make much sense.
+            width += tempWidth + currentLetterSpacing;
+        }
+    }
+
+    // return total width
+    return width;
+};
+
+// TODO: replace for extensions.js array insert? supports multiple arguments...
+Array.prototype.insert = function (index) {
+    this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
+};
+
+// TODO: place in another file?
+String.prototype.insert = function (index, string) {
+    if (index > 0)
+        return this.substring(0, index) + string + this.substring(index, this.length);
+    else
+        return string + this;
+};
+
+Text.prototype._wrapWordsShortVersion = function(text, maxLineWidth, scale){
+    // retrieve words
+    var words = text.split(' ');
+
+    // no need to go further if there is only 1 word
+    if (words.length == 1){
+        return words;
+    }
+
+    var result = [];
+
+    var whitespace = " ";
+    // get first word and remove it from the array
+    var currentLine = words.shift();
+
+    // iterate through the words
+    for (var w = 0; w < words.length; w++){
+        // retrieve word
+        var word = words[w];
+
+        // simulate line width with the current word and whitespaces in between
+        var tempLine = currentLine + whitespace + word;
+
+        var tempWidth = this._measureTextWidth(tempLine, scale);
+
+        if (tempWidth > maxLineWidth){
+            result.push(currentLine);
+            currentLine = word;
+        }
+        else {
+            currentLine += whitespace + word;
+        }
+    }
+
+    // push last line
+    result.push(currentLine);
+
+    return result;
+};
+
+/**
+ * Wraps the words of a given text depending on a maximum width and text scale
+ * @param {string} text text to wrap
+ * @param {number} maxLineWidth maximum line width
+ * @param {number} scale scale of the given text
+ * @returns {Array} wrapped text in lines
+ * @private
+ */
+Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
+    var result = [];
+
+    if(!text || !maxLineWidth || !scale || maxLineWidth <= 0 || scale <= 0){
+        return result;
+    }
+
+    // retrieve words
+    var words = text.split(' ');
+
+    // get first word and remove it from the array
+    var currentLine = "";//words.shift();
+    // store its width
+    var currentLineWordWidth = 0;//this._measureTextWidth(currentLine, scale);
+
+    var whitespace = "";// " ";
+    var whitespaceWidth = 0;//this._measureCharacterWidth(whitespace, scale);
+    // just to keep track of reverting whitespace to its original value (its real width)
+    var revertedToOriginalValue = false;
+
+    // iterate through the words
+    for (var w = 0; w < words.length; w++){
+        // retrieve word
+        var word = words[w];
+
+        // just a way to not consider whitespace and its width (along with a possible letter spacing value)
+        // if there aren't any characters or words already in the current line.
+        if (!revertedToOriginalValue && currentLineWordWidth > 0){
+            whitespace = " ";
+            // letter spacing also affects the whitespace width when there is at least 1 word
+            whitespaceWidth = this._measureCharacterWidth(whitespace, scale) + this.getLetterSpacing();
+            // make sure we only enter this condition once (per line)
+            revertedToOriginalValue = true;
+        }
+
+        // calculate word width according to the text scale (not characters length!)
+        var wordWidth = this._measureTextWidth(word, scale);
+
+        // TODO: think of a cleaner way of doing this? maybe _wrapTextByCharacter shouldn't return line objects?
+        if (this._characterWrap && wordWidth > maxLineWidth){
+            var tempLine = currentLine + whitespace + word;
+
+            var characterWrappedLines = this._wrapTextByCharacter(tempLine, scale, maxLineWidth);
+
+            // currentLine is the last line so maybe next word also fits
+            currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
+            currentLineWordWidth = this._measureTextWidth(currentLine, scale);
+            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+            whitespace = "";
+            whitespaceWidth = 0;
+            revertedToOriginalValue = false;
+
+            // push the others
+            for (var cline = 0; cline < characterWrappedLines.length; cline++){
+                var characterLine = characterWrappedLines[cline].chars.join("");
+                result.push(characterLine);
+            }
+            // no need to go further in this iteration
+            continue;
+        }
+
+        // simulate line width with the current word, a whitespace in between and also extra line spacing if any
+        var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
+
+        if (tempWidth > maxLineWidth){
+            result.push(currentLine);
+            currentLine = word;
+            currentLineWordWidth = wordWidth;
+            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+            whitespace = "";
+            whitespaceWidth = 0;
+            revertedToOriginalValue = false;
+        }
+        else {
+            currentLine += whitespace + word;
+            currentLineWordWidth += whitespaceWidth + wordWidth;
+        }
+    }
+
+    // push last line
+    result.push(currentLine);
+
+    return result;
+};
+
+// TODO: Line class?
+/**
+ * Wraps the characters of a given text depending on a maximum width and text scale
+ * @param {string} text text to wrap
+ * @param {number} scale scale of the given text
+ * @param {number} maxLineWidth maximum line width
+ * @returns {Array} wrapped text in lines
+ * @private
+ */
+Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
+    // create empty array
+    var lines = [];
+
+    // TODO: trim?
+    // if word or scale are empty, no need to go further
+    if (!text || !scale || !maxLineWidth || scale <= 0 || maxLineWidth <= 0){
+        return lines;
+    }
+
+    // create first line, since it's sure to have some text
+    lines.push({
+        chars: [],
+        width: 0
+    });
+
+    // set initial value for letter spacing (for the first character iteration, basically...)
+    var currentLetterSpacing = 0;
+    // just to keep track of reverting to letter spacing original value
+    var revertedToOriginalValue = false;
+
+    // iterate through text characters
+    for (var c = 0; c < text.length; c++){
+        // retrieve text character
+        var char = text[c];
+
+        // store current line index
+        var currentLine = lines.length - 1;
+
+        // after the first (valid) character of current line, get the actual value of letter spacing
+        if (!revertedToOriginalValue && lines[currentLine].width > 0){
+            // revert to original value
+            currentLetterSpacing = this.getLetterSpacing();
+            // make sure we only enter this condition once (per line, thus the resets down below)
+            revertedToOriginalValue = true;
+        }
+
+        // retrieve character width
+        var charWidth = this._measureCharacterWidth(char, scale);
+
+        // current width + char width + letter spacing if there is at least 1 character
+        var tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
+
+        // if current line width + the current character width is > than the max width
+        if(tempWidth > maxLineWidth){
+            // create a new and empty line
+            lines.push({
+                chars: [],
+                width: 0
+            });
+
+            // update current line index
+            currentLine++;
+            // reset letter spacing!
+            currentLetterSpacing = 0;
+            // and the variable that keeps track of reverting to actual letter spacing value
+            revertedToOriginalValue = false;
+
+            // skip if the character is a whitespace
+            if (char === " "){
+                continue;
+            }
+        }
+
+        // add character and its width to current line (plus letter spacing if there is at least 1 character)
+        lines[currentLine].width += charWidth + currentLetterSpacing;
+        lines[currentLine].chars.push(char);
+    }
+
+    return lines;
+};
+
+/**
+ * Converts a given text into a Line Object, with an array of characters and the line total width
+ * @param {string} text text to convert into a line object
+ * @param {number} scale scale of the given text
+ * @returns {{chars: Array, width: number}}
+ * @private
+ */
+Text.prototype._convertTextToLine = function(text, scale){
+    // define empty line
+    var line = {
+        chars: Array(),
+        width: 0
+    };
+
+    // return empty if any of the values is invalid
+    if (!text || !scale || scale <= 0){
+        return line;
+    }
+
+    // set line characters and width
+    line.chars = text.split("");
+    line.width = this._measureTextWidth(text, scale);
+
+    return line;
+};
+
+/**
+ * Creates the definitive lines to draw onto the screen
+ * @param {string} text text to draw
+ * @param {number} scale scale of the text
+ * @returns {Array} text split into lines
+ * @private
+ */
+Text.prototype._measureText = function (text, scale) {
+    // create empty array
+    var resultLines = [];
+
+    // TODO: trim text? guess that, at least technically, a lot of spaces should still be drawn...
+    // if text or scale don't exist, no need to go further
+    if (!text || !scale || scale <= 0){
+        return resultLines;
+    }
+
+    // create first line, since it's sure to have some text
+    resultLines.push({
+        chars: [],
+        width: 0
+    });
+
+    // store original text
+    var useText = text;
+
+    // create array for user defined lines
+    var userDefinedLines = [];
+
+    // word wrap by inserting \n in the original text
+    if (this._wordWrap){
+        // initialize resulting text
+        var wrappedText = "";
+        // split text into lines defined by the user
+        userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
+
+        // iterate through lines
+        for (var l = 0; l < userDefinedLines.length; l++){
+            // wrap line
+            var wrappedLine = this._wrapWordsLongVersion(userDefinedLines[l], maxWidth, scale).join('\n');
+            // always insert a break at the end since the split gets rid of the user defined breaks...
+            wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
+            // concatenate to resulting wrapping text
+            wrappedText = wrappedText.concat(wrappedLine);
+        }
+
+        // assign useText to resulting wrapping text
+        useText = wrappedText;
+    }
+
+    // split text into lines defined by the users (and also word wrapped now ;))
+    userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
+
+    // iterate through user defined lines (with special characters)
+    for (var l = 0; l < userDefinedLines.length; l++){
+
+        var userDefinedLine = userDefinedLines[l];
+
+        var preparedLines = [];
+
+        // only perform character wrap if word wrap isn't enabled in the first place
+        if (!this._wordWrap && this._characterWrap) {
+            preparedLines = this._wrapTextByCharacter(userDefinedLine, scale, maxWidth);
+        }
+        else {
+            preparedLines.push(this._convertTextToLine(userDefinedLine, scale));
+        }
+
+        // extended result array (does not create a new array such as concat)
+        Array.prototype.push.apply(resultLines, preparedLines);
+    }
+
+    return resultLines;
+};
+
+/**
+ * Draws a given text onto the screen
+ * @param {string} text text to draw onto the screen
+ * @param {number} size font size
+ * @private
+ */
+Text.prototype._drawText = function (text, size) {
+
+    // no need to go further if parameters or _font are invalid
+    if (!text || !size || size <= 0 || !this._font || !this._font.info ||
+                !this._font.info.size || this._font.info.size <= 0){
+        return;
+    }
+
+    // line height; falls back to font size
+    var lineHeight = this._font.common.lineHeight || this.getFontSize();
+
+    // retrieve metrics size
+    var metricsSize = this._font.info.size;
+
+    // text scale based on the font size
+    var scale = size / metricsSize;
+
+    var x;
+    var lines;
+
+    // TODO: create a function for this? alignPosition
+    switch(this.getAlign()) {
+        case Text.AlignType.LEFT:
+            x = this.transform.getPosition().x;
+            break;
+        case Text.AlignType.RIGHT: // x + bounding box width
+            x = this.transform.getPosition().x + maxWidth; // TODO: replace maxWidth...
+            break;
+        default:
+            // do nothing since center is calculated per line
+    }
+
+    // create the lines to draw onto the screen
+    lines = this._measureText(text, scale);
+
+    // draws lines
+    // TODO: remove x parameter?
+    this._drawLines(lines, scale, x, lineHeight);
+};
+
+/**
+ * Draws the given text lines onto the screen
+ * @param {Array} lines lines to draw
+ * @param {number} scale scale of the text
+ * @param {number} x
+ * * @param {number} lineHeight how much Y should increase to switch line
+ * @private
+ */
+Text.prototype._drawLines = function(lines, scale, x, lineHeight){
+
+    // if parameters are invalid, no need to go further
+    if (!lines || !scale || scale <= 0 || !lineHeight){
+        return;
+    }
+
+    // retrieve webgl context
+    var gl = this._gl;
+
+    // create shader arrays, which are filled inside prepareLineToBeDrawn
+    var vertexElements = [];
+    var textureElements = [];
+    var vertexIndices = [];
+
+    // center (0,0)
+
+    var currentY = 0;
+
+    for (var i = 0; i < lines.length; i++) {
+
+        if (this._align == Text.AlignType.CENTER){
+            // text x position - lines[i].width / 2 or...
+            // x + text width/2 - lines[i].width / 2 ?
+            x = 0 - lines[i].width / 2;
+        }
+
+        // create pen with the screen coordinates
+        //  TODO: replace by vector2?
+        var pen = { x: x, y: currentY - 350 };
+
+        // retrieve line characters
+        var line = lines[i].chars;
+
+        // prepare to draw line
+        this._prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices);
+
+        // update Y before drawing another line
+        currentY += lineHeight * scale; // TODO: no need to recalculate this value every time...
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
+    this._vertexBuffer.numItems = vertexElements.length / 2;
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._vertexIndicesBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
+    this._vertexIndicesBuffer.numItems = vertexIndices.length;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
+    this._textureBuffer.numItems = textureElements.length / 2;
+};
+
+/**
+ * Prepares a line to be drawn
+ * @param {Array} line array of characters whose draw is to be prepared
+ * @param {number} scale text desired scale
+ * @param {{x: number, y:number}} pen pen to draw with
+ * @param {Array} vertexElements array to store the characters vertices
+ * @param {Array} textureElements array to store the characters texture elements
+ * @param {Array} vertexIndices array to store the vertices indices
+ * @private
+ */
+Text.prototype._prepareLineToBeDrawn = function(line, scale, pen, vertexElements, textureElements, vertexIndices){
+
+    var lastGlyphCode = 0;
+
+    // iterate through line characters
+    for (var i = 0; i < line.length; i++){
+
+        // retrieve line char
+        var char = line[i];
+
+        // prepare character to be drawn
+        lastGlyphCode = this._createGlyph(char, scale, pen, lastGlyphCode,
+            vertexElements, textureElements, vertexIndices);
+
+    }
+};
+
+/**
+ * Creates the necessary vertices and texture elements to draw a given character
+ * @param {string} char character to prepare to draw
+ * @param {number} scale text scale
+ * @param {{x: number, y: number}} pen pen to draw with
+ * @param {number} lastGlyphCode last drawn glyph ascii code
+ * @param {Array} vertexElements array to store the characters vertices
+ * @param {Array} textureElements array to store the characters texture elements
+ * @param {Array} vertexIndices array to store the vertices indices
+ * @returns {number} drawn glyph ascii code or 0 if invalid
+ * @private
+ */
+Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
+                                        vertexElements, textureElements, vertexIndices) {
+
+    // if font or any of the parameters is missing, no need to go further
+    if (!this._font || !this._font.chars || !char || !scale || scale <= 0 || !pen  || lastGlyphCode == null ||
+                !vertexElements || !textureElements || !vertexIndices) {
+        return 0;
+    }
+
+    // retrieve char ID
+    var charID = this._findCharID(char);
+
+    // return if null
+    if (charID === null){
+        return 0;
+    }
+
+    // retrieve font metrics
+    var metrics = this._font.chars[charID];
+
+    // retrieve character metrics
+    var width = metrics.width;
+    var height = metrics.height;
+    var xOffset = metrics.xoffset;
+    var yOffset = metrics.yoffset;
+    var xAdvance = metrics.xadvance;
+    var posX = metrics.x;
+    var posY = metrics.y;
+    var asciiCode = metrics.id;
+
+    // set kerning initial value
+    var kern = 0;
+
+    // only prepare character to be drawn if width and height are valid
+    if (width > 0 && height > 0) {
+        // if a glyph was created before
+        if (lastGlyphCode){
+            // retrieve kerning value between last character and current character
+            kern = this._getKerning(lastGlyphCode, asciiCode);
+        }
+
+        // TODO: isn't there a way to reuse the indices?
+        var factor = (vertexIndices.length / 6) * 4;
+
+        vertexIndices.push(
+            0 + factor, 1 + factor, 2 + factor,
+            1 + factor, 2 + factor, 3 + factor
+        );
+
+        var invert = false;
+
+        if (this.getAlign() === Text.AlignType.RIGHT){
+            invert = true;
+        }
+
+
+        // Add a quad (= two triangles) per glyph.
+        vertexElements.push(
+            pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
+            pen.x + ((xOffset + kern + width) * scale), pen.y + yOffset * scale,
+            pen.x + ((xOffset + kern) * scale), pen.y + (height + yOffset) * scale,
+
+            pen.x + ((xOffset + kern + width) * scale), pen.y + (height + yOffset) * scale
+        );
+
+        /*              ___
+         |\           \  |
+         | \           \ |
+         |__\ and then  \|
+         */
+        // example without scaling
+        /*
+         var bottomLeftX = pen.x + horiBearingX;
+         var bottomLeftY = pen.y + horiBearingY;
+         vertexElements.push(
+             bottomLeftX, bottomLeftY, // bottom left
+             bottomLeftX + width, bottomLeftY, // bottom right
+             bottomLeftX, bottomLeftY + height, // top left
+
+             bottomLeftX + width, bottomLeftY, // bottom right
+             bottomLeftX, bottomLeftY + height, // top left
+             bottomLeftX + width, bottomLeftY + height // top right
+         );*/
+
+        textureElements.push(
+            posX, posY,
+            posX + width, posY,
+            posX, posY + height,
+
+            posX + width, posY + height
+        );
+    }
+
+    // TODO: not sure kern should actually be added to the pen or just help with the offset when drawing.
+    if (!invert){
+        pen.x = pen.x + this.getLetterSpacing() + ((xAdvance + kern) * scale);
+    }
+    else {
+        pen.x = pen.x - ((xAdvance + kern) * scale);
+    }
+
+    // return the last glyph ascii code
+    return asciiCode;
+};
+
+/**
+ * Retrieves Kerning value between the given characters
+ * @param {number} firstCharCode first character ascii code
+ * @param {number} secondCharCode second character ascii code
+ * @returns {number} kerning value or 0 if not found
+ * @private
+ */
+Text.prototype._getKerning = function (firstCharCode, secondCharCode) {
+    if (!firstCharCode || !secondCharCode || !this._font || !this._font.kernings
+                    || !this._font.kernings.length || this._font.kernings.length === 0) {
+        return 0;
+    }
+
+    // retrieve kernings' table
+    var table = this._font.kernings;
+
+    // iterate through the kernings
+    for (var i = 0; i < table.length; i++) {
+        var kern = table[i];
+        // if there is a match
+        if (kern.first === firstCharCode && kern.second === secondCharCode)
+            // return kerning
+            return kern.amount;
+    }
+
+    // return 0 if there is no match
+    return 0
+};/**
  * Camera2D class
  */
 function Camera2D(x, y, viewWidth, viewHeight, zoom) {
@@ -11054,12 +12058,7 @@ GameProject.prototype.toJSON = function() {
 	};
 };
 
-;AttributeDictionary.addRule("gameScene", "_game", {visible: false});
-AttributeDictionary.addRule("gameScene", "_gameObjects", {visible: false});
-AttributeDictionary.addRule("gameScene", "_camera", {visible: false});
-AttributeDictionary.addRule("gameScene", "_spriteBatch", {visible: false});
-
-/**
+;/**
  * GameScene class
  */
 function GameScene(params) {
@@ -11668,11 +12667,10 @@ Sound.prototype.setVolume = function (volume) {
  * Sprite class
  */
 AttributeDictionary.inherit("sprite", "gameobject");
-AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor: "filepath"});
+AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 AttributeDictionary.addRule("sprite", "_texture", {visible: false});
 AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
-AttributeDictionary.addRule("sprite", "_atlasRegion", {displayName: "Region", available: function() { return isObjectAssigned(this._atlas) }});
 
 function Sprite(params) {
     params = params || {};
@@ -11681,14 +12679,12 @@ function Sprite(params) {
     GameObject.call(this, params);
 
     // private properties:
-    this._source = "";
-    this._atlasRegion = "";
+    this._textureSrc = "";
     this._tint = params.tint || Color.fromRGB(255, 255, 255);
     this._textureWidth = 0;
     this._textureHeight = 0;
     this._origin = new Vector2(0.5, 0.5);
     this._wrapMode = WrapMode.CLAMP;
-    this._atlas = null;
 
     this.setTexture(params.texture);
 }
@@ -11751,66 +12747,24 @@ Sprite.prototype.getTint = function () {
     return this._tint;
 };
 
-Sprite.prototype.setSource = function (path) {
-    this._source = path;
+Sprite.prototype.setTextureSrc = function (path) {
+    this._textureSrc = path;
 
     if (path && path.length > 0) {
-        var ext = Path.getFileExtension(path);
-
-        if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
-            ContentLoader.loadFile(path).then(
-                (function(data) {
-                    var atlas = Objectify.restoreFromString(data);
-
-                    // is this a valid atlas?
-                    if (atlas && isObjectAssigned(atlas.sourcePath)) {
-                        // seems so!
-                        this._atlas = atlas;
-                        this._assignTextureFromPath(this._atlas.sourcePath);
-
-                        // FIXME: change to a more appropriate event?
-                        // this is currently being used so the property editor refreshes the view after the atlas
-                        // is asynchronously loaded.
-                        EventManager.emit(SC.EVENTS.CONTENT_ASSET_LOADED, path);
-                    }
-
-                }).bind(this), function(err) {
-                    console.log("failed");
-                }
-            );
-
-        } else {
-            this._atlas = null;
-            this._assignTextureFromPath(path);
-        }
-
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
+        );
     } else {
         this.setTexture(null);
     }
 };
 
-Sprite.prototype._assignTextureFromPath = function(path) {
-    Texture2D.fromPath(path).then(
-        (function (texture) {
-            this.setTexture(texture);
-
-        }).bind(this), (function (error) {
-            this.setTexture(null);
-        }).bind(this)
-    );
-};
-
-
-Sprite.prototype.getAtlasRegion = function () {
-    return this._atlasRegion;
-};
-
-Sprite.prototype.setAtlasRegion = function (value) {
-    this._atlasRegion = value;
-};
-
-Sprite.prototype.getSource = function () {
-    return this._source;
+Sprite.prototype.getTextureSrc = function () {
+    return this._textureSrc;
 };
 
 Sprite.prototype.getType = function () {
@@ -11853,7 +12807,7 @@ Sprite.prototype.render = function (delta, spriteBatch) {
 Sprite.prototype.objectify = function () {
     var superObjectify = GameObject.prototype.objectify.call(this);
     return Objectify.extend(superObjectify, {
-        src: this._source,
+        src: this._textureSrc,
         tint: this._tint.objectify()
     });
 };
@@ -11866,7 +12820,7 @@ Sprite.restore = function (data) {
         components: Objectify.restoreArray(data.components)
     });
 
-    sprite.setSource(data.src);
+    sprite.setTextureSrc(data.src);
 
     return sprite;
 };
@@ -12131,837 +13085,6 @@ SpriteBatchOld.prototype.unload = function () {
     gl.deleteBuffer(this._texBuffer);
 
     this._textureShader.unload();
-};;/**
- * Created by Luis on 23/12/2016.
- */
-
-function Stroke(color, size) {
-    // stroke color
-    this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
-    // stroke size
-    this._size = size || 0.0;
-}
-
-Stroke.prototype.getColor = function(){
-    return this._color;
-};
-
-Stroke.prototype.setColor = function(color){
-    this._color.set(color.r, color.g, color.b, color.a);
-};
-
-Stroke.prototype.setOpacity = function(alpha){
-
-    var currentColor = this.getColor();
-
-    this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
-};
-
-Stroke.prototype.getOpacity = function(){
-    return this.getColor().a;
-};
-
-Stroke.prototype.getSize = function(){
-    return this._size;
-};
-
-Stroke.prototype.setSize = function(size){
-    this._size = size;
-};
-
-Stroke.prototype.objectify = function () {
-    return {
-        color: this._color.objectify(),
-        size: this.getSize()
-    };
-};
-
-Stroke.prototype.restore = function (data) {
-    return {
-        color: this._color.restore(data),
-        size: data.size
-    };
-};;/**
- * Created by Luis on 16/12/2016.
- */
-/**
- * SpriteBatch class
- */
-AttributeDictionary.inherit("text", "gameobject");
-AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
-AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
-AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
-AttributeDictionary.addRule("text", "_texture", {visible: false});
-
-function Text(params) {
-
-    params = params || {};
-    params.name = params.name || "Text";
-
-    GameObject.call(this, params);
-
-    this._textureSrc = "";
-    this._color = params.color || Color.fromRGBA(0, 0, 0, 1.0);
-    this._text = params.text || "";
-
-    this._fontSize = 70.0;
-    this._gamma = 2;
-
-    this._stroke = new Stroke();
-    // TODO: normalize
-    // values between 0.1 and 0.7, where 0.1 is the highest stroke value... better to normalize?
-    this._stroke.setSize(0.7);
-    this._stroke.setColor(Color.fromRGBA(255, 255, 255, 1.0));
-
-    this._align = Text.AlignType.LEFT;
-
-    this._wordWrap = true;
-    this._characterWrap = true;
-
-    // either 0 or 1
-    this._debug = 0;
-
-    this._gl = GameManager.renderContext.getContext();
-
-    this._vertexBuffer = this._gl.createBuffer();
-    this._textureBuffer = this._gl.createBuffer();
-    this._textShader = new TextShader();
-
-    // TODO: generate metrics without 3rd party apps?
-    this._metrics = {"family":"Open Sans","style":"Regular","buffer":3,"size":24,"chars":{" ":[0,0,0,0,6],"!":[4,19,1,18,6,2,2],"\"":[8,8,1,18,9,14,2],"#":[15,18,0,18,15,30,2],"$":[12,21,1,19,13,53,2],"%":[18,19,1,18,19,73,2],"&":[17,19,1,18,17,99,2],"'":[3,8,1,18,5,124,2],"(":[7,22,0,18,7,135,2],")":[7,22,0,18,7,150,2],"*":[12,12,1,19,13,165,2],"+":[12,13,1,15,13,185,2],",":[5,7,0,3,5,205,2],"-":[7,3,0,8,7,218,2],".":[4,4,1,3,6,233,2],"/":[9,18,0,18,8,245,2],"0":[12,19,1,18,13,262,2],"1":[7,18,2,18,13,282,2],"2":[12,18,1,18,13,297,2],"3":[12,19,1,18,13,317,2],"4":[14,18,0,18,13,337,2],"5":[12,19,1,18,13,359,2],"6":[12,19,1,18,13,379,2],"7":[12,18,1,18,13,399,2],"8":[12,19,1,18,13,419,2],"9":[12,19,1,18,13,439,2],":":[4,15,1,14,6,459,2],";":[5,18,0,14,6,471,2],"<":[12,13,1,15,13,484,2],"=":[12,7,1,12,13,218,14],">":[12,13,1,15,13,165,22],"?":[10,19,0,18,10,185,23],"@":[20,21,1,18,21,484,23],"A":[16,18,0,18,15,238,28],"B":[13,18,2,18,15,459,28],"C":[14,19,1,18,15,14,28],"D":[15,18,2,18,17,282,28],"E":[10,18,2,18,13,399,28],"F":[10,18,2,18,12,337,28],"G":[15,19,1,18,17,203,29],"H":[14,18,2,18,17,417,29],"I":[3,18,2,18,6,124,18],"J":[7,23,-2,18,6,36,28],"K":[13,18,2,18,14,355,29],"L":[10,18,2,18,12,305,29],"M":[18,18,2,18,21,73,29],"N":[14,18,2,18,18,376,29],"O":[17,19,1,18,18,99,29],"P":[12,18,2,18,14,262,29],"Q":[17,23,1,18,18,135,32],"R":[13,18,2,18,14,51,31],"S":[12,19,1,18,13,439,29],"T":[14,18,0,18,13,160,43],"U":[14,19,2,18,17,480,52],"V":[15,18,0,18,14,226,54],"W":[22,18,0,18,22,323,54],"X":[14,18,0,18,13,282,54],"Y":[14,18,0,18,13,72,55],"Z":[13,18,0,18,13,182,50],"[":[7,22,1,18,7,398,54],"\\":[9,18,0,18,8,459,54],"]":[6,22,0,18,7,304,55],"^":[13,12,0,18,13,353,55],"_":[12,2,-1,-2,10,413,55],"`":[6,5,4,19,13,2,55],"a":[11,15,1,14,13,249,55],"b":[12,20,2,19,14,16,55],"c":[10,15,1,14,11,374,55],"d":[12,20,1,19,14,94,56],"e":[12,15,1,14,13,433,56],"f":[10,19,0,19,8,114,56],"g":[13,20,0,14,13,203,56],"h":[11,19,2,19,14,51,57],"i":[4,18,1,18,6,268,55],"j":[7,24,-2,18,6,36,59],"k":[11,19,2,19,12,132,63],"l":[3,19,2,19,6,413,65],"m":[19,14,2,14,22,151,69],"n":[11,14,2,14,14,353,75],"o":[13,15,1,14,14,178,76],"p":[12,20,2,14,14,372,78],"q":[12,20,1,14,14,476,79],"r":[8,14,2,14,9,249,78],"s":[10,15,1,14,11,424,79],"t":[8,17,0,16,8,496,79],"u":[12,14,1,13,14,224,80],"v":[13,13,0,13,12,280,80],"w":[19,13,0,13,18,318,80],"x":[13,13,0,13,12,453,80],"y":[13,19,0,13,12,70,81],"z":[11,13,0,13,11,2,83],"{":[9,22,0,18,9,114,83],"|":[3,25,5,19,13,442,79],"}":[9,22,0,18,9,91,84],"~":[12,4,1,10,13,199,84]," ":[0,0,0,0,6],"¡":[4,19,1,14,6,265,81],"¢":[10,19,2,18,13,392,84],"£":[13,18,0,18,13,131,91],"¤":[12,11,1,14,13,21,91],"¥":[14,18,0,18,13,41,91],"¦":[3,25,5,19,13,301,85],"§":[10,20,1,19,12,152,91],"¨":[8,3,3,18,13,199,96],"©":[18,19,1,18,19,345,97],"ª":[8,9,0,18,8,170,99],"«":[11,11,0,12,11,244,100],"¬":[12,7,1,10,13,277,101],"­":[7,3,0,8,7,312,101],"®":[18,19,1,18,19,410,102],"¯":[14,2,-1,20,12,453,101],"°":[8,8,1,18,10,327,101],"±":[12,16,1,15,13,215,102],"²":[8,12,0,18,8,496,104],"³":[8,12,0,18,8,2,104],"´":[6,5,4,19,13,371,106],"µ":[11,19,2,13,14,475,107],"¶":[13,23,1,19,15,186,107],"·":[4,5,1,11,6,263,108],"¸":[6,6,0,0,5,63,108],"¹":[6,12,0,18,8,77,108],"º":[9,9,0,18,9,18,110],"»":[11,11,0,12,11,385,111],"¼":[18,19,0,18,18,436,112],"½":[18,19,0,18,18,91,114],"¾":[19,19,0,18,18,35,117],"¿":[10,19,0,14,10,275,116],"À":[16,23,0,23,15,117,117],"Á":[16,23,0,23,15,312,117],"Â":[16,23,0,23,15,235,119],"Ã":[16,22,0,22,15,141,119],"Ä":[16,22,0,22,15,343,124],"Å":[16,22,0,22,15,207,126],"Æ":[21,18,-1,18,20,2,127],"Ç":[14,24,1,18,15,62,128],"È":[10,23,2,23,13,293,118],"É":[10,23,2,23,13,165,119],"Ê":[10,23,2,23,13,494,124],"Ë":[10,22,2,22,13,367,124],"Ì":[6,23,-1,23,6,259,121],"Í":[6,23,1,23,6,404,129],"Î":[9,23,-1,23,6,418,129],"Ï":[8,22,-1,22,6,385,130],"Ð":[16,18,0,18,17,462,134],"Ñ":[14,22,2,22,18,183,138],"Ò":[17,24,1,23,18,435,139],"Ó":[17,24,1,23,18,84,141],"Ô":[17,24,1,23,18,31,144],"Õ":[17,23,1,22,18,311,148],"Ö":[17,23,1,22,18,109,148],"×":[12,11,1,14,13,273,143],"Ø":[17,19,1,18,18,134,149],"Ù":[14,24,2,23,17,231,150],"Ú":[14,24,2,23,17,159,150],"Û":[14,24,2,23,17,2,153],"Ü":[14,23,2,22,17,336,154],"Ý":[14,23,0,23,13,358,154],"Þ":[12,18,2,18,14,253,152],"ß":[12,20,2,19,14,486,155],"à":[11,20,1,19,13,205,156],"á":[11,20,1,19,13,460,160],"â":[11,20,1,19,13,401,160],"ã":[11,19,1,18,13,380,160],"ä":[11,19,1,18,13,56,160],"å":[11,21,1,20,13,273,162],"æ":[19,15,1,14,20,420,171],"ç":[10,20,1,14,11,293,149],"è":[12,20,1,19,13,181,168],"é":[12,20,1,19,13,75,173],"ê":[12,20,1,19,13,24,176],"ë":[12,19,1,18,13,134,176],"ì":[6,19,-1,19,6,95,173],"í":[6,19,1,19,6,292,177],"î":[9,19,-1,19,6,253,178],"ï":[8,18,-1,18,6,306,179],"ð":[13,20,1,19,14,109,179],"ñ":[11,18,2,18,14,154,182],"ò":[13,20,1,19,14,224,182],"ó":[13,20,1,19,14,479,183],"ô":[13,20,1,19,14,201,184],"õ":[13,19,1,18,14,322,185],"ö":[13,19,1,18,14,2,185],"÷":[12,12,1,14,13,343,185],"ø":[13,15,1,14,14,44,187],"ù":[12,20,1,19,14,363,187],"ú":[12,20,1,19,14,399,188],"û":[12,20,1,19,14,447,188],"ü":[12,19,1,18,14,270,191],"ý":[13,25,0,19,12,419,194],"þ":[12,25,2,19,14,173,196],"ÿ":[13,24,0,18,12,65,201],"Ā":[16,21,0,21,15,130,203],"ā":[11,18,1,17,13,86,201],"Ă":[16,22,0,22,15,290,205],"ă":[11,19,1,18,13,23,204],"Ą":[16,24,0,18,15,245,205],"ą":[12,20,1,14,13,343,205],"Ć":[14,24,1,23,15,105,207],"ć":[10,20,1,19,11,154,208],"Ĉ":[14,24,1,23,15,42,210],"ĉ":[10,20,1,19,11,222,210],"Ċ":[14,23,1,22,15,467,211],"ċ":[10,19,1,18,11,489,211],"Č":[14,24,1,23,15,193,212],"č":[11,20,1,19,11,314,212],"Ď":[15,23,2,23,17,363,215],"ď":[16,20,1,19,14,440,216],"Đ":[16,18,0,18,17,386,216],"đ":[14,20,1,19,14,410,227],"Ē":[10,21,2,21,13,2,212],"ē":[12,18,1,17,13,269,218],"Ĕ":[10,22,2,22,13,86,227],"ĕ":[12,19,1,18,13,172,229],"Ė":[10,22,2,22,13,20,231],"ė":[12,19,1,18,13,127,232],"Ę":[10,24,2,18,13,64,233],"ę":[12,20,1,14,13,333,233],"Ě":[10,23,2,23,13,289,235],"ě":[12,20,1,19,13,147,236],"Ĝ":[15,24,1,23,17,240,237],"ĝ":[13,25,0,19,13,215,238],"Ğ":[15,23,1,22,17,489,238],"ğ":[13,24,0,18,13,104,239],"Ġ":[15,23,1,22,17,307,240],"ġ":[13,24,0,18,13,464,242],"Ģ":[15,24,1,18,17,38,242],"ģ":[13,25,0,19,13,386,242],"Ĥ":[14,23,2,23,17,192,244],"ĥ":[11,24,2,24,14,263,244],"Ħ":[18,18,0,18,17,432,244],"ħ":[13,19,0,19,14,353,246],"Ĩ":[9,22,-1,22,6,2,241],"ĩ":[9,18,-1,18,6,407,255],"Ī":[8,21,-1,21,6,167,256],"ī":[8,17,-1,17,6,82,257],"Ĭ":[8,22,-1,22,6,125,259],"ĭ":[8,18,-1,18,6,19,261],"Į":[5,24,1,18,6,330,261],"į":[5,24,0,18,6,141,264],"İ":[4,22,1,22,6,374,246],"ı":[3,13,2,13,6,154,264],"Ĳ":[10,23,2,18,13,61,265],"ĳ":[10,24,1,18,12,282,266],"Ĵ":[10,28,-2,23,6,236,269],"ĵ":[10,25,-2,19,6,485,269],"Ķ":[13,24,2,18,14,424,270],"ķ":[11,25,2,19,12,445,270],"ĸ":[11,13,2,13,12,214,271],"Ĺ":[10,23,2,23,12,98,271],"ĺ":[6,24,1,24,6,300,271],"Ļ":[10,24,2,18,12,343,273],"ļ":[4,25,1,19,6,314,271],"Ľ":[10,18,2,18,12,35,274],"ľ":[7,19,2,19,6,2,271],"Ŀ":[10,18,2,18,12,464,274],"ŀ":[7,19,2,19,7,183,275],"Ł":[12,18,0,18,12,386,275],"ł":[8,19,-1,19,6,198,275],"Ń":[14,23,2,23,18,254,276],"ń":[11,19,2,19,14,361,276],"Ņ":[14,24,2,18,18,154,285],"ņ":[11,20,2,14,14,79,282],"Ň":[14,23,2,23,18,116,289],"ň":[11,19,2,19,14,214,292],"ŉ":[15,18,0,18,16,53,296],"Ŋ":[14,23,2,18,18,276,298],"ŋ":[11,20,2,14,14,2,298],"Ō":[17,22,1,21,18,21,300],"ō":[13,18,1,17,14,464,300],"Ŏ":[17,23,1,22,18,380,301],"ŏ":[13,19,1,18,14,405,302],"Ő":[17,24,1,23,18,176,302],"ő":[13,20,1,19,14,485,302],"Œ":[20,19,1,18,22,426,303],"œ":[21,15,1,14,22,298,304],"Ŕ":[13,23,2,23,14,233,305],"ŕ":[8,19,2,19,9,327,293],"Ŗ":[13,24,2,18,14,343,305],"ŗ":[9,20,1,14,9,98,302],"Ř":[13,23,2,23,14,254,307],"ř":[9,19,1,19,9,76,310],"Ś":[12,24,1,23,13,138,317],"ś":[10,20,1,19,11,158,317],"Ŝ":[12,24,1,23,13,201,319],"ŝ":[10,20,1,19,11,115,320],"Ş":[12,24,1,18,13,46,322],"ş":[10,20,1,14,11,454,326],"Š":[12,24,1,23,13,298,327],"š":[10,20,1,19,11,2,326],"Ţ":[14,24,0,18,13,318,327],"ţ":[8,22,0,16,8,364,303],"Ť":[14,23,0,23,13,275,329],"ť":[9,20,0,19,8,405,329],"Ŧ":[14,18,0,18,13,20,330],"ŧ":[8,17,0,16,8,422,330],"Ũ":[14,23,2,22,17,93,330],"ũ":[12,19,1,18,14,472,330],"Ū":[14,22,2,21,17,380,332],"ū":[12,18,1,17,14,492,330],"Ŭ":[14,23,2,22,17,176,334],"ŭ":[12,19,1,18,14,221,336],"Ů":[14,25,2,24,17,340,337],"ů":[12,21,1,20,14,66,337],"Ű":[14,24,2,23,17,241,338],"ű":[12,20,1,19,14,115,348],"Ų":[14,24,2,18,17,135,349],"ų":[13,19,1,13,14,198,351],"Ŵ":[22,23,0,23,22,438,354],"ŵ":[19,19,0,19,18,2,356],"Ŷ":[14,23,0,23,13,42,354],"ŷ":[13,25,0,19,12,402,357],"Ÿ":[14,22,0,22,13,468,357],"Ź":[13,23,0,23,13,490,357],"ź":[11,19,0,19,11,157,349],"Ż":[13,22,0,22,13,297,359],"ż":[11,18,0,18,11,318,359],"Ž":[13,23,0,23,13,263,360],"ž":[11,19,0,19,11,86,361],"ſ":[7,19,2,19,7,364,333],"ƒ":[11,24,2,18,13,379,362],"Ơ":[19,20,1,19,18,219,370],"ơ":[15,16,1,15,14,337,370],"Ư":[18,20,2,19,18,105,376],"ư":[16,16,1,15,15,157,376],"ǰ":[10,25,-2,19,6,64,366],"Ǻ":[16,23,0,23,15,181,378],"ǻ":[11,24,1,23,13,360,370],"Ǽ":[21,23,-1,23,20,2,383],"ǽ":[19,20,1,19,20,31,385],"Ǿ":[17,24,1,23,18,131,381],"ǿ":[13,20,1,19,14,423,385],"Ș":[12,24,1,18,13,444,385],"ș":[10,20,1,14,11,318,385],"Ț":[14,24,0,18,13,464,387],"ț":[8,22,0,16,8,246,370],"ȷ":[7,19,-2,13,6,82,388],"ʼ":[4,7,0,18,4,284,360],"ˆ":[9,5,3,19,14,486,388],"ˇ":[9,5,3,19,14,296,389],"ˉ":[8,3,3,17,14,398,390],"˘":[8,4,3,18,14,262,391],"˙":[4,3,1,18,6,284,375],"˚":[6,6,4,20,13,205,378],"˛":[5,6,0,0,4,278,391],"˜":[9,4,3,18,14,336,394],"˝":[10,5,2,19,13,379,394],"˳":[6,6,1,-1,8,205,392],"̀":[6,5,-12,19,0,219,398],"́":[6,5,-9,19,0,58,399],"̃":[9,4,-12,18,0,156,400],"̉":[5,6,-9,20,0,233,398],"̏":[10,5,-13,19,0,397,401],"̣":[4,4,-9,-1,0,246,400],"΄":[5,6,5,20,13,486,401],"΅":[8,6,3,21,13,291,402],"Ά":[17,19,-1,19,15,353,402],"·":[4,5,1,11,6,499,401],"Έ":[14,19,-1,19,14,97,404],"Ή":[19,19,-1,19,19,258,405],"Ί":[8,19,-1,19,8,336,406],"Ό":[20,20,-1,19,19,173,409],"Ύ":[18,19,-1,19,16,201,411],"Ώ":[20,19,-1,19,19,227,412],"ΐ":[9,22,-1,21,8,378,407],"Α":[16,18,0,18,15,58,412],"Β":[13,18,2,18,15,313,413],"Γ":[10,18,2,18,12,415,413],"Δ":[14,18,0,18,13,119,413],"Ε":[10,18,2,18,13,141,413],"Ζ":[13,18,0,18,13,31,413],"Η":[14,18,2,18,17,2,414],"Θ":[17,19,1,18,18,486,415],"Ι":[3,18,2,18,6,159,412],"Κ":[13,18,2,18,14,285,416],"Λ":[15,18,0,18,14,433,417],"Μ":[18,18,2,18,21,456,419],"Ν":[14,18,2,18,18,352,429],"Ξ":[13,18,0,18,13,82,431],"Ο":[17,19,1,18,18,255,432],"Π":[14,18,2,18,17,170,437],"Ρ":[12,18,2,18,14,395,414],"Σ":[14,18,0,18,13,52,438],"Τ":[14,18,0,18,13,192,438],"Υ":[14,18,0,18,13,306,439],"Φ":[17,19,1,18,19,24,439],"Χ":[14,18,0,18,13,328,439],"Ψ":[17,18,1,18,19,214,439],"Ω":[18,18,0,18,18,103,439],"Ϊ":[8,22,-1,22,6,374,437],"Ϋ":[14,22,0,22,13,129,439],"ά":[14,21,1,20,14,390,440],"έ":[10,21,1,20,11,151,439],"ή":[11,26,2,20,14,412,440],"ί":[7,21,1,20,8,239,439],"ΰ":[13,22,1,21,14,2,440],"α":[14,15,1,14,14,482,442],"β":[12,25,2,19,15,280,442],"γ":[13,19,0,13,12,431,443],"δ":[13,20,1,19,13,452,445],"ε":[10,15,1,14,11,350,455],"ζ":[10,24,1,19,11,74,457],"η":[11,20,2,14,14,254,459],"θ":[12,20,1,19,14,169,463],"ι":[7,14,1,13,8,49,464],"κ":[11,13,2,13,12,189,464],"λ":[14,20,-1,19,12,208,465],"μ":[11,19,2,13,14,300,465],"ν":[13,13,0,13,13,473,465],"ξ":[10,24,1,19,11,494,465],"ο":[13,15,1,14,14,92,465],"π":[15,14,0,13,15,319,465],"ρ":[13,20,1,14,14,23,466],"ς":[10,19,1,14,11,368,467],"σ":[14,14,1,13,14,230,468],"τ":[11,14,0,13,11,386,469],"υ":[13,14,1,13,14,113,469],"φ":[15,20,1,14,17,134,469],"χ":[14,19,-1,13,13,431,473],"ψ":[16,25,1,19,18,405,474],"ω":[17,14,1,13,18,273,475],"ϊ":[9,19,-1,18,8,2,470],"ϋ":[13,19,1,18,14,342,478],"ό":[13,21,1,20,14,44,486],"ύ":[13,21,1,20,14,453,486],"ώ":[17,21,1,20,18,65,489],"ϑ":[15,20,0,19,14,319,487],"ϒ":[14,18,0,18,13,90,489],"ϖ":[20,14,0,13,20,230,490],"Ѐ":[10,23,2,23,13,189,485],"Ё":[10,22,2,22,13,474,486],"Ђ":[16,19,0,18,17,157,491],"Ѓ":[10,23,2,23,12,112,491],"Є":[14,19,1,18,15,207,493],"Ѕ":[12,19,1,18,13,298,492],"І":[3,18,2,18,6,258,487],"Ї":[8,22,-1,22,6,386,491],"Ј":[7,23,-2,18,6,19,494],"Љ":[22,19,0,18,22,342,505],"Њ":[20,18,2,18,22,269,497],"Ћ":[16,18,0,18,17,130,497],"Ќ":[13,23,2,23,14,429,500],"Ѝ":[14,23,2,23,18,402,507],"Ў":[15,24,0,23,14,229,512],"Џ":[14,23,2,18,17,318,515],"А":[16,18,0,18,15,450,515],"Б":[12,18,2,18,14,492,497],"В":[13,18,2,18,15,34,515],"Г":[10,18,2,18,12,90,515],"Д":[16,23,0,18,16,181,516],"Е":[10,18,2,18,13,474,516],"Ж":[21,18,0,18,20,55,518],"З":[13,19,0,18,13,154,518],"И":[14,18,2,18,18,205,520],"Й":[14,23,2,23,18,372,521],"К":[13,18,2,18,14,297,519],"Л":[15,19,0,18,16,108,523],"М":[18,18,2,18,21,252,523],"Н":[14,18,2,18,17,131,523],"О":[17,19,1,18,18,2,525],"П":[14,18,2,18,17,424,531],"Р":[12,18,2,18,14,492,523],"С":[14,19,1,18,15,340,532],"Т":[14,18,0,18,13,394,538],"У":[15,19,0,18,14,446,541],"Ф":[17,19,1,18,19,27,541],"Х":[14,18,0,18,13,84,541],"Ц":[16,23,2,18,17,227,544],"Ч":[13,18,2,18,16,469,542],"Ш":[21,18,2,18,24,52,544],"Щ":[23,23,2,18,24,278,545],"Ъ":[16,18,0,18,16,153,545],"Ы":[17,18,2,18,20,309,546],"Ь":[13,18,2,18,15,205,546],"Э":[14,19,0,18,15,177,547],"Ю":[22,19,2,18,25,106,550],"Я":[13,18,0,18,15,251,549],"а":[11,15,1,14,13,490,549],"б":[12,20,1,19,14,362,552],"в":[11,13,2,13,13,2,552],"г":[8,13,2,13,10,136,549],"д":[14,18,0,13,13,416,557],"е":[12,15,1,14,13,334,559],"ж":[18,13,0,13,17,382,564],"з":[11,15,0,14,11,81,567],"и":[12,13,2,13,15,21,568],"й":[12,19,2,19,15,438,568],"к":[11,13,2,13,12,458,568],"л":[12,14,0,13,13,41,570],"м":[14,13,2,13,17,152,571],"н":[12,13,2,13,15,61,570],"о":[13,15,1,14,14,199,572],"п":[11,13,2,13,14,477,572],"р":[12,20,2,14,14,309,572],"с":[10,15,1,14,11,2,573],"т":[11,13,0,13,11,174,574],"у":[13,19,0,13,12,226,575],"ф":[15,25,1,19,17,247,575],"х":[13,13,0,13,12,270,576],"ц":[13,18,2,13,15,100,577],"ч":[12,13,1,13,14,121,577],"ш":[18,13,2,13,21,354,580],"щ":[20,18,2,13,21,408,583],"ъ":[16,13,0,13,16,329,582],"ы":[15,13,2,13,18,380,585],"ь":[11,13,2,13,14,20,589],"э":[11,15,0,14,11,458,589],"ю":[17,15,2,14,19,61,591],"я":[12,13,0,13,13,39,592],"ѐ":[12,20,1,19,13,141,592],"ё":[12,19,1,18,13,477,593],"ђ":[13,25,0,19,14,436,595],"ѓ":[8,19,2,19,10,291,576],"є":[10,15,1,14,11,193,595],"ѕ":[10,15,1,14,11,161,595],"і":[4,18,1,18,6,497,572],"ї":[8,18,-1,18,6,2,596],"ј":[7,24,-2,18,6,211,595],"љ":[19,14,0,13,20,353,601],"њ":[18,13,2,13,21,307,603],"ћ":[13,19,0,19,14,270,597],"ќ":[11,19,2,19,12,121,598],"ѝ":[12,19,2,19,15,226,602],"ў":[13,25,0,19,12,86,603],"џ":[11,18,2,13,14,333,603],"Ѡ":[22,19,1,18,24,403,609],"ѡ":[19,13,0,13,19,18,613],"Ѣ":[15,19,0,19,16,380,606],"ѣ":[14,16,0,16,15,246,608],"Ѥ":[20,19,2,18,22,45,614],"ѥ":[15,15,2,14,17,179,618],"Ѧ":[17,18,0,18,16,140,620],"ѧ":[14,13,0,13,13,457,620],"Ѩ":[21,18,2,18,22,479,620],"ѩ":[17,13,2,13,18,352,623],"Ѫ":[18,18,0,18,17,268,624],"ѫ":[16,13,0,13,15,294,624],"Ѭ":[22,18,2,18,23,107,625],"ѭ":[19,13,2,13,20,202,629],"Ѯ":[13,27,0,21,13,433,628],"ѯ":[11,21,0,16,11,318,629],"Ѱ":[17,18,1,18,19,229,632],"ѱ":[16,25,1,19,18,377,633],"Ѳ":[17,19,1,18,18,2,634],"ѳ":[13,15,1,14,14,401,636],"Ѵ":[16,18,0,18,15,73,636],"ѵ":[13,13,0,13,12,454,641],"Ѷ":[16,23,0,23,15,165,641],"ѷ":[13,19,0,19,12,27,641],"Ѹ":[28,24,1,18,29,337,644],"ѹ":[25,20,1,14,25,475,646],"Ѻ":[18,21,1,19,19,137,646],"ѻ":[14,17,1,15,15,48,641],"Ѽ":[22,26,1,25,23,189,650],"ѽ":[18,23,1,22,19,254,650],"Ѿ":[22,23,1,22,23,280,650],"ѿ":[19,17,0,17,19,97,651],"Ҁ":[14,24,1,18,15,310,658],"ҁ":[10,20,1,14,11,219,658],"҂":[13,17,1,16,14,401,659],"҃":[10,5,2,18,13,2,661],"҄":[10,4,2,18,13,70,662],"҅":[4,5,5,19,13,124,651],"҆":[4,5,5,19,13,237,658],"҈":[24,21,0,17,23,422,663],"҉":[23,23,0,18,22,20,668],"Ҋ":[17,28,2,23,18,373,666],"ҋ":[14,24,2,19,15,163,672],"Ҍ":[14,18,0,18,14,70,674],"ҍ":[13,19,0,19,14,454,662],"Ҏ":[12,18,2,18,14,475,674],"ҏ":[12,20,2,14,14,136,675],"Ґ":[11,21,2,21,12,51,666],"ґ":[8,17,2,17,10,237,671],"Ғ":[13,18,0,18,12,92,676],"ғ":[10,13,0,13,10,2,674],"Ҕ":[13,24,2,18,15,332,676],"ҕ":[10,19,2,13,12,113,676],"Җ":[21,23,0,18,21,253,681],"җ":[19,18,0,13,18,282,681],"Ҙ":[13,24,0,18,13,398,684],"ҙ":[11,20,0,14,11,353,676],"Қ":[14,23,2,18,15,185,684],"қ":[11,18,2,13,13,207,686],"Ҝ":[13,18,2,18,14,454,689],"ҝ":[11,13,2,13,12,309,690],"Ҟ":[15,18,0,18,14,419,692],"ҟ":[13,19,0,19,12,226,696],"Ҡ":[17,18,0,18,16,2,699],"ҡ":[15,13,0,13,14,27,699],"Ң":[16,23,2,18,17,50,700],"ң":[13,18,2,13,15,475,700],"Ҥ":[18,18,2,18,19,372,702],"ҥ":[16,13,2,13,17,74,702],"Ҧ":[23,24,2,18,25,131,703],"ҧ":[18,19,2,13,20,98,703],"Ҩ":[17,19,1,18,18,282,707],"ҩ":[14,15,1,14,15,162,704],"Ҫ":[14,24,1,18,15,328,708],"ҫ":[10,20,1,14,11,353,704],"Ҭ":[14,23,0,18,13,247,712],"ҭ":[11,18,0,13,11,307,711],"Ү":[14,18,0,18,13,184,715],"ү":[13,19,0,13,12,442,715],"Ұ":[14,18,0,18,13,398,718],"ұ":[13,19,0,13,12,420,718],"Ҳ":[15,23,0,18,14,27,720],"ҳ":[13,18,0,13,13,206,723],"Ҵ":[20,23,0,18,20,463,726],"ҵ":[17,18,0,13,17,2,725],"Ҷ":[15,23,2,18,16,74,723],"ҷ":[14,18,1,13,14,162,727],"Ҹ":[13,18,2,18,16,491,726],"ҹ":[12,13,1,13,14,227,723],"Һ":[13,18,2,18,16,371,728],"һ":[11,13,2,13,14,97,730],"Ҽ":[19,19,0,18,20,269,734],"ҽ":[15,15,0,14,15,50,731],"Ҿ":[19,23,0,18,20,124,735],"ҿ":[15,19,0,14,15,296,737],"Ӏ":[3,18,2,18,6,350,732],"Ӂ":[21,23,0,23,20,319,740],"ӂ":[18,19,0,19,17,392,744],"Ӄ":[14,24,2,18,16,184,741],"ӄ":[11,19,2,13,13,441,742],"Ӆ":[17,23,0,18,16,227,744],"ӆ":[14,18,0,13,13,418,745],"Ӈ":[14,24,2,18,17,97,751],"ӈ":[12,19,2,13,14,206,749],"Ӊ":[16,23,2,18,17,2,751],"ӊ":[14,18,2,13,15,26,751],"Ӌ":[13,23,2,18,16,491,752],"ӌ":[12,18,1,13,14,151,753],"Ӎ":[20,23,2,18,21,48,754],"ӎ":[16,18,2,13,17,361,754],"ӏ":[3,18,2,18,6,252,743],"Ӑ":[16,23,0,23,15,460,757],"ӑ":[11,20,1,19,13,76,754],"Ӓ":[16,22,0,22,15,263,761],"ӓ":[11,19,1,18,13,287,764],"Ӕ":[21,18,-1,18,20,119,766],"ӕ":[19,15,1,14,20,385,771],"Ӗ":[10,23,2,23,13,440,769],"ӗ":[12,20,1,19,13,306,771],"Ә":[16,19,1,18,17,326,771],"ә":[12,15,1,14,13,412,771],"Ӛ":[16,23,1,22,17,171,773],"ӛ":[12,19,1,18,13,226,775],"Ӝ":[21,22,0,22,20,195,776],"ӝ":[18,18,0,18,17,350,780],"Ӟ":[13,23,0,22,13,26,777],"ӟ":[11,19,0,18,11,148,779],"Ӡ":[13,19,0,18,14,76,782],"ӡ":[11,19,0,13,11,2,782],"Ӣ":[14,21,2,21,18,484,783],"ӣ":[12,17,2,17,15,97,783],"Ӥ":[14,22,2,22,18,47,785],"ӥ":[12,18,2,18,15,458,788],"Ӧ":[17,23,1,22,18,246,791],"ӧ":[13,19,1,18,14,271,791],"Ө":[17,19,1,18,18,117,792],"ө":[13,15,1,14,14,376,794],"Ӫ":[17,23,1,22,18,397,794],"ӫ":[13,19,1,18,14,326,798],"Ӭ":[14,23,0,22,15,292,799],"ӭ":[11,19,0,18,11,432,800],"Ӯ":[15,22,0,21,14,167,804],"ӯ":[13,23,0,17,12,224,802],"Ӱ":[15,23,0,22,14,347,806],"ӱ":[13,24,0,18,12,190,806],"Ӳ":[15,24,0,23,14,142,806],"ӳ":[13,25,0,19,12,21,808],"Ӵ":[13,22,2,22,16,69,809],"ӵ":[12,18,1,18,14,97,808],"Ӷ":[11,23,2,18,12,2,809],"ӷ":[8,18,2,13,10,478,812],"Ӹ":[17,22,2,22,20,451,814],"ӹ":[15,18,2,18,18,42,815],"Ӻ":[13,23,0,18,12,370,817],"ӻ":[10,18,0,13,10,494,812],"Ӽ":[15,23,0,18,14,117,819],"ӽ":[13,18,0,13,12,271,818],"Ӿ":[14,18,0,18,13,245,822],"ӿ":[13,13,0,13,12,391,825],"Ԁ":[12,18,1,18,14,412,825],"ԁ":[12,20,1,19,14,314,825],"Ԃ":[19,19,1,18,21,211,833],"ԃ":[19,20,1,19,21,90,834],"Ԅ":[20,19,0,18,21,334,837],"ԅ":[18,15,0,14,19,140,838],"Ԇ":[15,23,0,18,15,166,834],"ԇ":[13,19,0,14,12,292,830],"Ԉ":[22,19,0,18,23,476,838],"ԉ":[19,14,0,13,20,2,841],"Ԋ":[21,19,2,18,24,29,841],"ԋ":[18,14,2,13,21,58,841],"Ԍ":[16,19,1,18,18,267,844],"ԍ":[14,15,1,14,15,189,838],"Ԏ":[15,19,0,18,17,432,844],"ԏ":[14,14,0,13,15,238,848],"Ԑ":[13,19,1,18,14,455,844],"ԑ":[10,15,1,14,11,391,846],"Ԓ":[17,23,0,18,16,362,848],"ԓ":[14,18,0,13,13,117,850],"Ḁ":[16,25,0,18,15,291,857],"ḁ":[11,21,1,14,13,409,851],"Ḿ":[18,23,2,23,21,211,860],"ḿ":[19,19,2,19,22,139,861],"Ẁ":[22,23,0,23,22,84,862],"ẁ":[19,19,0,19,18,2,863],"Ẃ":[22,23,0,23,22,315,864],"ẃ":[19,19,0,19,18,166,865],"Ẅ":[22,22,0,22,22,476,865],"ẅ":[19,18,0,18,18,29,868],"Ạ":[16,23,0,18,15,58,863],"ạ":[11,19,1,14,13,387,869],"Ả":[16,24,0,24,15,237,870],"ả":[11,21,1,20,13,428,871],"Ấ":[16,24,0,24,15,261,871],"ấ":[13,21,1,20,13,447,871],"Ầ":[16,24,0,24,15,114,876],"ầ":[12,21,0,20,13,345,879],"Ẩ":[16,25,0,25,15,138,888],"ẩ":[12,22,1,21,13,365,879],"Ẫ":[16,26,0,26,15,285,890],"ẫ":[11,23,1,22,13,406,880],"Ậ":[16,28,0,23,15,2,890],"ậ":[11,24,1,19,13,193,891],"Ắ":[16,25,0,25,15,212,891],"ắ":[11,22,1,21,13,162,892],"Ằ":[16,25,0,25,15,82,893],"ằ":[11,22,1,21,13,56,894],"Ẳ":[16,26,0,26,15,26,894],"ẳ":[11,23,1,22,13,309,895],"Ẵ":[16,26,0,26,15,468,895],"ẵ":[11,23,1,22,13,492,895],"Ặ":[16,27,0,22,15,425,900],"ặ":[11,23,1,18,13,385,896],"Ẹ":[10,23,2,18,13,449,900],"ẹ":[12,19,1,14,13,236,902],"Ẻ":[10,24,2,24,13,256,903],"ẻ":[12,21,1,20,13,106,908],"Ẽ":[10,22,2,22,13,328,908],"ẽ":[12,19,1,18,13,346,909],"Ế":[12,24,2,24,13,404,911],"ế":[13,21,1,20,13,126,921],"Ề":[12,24,0,24,13,147,922],"ề":[13,21,0,20,13,167,922],"Ể":[11,25,2,25,13,366,909],"ể":[12,22,1,21,13,188,923],"Ễ":[10,26,2,26,13,208,924],"ễ":[12,23,1,22,13,50,924],"Ệ":[10,28,2,23,13,274,924],"ệ":[12,24,1,19,13,70,926],"Ỉ":[5,24,2,24,6,292,924],"ỉ":[5,20,1,20,6,305,926],"Ị":[4,23,1,18,6,90,926],"ị":[4,23,1,18,6,492,926],"Ọ":[17,23,1,18,18,2,928],"ọ":[13,19,1,14,14,27,928],"Ỏ":[17,25,1,24,18,467,929],"ỏ":[13,21,1,20,14,226,929],"Ố":[17,25,1,24,18,424,935],"ố":[13,21,1,20,14,247,935],"Ồ":[17,25,1,24,18,318,938],"ồ":[14,21,0,20,14,102,937],"Ổ":[17,26,1,25,18,343,942],"ổ":[13,22,1,21,14,368,942],"Ỗ":[17,27,1,26,18,389,943],"ỗ":[13,23,1,22,14,124,950],"Ộ":[17,28,1,23,18,167,953],"ộ":[13,24,1,19,14,145,954],"Ớ":[19,24,1,23,18,27,955],"ớ":[15,20,1,19,14,292,956],"Ờ":[19,24,1,23,18,54,958],"ờ":[15,20,1,19,14,192,958],"Ở":[19,25,1,24,18,215,958],"ở":[15,21,1,20,14,2,959],"Ỡ":[19,23,1,22,18,449,962],"ỡ":[15,19,1,18,14,268,960],"Ợ":[19,24,1,19,18,476,962],"ợ":[15,20,1,15,14,242,964],"Ụ":[14,23,2,18,17,81,966],"ụ":[12,18,1,13,14,103,966],"Ủ":[14,25,2,24,17,414,968],"ủ":[12,21,1,20,14,315,971],"Ứ":[18,24,2,23,18,335,976],"ứ":[16,20,1,19,15,361,976],"Ừ":[18,24,2,23,18,385,978],"ừ":[16,20,1,19,15,291,984],"Ử":[18,25,2,24,18,123,986],"ử":[16,21,1,20,15,25,987],"Ữ":[18,23,2,22,18,265,987],"ữ":[16,19,1,18,15,166,989],"Ự":[18,24,2,19,18,49,990],"ự":[16,20,1,15,15,190,989],"Ỳ":[14,23,0,23,13,2,988],"ỳ":[13,25,0,19,12,214,991],"Ỵ":[14,23,0,18,13,235,992],"ỵ":[13,19,0,13,12,436,993],"Ỷ":[14,24,0,24,13],"ỷ":[13,26,0,20,12],"Ỹ":[14,22,0,22,13,457,994],"ỹ":[13,24,0,18,12],"Ὅ":[22,19,-4,18,18,479,994]," ":[0,0,0,0,12]," ":[0,0,0,0,24]," ":[0,0,0,0,12]," ":[0,0,0,0,24]," ":[0,0,0,0,8]," ":[0,0,0,0,6]," ":[0,0,0,0,4]," ":[0,0,0,0,13]," ":[0,0,0,0,6]," ":[0,0,0,0,4]," ":[0,0,0,0,2],"​":[0,0,0,0,0],"–":[12,3,0,8,12,103,992],"—":[24,3,0,8,24,75,1003],"―":[24,3,0,8,24,315,1008],"‗":[11,6,-1,0,9,411,1001],"‘":[4,7,0,18,4,149,986],"’":[4,7,0,18,4,149,1001],"‚":[5,7,0,3,5,107,1003],"‛":[4,7,0,18,4,361,1004],"“":[9,7,0,18,8],"”":[9,7,0,18,8],"„":[9,7,0,4,9],"†":[10,19,1,19,12],"‡":[10,19,1,19,12],"•":[7,7,1,12,9],"…":[16,4,1,3,18,373,1010],"‰":[27,19,1,18,28],"′":[3,8,1,18,5,347,1008],"″":[8,8,1,18,9],"‹":[7,11,0,12,7],"›":[7,11,0,12,7],"‼":[9,19,1,18,11],"⁄":[13,18,-5,18,3],"⁰":[8,12,0,18,8],"⁴":[9,12,0,18,8],"⁵":[8,11,0,17,8],"⁶":[8,12,0,18,8],"⁷":[8,12,0,18,8],"⁸":[8,12,0,18,8],"⁹":[8,12,0,18,8],"ⁿ":[8,9,1,18,9],"₣":[12,18,1,18,13],"₤":[13,18,0,18,13],"₧":[17,19,1,18,18],"₫":[14,23,1,19,14],"€":[14,19,0,18,14],"℅":[18,19,1,18,19],"ℓ":[10,19,1,18,12],"№":[22,18,2,18,24],"℠":[16,10,1,18,19],"™":[17,10,0,18,18],"Ω":[18,18,0,18,18],"℮":[13,14,1,13,14],"⅛":[18,19,0,18,18],"⅜":[18,19,0,18,18],"⅝":[18,19,0,18,18],"⅞":[17,19,1,18,18],"∂":[12,19,1,18,13],"∆":[14,18,0,18,13],"∏":[14,24,2,18,17],"∑":[15,24,0,18,15],"−":[12,3,1,10,13,291,1012],"√":[15,21,0,20,13],"∞":[15,9,1,13,16],"∫":[9,25,0,19,9],"≈":[12,9,1,13,13],"≠":[12,15,1,16,13],"≤":[12,16,1,15,13],"≥":[12,16,1,15,13],"◊":[12,18,1,18,14],"ﬀ":[18,19,0,19,16],"ﬁ":[13,19,0,19,14],"ﬂ":[13,19,0,19,14],"ﬃ":[21,19,0,19,22],"ﬄ":[21,19,0,19,22],"﻿":[0,0,0,0,0],"￼":[24,23,0,18,24],"�":[23,23,0,19,24]}};
-
-    // set text texture if defined
-    this.setTexture(params.texture);
-
-    // already done when creating a Texture2D with content loader
-    //gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    gl.uniform2f(this._textShader.uniforms.u_texsize._location, this._texture.getWidth(), this._texture.getHeight());
-}
-
-inheritsFrom(Text, GameObject);
-
-Text.AlignType = {
-    LEFT: 1,
-    CENTER: 2,
-    RIGHT: 3
-};
-
-Text.prototype.render = function (delta, spriteBatch) {
-
-    if (!this.enabled) {
-        return;
-    }
-
-    // get gl context
-    var gl = this._gl;
-
-    // use text shader
-    GameManager.activeGame.getShaderManager().useShader(this._textShader);
-
-    // enable shader attributes
-    gl.enableVertexAttribArray(this._textShader.attributes.a_pos);
-    gl.enableVertexAttribArray(this._textShader.attributes.a_texcoord);
-
-    // create text
-    this._drawText(this._text, this._fontSize);
-
-    var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
-
-    // TODO: do multiplication inside shader (cf., textureShader)
-    var mvpMatrix = mat4.create();
-    mat4.multiply(mvpMatrix, cameraMatrix, this.getMatrix());
-    gl.uniformMatrix4fv(this._textShader.uniforms.u_matrix._location, false, mvpMatrix);
-
-    // bind to texture unit 0
-    gl.activeTexture(gl.TEXTURE0);
-    this._texture.bind();
-    // tell the shader which unit you bound the texture to. In this case it's to sampler 0
-    gl.uniform1i(this._textShader.uniforms.u_texture._location, 0);
-
-    // debug
-    gl.uniform1f(this._textShader.uniforms.u_debug._location, this._debug);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.vertexAttribPointer(this._textShader.attributes.a_pos, 2, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.vertexAttribPointer(this._textShader.attributes.a_texcoord, 2, gl.FLOAT, false, 0, 0);
-
-    // stroke
-    var strokeColor = this.getStroke().getColor();
-    gl.uniform4fv(this._textShader.uniforms.u_color._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
-    // stroke size
-    gl.uniform1f(this._textShader.uniforms.u_buffer._location, this.getStroke().getSize());
-
-    gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
-
-    var color = this.getColor();
-
-    // font color (tint)
-    gl.uniform4fv(this._textShader.uniforms.u_color._location, [color.r, color.g, color.b, color.a]);
-    gl.uniform1f(this._textShader.uniforms.u_buffer._location, 192 / 256);
-
-    // gamma value (how sharp is the text)
-    gl.uniform1f(this._textShader.uniforms.u_gamma._location, this._gamma * 1.4142 / this._fontSize);
-    gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
-
-    // parent render function:
-    GameObject.prototype.render.call(this, delta, spriteBatch);
-};
-
-Text.prototype.unload = function () {
-    //gl.deleteBuffer(this._vertexBuffer);
-    //gl.deleteBuffer(this._texBuffer);
-
-    //this._textureShader.unload();
-};
-
-Text.prototype.getMatrix = function () {
-    var x, y;
-
-    x = this.transform.getPosition().x;
-    y = this.transform.getPosition().y;
-
-    mat4.identity(this._transformMatrix);
-
-    //mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
-    //mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
-    //mat4.translate(this._transformMatrix, this._transformMatrix, [-x, -y, 0]);
-
-    mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
-
-    return this._transformMatrix;
-};
-
-Text.prototype.getType = function () {
-    return "Text";
-};
-
-Text.prototype.getTexture = function () {
-    return this._texture;
-};
-
-Text.prototype.setTexture = function (texture) {
-    // is this a ready texture?
-    if (!texture || !texture.isReady()) {
-        this._texture = null;
-        this._textureWidth = 0;
-        this._textureHeight = 0;
-        return;
-    }
-
-    this._texture = texture;
-
-    // cache the dimensions
-    this._textureWidth = this._texture.getWidth();
-    this._textureHeight = this._texture.getHeight();
-};
-
-Text.prototype.setColor = function (color) {
-    this._color = color;
-};
-
-Text.prototype.getColor = function () {
-    return this._color;
-};
-
-Text.prototype.setStroke = function (stroke) {
-    this._stroke = stroke;
-};
-
-Text.prototype.getStroke = function () {
-    return this._stroke;
-};
-
-Text.prototype.setText = function (str) {
-    this._text = str;
-};
-
-Text.prototype.getText = function () {
-    return this._text;
-};
-
-Text.prototype.setFontSize = function (size) {
-    this._fontSize = size;
-};
-
-Text.prototype.getFontSize = function () {
-    return this._fontSize;
-};
-
-Text.prototype.setGamma = function (gamma) {
-    this._gamma = gamma;
-};
-
-Text.prototype.getGamma = function () {
-    return this._gamma;
-};
-
-Text.prototype.setDebug = function (value) {
-    this._debug = value;
-};
-
-Text.prototype.getDebug = function () {
-    return this._debug;
-};
-
-Text.prototype.setWordWrap = function (wrap) {
-    this._wordWrap = wrap;
-};
-
-Text.prototype.getWordWrap = function () {
-    return this._wordWrap;
-};
-
-Text.prototype.setCharacterWrap = function (wrap) {
-    this._characterWrap = wrap;
-};
-
-Text.prototype.getCharacterWrap = function () {
-    return this._characterWrap;
-};
-
-Text.prototype.setAlign = function (alignType) {
-    this._align = alignType;
-};
-
-Text.prototype.getAlign = function () {
-    return this._align;
-};
-
-Text.prototype.setTextureSrc = function (path) {
-    this._textureSrc = path;
-
-    if (path && path.length > 0) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
-                this.setTexture(texture);
-            }).bind(this), (function (error) {
-                this.setTexture(null);
-            }).bind(this)
-        );
-    } else {
-        this.setTexture(null);
-    }
-};
-
-Text.prototype.getTextureSrc = function () {
-    return this._textureSrc;
-};
-
-// TODO: remove
-var maxWidth = 500;
-
-/**
- * Determines whether the given character is valid or not
- * @param {string} char character to validate
- * @returns {boolean} whether the given character is valid or not
- * @private
- */
-Text.prototype._isCharValid = function(char){
-    // if char is not valid (doesn't exist), return false
-    if (!this._metrics || !this._metrics.chars || !this._metrics.chars[char] || this._metrics.chars[char] === undefined){
-        return false;
-    }
-    // else, return true
-    return true;
-};
-
-/**
- * Measures a given character's width based on the provided scale
- * @param {string} char character to measure
- * @param {number} scale scale of the given character
- * @returns {number} the character width if valid and 0 if invalid
- * @private
- */
-Text.prototype._measureCharacterWidth = function(char, scale){
-    // if parameters are missing or character is invalid
-    if (!char || !scale || scale <= 0 || !this._isCharValid(char)){
-        return 0;
-    }
-
-    // calculate character width
-    var charWidth = this._metrics.chars[char][4] * scale;
-
-    return charWidth;
-};
-
-/**
- * Measures the given text's width based on the provided scale
- * @param {string} text text to measure
- * @param {number} scale scale of the given text
- * @returns {number} the text width if valid and 0 if invalid
- * @private
- */
-Text.prototype._measureTextWidth = function(text, scale){
-    // don't go further if text or scale do not exist
-    if (!text || !scale || scale <= 0){
-        return 0;
-    }
-
-    // set initial width
-    var width = 0;
-
-    // iterate through every character
-    for (var c = 0; c < text.length; c++){
-        // retrieve character at position c
-        var char = text[c];
-
-        // TODO: check for 0? (invalid)
-        // add its width
-        width += this._measureCharacterWidth(char, scale);
-    }
-
-    // return total width
-    return width;
-};
-
-// TODO: replace for extensions.js array insert? supports multiple arguments...
-Array.prototype.insert = function (index) {
-    this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
-};
-
-// TODO: place in another file?
-String.prototype.insert = function (index, string) {
-    if (index > 0)
-        return this.substring(0, index) + string + this.substring(index, this.length);
-    else
-        return string + this;
-};
-
-Text.prototype._wrapWordsShortVersion = function(text, maxLineWidth, scale){
-    // retrieve words
-    var words = text.split(' ');
-
-    // no need to go further if there is only 1 word
-    if (words.length == 1){
-        return words;
-    }
-
-    var result = [];
-
-    var whitespace = " ";
-    // get first word and remove it from the array
-    var currentLine = words.shift();
-
-    // iterate through the words
-    for (var w = 0; w < words.length; w++){
-        // retrieve word
-        var word = words[w];
-
-        // simulate line width with the current word and whitespaces in between
-        var tempLine = currentLine + whitespace + word;
-
-        var tempWidth = this._measureTextWidth(tempLine, scale);
-
-        if (tempWidth > maxLineWidth){
-            result.push(currentLine);
-            currentLine = word;
-        }
-        else {
-            currentLine += whitespace + word;
-        }
-    }
-
-    // push last line
-    result.push(currentLine);
-
-    return result;
-};
-
-/**
- * Wraps the words of a given text depending on a maximum width and text scale
- * @param {string} text text to wrap
- * @param {number} maxLineWidth maximum line width
- * @param {number} scale scale of the given text
- * @returns {Array} wrapped text in lines
- * @private
- */
-Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
-    var result = [];
-
-    if(!text || !maxLineWidth || !scale || maxLineWidth <= 0 || scale <= 0){
-        return result;
-    }
-
-    // retrieve words
-    var words = text.split(' ');
-
-    // no need to go further if there is only 1 word
-    if (words.length == 1){
-        return words;
-    }
-
-    // get first word and remove it from the array
-    var currentLine = "";//words.shift();
-    // store its width
-    var currentLineWordWidth = 0;//this._measureTextWidth(currentLine, scale);
-
-    var whitespace = "";// " ";
-    var whitespaceWidth = 0;//this._measureCharacterWidth(whitespace, scale);
-
-    // iterate through the words
-    for (var w = 0; w < words.length; w++){
-        // retrieve word
-        var word = words[w];
-
-        // ...... lol
-        if (w == 1){
-            whitespace = " ";
-            whitespaceWidth = this._measureCharacterWidth(whitespace, scale);
-        }
-
-        // calculate word width according to the text scale (not characters length!)
-        var wordWidth = this._measureTextWidth(word, scale);
-
-        // TODO: think of a cleaner way of doing this? maybe _wrapTextByCharacter shouldn't return line objects?
-        if (this._characterWrap && wordWidth > maxLineWidth){
-            var tempLine = currentLine + whitespace + word;
-
-            var characterWrappedLines = this._wrapTextByCharacter(tempLine, scale, maxLineWidth);
-
-            // currentLine is the last line so maybe next word also fits
-            currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
-            currentLineWordWidth = this._measureTextWidth(currentLine, scale);
-
-            // push the others
-            for (var cline = 0; cline < characterWrappedLines.length; cline++){
-                var characterLine = characterWrappedLines[cline].chars.join("");
-                result.push(characterLine);
-            }
-            // no need to go further in this iteration
-            continue;
-        }
-
-        // simulate line width with the current word and a whitespace in between
-        var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
-
-        if (tempWidth > maxLineWidth){
-            result.push(currentLine);
-            currentLine = word;
-            currentLineWordWidth = wordWidth;
-        }
-        else {
-            currentLine += whitespace + word;
-            currentLineWordWidth += whitespaceWidth + wordWidth;
-        }
-    }
-
-    // push last line
-    result.push(currentLine);
-
-    return result;
-};
-
-// TODO: Line class?
-/**
- * Wraps the characters of a given text depending on a maximum width and text scale
- * @param {string} text text to wrap
- * @param {number} scale scale of the given text
- * @param {number} maxLineWidth maximum line width
- * @returns {Array} wrapped text in lines
- * @private
- */
-Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
-    // create empty array
-    var lines = [];
-
-    // TODO: trim?
-    // if word or scale are empty, no need to go further
-    if (!text || !scale || !maxLineWidth || scale <= 0 || maxLineWidth <= 0){
-        return lines;
-    }
-
-    // create first line, since it's sure to have some text
-    lines.push({
-        chars: [],
-        width: 0
-    });
-
-    // iterate through text characters
-    for (var c = 0; c < text.length; c++){
-        // retrieve text character
-        var char = text[c];
-
-        // retrieve character width
-        var charWidth = this._measureCharacterWidth(char, scale);
-
-        // store current line index
-        var currentLine = lines.length - 1;
-
-        // current width + char width
-        var tempWidth = lines[currentLine].width + charWidth;
-
-        // if current line width + the current character width is > than the max width
-        if(tempWidth > maxLineWidth){
-            // create a new and empty line
-            lines.push({
-                chars: [],
-                width: 0
-            });
-
-            // update current line index
-            currentLine++;
-
-            // skip if the character is a whitespace
-            if (char === " "){
-                continue;
-            }
-        }
-
-        // add character and its width to current line
-        lines[currentLine].width += charWidth;
-        lines[currentLine].chars.push(char);
-    }
-
-    return lines;
-};
-
-/**
- * Converts a given text into a Line Object, with an array of characters and the line total width
- * @param {string} text text to convert into a line object
- * @param {number} scale scale of the given text
- * @returns {{chars: *, width: number}}
- * @private
- */
-Text.prototype._convertTextToLine = function(text, scale){
-    // define empty line
-    var line = {
-        chars: Array(),
-        width: 0
-    };
-
-    // return empty if any of the values is invalid
-    if (!text || !scale || scale <= 0){
-        return line;
-    }
-
-    // set line characters and width
-    line.chars = text.split("");
-    line.width = this._measureTextWidth(text, scale);
-
-    return line;
-};
-
-/**
- * Creates the definitive lines to draw onto the screen
- * @param {string} text text to draw
- * @param {number} size font size of the text
- * @returns {Array} text split into lines
- * @private
- */
-Text.prototype._measureText = function (text, size) {
-    // create empty array
-    var resultLines = [];
-
-    // TODO: trim text? guess that, at least technically, a lot of spaces should still be drawn...
-    // if text or size or metrics don't exist, no need to go further
-    if (!text || !size || size <= 0 || !this._metrics){
-        return resultLines;
-    }
-
-    // retrieve metrics size
-    var metricsSize = this._metrics.size;
-
-    // return is metrics size is invalid
-    if (metricsSize <= 0) {
-        return resultLines;
-    }
-
-    // create first line, since it's sure to have some text
-    resultLines.push({
-        chars: [],
-        width: 0
-    });
-
-    // calculate text scale
-    var scale = size / this._metrics.size;
-
-    // store original text
-    var useText = text;
-
-    // create array for user defined lines
-    var userDefinedLines = [];
-
-    // word wrap by inserting \n in the original text
-    if (this._wordWrap){
-        // initialize resulting text
-        var wrappedText = "";
-        // split text into lines defined by the user
-        userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
-
-        // iterate through lines
-        for (var l = 0; l < userDefinedLines.length; l++){
-            // wrap line
-            var wrappedLine = this._wrapWordsLongVersion(userDefinedLines[l], maxWidth, scale).join('\n');
-            // always insert a break at the end since the split gets rid of the user defined breaks...
-            wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
-            // concatenate to resulting wrapping text
-            wrappedText = wrappedText.concat(wrappedLine);
-        }
-
-        // assign useText to resulting wrapping text
-        useText = wrappedText;
-    }
-
-    // split text into lines defined by the users (and also word wrapped now ;))
-    userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
-
-    // iterate through user defined lines (with special characters)
-    for (var l = 0; l < userDefinedLines.length; l++){
-
-        var userDefinedLine = userDefinedLines[l];
-
-        var preparedLines = [];
-
-        // only perform character wrap if word wrap isn't enabled in the first place
-        if (!this._wordWrap && this._characterWrap) {
-            preparedLines = this._wrapTextByCharacter(userDefinedLine, scale, maxWidth);
-        }
-        else {
-            preparedLines.push(this._convertTextToLine(userDefinedLine, scale));
-        }
-
-        // extended result array (does not create a new array such as concat)
-        Array.prototype.push.apply(resultLines, preparedLines);
-    }
-
-    return resultLines;
-};
-
-/**
- * Draws a given text onto the screen
- * @param {string} text text to draw onto the screen
- * @param {number} size font size
- * @private
- */
-Text.prototype._drawText = function (text, size) {
-
-    var gl = this._gl;
-
-    var vertexElements = [];
-    var textureElements = [];
-
-    // create the lines to draw onto the screen
-    var lines = this._measureText(text, size);
-
-    // center (0,0)
-
-    var currentY = 0;
-
-    var metrics = this._metrics;
-    var scale = size / metrics.size;
-
-    var x;
-
-    switch(this._align) {
-        case Text.AlignType.LEFT:
-            x = 0; // bounding box x
-            break;
-        case Text.AlignType.RIGHT: // x + bounding box width
-            break;
-        default:
-            // do nothing since center it's calculated per line
-    }
-
-    for (var i = 0; i < lines.length; i++) {
-
-        if (this._align == Text.AlignType.CENTER){
-            // text x position - lines[i].width / 2 or...
-            // x + text width/2 - lines[i].width / 2 ?
-                x = 0 - lines[i].width / 2;
-        }
-
-        // create pen with the screen coordinates
-        //  TODO: replace by vector2?
-        var pen = { x: x, y: currentY };
-
-        // iterate through line chars
-        for (var j = 0; j < lines[i].chars.length; j++){
-
-            // retrieve line char
-            var chr = lines[i].chars[j];
-
-            // draw it
-            this._createGlyph(metrics, chr, pen, scale, vertexElements, textureElements);
-        }
-
-        // update Y (one more line)
-        currentY += this.getFontSize();
-    }
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
-    this._vertexBuffer.numItems = vertexElements.length / 2;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
-    this._textureBuffer.numItems = textureElements.length / 2;
-};
-
-/**
- * Creates the necessary vertices and texture elements to draw a given character
- * @param metrics font metrics
- * @param {string} chr character to prepare to draw
- * @param pen pen to draw with
- * @param {number} scale
- * @param {Array} vertexElements array to store the character vertices
- * @param {Array} textureElements array to store the character texture elements
- * @private
- */
-Text.prototype._createGlyph = function (metrics, chr, pen, scale, vertexElements, textureElements) {
-
-    // no need to go further is the char is invalid
-    if(!this._isCharValid(chr)){
-        return;
-    }
-
-    var metric = this._metrics.chars[chr];
-
-    var factor = 1;
-
-    // retrieve character metrics
-    var width = metric[0];
-    var height = metric[1];
-    var horiBearingX = metric[2];
-    var horiBearingY = metric[3];
-    var horiAdvance = metric[4];
-    var posX = metric[5];
-    var posY = metric[6];
-
-    if (width > 0 && height > 0) {
-        width += metrics.buffer * 2;
-        height += metrics.buffer * 2;
-
-        // Add a quad (= two triangles) per glyph.
-        vertexElements.push(
-            (factor * (pen.x + ((horiBearingX - metrics.buffer) * scale))), (factor * (pen.y - horiBearingY * scale)),
-            (factor * (pen.x + ((horiBearingX - metrics.buffer + width) * scale))), (factor * (pen.y - horiBearingY * scale)),
-            (factor * (pen.x + ((horiBearingX - metrics.buffer) * scale))), (factor * (pen.y + (height - horiBearingY) * scale)),
-
-            (factor * (pen.x + ((horiBearingX - metrics.buffer + width) * scale))), (factor * (pen.y - horiBearingY * scale)),
-            (factor * (pen.x + ((horiBearingX - metrics.buffer) * scale))), (factor * (pen.y + (height - horiBearingY) * scale)),
-            (factor * (pen.x + ((horiBearingX - metrics.buffer + width) * scale))), (factor * (pen.y + (height - horiBearingY) * scale))
-        );
-
-        textureElements.push(
-            posX, posY,
-            posX + width, posY,
-            posX, posY + height,
-
-            posX + width, posY,
-            posX, posY + height,
-            posX + width, posY + height
-        );
-    }
-
-    // pen.x += Math.ceil(horiAdvance * scale);
-    pen.x = pen.x + horiAdvance * scale;
 };;/**
  * Texture2D class
  */
@@ -14411,62 +14534,91 @@ function TestShader() {
 inheritsFrom(TestShader, Shader);;/**
  * Created by Luis on 16/12/2016.
  */
-/**
- * Created by Luis on 16/12/2016.
- */
 function TextShader() {
     Shader.call(this,
         // inline-vertex shader:
         [
-            'attribute vec2 a_pos;',
-            'attribute vec2 a_texcoord;',
+            'attribute vec2 aPos;',
+            'attribute vec2 aTexCoord;',
 
-            'uniform mat4 u_matrix;',
-            'uniform vec2 u_texsize;',
+            'uniform mat4 uMatrix;',
+            'uniform mat4 uTransform;',
+            'uniform vec2 uTexSize;',
 
-            'varying vec2 v_texcoord;',
+            'varying vec2 vTexCoord;',
 
             'void main() {',
-                'gl_Position = u_matrix * vec4(a_pos.xy, 0, 1);',
-                'v_texcoord = a_texcoord / u_texsize;',
+                'gl_Position = uMatrix * uTransform * vec4(aPos.xy, 0, 1);',
+                'vTexCoord = aTexCoord / uTexSize;',
             '}'
         ].join('\n'),
         // inline-fragment shader
         [
-            'precision mediump float;',
+            '#ifdef GL_ES',
+            '   precision mediump float;',
+            '#endif',
 
-            'uniform sampler2D u_texture;',
-            'uniform vec4 u_color;',
-            'uniform float u_buffer;',
-            'uniform float u_gamma;',
-            'uniform float u_debug;',
+            'uniform sampler2D uTexture;',
+            'uniform vec4 uColor;',
+            'uniform float uGamma;',
+            'uniform float uOutlineDistance;',
+            'uniform vec4 uOutlineColor;',
 
-            'varying vec2 v_texcoord;',
+            'uniform vec4 uDropShadowColor;',
+            'uniform float uDropShadowSmoothing;',
+            'uniform vec2 uDropShadowOffset;',
+
+            'uniform float uDebug;',
+
+            'varying vec2 vTexCoord;',
 
             'void main() {',
-                'float dist = texture2D(u_texture, v_texcoord).r;',
-                'if (u_debug > 0.0) {',
-                    'gl_FragColor = vec4(dist, dist, dist, 1);',
-                '} else {',
-                    'float alpha = smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, dist);',
-                    'gl_FragColor = vec4(u_color.rgb, alpha * u_color.a);',
-                '}',
+            '  float distance = texture2D(uTexture, vTexCoord).a;',
+            '  vec4 finalColor = uColor;',
+            '  if (uDebug > 0.0) {',
+            '     gl_FragColor = vec4(distance, distance, distance, 1);',
+            '  } else {',
+            // outline effect
+            '       if (uOutlineDistance <= 0.5) {',
+            '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+            '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
+            '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
+            '           finalColor = vec4(color.rgb, color.a * alpha);',
+            '       } else {',
+            '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+            '           finalColor = vec4(uColor.rgb, uColor.a * alpha);',
+            '       }',
+            // drop shadow effect
+            //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+            //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
+
+            '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;',
+            '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);',
+            '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
+            // inner effect is the other way around... text, shadow
+            '       gl_FragColor = mix(shadow, finalColor, finalColor.a);',
+            '  }',
             '}'
         ].join('\n'),
         // uniforms:
         {
-            u_matrix: {type: 'mat4', value: mat4.create()},
-            u_texture: {type: 'tex', value: 0},
-            u_texsize: {type: '1i', value: 24},
-            u_color: [1.0, 1.0, 1.0, 1.0],
-            u_buffer: {type: '1i', value: 0},
-            u_gamma: {type: '1i', value: 0},
-            u_debug: {type: '1i', value: 1}
+            uMatrix: {type: 'mat4', value: mat4.create()},
+            uTransform: {type: 'mat4', value: mat4.create()},
+            uTexture: {type: 'tex', value: 0},
+            uTexSize: {type: '1i', value: 24},
+            uColor: [1.0, 0.0, 0.0, 1.0],
+            uOutlineColor: [1.0, 1.0, 1.0, 1.0],
+            uDropShadowColor: [0.0, 0.0, 0.0, 1.0],
+            uDropShadowSmoothing: {type: '1i', value: 0},
+            uDropShadowOffset: [0.0, 0.0],
+            uOutlineDistance: {type: '1i', value: 0},
+            uGamma: {type: '1i', value: 0},
+            uDebug: {type: '1i', value: 1}
         },
         // attributes:
         {
-            a_pos: 0,
-            a_texcoord: 0
+            aPos: 0,
+            aTexCoord: 0
         });
 }
 
@@ -14571,11 +14723,7 @@ Objectify.restoreArray = function (array) {
  * Creates a valid JSON "stringify" data object
  * @param object
  */
-Objectify.createDataString = function(object, beautify) {
-    if (beautify) {
-        return JSON.stringify(Objectify.create(object), null, 4);
-    }
-
+Objectify.createDataString = function(object) {
     return JSON.stringify(Objectify.create(object));
 };
 
@@ -14759,8 +14907,11 @@ WebGLContext.prototype.setVirtualResolution = function (width, height) {
 
 WebGLContext.prototype.assignContextFromContainer = function (canvas) {
     // let's try to get the webgl context from the given container:
-    var gl = this._gl = canvas.getContext("experimental-webgl") || canvas.getContext("webgl") ||
-        canvas.getContext("webkit-3d") || canvas.getContext("moz-webgl");
+    // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
+    // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
+    var gl = this._gl = canvas.getContext("experimental-webgl", {alpha: false}) ||
+        canvas.getContext("webgl", {alpha: false}) ||
+        canvas.getContext("webkit-3d", {alpha: false}) || canvas.getContext("moz-webgl", {alpha: false});
 
     if (!isObjectAssigned(this._gl)) {
         this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");

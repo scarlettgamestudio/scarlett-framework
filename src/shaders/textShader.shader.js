@@ -1,62 +1,91 @@
 /**
  * Created by Luis on 16/12/2016.
  */
-/**
- * Created by Luis on 16/12/2016.
- */
 function TextShader() {
     Shader.call(this,
         // inline-vertex shader:
         [
-            'attribute vec2 a_pos;',
-            'attribute vec2 a_texcoord;',
+            'attribute vec2 aPos;',
+            'attribute vec2 aTexCoord;',
 
-            'uniform mat4 u_matrix;',
-            'uniform vec2 u_texsize;',
+            'uniform mat4 uMatrix;',
+            'uniform mat4 uTransform;',
+            'uniform vec2 uTexSize;',
 
-            'varying vec2 v_texcoord;',
+            'varying vec2 vTexCoord;',
 
             'void main() {',
-                'gl_Position = u_matrix * vec4(a_pos.xy, 0, 1);',
-                'v_texcoord = a_texcoord / u_texsize;',
+                'gl_Position = uMatrix * uTransform * vec4(aPos.xy, 0, 1);',
+                'vTexCoord = aTexCoord / uTexSize;',
             '}'
         ].join('\n'),
         // inline-fragment shader
         [
-            'precision mediump float;',
+            '#ifdef GL_ES',
+            '   precision mediump float;',
+            '#endif',
 
-            'uniform sampler2D u_texture;',
-            'uniform vec4 u_color;',
-            'uniform float u_buffer;',
-            'uniform float u_gamma;',
-            'uniform float u_debug;',
+            'uniform sampler2D uTexture;',
+            'uniform vec4 uColor;',
+            'uniform float uGamma;',
+            'uniform float uOutlineDistance;',
+            'uniform vec4 uOutlineColor;',
 
-            'varying vec2 v_texcoord;',
+            'uniform vec4 uDropShadowColor;',
+            'uniform float uDropShadowSmoothing;',
+            'uniform vec2 uDropShadowOffset;',
+
+            'uniform float uDebug;',
+
+            'varying vec2 vTexCoord;',
 
             'void main() {',
-                'float dist = texture2D(u_texture, v_texcoord).r;',
-                'if (u_debug > 0.0) {',
-                    'gl_FragColor = vec4(dist, dist, dist, 1);',
-                '} else {',
-                    'float alpha = smoothstep(u_buffer - u_gamma, u_buffer + u_gamma, dist);',
-                    'gl_FragColor = vec4(u_color.rgb, alpha * u_color.a);',
-                '}',
+            '  float distance = texture2D(uTexture, vTexCoord).a;',
+            '  vec4 finalColor = uColor;',
+            '  if (uDebug > 0.0) {',
+            '     gl_FragColor = vec4(distance, distance, distance, 1);',
+            '  } else {',
+            // outline effect
+            '       if (uOutlineDistance <= 0.5) {',
+            '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+            '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
+            '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
+            '           finalColor = vec4(color.rgb, color.a * alpha);',
+            '       } else {',
+            '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+            '           finalColor = vec4(uColor.rgb, uColor.a * alpha);',
+            '       }',
+            // drop shadow effect
+            //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+            //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
+
+            '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;',
+            '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);',
+            '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
+            // inner effect is the other way around... text, shadow
+            '       gl_FragColor = mix(shadow, finalColor, finalColor.a);',
+            '  }',
             '}'
         ].join('\n'),
         // uniforms:
         {
-            u_matrix: {type: 'mat4', value: mat4.create()},
-            u_texture: {type: 'tex', value: 0},
-            u_texsize: {type: '1i', value: 24},
-            u_color: [1.0, 1.0, 1.0, 1.0],
-            u_buffer: {type: '1i', value: 0},
-            u_gamma: {type: '1i', value: 0},
-            u_debug: {type: '1i', value: 1}
+            uMatrix: {type: 'mat4', value: mat4.create()},
+            uTransform: {type: 'mat4', value: mat4.create()},
+            uTexture: {type: 'tex', value: 0},
+            uTexSize: {type: '1i', value: 24},
+            uColor: [1.0, 0.0, 0.0, 1.0],
+            uOutlineColor: [1.0, 1.0, 1.0, 1.0],
+            uDropShadowColor: [0.0, 0.0, 0.0, 1.0],
+            uDropShadowSmoothing: {type: '1i', value: 0},
+            uDropShadowOffset: [0.0, 0.0],
+            uOutlineDistance: {type: '1i', value: 0},
+            uGamma: {type: '1i', value: 0},
+            uDebug: {type: '1i', value: 1}
         },
         // attributes:
         {
-            a_pos: 0,
-            a_texcoord: 0
+            aPos: 0,
+            aTexCoord: 0
         });
 }
 
