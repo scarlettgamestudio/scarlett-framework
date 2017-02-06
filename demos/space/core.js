@@ -63,6 +63,8 @@ gameScene.initialize = function () {
         document.getElementById('scale').value = text.getFontSize();
         document.getElementById('gamma').value = text.getGamma();
 
+        document.getElementById('letterSpacing').value = text.getLetterSpacing();
+
         document.getElementById('wordwrap').checked = text.getWordWrap();
         document.getElementById('charwrap').checked = text.getCharacterWrap();
         document.getElementById('debug').checked = text.getDebug();
@@ -92,6 +94,7 @@ document.getElementById('str').oninput = updateValues;
 document.getElementById('stroke').oninput = updateValues;
 document.getElementById('scale').oninput = updateValues;
 document.getElementById('gamma').oninput = updateValues;
+document.getElementById('letterSpacing').oninput = updateValues;
 document.getElementById('wordwrap').onchange = updateValues;
 document.getElementById('charwrap').onchange = updateValues;
 document.getElementById('debug').onchange = updateValues;
@@ -107,6 +110,7 @@ function updateValues()
 
     var scale = +document.getElementById('scale').value;
     var gamma = +document.getElementById('gamma').value;
+    var letterSpacing = +document.getElementById('letterSpacing').value;
 
     var dropShadowSmoothing = +document.getElementById('dropShadow').value;
 
@@ -126,6 +130,7 @@ function updateValues()
     text.setCharacterWrap(charWrap);
     text.setDebug(debug);
     text.setAlign(align);
+    text.setLetterSpacing(letterSpacing);
 };
 
 gameScene.lateUpdate = function (delta) {

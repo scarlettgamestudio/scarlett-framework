@@ -21,6 +21,8 @@ function Text(params) {
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
     this._text = params.text || "";
 
+    this._letterSpacing = params.letterSpacing || 0;
+
     this._fontSize = 70.0;
     this._gamma = 2;
 
@@ -310,6 +312,14 @@ Text.prototype.getTextureSrc = function () {
     return this._textureSrc;
 };
 
+Text.prototype.getLetterSpacing = function(){
+    return this._letterSpacing;
+};
+
+Text.prototype.setLetterSpacing = function(value){
+    this._letterSpacing = value;
+};
+
 // TODO: remove
 var maxWidth = 500;
 
@@ -368,7 +378,7 @@ Text.prototype._measureCharacterWidth = function(char, scale){
     }
 
     // calculate character 'width'
-    // xadvance is based not only on the width but also on the padding, thus being used instead of width
+    // xadvance is based not only on the width but also on the padding, thus being used instead of width (?)
     var charWidth = this._font.chars[charID].xadvance * scale;
 
     return charWidth;
@@ -389,15 +399,33 @@ Text.prototype._measureTextWidth = function(text, scale){
 
     // set initial width
     var width = 0;
+    // set initial letter spacing (for the first character, basically)
+    var currentLetterSpacing = 0;
+    // just to keep track of reverting to the original letter spacing value, so we only do it once
+    var revertedToOriginalValue = false;
 
     // iterate through every character
     for (var c = 0; c < text.length; c++){
         // retrieve character at position c
         var char = text[c];
 
-        // TODO: check for 0? (invalid)
-        // add its width
-        width += this._measureCharacterWidth(char, scale);
+        // if there is already one or more valid characters, then we can use the actual letter spacing value
+        if (!revertedToOriginalValue && width > 0){
+            // revert to original value
+            currentLetterSpacing = this.getLetterSpacing();
+            // make sure we only enter this condition once
+            revertedToOriginalValue = true;
+        }
+
+        // store character's width temporarily
+        var tempWidth = this._measureCharacterWidth(char, scale);
+
+        // if valid
+        if (tempWidth > 0){
+            // add its width
+            // if tempWidth was 0, adding letter spacing wouldn't make much sense.
+            width += tempWidth + currentLetterSpacing;
+        }
     }
 
     // return total width
@@ -482,16 +510,22 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
 
     var whitespace = "";// " ";
     var whitespaceWidth = 0;//this._measureCharacterWidth(whitespace, scale);
+    // just to keep track of reverting whitespace to its original value (its real width)
+    var revertedToOriginalValue = false;
 
     // iterate through the words
     for (var w = 0; w < words.length; w++){
         // retrieve word
         var word = words[w];
 
-        // ...... lol
-        if (w == 1){
+        // just a way to not consider whitespace and its width (along with a possible letter spacing value)
+        // if there aren't any characters or words already in the current line.
+        if (!revertedToOriginalValue && currentLineWordWidth > 0){
             whitespace = " ";
-            whitespaceWidth = this._measureCharacterWidth(whitespace, scale);
+            // letter spacing also affects the whitespace width when there is at least 1 word
+            whitespaceWidth = this._measureCharacterWidth(whitespace, scale) + this.getLetterSpacing();
+            // make sure we only enter this condition once (per line)
+            revertedToOriginalValue = true;
         }
 
         // calculate word width according to the text scale (not characters length!)
@@ -506,6 +540,11 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
             // currentLine is the last line so maybe next word also fits
             currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
             currentLineWordWidth = this._measureTextWidth(currentLine, scale);
+            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+            whitespace = "";
+            whitespaceWidth = 0;
+            revertedToOriginalValue = false;
 
             // push the others
             for (var cline = 0; cline < characterWrappedLines.length; cline++){
@@ -516,13 +555,18 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
             continue;
         }
 
-        // simulate line width with the current word and a whitespace in between
+        // simulate line width with the current word, a whitespace in between and also extra line spacing if any
         var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
 
         if (tempWidth > maxLineWidth){
             result.push(currentLine);
             currentLine = word;
             currentLineWordWidth = wordWidth;
+            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+            whitespace = "";
+            whitespaceWidth = 0;
+            revertedToOriginalValue = false;
         }
         else {
             currentLine += whitespace + word;
@@ -561,19 +605,32 @@ Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
         width: 0
     });
 
+    // set initial value for letter spacing (for the first character iteration, basically...)
+    var currentLetterSpacing = 0;
+    // just to keep track of reverting to letter spacing original value
+    var revertedToOriginalValue = false;
+
     // iterate through text characters
     for (var c = 0; c < text.length; c++){
         // retrieve text character
         var char = text[c];
 
-        // retrieve character width
-        var charWidth = this._measureCharacterWidth(char, scale);
-
         // store current line index
         var currentLine = lines.length - 1;
 
-        // current width + char width
-        var tempWidth = lines[currentLine].width + charWidth;
+        // after the first (valid) character of current line, get the actual value of letter spacing
+        if (!revertedToOriginalValue && lines[currentLine].width > 0){
+            // revert to original value
+            currentLetterSpacing = this.getLetterSpacing();
+            // make sure we only enter this condition once (per line, thus the resets down below)
+            revertedToOriginalValue = true;
+        }
+
+        // retrieve character width
+        var charWidth = this._measureCharacterWidth(char, scale);
+
+        // current width + char width + letter spacing if there is at least 1 character
+        var tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
 
         // if current line width + the current character width is > than the max width
         if(tempWidth > maxLineWidth){
@@ -585,6 +642,10 @@ Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
 
             // update current line index
             currentLine++;
+            // reset letter spacing!
+            currentLetterSpacing = 0;
+            // and the variable that keeps track of reverting to actual letter spacing value
+            revertedToOriginalValue = false;
 
             // skip if the character is a whitespace
             if (char === " "){
@@ -592,8 +653,8 @@ Text.prototype._wrapTextByCharacter = function(text, scale, maxLineWidth){
             }
         }
 
-        // add character and its width to current line
-        lines[currentLine].width += charWidth;
+        // add character and its width to current line (plus letter spacing if there is at least 1 character)
+        lines[currentLine].width += charWidth + currentLetterSpacing;
         lines[currentLine].chars.push(char);
     }
 
@@ -941,8 +1002,9 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
         );
     }
 
+    // TODO: not sure kern should actually be added to the pen or just help with the offset when drawing.
     if (!invert){
-        pen.x = pen.x + ((xAdvance + kern) * scale);
+        pen.x = pen.x + this.getLetterSpacing() + ((xAdvance + kern) * scale);
     }
     else {
         pen.x = pen.x - ((xAdvance + kern) * scale);
