@@ -2056,7 +2056,7 @@ gameScene.initialize = function () {
         console.log(font.kernings);*/
 
         text = new Text({texture: textTexture, font: font, text: "Lorem ipsum\r\ndolore"});
-        text.transform.setPosition(-200, 0);
+        text.transform.setPosition(-300, -180);
 
         // set initial text area value
         document.getElementById('str').value = text.getText();

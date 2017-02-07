@@ -785,38 +785,21 @@ Text.prototype._drawText = function (text, size) {
     // text scale based on the font size
     var scale = size / metricsSize;
 
-    var x;
-    var lines;
-
-    // TODO: create a function for this? alignPosition
-    switch(this.getAlign()) {
-        case Text.AlignType.LEFT:
-            x = this.transform.getPosition().x;
-            break;
-        case Text.AlignType.RIGHT: // x + bounding box width
-            x = this.transform.getPosition().x + maxWidth; // TODO: replace maxWidth...
-            break;
-        default:
-            // do nothing since center is calculated per line
-    }
-
     // create the lines to draw onto the screen
-    lines = this._measureText(text, scale);
+    var lines = this._measureText(text, scale);
 
     // draws lines
-    // TODO: remove x parameter?
-    this._drawLines(lines, scale, x, lineHeight);
+    this._drawLines(lines, scale, lineHeight);
 };
 
 /**
  * Draws the given text lines onto the screen
  * @param {Array} lines lines to draw
  * @param {number} scale scale of the text
- * @param {number} x
  * * @param {number} lineHeight how much Y should increase to switch line
  * @private
  */
-Text.prototype._drawLines = function(lines, scale, x, lineHeight){
+Text.prototype._drawLines = function(lines, scale, lineHeight){
 
     // if parameters are invalid, no need to go further
     if (!lines || !scale || scale <= 0 || !lineHeight){
@@ -831,21 +814,42 @@ Text.prototype._drawLines = function(lines, scale, x, lineHeight){
     var textureElements = [];
     var vertexIndices = [];
 
+    var x = 0;
+
     // center (0,0)
 
     var currentY = 0;
 
+    // create pen with the screen coordinates, where (0,0) is the center of the screen
+    var pen = {
+        x: 0,
+        y: this.transform.getPosition().y
+    };
+
     for (var i = 0; i < lines.length; i++) {
 
-        if (this._align == Text.AlignType.CENTER){
-            // text x position - lines[i].width / 2 or...
-            // x + text width/2 - lines[i].width / 2 ?
-            x = 0 - lines[i].width / 2;
+        var x;
+
+        // change beginning of the line depending on the chosen alignment
+        switch(this.getAlign()) {
+            case Text.AlignType.LEFT:
+                x = this.transform.getPosition().x;
+                break;
+            case Text.AlignType.CENTER:
+                x = this.transform.getPosition().x + maxWidth / 2 - lines[i].width / 2;
+                break;
+            case Text.AlignType.RIGHT:
+                x = this.transform.getPosition().x + maxWidth - lines[i].width;
+                break;
+            // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
+            // case Text.AlignType.JUSTIFIED:
+            default:
+                x = 0;
+                break;
         }
 
-        // create pen with the screen coordinates
-        //  TODO: replace by vector2?
-        var pen = { x: x, y: currentY - 350 };
+        // set line initial x
+        pen.x = x;
 
         // retrieve line characters
         var line = lines[i].chars;
@@ -854,7 +858,8 @@ Text.prototype._drawLines = function(lines, scale, x, lineHeight){
         this._prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices);
 
         // update Y before drawing another line
-        currentY += lineHeight * scale; // TODO: no need to recalculate this value every time...
+        // TODO: no need to recalculate this value every time...
+        pen.y += lineHeight * scale;
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
@@ -958,13 +963,6 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
             1 + factor, 2 + factor, 3 + factor
         );
 
-        var invert = false;
-
-        if (this.getAlign() === Text.AlignType.RIGHT){
-            invert = true;
-        }
-
-
         // Add a quad (= two triangles) per glyph.
         vertexElements.push(
             pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
@@ -1003,12 +1001,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
     }
 
     // TODO: not sure kern should actually be added to the pen or just help with the offset when drawing.
-    if (!invert){
-        pen.x = pen.x + this.getLetterSpacing() + ((xAdvance + kern) * scale);
-    }
-    else {
-        pen.x = pen.x - ((xAdvance + kern) * scale);
-    }
+    pen.x = pen.x + this.getLetterSpacing() + ((xAdvance + kern) * scale);
 
     // return the last glyph ascii code
     return asciiCode;

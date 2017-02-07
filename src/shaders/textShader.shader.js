@@ -15,7 +15,7 @@ function TextShader() {
             'varying vec2 vTexCoord;',
 
             'void main() {',
-                'gl_Position = uMatrix * uTransform * vec4(aPos.xy, 0, 1);',
+                'gl_Position = uMatrix * uTransform * vec4(aPos, 0, 1);',
                 'vTexCoord = aTexCoord / uTexSize;',
             '}'
         ].join('\n'),
