@@ -54,6 +54,7 @@ gameScene.initialize = function () {
 
         text = new Text({texture: textTexture, font: font, text: "Lorem ipsum\r\ndolore"});
         text.transform.setPosition(-300, -180);
+        text.setColor(Color.fromRGBA(232,78,64, 1.0));
 
         // set initial text area value
         document.getElementById('str').value = text.getText();

@@ -12515,7 +12515,7 @@ var maxWidth = 500;
 /**
  *
  * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
- * @returns {number} font's character's ID or null if invalid
+ * @returns {number|null} font's character's ID or null if invalid
  * @private
  */
 Text.prototype._findCharID = function(char){
