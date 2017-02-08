@@ -822,12 +822,6 @@ Text.prototype._drawLines = function(lines, scale, lineHeight){
     var textureElements = [];
     var vertexIndices = [];
 
-    var x = 0;
-
-    // center (0,0)
-
-    var currentY = 0;
-
     // create pen with the screen coordinates, where (0,0) is the center of the screen
     var pen = {
         x: 0,
