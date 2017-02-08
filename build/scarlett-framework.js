@@ -14877,12 +14877,20 @@ Objectify.restoreArray = function (array) {
  * Creates a valid JSON "stringify" data object
  * @param object
  */
-Objectify.createDataString = function(object, beautify) {
+Objectify.createDataString = function (object, beautify) {
     if (beautify) {
         return JSON.stringify(Objectify.create(object), null, 4);
     }
 
     return JSON.stringify(Objectify.create(object));
+};
+
+/**
+ * Checks if a given object contains the objectify method
+ * @param object
+ */
+Objectify.hasObjectify = function (object) {
+    return isObjectAssigned(object) && isFunction(object.objectify);
 };
 
 /**
@@ -14894,11 +14902,11 @@ Objectify.create = function (object) {
     var result;
 
     // this object has objectify?
-    if (object.objectify) {
+    if (Objectify.hasObjectify(object)) {
         result = object.objectify();
 
     } else {
-        // nope, we can try to get the public properties then:
+        // nope, we can force to get the public properties then:
         result = JSON.parse(JSON.stringify(object));
     }
 
