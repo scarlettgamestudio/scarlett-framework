@@ -65,15 +65,6 @@ function Text(params) {
 
     // set text texture if defined
     this.setTexture(params.texture);
-
-    // already done when creating a Texture2D with content loader
-    //gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
 }
 
 inheritsFrom(Text, GameObject);
@@ -89,6 +80,8 @@ Text.prototype.render = function (delta, spriteBatch) {
     if (!this.enabled) {
         return;
     }
+
+    // TODO: don't render if font or font's texture are not valid/defined?
 
     // get gl context
     var gl = this._gl;
@@ -168,9 +161,14 @@ Text.prototype.render = function (delta, spriteBatch) {
 };
 
 Text.prototype.unload = function () {
-    //gl.deleteBuffer(this._vertexBuffer);
-    //gl.deleteBuffer(this._texBuffer);
+    this._gl.deleteBuffer(this._vertexBuffer);
+    this._gl.deleteBuffer(this._textureBuffer);
+    this._gl.deleteBuffer(this._vertexIndicesBuffer);
 
+    this._textShader.unload();
+
+    // spritebatch related... TODO: add/remove when spritebatch is fixed?
+    //this._gl.deleteBuffer(this._texBuffer);
     //this._textureShader.unload();
 };
 
@@ -214,6 +212,15 @@ Text.prototype.setTexture = function (texture) {
     // cache the dimensions
     this._textureWidth = this._texture.getWidth();
     this._textureHeight = this._texture.getHeight();
+
+    // the line below is already done when creating a Texture2D with content loader
+    // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
 };
 
 Text.prototype.setColor = function (color) {
