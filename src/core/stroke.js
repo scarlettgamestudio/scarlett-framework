@@ -4,8 +4,8 @@
 
 /**
  * Stroke is a combination of a color and its size
- * @param {Color} color stroke color
- * @param {number} size size of the stroke
+ * @param {Color=} color stroke color
+ * @param {number=} size size of the stroke
  * @constructor
  */
 function Stroke(color, size) {
@@ -65,7 +65,7 @@ Stroke.prototype.objectify = function () {
 
 Stroke.prototype.restore = function (data) {
     return {
-        color: this._color.restore(data),
+        color: Color.restore(data),
         size: data.size
     };
 };
