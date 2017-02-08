@@ -29,13 +29,11 @@ function Text(params) {
     this._textLayout.setCharacterWrap(true);
     this._textLayout.setAlignType(TextLayout.AlignType.LEFT);
     this._textLayout.setFontSize(params.fontSize || 70.0);
+    this._textLayout.setLetterSpacing(params.letterSpacing || 0);
 
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
     this._text = params.text || "";
-
-    this._letterSpacing = params.letterSpacing || 0;
-
 
     this._gamma = params.gamma || 2.0;
 
@@ -320,11 +318,11 @@ Text.prototype.getTextureSrc = function () {
 };
 
 Text.prototype.getLetterSpacing = function(){
-    return this._letterSpacing;
+    return this._textLayout.getLetterSpacing();
 };
 
 Text.prototype.setLetterSpacing = function(value){
-    this._letterSpacing = value;
+    this._textLayout.setLetterSpacing(value);
 };
 
 // TODO: remove

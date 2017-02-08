@@ -15,6 +15,7 @@ function TextLayout(font) {
     this._characterWrap = true;
     this._alignType = TextLayout.AlignType.LEFT;
     this._fontSize = 70;
+    this._letterSpacing = 0;
 }
 
 TextLayout.AlignType = {
@@ -53,6 +54,14 @@ TextLayout.prototype.getFontSize = function (){
 
 TextLayout.prototype.setFontSize = function (size){
     this._fontSize = size;
+};
+
+TextLayout.prototype.getLetterSpacing = function (){
+    return this._letterSpacing;
+};
+
+TextLayout.prototype.setLetterSpacing = function (spacing){
+    this._letterSpacing = spacing;
 };
 
 

@@ -12218,13 +12218,11 @@ function Text(params) {
     this._textLayout.setCharacterWrap(true);
     this._textLayout.setAlignType(TextLayout.AlignType.LEFT);
     this._textLayout.setFontSize(params.fontSize || 70.0);
+    this._textLayout.setLetterSpacing(params.letterSpacing || 0);
 
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
     this._text = params.text || "";
-
-    this._letterSpacing = params.letterSpacing || 0;
-
 
     this._gamma = params.gamma || 2.0;
 
@@ -12509,11 +12507,11 @@ Text.prototype.getTextureSrc = function () {
 };
 
 Text.prototype.getLetterSpacing = function(){
-    return this._letterSpacing;
+    return this._textLayout.getLetterSpacing();
 };
 
 Text.prototype.setLetterSpacing = function(value){
-    this._letterSpacing = value;
+    this._textLayout.setLetterSpacing(value);
 };
 
 // TODO: remove
@@ -13243,6 +13241,7 @@ function TextLayout(font) {
     this._characterWrap = true;
     this._alignType = TextLayout.AlignType.LEFT;
     this._fontSize = 70;
+    this._letterSpacing = 0;
 }
 
 TextLayout.AlignType = {
@@ -13281,6 +13280,14 @@ TextLayout.prototype.getFontSize = function (){
 
 TextLayout.prototype.setFontSize = function (size){
     this._fontSize = size;
+};
+
+TextLayout.prototype.getLetterSpacing = function (){
+    return this._letterSpacing;
+};
+
+TextLayout.prototype.setLetterSpacing = function (spacing){
+    this._letterSpacing = spacing;
 };
 
 
