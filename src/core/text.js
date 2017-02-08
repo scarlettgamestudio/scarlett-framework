@@ -24,6 +24,10 @@ function Text(params) {
 
     this._font = params.font;
 
+    this._textLayout = new TextLayout(this._font);
+    this._textLayout.setWordWrap(true);
+    this._textLayout.setCharacterWrap(true);
+
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
     this._text = params.text || "";
@@ -50,8 +54,7 @@ function Text(params) {
 
     this._align = Text.AlignType.LEFT;
 
-    this._wordWrap = true;
-    this._characterWrap = true;
+
 
     // either 0 or 1
     this._debug = 0;
@@ -281,19 +284,19 @@ Text.prototype.getDebug = function () {
 };
 
 Text.prototype.setWordWrap = function (wrap) {
-    this._wordWrap = wrap;
+    this._textLayout.setWordWrap(wrap);
 };
 
 Text.prototype.getWordWrap = function () {
-    return this._wordWrap;
+    return this._textLayout.getWordWrap();
 };
 
 Text.prototype.setCharacterWrap = function (wrap) {
-    this._characterWrap = wrap;
+    this._textLayout.setCharacterWrap(wrap);
 };
 
 Text.prototype.getCharacterWrap = function () {
-    return this._characterWrap;
+    return this._textLayout.getCharacterWrap();
 };
 
 Text.prototype.setAlign = function (alignType) {
@@ -544,7 +547,7 @@ Text.prototype._wrapWordsLongVersion = function(text, maxLineWidth, scale){
         var wordWidth = this._measureTextWidth(word, scale);
 
         // TODO: think of a cleaner way of doing this? maybe _wrapTextByCharacter shouldn't return line objects?
-        if (this._characterWrap && wordWidth > maxLineWidth){
+        if (this.getCharacterWrap() && wordWidth > maxLineWidth){
             var tempLine = currentLine + whitespace + word;
 
             var characterWrappedLines = this._wrapTextByCharacter(tempLine, scale, maxLineWidth);
@@ -728,8 +731,10 @@ Text.prototype._measureText = function (text, scale) {
     // create array for user defined lines
     var userDefinedLines = [];
 
+    var wordWrap = this.getWordWrap();
+
     // word wrap by inserting \n in the original text
-    if (this._wordWrap){
+    if (wordWrap){
         // initialize resulting text
         var wrappedText = "";
         // split text into lines defined by the user
@@ -760,7 +765,7 @@ Text.prototype._measureText = function (text, scale) {
         var preparedLines = [];
 
         // only perform character wrap if word wrap isn't enabled in the first place
-        if (!this._wordWrap && this._characterWrap) {
+        if (!wordWrap && this.getCharacterWrap()) {
             preparedLines = this._wrapTextByCharacter(userDefinedLine, scale, maxWidth);
         }
         else {
