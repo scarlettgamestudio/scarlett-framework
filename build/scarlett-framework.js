@@ -12284,6 +12284,12 @@ SpriteBatchOld.prototype.unload = function () {
  * Created by Luis on 23/12/2016.
  */
 
+/**
+ * Stroke is a combination of a color and its size
+ * @param {Color} color stroke color
+ * @param {number} size size of the stroke
+ * @constructor
+ */
 function Stroke(color, size) {
     // stroke color
     this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
@@ -12295,7 +12301,21 @@ Stroke.prototype.getColor = function(){
     return this._color;
 };
 
+/**
+ * Sets stroke's color
+ * @param {Color|{r:number, g:number, b:number, a:number}} color
+ */
 Stroke.prototype.setColor = function(color){
+
+    if (typeof color === Color){
+        this._color = color;
+        return;
+    }
+
+    if (color.r == null || color.g == null || color.b == null || color.a == null){
+        throw new Error("The given stroke color is invalid");
+    }
+
     this._color.set(color.r, color.g, color.b, color.a);
 };
 
