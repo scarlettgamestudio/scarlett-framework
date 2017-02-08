@@ -12759,6 +12759,20 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
  * Created by Luis on 08/02/2017.
  */
 
+
+// TODO: replace for extensions.js array insert? supports multiple arguments...
+Array.prototype.insert = function (index) {
+    this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
+};
+
+// TODO: place in another file?
+String.prototype.insert = function (index, string) {
+    if (index > 0)
+        return this.substring(0, index) + string + this.substring(index, this.length);
+    else
+        return string + this;
+};
+
 function TextLayout(font) {
 
     // don't go further if font is invalid
@@ -12957,19 +12971,6 @@ TextLayout.prototype.measureTextWidth = function(text, scale){
 
     // return total width
     return width;
-};
-
-// TODO: replace for extensions.js array insert? supports multiple arguments...
-Array.prototype.insert = function (index) {
-    this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
-};
-
-// TODO: place in another file?
-String.prototype.insert = function (index, string) {
-    if (index > 0)
-        return this.substring(0, index) + string + this.substring(index, this.length);
-    else
-        return string + this;
 };
 
 TextLayout.prototype.wrapWordsShortVersion = function(text, maxLineWidth, scale){
