@@ -3,7 +3,7 @@
  */
 function PrimitiveBatch(game) {
 	if (!isGame(game)) {
-		throw error("Cannot create primitive render, the Game object is missing from the parameters");
+		throw new Error("Cannot create primitive render, the Game object is missing from the parameters");
 	}
 
 	// public properties:

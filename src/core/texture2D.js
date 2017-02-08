@@ -3,7 +3,7 @@
  */
 function Texture2D(image) {
     if (!isObjectAssigned(image)) {
-        throw error("Cannot create Texture2D without an image source");
+        throw new Error("Cannot create Texture2D without an image source");
     }
 
     // private properties:

@@ -3,7 +3,7 @@
  */
 function SpriteBatchOld(game) {
     if (!isGame(game)) {
-        throw error("Cannot create sprite render, the Game object is missing from the parameters");
+        throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
     }
 
     // public properties:

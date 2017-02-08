@@ -11213,7 +11213,7 @@ GameScene.prototype.unload = function () {
  */
 function PrimitiveBatch(game) {
 	if (!isGame(game)) {
-		throw error("Cannot create primitive render, the Game object is missing from the parameters");
+		throw new Error("Cannot create primitive render, the Game object is missing from the parameters");
 	}
 
 	// public properties:
@@ -11601,7 +11601,7 @@ Scripts.generateComponent = function (scriptName) {
  */
 function Sound(audio) {
     if (!isObjectAssigned(audio)) {
-        throw error("Cannot create Sound without a valid audio source");
+        throw new Error("Cannot create Sound without a valid audio source");
     }
 
     // private properties
@@ -11885,7 +11885,7 @@ Sprite.prototype.unload = function () {
  */
 function SpriteBatch(game) {
     if (!isGame(game)) {
-        throw error("Cannot create sprite render, the Game object is missing from the parameters");
+        throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
     }
 
     // private properties:
@@ -12009,7 +12009,7 @@ SpriteBatch.prototype.unload = function () {
  */
 function SpriteBatchOld(game) {
     if (!isGame(game)) {
-        throw error("Cannot create sprite render, the Game object is missing from the parameters");
+        throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
     }
 
     // public properties:
@@ -12206,6 +12206,13 @@ function Text(params) {
 
     GameObject.call(this, params);
 
+    // don't go further if font is invalid
+    if (!isObjectAssigned(params.font)) {
+        throw new Error("Cannot create " + params.name + " without a valid font parameter.");
+    }
+
+    this._font = params.font;
+
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
     this._text = params.text || "";
@@ -12244,8 +12251,6 @@ function Text(params) {
     this._textureBuffer = this._gl.createBuffer();
     this._vertexIndicesBuffer = this._gl.createBuffer();
     this._textShader = new TextShader();
-
-    this._font = params.font || {};
 
     // set text texture if defined
     this.setTexture(params.texture);
@@ -13224,11 +13229,15 @@ Text.prototype._getKerning = function (firstCharCode, secondCharCode) {
     // return 0 if there is no match
     return 0
 };/**
+ * Created by Luis on 08/02/2017.
+ */
+
+;/**
  * Texture2D class
  */
 function Texture2D(image) {
     if (!isObjectAssigned(image)) {
-        throw error("Cannot create Texture2D without an image source");
+        throw new Error("Cannot create Texture2D without an image source");
     }
 
     // private properties:

@@ -17,6 +17,13 @@ function Text(params) {
 
     GameObject.call(this, params);
 
+    // don't go further if font is invalid
+    if (!isObjectAssigned(params.font)) {
+        throw new Error("Cannot create " + params.name + " without a valid font parameter.");
+    }
+
+    this._font = params.font;
+
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
     this._text = params.text || "";
@@ -55,8 +62,6 @@ function Text(params) {
     this._textureBuffer = this._gl.createBuffer();
     this._vertexIndicesBuffer = this._gl.createBuffer();
     this._textShader = new TextShader();
-
-    this._font = params.font || {};
 
     // set text texture if defined
     this.setTexture(params.texture);
