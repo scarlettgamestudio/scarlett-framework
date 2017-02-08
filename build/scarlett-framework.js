@@ -10386,6 +10386,149 @@ Color.Pumpkin = Color.fromRGB(211, 84, 0);
 Color.Orange = Color.fromRGB(243, 156, 18);
 Color.SunFlower = Color.fromRGB(241, 196, 15);
 Color.Alizarin = Color.fromRGB(231, 76, 60);;/**
+ * Created by Luis on 08/02/2017.
+ */
+
+function FontStyle(fontDescription) {
+
+    this._fontDescription = fontDescription;
+    this._fontSize = 70;
+    this._letterSpacing = 0;
+}
+
+FontStyle.prototype.getFontDescription = function(){
+    return this._fontDescription;
+};
+
+FontStyle.prototype.setFontDescription = function(fontInfo){
+
+    // don't go further if fontInfo is invalid
+    if (!isObjectAssigned(fontInfo)) {
+        throw new Error("fontInfo needs to be valid.");
+    }
+
+    // TODO: make sure fontInfo follows bmfont format!
+
+    return this._fontDescription = fontInfo;
+};
+
+FontStyle.prototype.getFontSize = function (){
+    return this._fontSize;
+};
+
+FontStyle.prototype.setFontSize = function (size){
+    this._fontSize = size;
+};
+
+/**
+ * Retrieves font style scale based on font size and font's description info size
+ * @returns {number|null} font style scale or null if invalid
+ */
+FontStyle.prototype.getScale = function(){
+
+    var metricsSize = this.getFontDescription().info.size;
+
+    // TODO: possibly validated in setFontInfo instead?
+    if (!metricsSize){
+        return null;
+    }
+
+    // calculate scale between generated font's size and the desired (font) size of the text
+    var scale = this.getFontSize() / metricsSize;
+
+    if (!scale || scale <= 0){
+        return null;
+    }
+
+    return scale;
+};
+
+FontStyle.prototype.getLetterSpacing = function (){
+    return this._letterSpacing;
+};
+
+FontStyle.prototype.setLetterSpacing = function (spacing){
+    this._letterSpacing = spacing;
+};
+
+/**
+ *
+ * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
+ * @returns {number|null} font's character's ID or null if invalid
+ * @public
+ */
+FontStyle.prototype.findCharID = function(char){
+
+    var fontDescriptionChars = this.getFontDescription().chars;
+
+    // make sure the parameter is valid
+    if (!char || !fontDescriptionChars || fontDescriptionChars.length == 0){
+        return null;
+    }
+    // retrieve character's ascii code
+    var charCode = char.charCodeAt(0);
+
+    // if code is invalid, no need to go further
+    if (!charCode){
+        return null;
+    }
+
+    // go through every character
+    for (var i = 0; i < fontDescriptionChars.length; i++){
+        // store glyphID (Ascii Code)
+        var glyphID = fontDescriptionChars[i].id;
+
+        // skip if invalid
+        if (!glyphID){
+            continue;
+        }
+
+        // if that's the code we are looking for
+        if (glyphID === charCode){
+            // return the iteration number (the position of that character inside the array of characters)
+            return i;
+        }
+    }
+    return null;
+};
+
+/**
+ * Retrieves Kerning value between the given characters
+ * @param {number} firstCharCode first character ascii code
+ * @param {number} secondCharCode second character ascii code
+ * @returns {number} kerning value or 0 if not found
+ * @public
+ */
+FontStyle.prototype.getKerning = function (firstCharCode, secondCharCode) {
+
+    var fontDescriptionKernings = this.getFontDescription().kernings;
+
+    if (!firstCharCode || !secondCharCode ||
+                !fontDescriptionKernings|| !fontDescriptionKernings.length || fontDescriptionKernings.length === 0) {
+        return 0;
+    }
+
+    // iterate through the kernings
+    for (var i = 0; i < fontDescriptionKernings.length; i++) {
+        var kern = fontDescriptionKernings[i];
+
+        // skip if table is invalid
+        if (!kern || !kern.first || !kern.second){
+            continue;
+        }
+
+        // if there is a match
+        if (kern.first === firstCharCode && kern.second === secondCharCode)
+        // return kerning
+            return kern.amount;
+    }
+
+    // return 0 if there is no match
+    return 0;
+};
+
+
+;/**
  * GameScene class
  */
 function Game(params) {
@@ -12206,19 +12349,14 @@ function Text(params) {
 
     GameObject.call(this, params);
 
-    // don't go further if font is invalid
-    if (!isObjectAssigned(params.font)) {
-        throw new Error("Cannot create " + params.name + " without a valid font parameter.");
-    }
+    this._fontStyle = new FontStyle(params.font || {});
 
-    this._font = params.font;
+    this._fontStyle.setFontSize(params.fontSize || 70.0);
+    this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
 
-    this._textLayout = new TextLayout(this._font);
-    this._textLayout.setWordWrap(true);
-    this._textLayout.setCharacterWrap(true);
-    this._textLayout.setAlignType(TextLayout.AlignType.LEFT);
-    this._textLayout.setFontSize(params.fontSize || 70.0);
-    this._textLayout.setLetterSpacing(params.letterSpacing || 0);
+    this._wordWrap = true;
+    this._characterWrap = true;
+    this._alignType = Text.AlignType.LEFT;
 
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
@@ -12257,6 +12395,12 @@ function Text(params) {
 
 inheritsFrom(Text, GameObject);
 
+Text.AlignType = {
+    LEFT: 1,
+    CENTER: 2,
+    RIGHT: 3
+};
+
 // TODO: remove
 var maxWidth = 500;
 
@@ -12279,7 +12423,7 @@ Text.prototype.render = function (delta, spriteBatch) {
     gl.enableVertexAttribArray(this._textShader.attributes.aTexCoord);
 
     // draw text
-    this._drawText(this.getText(), this.getFontSize());
+    this._drawText();
 
     var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
 
@@ -12324,9 +12468,6 @@ Text.prototype.render = function (delta, spriteBatch) {
     // 4 / 512 = 0.0058 = max smoothing value
     this._dropShadowOffset.set(0.005, 0.005);
     gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
-
-
-    //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
 
     var color = this.getColor();
 
@@ -12417,6 +12558,10 @@ Text.prototype.getColor = function () {
     return this._color;
 };
 
+/**
+ * Sets the outline effect of the text
+ * @param {Stroke} stroke outline effect of the text
+ */
 Text.prototype.setStroke = function (stroke) {
     this._stroke = stroke;
 };
@@ -12429,6 +12574,10 @@ Text.prototype.getDropShadow = function () {
     return this._dropShadow;
 };
 
+/**
+ * Sets the dropshadow effect of the text
+ * @param {Stroke} shadow dropshadow effect of the text
+ */
 Text.prototype.setDropShadow = function (shadow) {
     this._dropShadow = shadow;
 };
@@ -12441,13 +12590,39 @@ Text.prototype.getText = function () {
     return this._text;
 };
 
+Text.prototype.getFontStyle = function () {
+    return this._fontStyle;
+};
+
+/**
+ * Sets the font style
+ * @param {FontStyle} fontStyle font style
+ */
+Text.prototype.setFontStyle = function (fontStyle) {
+    this._fontStyle = fontStyle;
+};
+
+/*
+    Just for API sake
+ */
+
 Text.prototype.setFontSize = function (size) {
-    this._textLayout.setFontSize(size);
+    this.getFontStyle().setFontSize(size);
 };
 
 Text.prototype.getFontSize = function () {
-    return this._textLayout.getFontSize();
+    return this.getFontStyle().getFontSize();
 };
+
+Text.prototype.getLetterSpacing = function(){
+    return this.getFontStyle().getLetterSpacing();
+};
+
+Text.prototype.setLetterSpacing = function(value){
+    this.getFontStyle().setLetterSpacing(value);
+};
+
+// #############
 
 Text.prototype.setGamma = function (gamma) {
     this._gamma = gamma;
@@ -12466,27 +12641,31 @@ Text.prototype.getDebug = function () {
 };
 
 Text.prototype.setWordWrap = function (wrap) {
-    this._textLayout.setWordWrap(wrap);
+    this._wordWrap = wrap;
 };
 
 Text.prototype.getWordWrap = function () {
-    return this._textLayout.getWordWrap();
+    return this._wordWrap;
 };
 
 Text.prototype.setCharacterWrap = function (wrap) {
-    this._textLayout.setCharacterWrap(wrap);
+    this._characterWrap = wrap;
 };
 
 Text.prototype.getCharacterWrap = function () {
-    return this._textLayout.getCharacterWrap();
+    return this._characterWrap;
 };
 
+/**
+ * Sets Text alignment
+ * @param {Text.AlignType} alignType
+ */
 Text.prototype.setAlign = function (alignType) {
-    this._textLayout.setAlignType(alignType);
+    this._alignType = alignType;
 };
 
 Text.prototype.getAlign = function () {
-    return this._textLayout.getAlignType();
+    return this._alignType;
 };
 
 Text.prototype.setTextureSrc = function (path) {
@@ -12509,42 +12688,71 @@ Text.prototype.getTextureSrc = function () {
     return this._textureSrc;
 };
 
-Text.prototype.getLetterSpacing = function(){
-    return this._textLayout.getLetterSpacing();
-};
-
-Text.prototype.setLetterSpacing = function(value){
-    this._textLayout.setLetterSpacing(value);
-};
-
 /**
- * Draws a given text onto the screen
- * @param {string} text text to draw onto the screen
- * @param {number} size font size
+ * Draws the text onto the screen
  * @private
  */
-Text.prototype._drawText = function (text, size) {
+Text.prototype._drawText = function () {
+    var fontStyle = this.getFontStyle();
 
-    // no need to go further if parameters or _font are invalid
-    if (!text || !size || size <= 0 || !this._font || !this._font.info ||
-                !this._font.info.size || this._font.info.size <= 0){
+    if (!fontStyle){
+        return;
+    }
+
+    var fontDescription = fontStyle.getFontDescription();
+
+    // don't go further if font description isn't valid either
+    if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight){
         return;
     }
 
     // line height; falls back to font size
-    var lineHeight = this._font.common.lineHeight || this.getFontSize();
-
-    // retrieve metrics size
-    var metricsSize = this._font.info.size;
+    var lineHeight = fontDescription.common.lineHeight || this.getFontSize();
 
     // text scale based on the font size
-    var scale = size / metricsSize;
+    var scale = fontStyle.getScale();
+
+    // don't go further if scale is invalid
+    if (!scale){
+        return;
+    }
 
     // create the lines to draw onto the screen
-    var lines = this._textLayout.measureText(text, scale, maxWidth);
+    var lines = TextUtils.measureText(fontStyle, this.getText(), maxWidth, this.getWordWrap(), this.getCharacterWrap());
 
     // draws lines
     this._drawLines(lines, scale, lineHeight);
+};
+
+/**
+ * Aligns a line according to its width and align type
+ * @param {number} width width of the line to align
+ * @returns {number} the aligned x position of the line
+ * @private
+ */
+Text.prototype._alignLine = function (width) {
+    // set return variable
+    var x;
+
+    // change beginning of the line depending on the chosen alignment
+    switch(this.getAlign()) {
+        case Text.AlignType.LEFT:
+            x = this.transform.getPosition().x;
+            break;
+        case Text.AlignType.CENTER:
+            x = this.transform.getPosition().x + maxWidth / 2 - width / 2;
+            break;
+        case Text.AlignType.RIGHT:
+            x = this.transform.getPosition().x + maxWidth - width;
+            break;
+        // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
+        // case FontStyle.AlignType.JUSTIFIED:
+        default:
+            x = 0;
+            break;
+    }
+
+    return x;
 };
 
 /**
@@ -12556,8 +12764,9 @@ Text.prototype._drawText = function (text, size) {
  */
 Text.prototype._drawLines = function(lines, scale, lineHeight){
 
+    // TODO: maybe throw new Error when simply returning? so errors can be seen in the console?
     // if parameters are invalid, no need to go further
-    if (!lines || !scale || scale <= 0 || !lineHeight){
+    if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0){
         return;
     }
 
@@ -12577,28 +12786,8 @@ Text.prototype._drawLines = function(lines, scale, lineHeight){
 
     for (var i = 0; i < lines.length; i++) {
 
-        var x;
-
-        // change beginning of the line depending on the chosen alignment
-        switch(this.getAlign()) {
-            case TextLayout.AlignType.LEFT:
-                x = this.transform.getPosition().x;
-                break;
-            case TextLayout.AlignType.CENTER:
-                x = this.transform.getPosition().x + maxWidth / 2 - lines[i].width / 2;
-                break;
-            case TextLayout.AlignType.RIGHT:
-                x = this.transform.getPosition().x + maxWidth - lines[i].width;
-                break;
-            // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
-            // case TextLayout.AlignType.JUSTIFIED:
-            default:
-                x = 0;
-                break;
-        }
-
-        // set line initial x
-        pen.x = x;
+        // align line accordingly
+        pen.x = this._alignLine(lines[i].width);
 
         // retrieve line characters
         var line = lines[i].chars;
@@ -12657,23 +12846,32 @@ Text.prototype._prepareLineToBeDrawn = function(line, scale, pen, vertexElements
  * @param {number} scale text scale
  * @param {{x: number, y: number}} pen pen to draw with
  * @param {number} lastGlyphCode last drawn glyph ascii code
- * @param {Array} vertexElements array to store the characters vertices
- * @param {Array} textureElements array to store the characters texture elements
- * @param {Array} vertexIndices array to store the vertices indices
+ * @param {Array} outVertexElements out array to store the characters vertices
+ * @param {Array} outTextureElements out array to store the characters texture elements
+ * @param {Array} outVertexIndices out array to store the vertices indices
  * @returns {number} drawn glyph ascii code or 0 if invalid
  * @private
  */
 Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
-                                        vertexElements, textureElements, vertexIndices) {
+                                        outVertexElements, outTextureElements, outVertexIndices) {
 
-    // if font or any of the parameters is missing, no need to go further
-    if (!this._font || !this._font.chars || !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
-                !vertexElements || !textureElements || !vertexIndices) {
+    var fontStyle = this.getFontStyle();
+
+    if (!fontStyle){
+        return 0;
+    }
+
+    var fontDescription = fontStyle.getFontDescription();
+
+    // if font's description or any of the parameters is missing, no need to go further
+    if (!fontDescription || !fontDescription.chars ||
+                !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
+                !outVertexElements || !outTextureElements || !outVertexIndices){
         return 0;
     }
 
     // retrieve char ID
-    var charID = this._textLayout.findCharID(char);
+    var charID = fontStyle.findCharID(char);
 
     // return if null
     if (charID === null){
@@ -12681,7 +12879,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
     }
 
     // retrieve font metrics
-    var metrics = this._font.chars[charID];
+    var metrics = fontDescription.chars[charID];
 
     // retrieve character metrics
     var width = metrics.width;
@@ -12701,19 +12899,19 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
         // if a glyph was created before
         if (lastGlyphCode){
             // retrieve kerning value between last character and current character
-            kern = this._textLayout.getKerning(lastGlyphCode, asciiCode);
+            kern = fontStyle.getKerning(lastGlyphCode, asciiCode);
         }
 
         // TODO: isn't there a way to reuse the indices?
-        var factor = (vertexIndices.length / 6) * 4;
+        var factor = (outVertexIndices.length / 6) * 4;
 
-        vertexIndices.push(
+        outVertexIndices.push(
             0 + factor, 1 + factor, 2 + factor,
             1 + factor, 2 + factor, 3 + factor
         );
 
         // Add a quad (= two triangles) per glyph.
-        vertexElements.push(
+        outVertexElements.push(
             pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
             pen.x + ((xOffset + kern + width) * scale), pen.y + yOffset * scale,
             pen.x + ((xOffset + kern) * scale), pen.y + (height + yOffset) * scale,
@@ -12740,7 +12938,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
              bottomLeftX + width, bottomLeftY + height // top right
          );*/
 
-        textureElements.push(
+        outTextureElements.push(
             posX, posY,
             posX + width, posY,
             posX, posY + height,
@@ -12750,550 +12948,11 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
     }
 
     // TODO: not sure kern should actually be added to the pen or just help with the offset when drawing.
-    pen.x = pen.x + this.getLetterSpacing() + ((xAdvance + kern) * scale);
+    pen.x = pen.x + fontStyle.getLetterSpacing() + ((xAdvance + kern) * scale);
 
     // return the last glyph ascii code
     return asciiCode;
 };
-;/**
- * Created by Luis on 08/02/2017.
- */
-
-
-// TODO: replace for extensions.js array insert? supports multiple arguments...
-Array.prototype.insert = function (index) {
-    this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
-};
-
-// TODO: place in another file?
-String.prototype.insert = function (index, string) {
-    if (index > 0)
-        return this.substring(0, index) + string + this.substring(index, this.length);
-    else
-        return string + this;
-};
-
-function TextLayout(font) {
-
-    // don't go further if font is invalid
-    if (!isObjectAssigned(font)) {
-        throw new Error("Cannot create TextLayout without a valid font parameter.");
-    }
-
-    this._font = font;
-
-    this._wordWrap = true;
-    this._characterWrap = true;
-    this._alignType = TextLayout.AlignType.LEFT;
-    this._fontSize = 70;
-    this._letterSpacing = 0;
-}
-
-TextLayout.AlignType = {
-    LEFT: 1,
-    CENTER: 2,
-    RIGHT: 3
-};
-
-TextLayout.prototype.getWordWrap = function () {
-    return this._wordWrap;
-};
-
-TextLayout.prototype.setWordWrap = function (value) {
-    return this._wordWrap = value;
-};
-
-TextLayout.prototype.getCharacterWrap = function () {
-    return this._characterWrap;
-};
-
-TextLayout.prototype.setCharacterWrap = function (value) {
-    return this._characterWrap = value;
-};
-
-TextLayout.prototype.getAlignType = function (){
-    return this._alignType;
-};
-
-TextLayout.prototype.setAlignType = function (alignType){
-    this._alignType = alignType;
-};
-
-TextLayout.prototype.getFontSize = function (){
-    return this._fontSize;
-};
-
-TextLayout.prototype.setFontSize = function (size){
-    this._fontSize = size;
-};
-
-TextLayout.prototype.getLetterSpacing = function (){
-    return this._letterSpacing;
-};
-
-TextLayout.prototype.setLetterSpacing = function (spacing){
-    this._letterSpacing = spacing;
-};
-
-/**
- *
- * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
- * @returns {number|null} font's character's ID or null if invalid
- * @private
- */
-TextLayout.prototype.findCharID = function(char){
-    // make sure the parameter is valid
-    if (!char || !this._font || !this._font.chars || this._font.chars.length == 0){
-        return null;
-    }
-    // retrieve character's ascii code
-    var charCode = char.charCodeAt(0);
-
-    // if code is invalid, no need to go further
-    if (!charCode){
-        return null;
-    }
-
-    // go through every character
-    for (var i = 0; i < this._font.chars.length; i++){
-        // store glyphID (Ascii Code)
-        var glyphID = this._font.chars[i].id;
-        // if that's the code we are looking for
-        if (glyphID === charCode){
-            // return the iteration number (the position of that character inside the array of characters)
-            return i;
-        }
-    }
-    return null;
-};
-
-/**
- * Retrieves Kerning value between the given characters
- * @param {number} firstCharCode first character ascii code
- * @param {number} secondCharCode second character ascii code
- * @returns {number} kerning value or 0 if not found
- * @private
- */
-TextLayout.prototype.getKerning = function (firstCharCode, secondCharCode) {
-    if (!firstCharCode || !secondCharCode || !this._font || !this._font.kernings
-        || !this._font.kernings.length || this._font.kernings.length === 0) {
-        return 0;
-    }
-
-    // retrieve kernings' table
-    var table = this._font.kernings;
-
-    // iterate through the kernings
-    for (var i = 0; i < table.length; i++) {
-        var kern = table[i];
-        // if there is a match
-        if (kern.first === firstCharCode && kern.second === secondCharCode)
-        // return kerning
-            return kern.amount;
-    }
-
-    // return 0 if there is no match
-    return 0;
-};
-
-/**
- * Measures a given character's width based on the provided scale
- * @param {string} char character to measure
- * @param {number} scale scale of the given character
- * @returns {number} the character width if valid and 0 if invalid
- * @private
- */
-TextLayout.prototype.measureCharacterWidth = function(char, scale){
-
-    // if parameters are missing
-    if (!char || !scale || scale <= 0){
-        return 0;
-    }
-
-    // retrieve character ID
-    var charID = this.findCharID(char);
-
-    // don't go further if char id is invalid
-    if (charID === null){
-        return 0;
-    }
-
-    // calculate character 'width'
-    // xadvance is based not only on the width but also on the padding, thus being used instead of width (?)
-    var charWidth = this._font.chars[charID].xadvance * scale;
-
-    return charWidth;
-};
-
-/**
- * Measures the given text's width based on the provided scale
- * @param {string} text text to measure
- * @param {number} scale scale of the given text
- * @returns {number} the text width if valid and 0 if invalid
- * @private
- */
-TextLayout.prototype.measureTextWidth = function(text, scale){
-    // don't go further if text or scale do not exist
-    if (!text || !scale || scale <= 0){
-        return 0;
-    }
-
-    // set initial width
-    var width = 0;
-    // set initial letter spacing (for the first character, basically)
-    var currentLetterSpacing = 0;
-    // just to keep track of reverting to the original letter spacing value, so we only do it once
-    var revertedToOriginalValue = false;
-
-    // iterate through every character
-    for (var c = 0; c < text.length; c++){
-        // retrieve character at position c
-        var char = text[c];
-
-        // if there is already one or more valid characters, then we can use the actual letter spacing value
-        if (!revertedToOriginalValue && width > 0){
-            // revert to original value
-            currentLetterSpacing = this.getLetterSpacing();
-            // make sure we only enter this condition once
-            revertedToOriginalValue = true;
-        }
-
-        // store character's width temporarily
-        var tempWidth = this.measureCharacterWidth(char, scale);
-
-        // if valid
-        if (tempWidth > 0){
-            // add its width
-            // if tempWidth was 0, adding letter spacing wouldn't make much sense.
-            width += tempWidth + currentLetterSpacing;
-        }
-    }
-
-    // return total width
-    return width;
-};
-
-TextLayout.prototype.wrapWordsShortVersion = function(text, maxLineWidth, scale){
-    // retrieve words
-    var words = text.split(' ');
-
-    // no need to go further if there is only 1 word
-    if (words.length == 1){
-        return words;
-    }
-
-    var result = [];
-
-    var whitespace = " ";
-    // get first word and remove it from the array
-    var currentLine = words.shift();
-
-    // iterate through the words
-    for (var w = 0; w < words.length; w++){
-        // retrieve word
-        var word = words[w];
-
-        // simulate line width with the current word and whitespaces in between
-        var tempLine = currentLine + whitespace + word;
-
-        var tempWidth = this.measureTextWidth(tempLine, scale);
-
-        if (tempWidth > maxLineWidth){
-            result.push(currentLine);
-            currentLine = word;
-        }
-        else {
-            currentLine += whitespace + word;
-        }
-    }
-
-    // push last line
-    result.push(currentLine);
-
-    return result;
-};
-
-/**
- * Wraps the words of a given text depending on a maximum width and text scale
- * @param {string} text text to wrap
- * @param {number} maxLineWidth maximum line width
- * @param {number} scale scale of the given text
- * @returns {Array} wrapped text in lines
- * @private
- */
-TextLayout.prototype.wrapWordsLongVersion = function(text, maxLineWidth, scale){
-    var result = [];
-
-    if(!text || !maxLineWidth || !scale || maxLineWidth <= 0 || scale <= 0){
-        return result;
-    }
-
-    // retrieve words
-    var words = text.split(' ');
-
-    // get first word and remove it from the array
-    var currentLine = "";//words.shift();
-    // store its width
-    var currentLineWordWidth = 0;//this.measureTextWidth(currentLine, scale);
-
-    var whitespace = "";// " ";
-    var whitespaceWidth = 0;//this.measureCharacterWidth(whitespace, scale);
-    // just to keep track of reverting whitespace to its original value (its real width)
-    var revertedToOriginalValue = false;
-
-    // iterate through the words
-    for (var w = 0; w < words.length; w++){
-        // retrieve word
-        var word = words[w];
-
-        // just a way to not consider whitespace and its width (along with a possible letter spacing value)
-        // if there aren't any characters or words already in the current line.
-        if (!revertedToOriginalValue && currentLineWordWidth > 0){
-            whitespace = " ";
-            // letter spacing also affects the whitespace width when there is at least 1 word
-            whitespaceWidth = this.measureCharacterWidth(whitespace, scale) + this.getLetterSpacing();
-            // make sure we only enter this condition once (per line)
-            revertedToOriginalValue = true;
-        }
-
-        // calculate word width according to the text scale (not characters length!)
-        var wordWidth = this.measureTextWidth(word, scale);
-
-        // TODO: think of a cleaner way of doing this? maybe wrapTextByCharacter shouldn't return line objects?
-        if (this.getCharacterWrap() && wordWidth > maxLineWidth){
-            var tempLine = currentLine + whitespace + word;
-
-            var characterWrappedLines = this.wrapTextByCharacter(tempLine, scale, maxLineWidth);
-
-            // currentLine is the last line so maybe next word also fits
-            currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
-            currentLineWordWidth = this.measureTextWidth(currentLine, scale);
-            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
-            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
-            whitespace = "";
-            whitespaceWidth = 0;
-            revertedToOriginalValue = false;
-
-            // push the others
-            for (var cline = 0; cline < characterWrappedLines.length; cline++){
-                var characterLine = characterWrappedLines[cline].chars.join("");
-                result.push(characterLine);
-            }
-            // no need to go further in this iteration
-            continue;
-        }
-
-        // simulate line width with the current word, a whitespace in between and also extra line spacing if any
-        var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
-
-        if (tempWidth > maxLineWidth){
-            result.push(currentLine);
-            currentLine = word;
-            currentLineWordWidth = wordWidth;
-            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
-            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
-            whitespace = "";
-            whitespaceWidth = 0;
-            revertedToOriginalValue = false;
-        }
-        else {
-            currentLine += whitespace + word;
-            currentLineWordWidth += whitespaceWidth + wordWidth;
-        }
-    }
-
-    // push last line
-    result.push(currentLine);
-
-    return result;
-};
-
-/**
- * Wraps the characters of a given text depending on a maximum width and text scale
- * @param {string} text text to wrap
- * @param {number} scale scale of the given text
- * @param {number} maxLineWidth maximum line width
- * @returns {Array} wrapped text in lines
- * @private
- */
-TextLayout.prototype.wrapTextByCharacter = function(text, scale, maxLineWidth){
-    // create empty array
-    var lines = [];
-
-    // TODO: trim?
-    // if word or scale are empty, no need to go further
-    if (!text || !scale || !maxLineWidth || scale <= 0 || maxLineWidth <= 0){
-        return lines;
-    }
-
-    // create first line, since it's sure to have some text
-    lines.push({
-        chars: [],
-        width: 0
-    });
-
-    // set initial value for letter spacing (for the first character iteration, basically...)
-    var currentLetterSpacing = 0;
-    // just to keep track of reverting to letter spacing original value
-    var revertedToOriginalValue = false;
-
-    // iterate through text characters
-    for (var c = 0; c < text.length; c++){
-        // retrieve text character
-        var char = text[c];
-
-        // store current line index
-        var currentLine = lines.length - 1;
-
-        // after the first (valid) character of current line, get the actual value of letter spacing
-        if (!revertedToOriginalValue && lines[currentLine].width > 0){
-            // revert to original value
-            currentLetterSpacing = this.getLetterSpacing();
-            // make sure we only enter this condition once (per line, thus the resets down below)
-            revertedToOriginalValue = true;
-        }
-
-        // retrieve character width
-        var charWidth = this.measureCharacterWidth(char, scale);
-
-        // current width + char width + letter spacing if there is at least 1 character
-        var tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
-
-        // if current line width + the current character width is > than the max width
-        if(tempWidth > maxLineWidth){
-            // create a new and empty line
-            lines.push({
-                chars: [],
-                width: 0
-            });
-
-            // update current line index
-            currentLine++;
-            // reset letter spacing!
-            currentLetterSpacing = 0;
-            // and the variable that keeps track of reverting to actual letter spacing value
-            revertedToOriginalValue = false;
-
-            // skip if the character is a whitespace
-            if (char === " "){
-                continue;
-            }
-        }
-
-        // add character and its width to current line (plus letter spacing if there is at least 1 character)
-        lines[currentLine].width += charWidth + currentLetterSpacing;
-        lines[currentLine].chars.push(char);
-    }
-
-    return lines;
-};
-
-/**
- * Converts a given text into a Line Object, with an array of characters and the line total width
- * @param {string} text text to convert into a line object
- * @param {number} scale scale of the given text
- * @returns {{chars: Array, width: number}}
- * @private
- */
-TextLayout.prototype.convertTextToLine = function(text, scale){
-    // define empty line
-    var line = {
-        chars: Array(),
-        width: 0
-    };
-
-    // return empty if any of the values is invalid
-    if (!text || !scale || scale <= 0){
-        return line;
-    }
-
-    // set line characters and width
-    line.chars = text.split("");
-    line.width = this.measureTextWidth(text, scale);
-
-    return line;
-};
-
-/**
- * Creates the definitive lines to draw onto the screen
- * @param {string} text text to draw
- * @param {number} scale scale of the text
- * @param {number} maxLineWidth maximum line width
- * @returns {Array} text split into lines
- * @private
- */
-TextLayout.prototype.measureText = function (text, scale, maxLineWidth) {
-    // create empty array
-    var resultLines = [];
-
-    // TODO: trim text? guess that, at least technically, a lot of spaces should still be drawn...
-    // if text or scale don't exist, no need to go further
-    if (!text || !scale || scale <= 0){
-        return resultLines;
-    }
-
-    // create first line, since it's sure to have some text
-    resultLines.push({
-        chars: [],
-        width: 0
-    });
-
-    // store original text
-    var useText = text;
-
-    // create array for user defined lines
-    var userDefinedLines = [];
-
-    var wordWrap = this.getWordWrap();
-
-    // word wrap by inserting \n in the original text
-    if (wordWrap){
-        // initialize resulting text
-        var wrappedText = "";
-        // split text into lines defined by the user
-        userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
-
-        // iterate through lines
-        for (var l = 0; l < userDefinedLines.length; l++){
-            // wrap line
-            var wrappedLine = this.wrapWordsLongVersion(userDefinedLines[l], maxLineWidth, scale).join('\n');
-            // always insert a break at the end since the split gets rid of the user defined breaks...
-            wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
-            // concatenate to resulting wrapping text
-            wrappedText = wrappedText.concat(wrappedLine);
-        }
-
-        // assign useText to resulting wrapping text
-        useText = wrappedText;
-    }
-
-    // split text into lines defined by the users (and also word wrapped now ;))
-    userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
-
-    // iterate through user defined lines (with special characters)
-    for (var l = 0; l < userDefinedLines.length; l++){
-
-        var userDefinedLine = userDefinedLines[l];
-
-        var preparedLines = [];
-
-        // only perform character wrap if word wrap isn't enabled in the first place
-        if (!wordWrap && this.getCharacterWrap()) {
-            preparedLines = this.wrapTextByCharacter(userDefinedLine, scale, maxLineWidth);
-        }
-        else {
-            preparedLines.push(this.convertTextToLine(userDefinedLine, scale));
-        }
-
-        // extended result array (does not create a new array such as concat)
-        Array.prototype.push.apply(resultLines, preparedLines);
-    }
-
-    return resultLines;
-};
-
-
-
 ;/**
  * Texture2D class
  */
@@ -15085,6 +14744,433 @@ Path.relativeTo = function (pathA, pathB) {
 Path.makeRelative = function (basePath, fullPath) {
     return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
 };;/**
+ * Created by Luis on 08/02/2017.
+ */
+
+var TextUtils = function () {
+};
+
+// TODO: replace for extensions.js array insert? supports multiple arguments...
+Array.prototype.insert = function (index) {
+    this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
+};
+
+// TODO: place in another file?
+String.prototype.insert = function (index, string) {
+    if (index > 0)
+        return this.substring(0, index) + string + this.substring(index, this.length);
+    else
+        return string + this;
+};
+
+/**
+ * Measures a given character's width based on the provided font style
+ * @param {string} char character to measure
+ * @param {FontStyle} fontStyle font style to measure with
+ * @returns {number} the character width if valid and 0 if invalid
+ * @public
+ */
+TextUtils.measureCharacterWidth = function(fontStyle, char){
+    // don't go further if parameters are invalid
+    if (!fontStyle || !char) {
+        return 0;
+    }
+
+    var scale = fontStyle.getScale();
+
+    // if scale is invalid (0 or null)
+    if (!scale){
+        return 0;
+    }
+
+    // retrieve character ID
+    var charID = fontStyle.findCharID(char);
+
+    // don't go further if char id is invalid
+    if (charID === null){
+        return 0;
+    }
+
+    // calculate character 'width'
+    // xadvance is based not only on the width but also on the padding, thus being used instead of width (?)
+    var charWidth = fontStyle.getFontDescription().chars[charID].xadvance * scale;
+
+    return charWidth;
+};
+
+/**
+ * Measures the given text string width based on the provided font style
+ * @param {FontStyle} fontStyle font style to measure with
+ * @param {string} textStr text string to measure
+ * @returns {number} the given text string width if valid and 0 if invalid
+ * @public
+ */
+TextUtils.measureTextWidth = function(fontStyle, textStr){
+    // don't go further if parameters or scale are invalid
+    if (!fontStyle || !textStr || !fontStyle.getScale()){
+        return 0;
+    }
+
+    // set initial width
+    var width = 0;
+    // set initial letter spacing (for the first character, basically)
+    var currentLetterSpacing = 0;
+    // just to keep track of reverting to the original letter spacing value, so we only do it once
+    var revertedToOriginalValue = false;
+
+    // iterate through every character
+    for (var c = 0; c < textStr.length; c++){
+        // retrieve character at position c
+        var char = textStr[c];
+
+        // if there is already one or more valid characters, then we can use the actual letter spacing value
+        if (!revertedToOriginalValue && width > 0){
+            // revert to original value
+            currentLetterSpacing = fontStyle.getLetterSpacing();
+            // make sure we only enter this condition once
+            revertedToOriginalValue = true;
+        }
+
+        // store character's width temporarily
+        var tempWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+
+        // if valid
+        if (tempWidth > 0){
+            // add its width
+            // if tempWidth was 0, adding letter spacing wouldn't make much sense.
+            width += tempWidth + currentLetterSpacing;
+        }
+    }
+
+    // return total width
+    return width;
+};
+
+TextUtils.wrapWordsShortVersion = function(fontStyle, textStr, maxLineWidth){
+
+    var result = [];
+
+    if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+        return result;
+    }
+
+    // retrieve words
+    var words = textStr.split(' ');
+
+    // no need to go further if there is only 1 word
+    if (words.length == 1){
+        return words;
+    }
+
+    var whitespace = " ";
+    // get first word and remove it from the array
+    var currentLine = words.shift();
+
+    // iterate through the words
+    for (var w = 0; w < words.length; w++){
+        // retrieve word
+        var word = words[w];
+
+        // simulate line width with the current word and whitespaces in between
+        var tempLine = currentLine + whitespace + word;
+
+        var tempWidth = TextUtils.measureTextWidth(fontStyle, tempLine);
+
+        if (tempWidth > maxLineWidth){
+            result.push(currentLine);
+            currentLine = word;
+        }
+        else {
+            currentLine += whitespace + word;
+        }
+    }
+
+    // push last line
+    result.push(currentLine);
+
+    return result;
+};
+
+/**
+ * Wraps the words of a given text depending on a maximum width and font style
+ * @param {FontStyle} fontStyle font style to measure with
+ * @param {string} textStr text string to wrap
+ * @param {number} maxLineWidth maximum width per line
+ * @param {boolean} characterWrap whether it should character wrap or not
+ * @returns {Array} wrapped text in lines
+ * @public
+ */
+TextUtils.wrapWordsLongVersion = function(fontStyle, textStr, maxLineWidth, characterWrap){
+    var result = [];
+
+    if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+        return result;
+    }
+
+    // retrieve words
+    var words = textStr.split(' ');
+
+    // get first word and remove it from the array
+    var currentLine = "";//words.shift();
+    // store its width
+    var currentLineWordWidth = 0;//TextUtils.measureTextWidth(currentLine, scale);
+
+    var whitespace = "";// " ";
+    var whitespaceWidth = 0;//TextUtils.measureCharacterWidth(whitespace, scale);
+    // just to keep track of reverting whitespace to its original value (its real width)
+    var revertedToOriginalValue = false;
+
+    // iterate through the words
+    for (var w = 0; w < words.length; w++){
+        // retrieve word
+        var word = words[w];
+
+        // just a way to not consider whitespace and its width (along with a possible letter spacing value)
+        // if there aren't any characters or words already in the current line.
+        if (!revertedToOriginalValue && currentLineWordWidth > 0){
+            whitespace = " ";
+            // letter spacing also affects the whitespace width when there is at least 1 word
+            whitespaceWidth = TextUtils.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
+            // make sure we only enter this condition once (per line)
+            revertedToOriginalValue = true;
+        }
+
+        // calculate word width according to the text scale (not characters length!)
+        var wordWidth = TextUtils.measureTextWidth(fontStyle, word);
+
+        // TODO: think of a cleaner way of doing this? maybe wrapTextByCharacter shouldn't return line objects?
+        if (characterWrap && wordWidth > maxLineWidth){
+            var tempLine = currentLine + whitespace + word;
+
+            var characterWrappedLines = TextUtils.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
+
+            // currentLine is the last line so maybe next word also fits
+            currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
+            currentLineWordWidth = TextUtils.measureTextWidth(fontStyle, currentLine);
+            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+            whitespace = "";
+            whitespaceWidth = 0;
+            revertedToOriginalValue = false;
+
+            // push the others
+            for (var cline = 0; cline < characterWrappedLines.length; cline++){
+                var characterLine = characterWrappedLines[cline].chars.join("");
+                result.push(characterLine);
+            }
+            // no need to go further in this iteration
+            continue;
+        }
+
+        // simulate line width with the current word, a whitespace in between and also extra line spacing if any
+        var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
+
+        if (tempWidth > maxLineWidth){
+            result.push(currentLine);
+            currentLine = word;
+            currentLineWordWidth = wordWidth;
+            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+            whitespace = "";
+            whitespaceWidth = 0;
+            revertedToOriginalValue = false;
+        }
+        else {
+            currentLine += whitespace + word;
+            currentLineWordWidth += whitespaceWidth + wordWidth;
+        }
+    }
+
+    // push last line
+    result.push(currentLine);
+
+    return result;
+};
+
+/**
+ * Wraps the characters of a given text depending on a maximum width and text scale
+ * @param {FontStyle} fontStyle font style to measure with
+ * @param {string} textStr text string to wrap
+ * @param {number} maxLineWidth maximum width per line
+ * @returns {Array} wrapped text in lines
+ * @public
+ */
+TextUtils.wrapTextByCharacter = function(fontStyle, textStr, maxLineWidth){
+    // create empty array
+    var lines = [];
+
+    // TODO: trim?
+    // if parameters are invalid, no need to go further
+    if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0){
+        return lines;
+    }
+
+    // create first line, since it's sure to have some text
+    lines.push({
+        chars: [],
+        width: 0
+    });
+
+    // set initial value for letter spacing (for the first character iteration, basically...)
+    var currentLetterSpacing = 0;
+    // just to keep track of reverting to letter spacing original value
+    var revertedToOriginalValue = false;
+
+    // iterate through text characters
+    for (var c = 0; c < textStr.length; c++){
+        // retrieve text character
+        var char = textStr[c];
+
+        // store current line index
+        var currentLine = lines.length - 1;
+
+        // after the first (valid) character of current line, get the actual value of letter spacing
+        if (!revertedToOriginalValue && lines[currentLine].width > 0){
+            // revert to original value
+            currentLetterSpacing = fontStyle.getLetterSpacing();
+            // make sure we only enter this condition once (per line, thus the resets down below)
+            revertedToOriginalValue = true;
+        }
+
+        // retrieve character width
+        var charWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+
+        // current width + char width + letter spacing if there is at least 1 character
+        var tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
+
+        // if current line width + the current character width is > than the max width
+        if(tempWidth > maxLineWidth){
+            // create a new and empty line
+            lines.push({
+                chars: [],
+                width: 0
+            });
+
+            // update current line index
+            currentLine++;
+            // reset letter spacing!
+            currentLetterSpacing = 0;
+            // and the variable that keeps track of reverting to actual letter spacing value
+            revertedToOriginalValue = false;
+
+            // skip if the character is a whitespace
+            if (char === " "){
+                continue;
+            }
+        }
+
+        // add character and its width to current line (plus letter spacing if there is at least 1 character)
+        lines[currentLine].width += charWidth + currentLetterSpacing;
+        lines[currentLine].chars.push(char);
+    }
+
+    return lines;
+};
+
+/**
+ * Converts a given text into a Line Object, with an array of characters and the line total width
+ * @param {FontStyle} fontStyle font style to measure with
+ * @param {string} textStr text string to convert into a line object
+ * @returns {{chars: Array, width: number}}
+ * @public
+ */
+TextUtils.convertTextStringToLineFormat = function(fontStyle, textStr){
+    // define empty line
+    var line = {
+        chars: Array(),
+        width: 0
+    };
+
+    // return empty if any of the values or scale is invalid
+    if (!fontStyle || !textStr || !fontStyle.getScale()){
+        return line;
+    }
+
+    // set line characters and width
+    line.chars = textStr.split("");
+    line.width = TextUtils.measureTextWidth(fontStyle, textStr);
+
+    return line;
+};
+
+/**
+ * Creates the definitive lines to draw onto the screen
+ * @param {FontStyle} fontStyle font style to measure with
+ * @param {string} textStr text string to draw
+ * @param {number} maxLineWidth maximum line width
+ * @param {boolean} wordWrap whether it should word wrap or not
+ * @param {boolean} characterWrap whether it should character wrap or not
+ * @returns {Array} text split into lines
+ * @public
+ */
+TextUtils.measureText = function (fontStyle, textStr, maxLineWidth, wordWrap, characterWrap) {
+    // create empty array
+    var resultLines = [];
+
+    // if parameters or scale are invalid, there is no need to go further
+    if (!fontStyle || !textStr || !maxLineWidth || !fontStyle.getScale()){
+        return resultLines;
+    }
+
+    // create first line, since it's sure to have some text
+    resultLines.push({
+        chars: [],
+        width: 0
+    });
+
+    // store original text
+    var useText = textStr;
+
+    // create array for user defined lines
+    var userDefinedLines = [];
+
+    // word wrap by inserting \n in the original text
+    if (wordWrap){
+        // initialize resulting text
+        var wrappedText = "";
+        // split text into lines defined by the user
+        userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
+
+        // iterate through lines
+        for (var l = 0; l < userDefinedLines.length; l++){
+            // wrap line
+            var wrappedLine = TextUtils.wrapWordsLongVersion(fontStyle, userDefinedLines[l],
+                    maxLineWidth, characterWrap).join('\n');
+            // always insert a break at the end since the split gets rid of the user defined breaks...
+            wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
+            // concatenate to resulting wrapping text
+            wrappedText = wrappedText.concat(wrappedLine);
+        }
+
+        // assign useText to resulting wrapping text
+        useText = wrappedText;
+    }
+
+    // split text into lines defined by the users (and also word wrapped now ;))
+    userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
+
+    // iterate through user defined lines (with special characters)
+    for (var l = 0; l < userDefinedLines.length; l++){
+
+        var userDefinedLine = userDefinedLines[l];
+
+        var preparedLines = [];
+
+        // only perform character wrap if word wrap isn't enabled in the first place
+        if (!wordWrap && characterWrap) {
+            preparedLines = TextUtils.wrapTextByCharacter(fontStyle, userDefinedLine, maxLineWidth);
+        }
+        else {
+            preparedLines.push(TextUtils.convertTextStringToLineFormat(fontStyle, userDefinedLine));
+        }
+
+        // extended result array (does not create a new array such as concat)
+        Array.prototype.push.apply(resultLines, preparedLines);
+    }
+
+    return resultLines;
+};
+;/**
  * General utility class
  */
 var Utility = function () {

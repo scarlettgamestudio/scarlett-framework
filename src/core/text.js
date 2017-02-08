@@ -17,19 +17,14 @@ function Text(params) {
 
     GameObject.call(this, params);
 
-    // don't go further if font is invalid
-    if (!isObjectAssigned(params.font)) {
-        throw new Error("Cannot create " + params.name + " without a valid font parameter.");
-    }
+    this._fontStyle = new FontStyle(params.font || {});
 
-    this._font = params.font;
+    this._fontStyle.setFontSize(params.fontSize || 70.0);
+    this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
 
-    this._textLayout = new TextLayout(this._font);
-    this._textLayout.setWordWrap(true);
-    this._textLayout.setCharacterWrap(true);
-    this._textLayout.setAlignType(TextLayout.AlignType.LEFT);
-    this._textLayout.setFontSize(params.fontSize || 70.0);
-    this._textLayout.setLetterSpacing(params.letterSpacing || 0);
+    this._wordWrap = true;
+    this._characterWrap = true;
+    this._alignType = Text.AlignType.LEFT;
 
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
@@ -68,6 +63,12 @@ function Text(params) {
 
 inheritsFrom(Text, GameObject);
 
+Text.AlignType = {
+    LEFT: 1,
+    CENTER: 2,
+    RIGHT: 3
+};
+
 // TODO: remove
 var maxWidth = 500;
 
@@ -90,7 +91,7 @@ Text.prototype.render = function (delta, spriteBatch) {
     gl.enableVertexAttribArray(this._textShader.attributes.aTexCoord);
 
     // draw text
-    this._drawText(this.getText(), this.getFontSize());
+    this._drawText();
 
     var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
 
@@ -135,9 +136,6 @@ Text.prototype.render = function (delta, spriteBatch) {
     // 4 / 512 = 0.0058 = max smoothing value
     this._dropShadowOffset.set(0.005, 0.005);
     gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
-
-
-    //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
 
     var color = this.getColor();
 
@@ -228,6 +226,10 @@ Text.prototype.getColor = function () {
     return this._color;
 };
 
+/**
+ * Sets the outline effect of the text
+ * @param {Stroke} stroke outline effect of the text
+ */
 Text.prototype.setStroke = function (stroke) {
     this._stroke = stroke;
 };
@@ -240,6 +242,10 @@ Text.prototype.getDropShadow = function () {
     return this._dropShadow;
 };
 
+/**
+ * Sets the dropshadow effect of the text
+ * @param {Stroke} shadow dropshadow effect of the text
+ */
 Text.prototype.setDropShadow = function (shadow) {
     this._dropShadow = shadow;
 };
@@ -252,13 +258,39 @@ Text.prototype.getText = function () {
     return this._text;
 };
 
+Text.prototype.getFontStyle = function () {
+    return this._fontStyle;
+};
+
+/**
+ * Sets the font style
+ * @param {FontStyle} fontStyle font style
+ */
+Text.prototype.setFontStyle = function (fontStyle) {
+    this._fontStyle = fontStyle;
+};
+
+/*
+    Just for API sake
+ */
+
 Text.prototype.setFontSize = function (size) {
-    this._textLayout.setFontSize(size);
+    this.getFontStyle().setFontSize(size);
 };
 
 Text.prototype.getFontSize = function () {
-    return this._textLayout.getFontSize();
+    return this.getFontStyle().getFontSize();
 };
+
+Text.prototype.getLetterSpacing = function(){
+    return this.getFontStyle().getLetterSpacing();
+};
+
+Text.prototype.setLetterSpacing = function(value){
+    this.getFontStyle().setLetterSpacing(value);
+};
+
+// #############
 
 Text.prototype.setGamma = function (gamma) {
     this._gamma = gamma;
@@ -277,27 +309,31 @@ Text.prototype.getDebug = function () {
 };
 
 Text.prototype.setWordWrap = function (wrap) {
-    this._textLayout.setWordWrap(wrap);
+    this._wordWrap = wrap;
 };
 
 Text.prototype.getWordWrap = function () {
-    return this._textLayout.getWordWrap();
+    return this._wordWrap;
 };
 
 Text.prototype.setCharacterWrap = function (wrap) {
-    this._textLayout.setCharacterWrap(wrap);
+    this._characterWrap = wrap;
 };
 
 Text.prototype.getCharacterWrap = function () {
-    return this._textLayout.getCharacterWrap();
+    return this._characterWrap;
 };
 
+/**
+ * Sets Text alignment
+ * @param {Text.AlignType} alignType
+ */
 Text.prototype.setAlign = function (alignType) {
-    this._textLayout.setAlignType(alignType);
+    this._alignType = alignType;
 };
 
 Text.prototype.getAlign = function () {
-    return this._textLayout.getAlignType();
+    return this._alignType;
 };
 
 Text.prototype.setTextureSrc = function (path) {
@@ -320,42 +356,71 @@ Text.prototype.getTextureSrc = function () {
     return this._textureSrc;
 };
 
-Text.prototype.getLetterSpacing = function(){
-    return this._textLayout.getLetterSpacing();
-};
-
-Text.prototype.setLetterSpacing = function(value){
-    this._textLayout.setLetterSpacing(value);
-};
-
 /**
- * Draws a given text onto the screen
- * @param {string} text text to draw onto the screen
- * @param {number} size font size
+ * Draws the text onto the screen
  * @private
  */
-Text.prototype._drawText = function (text, size) {
+Text.prototype._drawText = function () {
+    var fontStyle = this.getFontStyle();
 
-    // no need to go further if parameters or _font are invalid
-    if (!text || !size || size <= 0 || !this._font || !this._font.info ||
-                !this._font.info.size || this._font.info.size <= 0){
+    if (!fontStyle){
+        return;
+    }
+
+    var fontDescription = fontStyle.getFontDescription();
+
+    // don't go further if font description isn't valid either
+    if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight){
         return;
     }
 
     // line height; falls back to font size
-    var lineHeight = this._font.common.lineHeight || this.getFontSize();
-
-    // retrieve metrics size
-    var metricsSize = this._font.info.size;
+    var lineHeight = fontDescription.common.lineHeight || this.getFontSize();
 
     // text scale based on the font size
-    var scale = size / metricsSize;
+    var scale = fontStyle.getScale();
+
+    // don't go further if scale is invalid
+    if (!scale){
+        return;
+    }
 
     // create the lines to draw onto the screen
-    var lines = this._textLayout.measureText(text, scale, maxWidth);
+    var lines = TextUtils.measureText(fontStyle, this.getText(), maxWidth, this.getWordWrap(), this.getCharacterWrap());
 
     // draws lines
     this._drawLines(lines, scale, lineHeight);
+};
+
+/**
+ * Aligns a line according to its width and align type
+ * @param {number} width width of the line to align
+ * @returns {number} the aligned x position of the line
+ * @private
+ */
+Text.prototype._alignLine = function (width) {
+    // set return variable
+    var x;
+
+    // change beginning of the line depending on the chosen alignment
+    switch(this.getAlign()) {
+        case Text.AlignType.LEFT:
+            x = this.transform.getPosition().x;
+            break;
+        case Text.AlignType.CENTER:
+            x = this.transform.getPosition().x + maxWidth / 2 - width / 2;
+            break;
+        case Text.AlignType.RIGHT:
+            x = this.transform.getPosition().x + maxWidth - width;
+            break;
+        // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
+        // case FontStyle.AlignType.JUSTIFIED:
+        default:
+            x = 0;
+            break;
+    }
+
+    return x;
 };
 
 /**
@@ -367,8 +432,9 @@ Text.prototype._drawText = function (text, size) {
  */
 Text.prototype._drawLines = function(lines, scale, lineHeight){
 
+    // TODO: maybe throw new Error when simply returning? so errors can be seen in the console?
     // if parameters are invalid, no need to go further
-    if (!lines || !scale || scale <= 0 || !lineHeight){
+    if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0){
         return;
     }
 
@@ -388,28 +454,8 @@ Text.prototype._drawLines = function(lines, scale, lineHeight){
 
     for (var i = 0; i < lines.length; i++) {
 
-        var x;
-
-        // change beginning of the line depending on the chosen alignment
-        switch(this.getAlign()) {
-            case TextLayout.AlignType.LEFT:
-                x = this.transform.getPosition().x;
-                break;
-            case TextLayout.AlignType.CENTER:
-                x = this.transform.getPosition().x + maxWidth / 2 - lines[i].width / 2;
-                break;
-            case TextLayout.AlignType.RIGHT:
-                x = this.transform.getPosition().x + maxWidth - lines[i].width;
-                break;
-            // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
-            // case TextLayout.AlignType.JUSTIFIED:
-            default:
-                x = 0;
-                break;
-        }
-
-        // set line initial x
-        pen.x = x;
+        // align line accordingly
+        pen.x = this._alignLine(lines[i].width);
 
         // retrieve line characters
         var line = lines[i].chars;
@@ -468,23 +514,32 @@ Text.prototype._prepareLineToBeDrawn = function(line, scale, pen, vertexElements
  * @param {number} scale text scale
  * @param {{x: number, y: number}} pen pen to draw with
  * @param {number} lastGlyphCode last drawn glyph ascii code
- * @param {Array} vertexElements array to store the characters vertices
- * @param {Array} textureElements array to store the characters texture elements
- * @param {Array} vertexIndices array to store the vertices indices
+ * @param {Array} outVertexElements out array to store the characters vertices
+ * @param {Array} outTextureElements out array to store the characters texture elements
+ * @param {Array} outVertexIndices out array to store the vertices indices
  * @returns {number} drawn glyph ascii code or 0 if invalid
  * @private
  */
 Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
-                                        vertexElements, textureElements, vertexIndices) {
+                                        outVertexElements, outTextureElements, outVertexIndices) {
 
-    // if font or any of the parameters is missing, no need to go further
-    if (!this._font || !this._font.chars || !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
-                !vertexElements || !textureElements || !vertexIndices) {
+    var fontStyle = this.getFontStyle();
+
+    if (!fontStyle){
+        return 0;
+    }
+
+    var fontDescription = fontStyle.getFontDescription();
+
+    // if font's description or any of the parameters is missing, no need to go further
+    if (!fontDescription || !fontDescription.chars ||
+                !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
+                !outVertexElements || !outTextureElements || !outVertexIndices){
         return 0;
     }
 
     // retrieve char ID
-    var charID = this._textLayout.findCharID(char);
+    var charID = fontStyle.findCharID(char);
 
     // return if null
     if (charID === null){
@@ -492,7 +547,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
     }
 
     // retrieve font metrics
-    var metrics = this._font.chars[charID];
+    var metrics = fontDescription.chars[charID];
 
     // retrieve character metrics
     var width = metrics.width;
@@ -512,19 +567,19 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
         // if a glyph was created before
         if (lastGlyphCode){
             // retrieve kerning value between last character and current character
-            kern = this._textLayout.getKerning(lastGlyphCode, asciiCode);
+            kern = fontStyle.getKerning(lastGlyphCode, asciiCode);
         }
 
         // TODO: isn't there a way to reuse the indices?
-        var factor = (vertexIndices.length / 6) * 4;
+        var factor = (outVertexIndices.length / 6) * 4;
 
-        vertexIndices.push(
+        outVertexIndices.push(
             0 + factor, 1 + factor, 2 + factor,
             1 + factor, 2 + factor, 3 + factor
         );
 
         // Add a quad (= two triangles) per glyph.
-        vertexElements.push(
+        outVertexElements.push(
             pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
             pen.x + ((xOffset + kern + width) * scale), pen.y + yOffset * scale,
             pen.x + ((xOffset + kern) * scale), pen.y + (height + yOffset) * scale,
@@ -551,7 +606,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
              bottomLeftX + width, bottomLeftY + height // top right
          );*/
 
-        textureElements.push(
+        outTextureElements.push(
             posX, posY,
             posX + width, posY,
             posX, posY + height,
@@ -561,7 +616,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
     }
 
     // TODO: not sure kern should actually be added to the pen or just help with the offset when drawing.
-    pen.x = pen.x + this.getLetterSpacing() + ((xAdvance + kern) * scale);
+    pen.x = pen.x + fontStyle.getLetterSpacing() + ((xAdvance + kern) * scale);
 
     // return the last glyph ascii code
     return asciiCode;
