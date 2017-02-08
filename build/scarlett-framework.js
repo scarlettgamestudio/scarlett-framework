@@ -12216,6 +12216,7 @@ function Text(params) {
     this._textLayout = new TextLayout(this._font);
     this._textLayout.setWordWrap(true);
     this._textLayout.setCharacterWrap(true);
+    this._textLayout.setAlignType(TextLayout.AlignType.LEFT);
 
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
@@ -12241,10 +12242,6 @@ function Text(params) {
     // need to normalize between those values
     this._dropShadowOffset = new Vector2(0, 0);
 
-    this._align = Text.AlignType.LEFT;
-
-
-
     // either 0 or 1
     this._debug = 0;
 
@@ -12260,12 +12257,6 @@ function Text(params) {
 }
 
 inheritsFrom(Text, GameObject);
-
-Text.AlignType = {
-    LEFT: 1,
-    CENTER: 2,
-    RIGHT: 3
-};
 
 Text.prototype.render = function (delta, spriteBatch) {
 
@@ -12489,11 +12480,11 @@ Text.prototype.getCharacterWrap = function () {
 };
 
 Text.prototype.setAlign = function (alignType) {
-    this._align = alignType;
+    this._textLayout.setAlignType(alignType);
 };
 
 Text.prototype.getAlign = function () {
-    return this._align;
+    return this._textLayout.getAlignType();
 };
 
 Text.prototype.setTextureSrc = function (path) {
@@ -13038,17 +13029,17 @@ Text.prototype._drawLines = function(lines, scale, lineHeight){
 
         // change beginning of the line depending on the chosen alignment
         switch(this.getAlign()) {
-            case Text.AlignType.LEFT:
+            case TextLayout.AlignType.LEFT:
                 x = this.transform.getPosition().x;
                 break;
-            case Text.AlignType.CENTER:
+            case TextLayout.AlignType.CENTER:
                 x = this.transform.getPosition().x + maxWidth / 2 - lines[i].width / 2;
                 break;
-            case Text.AlignType.RIGHT:
+            case TextLayout.AlignType.RIGHT:
                 x = this.transform.getPosition().x + maxWidth - lines[i].width;
                 break;
             // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
-            // case Text.AlignType.JUSTIFIED:
+            // case TextLayout.AlignType.JUSTIFIED:
             default:
                 x = 0;
                 break;
@@ -13255,8 +13246,14 @@ function TextLayout(font) {
 
     this._wordWrap = true;
     this._characterWrap = true;
-
+    this._alignType = TextLayout.AlignType.LEFT;
 }
+
+TextLayout.AlignType = {
+    LEFT: 1,
+    CENTER: 2,
+    RIGHT: 3
+};
 
 TextLayout.prototype.getWordWrap = function () {
     return this._wordWrap;
@@ -13273,6 +13270,16 @@ TextLayout.prototype.getCharacterWrap = function () {
 TextLayout.prototype.setCharacterWrap = function (value) {
     return this._characterWrap = value;
 };
+
+TextLayout.prototype.getAlignType = function (){
+    return this._alignType;
+};
+
+TextLayout.prototype.setAlignType = function (alignType){
+    this._alignType = alignType;
+};
+
+
 
 ;/**
  * Texture2D class

@@ -2073,9 +2073,9 @@ gameScene.initialize = function () {
         document.getElementById('charwrap').checked = text.getCharacterWrap();
         document.getElementById('debug').checked = text.getDebug();
 
-        document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
-        document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
-        document.getElementById('alignRight').checked = text.getAlign() == Text.AlignType.RIGHT;
+        document.getElementById('alignLeft').checked = text.getAlign() == TextLayout.AlignType.LEFT;
+        document.getElementById('alignCenter').checked = text.getAlign() == TextLayout.AlignType.CENTER;
+        document.getElementById('alignRight').checked = text.getAlign() == TextLayout.AlignType.RIGHT;
 
     });
 
@@ -2122,8 +2122,8 @@ function updateValues()
     var charWrap = +document.getElementById('charwrap').checked;
     var debug = +document.getElementById('debug').checked;
 
-    var align = +document.getElementById('alignLeft').checked ? Text.AlignType.LEFT :
-                            +document.getElementById('alignCenter').checked ? Text.AlignType.CENTER : Text.AlignType.RIGHT;
+    var align = +document.getElementById('alignLeft').checked ? TextLayout.AlignType.LEFT :
+                            +document.getElementById('alignCenter').checked ? TextLayout.AlignType.CENTER : TextLayout.AlignType.RIGHT;
 
     text.setText(str);
     text.setGamma(gamma);
