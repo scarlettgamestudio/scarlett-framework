@@ -28,6 +28,7 @@ function Text(params) {
     this._textLayout.setWordWrap(true);
     this._textLayout.setCharacterWrap(true);
     this._textLayout.setAlignType(TextLayout.AlignType.LEFT);
+    this._textLayout.setFontSize(params.fontSize || 70.0);
 
     this._textureSrc = "";
     this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
@@ -35,8 +36,8 @@ function Text(params) {
 
     this._letterSpacing = params.letterSpacing || 0;
 
-    this._fontSize = 70.0;
-    this._gamma = 2;
+
+    this._gamma = params.gamma || 2.0;
 
     this._stroke = new Stroke();
     // TODO: normalize inside the setters?
@@ -166,7 +167,7 @@ Text.prototype.unload = function () {
     //this._textureShader.unload();
 };
 
-// TODO: rotate, scale... probably the same thing as in the sprite
+// TODO: rotate, scale... probably similar to sprite... think carefully about scaling?
 Text.prototype.getMatrix = function () {
     var x, y;
 
@@ -185,6 +186,7 @@ Text.prototype.getMatrix = function () {
 };
 
 Text.prototype.getType = function () {
+    // TODO: is it even needed? we could replace this method in gameobject by this.name
     return "Text";
 };
 
@@ -241,7 +243,6 @@ Text.prototype.setDropShadow = function (shadow) {
     this._dropShadow = shadow;
 };
 
-
 Text.prototype.setText = function (str) {
     this._text = str;
 };
@@ -251,11 +252,11 @@ Text.prototype.getText = function () {
 };
 
 Text.prototype.setFontSize = function (size) {
-    this._fontSize = size;
+    this._textLayout.setFontSize(size);
 };
 
 Text.prototype.getFontSize = function () {
-    return this._fontSize;
+    return this._textLayout.getFontSize();
 };
 
 Text.prototype.setGamma = function (gamma) {
@@ -920,7 +921,7 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
                                         vertexElements, textureElements, vertexIndices) {
 
     // if font or any of the parameters is missing, no need to go further
-    if (!this._font || !this._font.chars || !char || !scale || scale <= 0 || !pen  || lastGlyphCode == null ||
+    if (!this._font || !this._font.chars || !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
                 !vertexElements || !textureElements || !vertexIndices) {
         return 0;
     }

@@ -14,6 +14,7 @@ function TextLayout(font) {
     this._wordWrap = true;
     this._characterWrap = true;
     this._alignType = TextLayout.AlignType.LEFT;
+    this._fontSize = 70;
 }
 
 TextLayout.AlignType = {
@@ -44,6 +45,14 @@ TextLayout.prototype.getAlignType = function (){
 
 TextLayout.prototype.setAlignType = function (alignType){
     this._alignType = alignType;
+};
+
+TextLayout.prototype.getFontSize = function (){
+    return this._fontSize;
+};
+
+TextLayout.prototype.setFontSize = function (size){
+    this._fontSize = size;
 };
 
 
