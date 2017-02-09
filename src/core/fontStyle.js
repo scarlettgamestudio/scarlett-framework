@@ -2,6 +2,11 @@
  * Created by Luis on 08/02/2017.
  */
 
+/**
+ * FontStyle Class
+ * @param fontDescription
+ * @constructor
+ */
 function FontStyle(fontDescription) {
 
     this._fontDescription = fontDescription;

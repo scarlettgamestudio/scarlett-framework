@@ -25,12 +25,12 @@ Stroke.prototype.getColor = function(){
  */
 Stroke.prototype.setColor = function(color){
 
-    if (typeof color === Color){
-        this._color = color;
+    if (color instanceof Color){
+        this._color = color.clone();
         return;
     }
 
-    if (color.r == null || color.g == null || color.b == null || color.a == null){
+    if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)){
         throw new Error("The given stroke color is invalid");
     }
 
@@ -38,6 +38,10 @@ Stroke.prototype.setColor = function(color){
 };
 
 Stroke.prototype.setOpacity = function(alpha){
+
+    if (!isNumber(alpha)){
+        throw new Error("The given alpha is invalid");
+    }
 
     var currentColor = this.getColor();
 
@@ -53,6 +57,11 @@ Stroke.prototype.getSize = function(){
 };
 
 Stroke.prototype.setSize = function(size){
+
+    if (!isNumber(size)){
+        throw new Error("The given size is invalid");
+    }
+
     this._size = size;
 };
 

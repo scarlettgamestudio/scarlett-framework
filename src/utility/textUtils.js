@@ -2,6 +2,9 @@
  * Created by Luis on 08/02/2017.
  */
 
+/**
+ * TextUtils Class
+ */
 var TextUtils = function () {
 };
 
