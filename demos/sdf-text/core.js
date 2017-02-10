@@ -24,6 +24,7 @@ ContentLoader.load({
         {path: "assets/player_bullet1.png", alias: "playerBullet"},
         {path: "assets/enemy_1.png", alias: "enemy1"},
         {path: "assets/enemy_2.png", alias: "enemy2"},
+        {path: "assets/fnt/open-sans-sdf.png", alias: "fontBitmap"},
         {path: "assets/background.jpg", alias: "background"}
     ]
 }).then(function (result) {
@@ -37,8 +38,6 @@ gameScene.initialize = function () {
     enemyTex1 = new Texture2D(ContentLoader.getImage("enemy1"));
     enemyTex2 = new Texture2D(ContentLoader.getImage("enemy2"));
     backgroundTex = new Texture2D(ContentLoader.getImage("background"));
-<<<<<<< HEAD
-=======
     textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
 
     var load = require('load-bmfont');
@@ -77,18 +76,62 @@ gameScene.initialize = function () {
 
     });
 
->>>>>>> ddb1ae01afe57ed41c96dd55c24c0bda8ed3e54c
 
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
     sc.assignScript("backgroundAgent", background);
+    //gameScene.addGameObject(background);
 
     player = new Sprite({texture: playerTex});
     player.transform.setPosition(-300, 0);
     player.transform.setScale(0.50);
     player.transform.setRotation(MathHelper.PI);
     sc.assignScript("playerInput", player);
-    gameScene.addGameObject(player);
+    //gameScene.addGameObject(player);
+    //gameScene.addGameObject(text);
+};
+
+document.getElementById('str').oninput = updateValues;
+document.getElementById('stroke').oninput = updateValues;
+document.getElementById('scale').oninput = updateValues;
+document.getElementById('gamma').oninput = updateValues;
+document.getElementById('letterSpacing').oninput = updateValues;
+document.getElementById('wordwrap').onchange = updateValues;
+document.getElementById('charwrap').onchange = updateValues;
+document.getElementById('debug').onchange = updateValues;
+document.getElementById('alignLeft').onchange = updateValues;
+document.getElementById('alignCenter').onchange = updateValues;
+document.getElementById('alignRight').onchange = updateValues;
+document.getElementById('dropShadow').oninput = updateValues;
+
+function updateValues()
+{
+    var str = document.getElementById('str').value;
+    var stroke = +document.getElementById('stroke').value;
+
+    var scale = +document.getElementById('scale').value;
+    var gamma = +document.getElementById('gamma').value;
+    var letterSpacing = +document.getElementById('letterSpacing').value;
+
+    var dropShadowSmoothing = +document.getElementById('dropShadow').value;
+
+    var wordWrap = +document.getElementById('wordwrap').checked;
+    var charWrap = +document.getElementById('charwrap').checked;
+    var debug = +document.getElementById('debug').checked;
+
+    var align = +document.getElementById('alignLeft').checked ? Text.AlignType.LEFT :
+                            +document.getElementById('alignCenter').checked ? Text.AlignType.CENTER : Text.AlignType.RIGHT;
+
+    text.setText(str);
+    text.setGamma(gamma);
+    text.setFontSize(scale);
+    text.getStroke().setSize(stroke);
+    text.getDropShadow().setSize(dropShadowSmoothing);
+    text.setWordWrap(wordWrap);
+    text.setCharacterWrap(charWrap);
+    text.setDebug(debug);
+    text.setAlign(align);
+    text.setLetterSpacing(letterSpacing);
 };
 
 gameScene.lateUpdate = function (delta) {
@@ -118,6 +161,9 @@ gameScene.lateRender = function (delta) {
         this._spriteBatch.storeSprite(enemies[i]);
     }
 
+    if (text) {
+        text.render(delta, this._spriteBatch);
+    }
 };
 
 gameScene.dispatchEnemies = function () {

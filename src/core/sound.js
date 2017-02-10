@@ -3,7 +3,7 @@
  */
 function Sound(audio) {
     if (!isObjectAssigned(audio)) {
-        throw error("Cannot create Sound without a valid audio source");
+        throw new Error("Cannot create Sound without a valid audio source");
     }
 
     // private properties

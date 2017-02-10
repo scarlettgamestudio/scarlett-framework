@@ -3,14 +3,16 @@
  */
 function Texture2D(image) {
     if (!isObjectAssigned(image)) {
-        throw error("Cannot create Texture2D without an image source");
+        throw new Error("Cannot create Texture2D without an image source");
     }
 
     // private properties:
     this._uid = generateUID();
     this._source = image;
     this._texture = null;
-    this._gl = gl = GameManager.renderContext.getContext();
+    this._gl = GameManager.renderContext.getContext();
+
+    let gl = this._gl;
 
     // Prepare the webgl texture:
     this._texture = gl.createTexture();
