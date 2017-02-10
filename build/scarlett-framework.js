@@ -10161,25 +10161,24 @@ function Camera2D(x, y, viewWidth, viewHeight, zoom) {
     this._lastX = null;
     this._lastY = null;
     this._lastZoom = null;
-    this._matrix = mat4.create();
-    this._omatrix = mat4.create(); // used for temporary calculations
+    this._matrix = new Matrix4();
 }
 
 Camera2D.prototype.calculateMatrix = function () {
     // generate orthographic perspective:
-    mat4.ortho(
-        this._matrix,
+    this._matrix.orthographic(
         this.x + -this.viewWidth * this.zoom / 2.0,
         this.x + this.viewWidth * this.zoom / 2.0,
         this.y + this.viewHeight * this.zoom / 2.0,
         this.y + -this.viewHeight * this.zoom / 2.0,
-        0.0, 1.0);
+        0.0, 1.0
+    );
 
     this._lastX = this.x;
     this._lastY = this.y;
     this._lastZoom = this.zoom;
 
-    return this._matrix;
+    return this._matrix.asArray();
 };
 
 Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
@@ -10190,11 +10189,11 @@ Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
     this.calculateMatrix();
 };
 
-Camera2D.prototype.getViewWidth = function() {
+Camera2D.prototype.getViewWidth = function () {
     return this.viewWidth;
 };
 
-Camera2D.prototype.getViewHeight = function() {
+Camera2D.prototype.getViewHeight = function () {
     return this.viewHeight;
 };
 
@@ -10208,7 +10207,7 @@ Camera2D.prototype.getMatrix = function () {
         return this.calculateMatrix();
     }
 
-    return this._matrix;
+    return this._matrix.asArray();
 };
 
 /**
@@ -10216,15 +10215,13 @@ Camera2D.prototype.getMatrix = function () {
  * @param screenX
  * @param screenY
  */
-Camera2D.prototype.screenToWorldCoordinates = function(screenX, screenY) {
+Camera2D.prototype.screenToWorldCoordinates = function (screenX, screenY) {
     // first we normalize the screen position:
-    var x = (2.0 * screenX) / this.viewWidth - 1.0;
-    var y = 1.0 - (2.0 * screenY) / this.viewHeight;
+    let x = (2.0 * screenX) / this.viewWidth - 1.0;
+    let y = 1.0 - (2.0 * screenY) / this.viewHeight;
 
     // then we calculate and return the world coordinates:
-    mat4.invert(this._omatrix, this.getMatrix());
-
-    return Vector2.transformMat4(new Vector2(x, y), this._omatrix);
+    return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).inverse());
 };
 
 
@@ -10232,7 +10229,7 @@ Camera2D.prototype.unload = function () {
 
 };
 
-Camera2D.prototype.objectify = function() {
+Camera2D.prototype.objectify = function () {
     return {
         x: this.x,
         y: this.y,
@@ -10240,7 +10237,7 @@ Camera2D.prototype.objectify = function() {
     }
 };
 
-Camera2D.restore = function(data) {
+Camera2D.restore = function (data) {
     return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
 };;SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
@@ -10768,7 +10765,7 @@ function GameObject(params) {
     this._parent = params.parent || null;
     this._children = params.children || [];
     this._components = params.components || [];
-    this._transformMatrix = mat4.create();
+    this._transformMatrix = new Matrix4();
 }
 
 GameObject.prototype.equals = function (other) {
@@ -11687,7 +11684,11 @@ AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor:
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 AttributeDictionary.addRule("sprite", "_texture", {visible: false});
 AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
-AttributeDictionary.addRule("sprite", "_atlasRegion", {displayName: "Region", available: function() { return isObjectAssigned(this._atlas) }});
+AttributeDictionary.addRule("sprite", "_atlasRegion", {
+    displayName: "Region", available: function () {
+        return isObjectAssigned(this._atlas)
+    }
+});
 
 function Sprite(params) {
     params = params || {};
@@ -11710,36 +11711,36 @@ function Sprite(params) {
 
 inheritsFrom(Sprite, GameObject);
 
-Sprite.prototype.getBaseWidth = function() {
+Sprite.prototype.getBaseWidth = function () {
     return this._textureWidth;
 };
 
-Sprite.prototype.getBaseHeight = function() {
+Sprite.prototype.getBaseHeight = function () {
     return this._textureHeight;
 };
 
 Sprite.prototype.getMatrix = function () {
-    var x, y, width, height;
+    let x, y, width, height;
 
     x = this.transform.getPosition().x;
     y = this.transform.getPosition().y;
     width = this._textureWidth * this.transform.getScale().x;
     height = this._textureHeight * this.transform.getScale().y;
 
-    mat4.identity(this._transformMatrix);
+    this._transformMatrix.identity();
 
     if (this._wrapMode != WrapMode.REPEAT) {
-        mat4.translate(this._transformMatrix, this._transformMatrix, [x - width * this._origin.x, y - height * this._origin.y, 0]);
+        this._transformMatrix.translate([x - width * this._origin.x, y - height * this._origin.y, 0]);
     } else {
-        mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
+        this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
     }
 
-    mat4.translate(this._transformMatrix, this._transformMatrix, [width * this._origin.x, height * this._origin.y, 0]);
-    mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
-    mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
+    this._transformMatrix.translate([width * this._origin.x, height * this._origin.y, 0]);
+    this._transformMatrix.rotate([0.0, 0.0, 1.0], this.transform.getRotation());
+    this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
+    this._transformMatrix.scale([width, height, 0]);
 
-    return this._transformMatrix;
+    return this._transformMatrix.asArray();
 };
 
 Sprite.prototype.setWrapMode = function (wrapMode) {
@@ -11774,7 +11775,7 @@ Sprite.prototype.setSource = function (path) {
 
         if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
             ContentLoader.loadFile(path).then(
-                (function(data) {
+                (function (data) {
                     var atlas = Objectify.restoreFromString(data);
 
                     // is this a valid atlas?
@@ -11789,7 +11790,7 @@ Sprite.prototype.setSource = function (path) {
                         EventManager.emit(SC.EVENTS.CONTENT_ASSET_LOADED, path);
                     }
 
-                }).bind(this), function(err) {
+                }).bind(this), function (err) {
                     console.log("failed");
                 }
             );
@@ -11804,7 +11805,7 @@ Sprite.prototype.setSource = function (path) {
     }
 };
 
-Sprite.prototype._assignTextureFromPath = function(path) {
+Sprite.prototype._assignTextureFromPath = function (path) {
     Texture2D.fromPath(path).then(
         (function (texture) {
             this.setTexture(texture);
@@ -13966,7 +13967,285 @@ MathHelper.degToRad = function (degrees) {
  */
 MathHelper.radToDeg = function(radians) {
     return radians * 57.295779513;
-};;/**
+};;;/**
+ * Matrix4 class @ based on Tdl.Math
+ * https://github.com/greggman/tdl/blob/master/tdl/math.js
+ */
+class Matrix4 {
+    /**
+     * Class constructor
+     * @param {Array|Float32Array=} array
+     */
+    constructor(array) {
+        if ((array instanceof Array || array instanceof Float32Array) && array.length === 16) {
+            this._matrix = new Float32Array(array);
+
+        } else {
+            this._matrix = new Float32Array(16);
+        }
+    }
+
+    /**
+     * Returns a cloned Matrix
+     */
+    clone() {
+        return new Matrix4(this._matrix.asArray());
+    }
+
+    /**
+     * Returns the matrix array value
+     * @returns {Float32Array}
+     */
+    asArray() {
+        return this._matrix;
+    }
+
+    /**
+     *
+     * @returns {Float32Array}
+     */
+    inverse() {
+        let tmp_0 = this._matrix[2 * 4 + 2] * this._matrix[3 * 4 + 3];
+        let tmp_1 = this._matrix[3 * 4 + 2] * this._matrix[2 * 4 + 3];
+        let tmp_2 = this._matrix[1 * 4 + 2] * this._matrix[3 * 4 + 3];
+        let tmp_3 = this._matrix[3 * 4 + 2] * this._matrix[1 * 4 + 3];
+        let tmp_4 = this._matrix[1 * 4 + 2] * this._matrix[2 * 4 + 3];
+        let tmp_5 = this._matrix[2 * 4 + 2] * this._matrix[1 * 4 + 3];
+        let tmp_6 = this._matrix[0 * 4 + 2] * this._matrix[3 * 4 + 3];
+        let tmp_7 = this._matrix[3 * 4 + 2] * this._matrix[0 * 4 + 3];
+        let tmp_8 = this._matrix[0 * 4 + 2] * this._matrix[2 * 4 + 3];
+        let tmp_9 = this._matrix[2 * 4 + 2] * this._matrix[0 * 4 + 3];
+        let tmp_10 = this._matrix[0 * 4 + 2] * this._matrix[1 * 4 + 3];
+        let tmp_11 = this._matrix[1 * 4 + 2] * this._matrix[0 * 4 + 3];
+        let tmp_12 = this._matrix[2 * 4 + 0] * this._matrix[3 * 4 + 1];
+        let tmp_13 = this._matrix[3 * 4 + 0] * this._matrix[2 * 4 + 1];
+        let tmp_14 = this._matrix[1 * 4 + 0] * this._matrix[3 * 4 + 1];
+        let tmp_15 = this._matrix[3 * 4 + 0] * this._matrix[1 * 4 + 1];
+        let tmp_16 = this._matrix[1 * 4 + 0] * this._matrix[2 * 4 + 1];
+        let tmp_17 = this._matrix[2 * 4 + 0] * this._matrix[1 * 4 + 1];
+        let tmp_18 = this._matrix[0 * 4 + 0] * this._matrix[3 * 4 + 1];
+        let tmp_19 = this._matrix[3 * 4 + 0] * this._matrix[0 * 4 + 1];
+        let tmp_20 = this._matrix[0 * 4 + 0] * this._matrix[2 * 4 + 1];
+        let tmp_21 = this._matrix[2 * 4 + 0] * this._matrix[0 * 4 + 1];
+        let tmp_22 = this._matrix[0 * 4 + 0] * this._matrix[1 * 4 + 1];
+        let tmp_23 = this._matrix[1 * 4 + 0] * this._matrix[0 * 4 + 1];
+
+        let t0 = (tmp_0 * this._matrix[1 * 4 + 1] + tmp_3 * this._matrix[2 * 4 + 1] + tmp_4 * this._matrix[3 * 4 + 1]) -
+            (tmp_1 * this._matrix[1 * 4 + 1] + tmp_2 * this._matrix[2 * 4 + 1] + tmp_5 * this._matrix[3 * 4 + 1]);
+        let t1 = (tmp_1 * this._matrix[0 * 4 + 1] + tmp_6 * this._matrix[2 * 4 + 1] + tmp_9 * this._matrix[3 * 4 + 1]) -
+            (tmp_0 * this._matrix[0 * 4 + 1] + tmp_7 * this._matrix[2 * 4 + 1] + tmp_8 * this._matrix[3 * 4 + 1]);
+        let t2 = (tmp_2 * this._matrix[0 * 4 + 1] + tmp_7 * this._matrix[1 * 4 + 1] + tmp_10 * this._matrix[3 * 4 + 1]) -
+            (tmp_3 * this._matrix[0 * 4 + 1] + tmp_6 * this._matrix[1 * 4 + 1] + tmp_11 * this._matrix[3 * 4 + 1]);
+        let t3 = (tmp_5 * this._matrix[0 * 4 + 1] + tmp_8 * this._matrix[1 * 4 + 1] + tmp_11 * this._matrix[2 * 4 + 1]) -
+            (tmp_4 * this._matrix[0 * 4 + 1] + tmp_9 * this._matrix[1 * 4 + 1] + tmp_10 * this._matrix[2 * 4 + 1]);
+
+        let d = 1.0 / (this._matrix[0 * 4 + 0] * t0 + this._matrix[1 * 4 + 0] * t1 + this._matrix[2 * 4 + 0] * t2 + this._matrix[3 * 4 + 0] * t3);
+
+        this._matrix[0] = d * t0;
+        this._matrix[1] = d * t1;
+        this._matrix[2] = d * t2;
+        this._matrix[3] = d * t3;
+        this._matrix[4] = d * ((tmp_1 * this._matrix[1 * 4 + 0] + tmp_2 * this._matrix[2 * 4 + 0] + tmp_5 * this._matrix[3 * 4 + 0]) -
+            (tmp_0 * this._matrix[1 * 4 + 0] + tmp_3 * this._matrix[2 * 4 + 0] + tmp_4 * this._matrix[3 * 4 + 0]));
+        this._matrix[5] = d * ((tmp_0 * this._matrix[0 * 4 + 0] + tmp_7 * this._matrix[2 * 4 + 0] + tmp_8 * this._matrix[3 * 4 + 0]) -
+            (tmp_1 * this._matrix[0 * 4 + 0] + tmp_6 * this._matrix[2 * 4 + 0] + tmp_9 * this._matrix[3 * 4 + 0]));
+        this._matrix[6] = d * ((tmp_3 * this._matrix[0 * 4 + 0] + tmp_6 * this._matrix[1 * 4 + 0] + tmp_11 * this._matrix[3 * 4 + 0]) -
+            (tmp_2 * this._matrix[0 * 4 + 0] + tmp_7 * this._matrix[1 * 4 + 0] + tmp_10 * this._matrix[3 * 4 + 0]));
+        this._matrix[7] = d * ((tmp_4 * this._matrix[0 * 4 + 0] + tmp_9 * this._matrix[1 * 4 + 0] + tmp_10 * this._matrix[2 * 4 + 0]) -
+            (tmp_5 * this._matrix[0 * 4 + 0] + tmp_8 * this._matrix[1 * 4 + 0] + tmp_11 * this._matrix[2 * 4 + 0]));
+        this._matrix[8] = d * ((tmp_12 * this._matrix[1 * 4 + 3] + tmp_15 * this._matrix[2 * 4 + 3] + tmp_16 * this._matrix[3 * 4 + 3]) -
+            (tmp_13 * this._matrix[1 * 4 + 3] + tmp_14 * this._matrix[2 * 4 + 3] + tmp_17 * this._matrix[3 * 4 + 3]));
+        this._matrix[9] = d * ((tmp_13 * this._matrix[0 * 4 + 3] + tmp_18 * this._matrix[2 * 4 + 3] + tmp_21 * this._matrix[3 * 4 + 3]) -
+            (tmp_12 * this._matrix[0 * 4 + 3] + tmp_19 * this._matrix[2 * 4 + 3] + tmp_20 * this._matrix[3 * 4 + 3]));
+        this._matrix[10] = d * ((tmp_14 * this._matrix[0 * 4 + 3] + tmp_19 * this._matrix[1 * 4 + 3] + tmp_22 * this._matrix[3 * 4 + 3]) -
+            (tmp_15 * this._matrix[0 * 4 + 3] + tmp_18 * this._matrix[1 * 4 + 3] + tmp_23 * this._matrix[3 * 4 + 3]));
+        this._matrix[11] = d * ((tmp_17 * this._matrix[0 * 4 + 3] + tmp_20 * this._matrix[1 * 4 + 3] + tmp_23 * this._matrix[2 * 4 + 3]) -
+            (tmp_16 * this._matrix[0 * 4 + 3] + tmp_21 * this._matrix[1 * 4 + 3] + tmp_22 * this._matrix[2 * 4 + 3]));
+        this._matrix[12] = d * ((tmp_14 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[3 * 4 + 2] + tmp_13 * this._matrix[1 * 4 + 2]) -
+            (tmp_16 * this._matrix[3 * 4 + 2] + tmp_12 * this._matrix[1 * 4 + 2] + tmp_15 * this._matrix[2 * 4 + 2]));
+        this._matrix[13] = d * ((tmp_20 * this._matrix[3 * 4 + 2] + tmp_12 * this._matrix[0 * 4 + 2] + tmp_19 * this._matrix[2 * 4 + 2]) -
+            (tmp_18 * this._matrix[2 * 4 + 2] + tmp_21 * this._matrix[3 * 4 + 2] + tmp_13 * this._matrix[0 * 4 + 2]));
+        this._matrix[14] = d * ((tmp_18 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[3 * 4 + 2] + tmp_15 * this._matrix[0 * 4 + 2]) -
+            (tmp_22 * this._matrix[3 * 4 + 2] + tmp_14 * this._matrix[0 * 4 + 2] + tmp_19 * this._matrix[1 * 4 + 2]));
+        this._matrix[15] = d * ((tmp_22 * this._matrix[2 * 4 + 2] + tmp_16 * this._matrix[0 * 4 + 2] + tmp_21 * this._matrix[1 * 4 + 2]) -
+            (tmp_20 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[0 * 4 + 2]));
+
+        return this._matrix;
+    }
+
+    /**
+     * Set Matrix identity
+     * @returns {Float32Array}
+     */
+    identity() {
+        this._matrix[0] = 1;
+        this._matrix[1] = 0;
+        this._matrix[2] = 0;
+        this._matrix[3] = 0;
+        this._matrix[4] = 0;
+        this._matrix[5] = 1;
+        this._matrix[6] = 0;
+        this._matrix[7] = 0;
+        this._matrix[8] = 0;
+        this._matrix[9] = 0;
+        this._matrix[10] = 1;
+        this._matrix[11] = 0;
+        this._matrix[12] = 0;
+        this._matrix[13] = 0;
+        this._matrix[14] = 0;
+        this._matrix[15] = 1;
+
+        return this._matrix;
+    }
+
+    /**
+     *
+     * @param left
+     * @param right
+     * @param bottom
+     * @param top
+     * @param near
+     * @param far
+     */
+    orthographic(left, right, bottom, top, near, far) {
+        this._matrix[0] = 2 / (right - left);
+        this._matrix[1] = 0;
+        this._matrix[2] = 0;
+        this._matrix[3] = 0;
+        this._matrix[4] = 0;
+        this._matrix[5] = 2 / (top - bottom);
+        this._matrix[6] = 0;
+        this._matrix[7] = 0;
+        this._matrix[8] = 0;
+        this._matrix[9] = 0;
+        this._matrix[10] = 1 / (near - far);
+        this._matrix[11] = 0;
+        this._matrix[12] = (left + right) / (left - right);
+        this._matrix[13] = (bottom + top) / (bottom - top);
+        this._matrix[14] = near / (near - far);
+        this._matrix[15] = 1;
+
+        return this._matrix;
+    }
+
+    /**
+     * Rotates the matrix with the given array
+     * @param axis
+     * @param angle
+     */
+    rotate(axis, angle) {
+        let x = axis[0];
+        let y = axis[1];
+        let z = axis[2];
+        let n = Math.sqrt(x * x + y * y + z * z);
+        x /= n;
+        y /= n;
+        z /= n;
+
+        let xx = x * x;
+        let yy = y * y;
+        let zz = z * z;
+        let c = Math.cos(angle);
+        let s = Math.sin(angle);
+        let oneMinusCosine = 1 - c;
+
+        let r00 = xx + (1 - xx) * c;
+        let r01 = x * y * oneMinusCosine + z * s;
+        let r02 = x * z * oneMinusCosine - y * s;
+        let r10 = x * y * oneMinusCosine - z * s;
+        let r11 = yy + (1 - yy) * c;
+        let r12 = y * z * oneMinusCosine + x * s;
+        let r20 = x * z * oneMinusCosine + y * s;
+        let r21 = y * z * oneMinusCosine - x * s;
+        let r22 = zz + (1 - zz) * c;
+
+        let m00 = this._matrix[0 * 4 + 0];
+        let m01 = this._matrix[0 * 4 + 1];
+        let m02 = this._matrix[0 * 4 + 2];
+        let m03 = this._matrix[0 * 4 + 3];
+        let m10 = this._matrix[1 * 4 + 0];
+        let m11 = this._matrix[1 * 4 + 1];
+        let m12 = this._matrix[1 * 4 + 2];
+        let m13 = this._matrix[1 * 4 + 3];
+        let m20 = this._matrix[2 * 4 + 0];
+        let m21 = this._matrix[2 * 4 + 1];
+        let m22 = this._matrix[2 * 4 + 2];
+        let m23 = this._matrix[2 * 4 + 3];
+
+        this._matrix[0] = r00 * m00 + r01 * m10 + r02 * m20;
+        this._matrix[1] = r00 * m01 + r01 * m11 + r02 * m21;
+        this._matrix[2] = r00 * m02 + r01 * m12 + r02 * m22;
+        this._matrix[3] = r00 * m03 + r01 * m13 + r02 * m23;
+        this._matrix[4] = r10 * m00 + r11 * m10 + r12 * m20;
+        this._matrix[5] = r10 * m01 + r11 * m11 + r12 * m21;
+        this._matrix[6] = r10 * m02 + r11 * m12 + r12 * m22;
+        this._matrix[7] = r10 * m03 + r11 * m13 + r12 * m23;
+        this._matrix[8] = r20 * m00 + r21 * m10 + r22 * m20;
+        this._matrix[9] = r20 * m01 + r21 * m11 + r22 * m21;
+        this._matrix[10] = r20 * m02 + r21 * m12 + r22 * m22;
+        this._matrix[11] = r20 * m03 + r21 * m13 + r22 * m23;
+
+        return this._matrix;
+    }
+
+    /**
+     * Scales the matrix with the given vector
+     * @param {Array} vec [x, y, z]
+     */
+    scale(vec) {
+        let v0 = vec[0];
+        let v1 = vec[1];
+        let v2 = vec[2];
+
+        this._matrix[0] = v0 * this._matrix[0 * 4 + 0];
+        this._matrix[1] = v0 * this._matrix[0 * 4 + 1];
+        this._matrix[2] = v0 * this._matrix[0 * 4 + 2];
+        this._matrix[3] = v0 * this._matrix[0 * 4 + 3];
+        this._matrix[4] = v1 * this._matrix[1 * 4 + 0];
+        this._matrix[5] = v1 * this._matrix[1 * 4 + 1];
+        this._matrix[6] = v1 * this._matrix[1 * 4 + 2];
+        this._matrix[7] = v1 * this._matrix[1 * 4 + 3];
+        this._matrix[8] = v2 * this._matrix[2 * 4 + 0];
+        this._matrix[9] = v2 * this._matrix[2 * 4 + 1];
+        this._matrix[10] = v2 * this._matrix[2 * 4 + 2];
+        this._matrix[11] = v2 * this._matrix[2 * 4 + 3];
+
+        return this._matrix;
+    }
+
+    /**
+     * Translates the matrix with the given vector
+     * @param {Array} vec [x, y, z]
+     */
+    translate(vec) {
+        let m00 = this._matrix[0 * 4 + 0];
+        let m01 = this._matrix[0 * 4 + 1];
+        let m02 = this._matrix[0 * 4 + 2];
+        let m03 = this._matrix[0 * 4 + 3];
+        let m10 = this._matrix[1 * 4 + 0];
+        let m11 = this._matrix[1 * 4 + 1];
+        let m12 = this._matrix[1 * 4 + 2];
+        let m13 = this._matrix[1 * 4 + 3];
+        let m20 = this._matrix[2 * 4 + 0];
+        let m21 = this._matrix[2 * 4 + 1];
+        let m22 = this._matrix[2 * 4 + 2];
+        let m23 = this._matrix[2 * 4 + 3];
+        let m30 = this._matrix[3 * 4 + 0];
+        let m31 = this._matrix[3 * 4 + 1];
+        let m32 = this._matrix[3 * 4 + 2];
+        let m33 = this._matrix[3 * 4 + 3];
+        let v0 = vec[0];
+        let v1 = vec[1];
+        let v2 = vec[2];
+
+        this._matrix[12] = m00 * v0 + m10 * v1 + m20 * v2 + m30;
+        this._matrix[13] = m01 * v0 + m11 * v1 + m21 * v2 + m31;
+        this._matrix[14] = m02 * v0 + m12 * v1 + m22 * v2 + m32;
+        this._matrix[15] = m03 * v0 + m13 * v1 + m23 * v2 + m33;
+
+        return this._matrix;
+    }
+};/**
  * Rectangle class
  */
 /**

@@ -22,7 +22,7 @@ function GameObject(params) {
     this._parent = params.parent || null;
     this._children = params.children || [];
     this._components = params.components || [];
-    this._transformMatrix = mat4.create();
+    this._transformMatrix = new Matrix4();
 }
 
 GameObject.prototype.equals = function (other) {
