@@ -19,10 +19,10 @@ class Matrix3 {
 
     /**
      * Copies the content of the current matrix to another
-     * @param {Matrix4} outMatrix
+     * @param {Matrix3} outMatrix
      */
     copy(outMatrix) {
-        if (outMatrix instanceof Matrix4) {
+        if (outMatrix instanceof Matrix3) {
             outMatrix.setFromArray(this.asArray());
         }
     }
@@ -41,7 +41,7 @@ class Matrix3 {
      * Returns a cloned Matrix
      */
     clone() {
-        return new Matrix4(this._matrix.asArray());
+        return new Matrix3(this._matrix.asArray());
     }
 
     /**
