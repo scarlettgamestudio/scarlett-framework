@@ -7,10 +7,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
-* matter-js 0.10.0 by @liabru 2016-05-01
-* http://brm.io/matter-js/
-* License MIT
-*/
+ _____                     _        _    _    ______                                                       _    
+/  ___|                   | |      | |  | |   |  ___|                                                     | |   
+\ `--.   ___   __ _  _ __ | |  ___ | |_ | |_  | |_    _ __   __ _  _ __ ___    ___ __      __  ___   _ __ | | __
+ `--. \ / __| / _` || '__|| | / _ \| __|| __| |  _|  | '__| / _` || '_ ` _ \  / _ \\ \ /\ / / / _ \ | '__|| |/ /
+/\__/ /| (__ | (_| || |   | ||  __/| |_ | |_  | |    | |   | (_| || | | | | ||  __/ \ V  V / | (_) || |   |   < 
+\____/  \___| \__,_||_|   |_| \___| \__| \__| \_|    |_|    \__,_||_| |_| |_| \___|  \_/\_/   \___/ |_|   |_|\_\
+
+More Information @ https://scarlett.anlagehub.com | https://github.com/scarlettgamestudio/
+
+ */; /**
+     * matter-js 0.10.0 by @liabru 2016-05-01
+     * http://brm.io/matter-js/
+     * License MIT
+     */
 
 /**
  * The MIT License (MIT)

@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 
     var sortDependencies = require("sort-dependencies");
-    var copyToDirectory = "D:\\MyPC\\Documents\\GitHub\\Scarlett\\scarlett-editor\\app\\lib\\";
+    var copyToDirectory = "ADD LOCAL EDITOR PATH HERE";
 
     // Project configuration.
     grunt.initConfig({
@@ -30,6 +30,7 @@ module.exports = function(grunt) {
             dist: {
                 //src: ['src/**/*.js'],
                 src: [
+                    'src/prefix.js',
                     'node_modules/matter-js/build/matter.js',
                     'src/common/**/*.js',
                     'src/utility/**/*.js',
