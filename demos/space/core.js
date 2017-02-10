@@ -37,8 +37,6 @@ gameScene.initialize = function () {
     enemyTex1 = new Texture2D(ContentLoader.getImage("enemy1"));
     enemyTex2 = new Texture2D(ContentLoader.getImage("enemy2"));
     backgroundTex = new Texture2D(ContentLoader.getImage("background"));
-<<<<<<< HEAD
-=======
     textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
 
     var load = require('load-bmfont');
@@ -76,9 +74,7 @@ gameScene.initialize = function () {
         document.getElementById('alignRight').checked = text.getAlign() == Text.AlignType.RIGHT;
 
     });
-
->>>>>>> ddb1ae01afe57ed41c96dd55c24c0bda8ed3e54c
-
+    
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
     sc.assignScript("backgroundAgent", background);
