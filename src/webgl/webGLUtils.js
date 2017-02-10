@@ -6,7 +6,7 @@
  */
 function WebGLUtils() {
     // private fields
-    this._logger = new Logger(arguments.callee.name);
+    this._logger = new Logger("WebGLUtils");
 }
 
 /**

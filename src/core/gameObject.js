@@ -22,7 +22,7 @@ function GameObject(params) {
     this._parent = params.parent || null;
     this._children = params.children || [];
     this._components = params.components || [];
-    this._transformMatrix = mat4.create();
+    this._transformMatrix = new Matrix4();
 }
 
 GameObject.prototype.equals = function (other) {
@@ -58,10 +58,10 @@ GameObject.prototype.propagatePropertyUpdate = function (property, value) {
 };
 
 GameObject.prototype.getMatrix = function () {
-    mat4.identity(this._transformMatrix);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
+    this._transformMatrix.identity();
+    this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
 
-    return this._transformMatrix;
+    return this._transformMatrix.asArray();
 };
 
 GameObject.prototype.getParent = function () {
@@ -103,7 +103,7 @@ GameObject.prototype.setParent = function (gameObject) {
 };
 
 GameObject.prototype.removeChild = function (gameObject) {
-    for (var i = this._children.length - 1; i >= 0; i--) {
+    for (let i = this._children.length - 1; i >= 0; i--) {
         if (this._children[i].getUID() == gameObject.getUID()) {
             return this._children.splice(i, 1);
         }
@@ -138,8 +138,8 @@ GameObject.prototype.getHierarchyHash = function () {
 
 GameObject.prototype.isChild = function (gameObject) {
     // check if is a child simply by getting the hierarchy hash:
-    var hierarchyHash = gameObject.getHierarchyHash().split(".");  // this . x . y . z . other
-    var thisIndex = hierarchyHash.indexOf(this._uid + ""), otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
+    let hierarchyHash = gameObject.getHierarchyHash().split(".");  // this . x . y . z . other
+    let thisIndex = hierarchyHash.indexOf(this._uid + ""), otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
     return otherIndex > thisIndex && thisIndex >= 0;
 
     // this way takes away more resources:
@@ -214,9 +214,8 @@ GameObject.prototype.getComponents = function () {
  * @returns {Boundary}
  */
 GameObject.prototype.getBoundary = function (bulk) {
-    var mat = this.getMatrix();
-
-    var boundary = new Boundary(
+    let mat = this.getMatrix();
+    let boundary = new Boundary(
         Vector2.transformMat4(new Vector2(0, 0), mat),
         Vector2.transformMat4(new Vector2(1, 0), mat),
         Vector2.transformMat4(new Vector2(1, 1), mat),
@@ -243,13 +242,13 @@ GameObject.prototype.getBoundary = function (bulk) {
  * @returns {Rectangle}
  */
 GameObject.prototype.getRectangleBoundary = function (bulk) {
-    var vertices = this.getBoundary(bulk);
+    let vertices = this.getBoundary(bulk);
 
     // find the min and max width to form the rectangle boundary
-    var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
-    var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    let minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    let maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    let minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    let maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
 
     // return the generated rectangle:
     return new Rectangle(minX, minY, maxX - minX, maxY - minY);
@@ -273,8 +272,8 @@ GameObject.prototype.collidesWith = function (gameObject, bulk, bulkOther) {
  * @returns {boolean}
  */
 GameObject.prototype.collidesWithPoint = function (point, bulk) {
-    var boundaryA = this.getBoundary(bulk);
-    var boundaryB = new Boundary(
+    let boundaryA = this.getBoundary(bulk);
+    let boundaryB = new Boundary(
         new Vector2(point.x, point.y),
         new Vector2(point.x + 1, point.y),
         new Vector2(point.x + 1, point.y + 1),
@@ -302,7 +301,7 @@ GameObject.restore = function (data) {
 };
 
 GameObject.prototype.unload = function () {
-    for (var i = 0; i < this._components.length; ++i) {
+    for (let i = 0; i < this._components.length; ++i) {
         if (isFunction(this._components[i].unload)) {
             this._components[i].unload();
         }

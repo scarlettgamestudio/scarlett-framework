@@ -15,7 +15,7 @@ function TextShader() {
             'varying vec2 vTexCoord;',
 
             'void main() {',
-                'gl_Position = uMatrix * uTransform * vec4(aPos.xy, 0, 1);',
+                'gl_Position = uMatrix * uTransform * vec4(aPos, 0, 1);',
                 'vTexCoord = aTexCoord / uTexSize;',
             '}'
         ].join('\n'),
@@ -69,8 +69,8 @@ function TextShader() {
         ].join('\n'),
         // uniforms:
         {
-            uMatrix: {type: 'mat4', value: mat4.create()},
-            uTransform: {type: 'mat4', value: mat4.create()},
+            uMatrix: {type: 'mat4', value: new Float32Array(16)},
+            uTransform: {type: 'mat4', value: new Float32Array(16)},
             uTexture: {type: 'tex', value: 0},
             uTexSize: {type: '1i', value: 24},
             uColor: [1.0, 0.0, 0.0, 1.0],

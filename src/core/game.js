@@ -12,13 +12,13 @@ function Game(params) {
 
     // private properties:
     this._renderContext = null;
-    this._logger = new Logger(arguments.callee.name);
+    this._logger = new Logger("Game");
     this._initialized = false;
     this._gameScene = params.scene;
     this._totalElapsedTime = null;
     this._virtualResolution = null;
     this._shaderManager = null;
-    this._executionPhase = SCARLETT.EXECUTION_PHASES.WAITING;
+    this._executionPhase = SC.EXECUTION_PHASES.WAITING;
     this._physicsEngine = Matter.Engine.create();
     this._physicsEngine.enableSleeping = true;
     this._renderExtensions = {};

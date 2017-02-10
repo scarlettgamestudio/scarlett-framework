@@ -1,18 +1,26 @@
 module.exports = function(grunt) {
 
     var sortDependencies = require("sort-dependencies");
-    var copyToDirectory = "D:\\Workspace\\scarlett-editor\\app\\lib\\";
+    var copyToDirectory = "ADD LOCAL EDITOR PATH HERE";
 
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        babel: {
+            files: {
+                expand: true,
+                cwd: 'build',
+                src: ['<%= pkg.name %>.js'],
+                dest: 'build-es5/'
+            }
+        },
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
-                src: 'build/<%= pkg.name %>.js',
-                dest: 'build/<%= pkg.name %>.min.js'
+                src: 'build-es5/<%= pkg.name %>.js',
+                dest: 'build-es5/<%= pkg.name %>.min.js'
             }
         },
         concat: {
@@ -22,8 +30,18 @@ module.exports = function(grunt) {
             dist: {
                 //src: ['src/**/*.js'],
                 src: [
+                    'src/prefix.js',
                     'node_modules/matter-js/build/matter.js',
-                    sortDependencies.sortFiles("src/**/*.js")],
+                    'src/common/**/*.js',
+                    'src/utility/**/*.js',
+                    'src/extensions/**/*.js',
+                    'src/math/**/*.js',
+                    'src/components/**/*.js',
+                    'src/content/**/*.js',
+                    'src/core/**/*.js',
+                    'src/input/**/*.js',
+                    'src/webgl/**/*.js',
+                    sortDependencies.sortFiles("src/shaders/**/*.js")],
                 dest:
                     'build/<%= pkg.name %>.js'
             }
@@ -54,11 +72,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-babel');
 
     // Default task(s).
     grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
     grunt.registerTask('watcher', ['watch']);
-    grunt.registerTask('dist', ['uglify']);
+    grunt.registerTask('dist', ['babel', 'uglify']);
     grunt.registerTask('dev', ['concat', 'copy-to', 'watch']);
     grunt.registerTask('dev-concat', ['concat']);
     grunt.registerTask('copy-to', ['copy']);

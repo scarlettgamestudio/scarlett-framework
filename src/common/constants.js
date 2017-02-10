@@ -1,5 +1,5 @@
 // alias for scarlett constants:
-var SCARLETT = SC = {
+var SC = {
 	WEBGL: "webgl",
 	EXECUTION_PHASES: {
 		WAITING: 0,
