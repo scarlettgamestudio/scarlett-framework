@@ -2,7 +2,9 @@
  * Matrix4 class @ based on Tdl.Math
  * https://github.com/greggman/tdl/blob/master/tdl/math.js
  */
+
 class Matrix4 {
+
     /**
      * Class constructor
      * @param {Array|Float32Array=} array
@@ -13,6 +15,26 @@ class Matrix4 {
 
         } else {
             this._matrix = new Float32Array(16);
+        }
+    }
+
+    /**
+     * Copies the content of the current matrix to another
+     * @param {Matrix4} outMatrix
+     */
+    copy(outMatrix) {
+        if (outMatrix instanceof Matrix4) {
+            outMatrix.setFromArray(this.asArray());
+        }
+    }
+
+    /**
+     *
+     * @param {Array|Float32Array} array
+     */
+    setFromArray(array) {
+        if ((array instanceof Array || array instanceof Float32Array) && array.length === 16) {
+            this._matrix = new Float32Array(array);
         }
     }
 
@@ -32,7 +54,7 @@ class Matrix4 {
     }
 
     /**
-     *
+     * Calculates the matrix invert
      * @returns {Float32Array}
      */
     inverse() {
