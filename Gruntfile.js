@@ -31,7 +31,16 @@ module.exports = function(grunt) {
                 //src: ['src/**/*.js'],
                 src: [
                     'node_modules/matter-js/build/matter.js',
-                    sortDependencies.sortFiles("src/**/*.js")],
+                    'src/common/**/*.js',
+                    'src/utility/**/*.js',
+                    'src/extensions/**/*.js',
+                    'src/math/**/*.js',
+                    'src/components/**/*.js',
+                    'src/content/**/*.js',
+                    'src/core/**/*.js',
+                    'src/input/**/*.js',
+                    'src/webgl/**/*.js',
+                    sortDependencies.sortFiles("src/shaders/**/*.js")],
                 dest:
                     'build/<%= pkg.name %>.js'
             }

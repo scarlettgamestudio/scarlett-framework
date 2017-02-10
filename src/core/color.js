@@ -285,23 +285,19 @@ Color.hexToRGBA = function (hex) {
  */
 
 // static properties
-
-// TODO: place below every file... to avoid undefined errors; with grunt?
-/*
-Color.CornflowerBlue = Color.fromRGB(100.0, 149.0, 237.0);
-Color.Scarlet = Color.fromRGB(255.0, 36.0, 0.0);
-Color.Red = Color.fromRGB(255.0, 0.0, 0.0);
-Color.Green = Color.fromRGB(0.0, 255.0, 0.0);
-Color.Blue = Color.fromRGB(0.0, 0.0, 255.0);
-Color.White = Color.fromRGB(255.0, 255.0, 255.0);
-Color.Black = Color.fromRGB(0.0, 0.0, 0.0);
-Color.Gray = Color.fromRGB(80.0, 80.0, 80.0);
-Color.Nephritis = Color.fromRGB(39.0, 174.0, 96.0);
-Color.Wisteria = Color.fromRGB(142.0, 68.0, 173.0);
-Color.Amethyst = Color.fromRGB(155.0, 89.0, 182.0);
-Color.Carrot = Color.fromRGB(230, 126, 34);
-Color.Pumpkin = Color.fromRGB(211, 84, 0);
-Color.Orange = Color.fromRGB(243, 156, 18);
-Color.SunFlower = Color.fromRGB(241, 196, 15);
-Color.Alizarin = Color.fromRGB(231, 76, 60);
-*/
+ Color.CornflowerBlue = Color.fromRGB(100.0, 149.0, 237.0);
+ Color.Scarlet = Color.fromRGB(255.0, 36.0, 0.0);
+ Color.Red = Color.fromRGB(255.0, 0.0, 0.0);
+ Color.Green = Color.fromRGB(0.0, 255.0, 0.0);
+ Color.Blue = Color.fromRGB(0.0, 0.0, 255.0);
+ Color.White = Color.fromRGB(255.0, 255.0, 255.0);
+ Color.Black = Color.fromRGB(0.0, 0.0, 0.0);
+ Color.Gray = Color.fromRGB(80.0, 80.0, 80.0);
+ Color.Nephritis = Color.fromRGB(39.0, 174.0, 96.0);
+ Color.Wisteria = Color.fromRGB(142.0, 68.0, 173.0);
+ Color.Amethyst = Color.fromRGB(155.0, 89.0, 182.0);
+ Color.Carrot = Color.fromRGB(230, 126, 34);
+ Color.Pumpkin = Color.fromRGB(211, 84, 0);
+ Color.Orange = Color.fromRGB(243, 156, 18);
+ Color.SunFlower = Color.fromRGB(241, 196, 15);
+ Color.Alizarin = Color.fromRGB(231, 76, 60);

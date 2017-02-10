@@ -50,7 +50,7 @@ PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
     gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
     gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
 
@@ -81,7 +81,7 @@ PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, co
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix);
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
     gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -110,7 +110,7 @@ PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, c
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
     gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
@@ -144,7 +144,7 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) 
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix);
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
     gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -192,7 +192,7 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
     gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.LINES, 0, 2);

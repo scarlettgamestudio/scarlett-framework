@@ -177,7 +177,7 @@ Text.prototype.getMatrix = function () {
 
     this._transformMatrix.translate([x, y, 0]);
 
-    return this._transformMatrix;
+    return this._transformMatrix.asArray();
 };
 
 Text.prototype.getType = function () {

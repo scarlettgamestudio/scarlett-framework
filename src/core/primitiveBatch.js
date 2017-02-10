@@ -73,7 +73,7 @@ PrimitiveBatch.prototype.flush = function () {
             this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
             this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0])
 
-            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
+            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
             gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
                 this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
 
