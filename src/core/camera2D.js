@@ -73,7 +73,7 @@ Camera2D.prototype.screenToWorldCoordinates = function (screenX, screenY) {
     let y = 1.0 - (2.0 * screenY) / this.viewHeight;
 
     // then we calculate and return the world coordinates:
-    return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).inverse());
+    return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
 };
 
 

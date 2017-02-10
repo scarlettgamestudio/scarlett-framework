@@ -171,18 +171,18 @@ Text.prototype.unload = function () {
 
 // TODO: rotate, scale... probably the same thing as in the sprite
 Text.prototype.getMatrix = function () {
-    var x, y;
+    let x, y;
 
     x = this.transform.getPosition().x;
     y = this.transform.getPosition().y;
 
-    mat4.identity(this._transformMatrix);
+    this._transformMatrix.identity();
 
     //mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
     //mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
     //mat4.translate(this._transformMatrix, this._transformMatrix, [-x, -y, 0]);
 
-    mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
+    this._transformMatrix.translate([x, y, 0]);
 
     return this._transformMatrix;
 };

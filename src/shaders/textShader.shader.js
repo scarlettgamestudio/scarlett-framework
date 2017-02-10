@@ -69,8 +69,8 @@ function TextShader() {
         ].join('\n'),
         // uniforms:
         {
-            uMatrix: {type: 'mat4', value: mat4.create()},
-            uTransform: {type: 'mat4', value: mat4.create()},
+            uMatrix: {type: 'mat4', value: new Float32Array(16)},
+            uTransform: {type: 'mat4', value: new Float32Array(16)},
             uTexture: {type: 'tex', value: 0},
             uTexSize: {type: '1i', value: 24},
             uColor: [1.0, 0.0, 0.0, 1.0],

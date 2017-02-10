@@ -2,7 +2,6 @@
  * Matrix4 class @ based on Tdl.Math
  * https://github.com/greggman/tdl/blob/master/tdl/math.js
  */
-
 class Matrix4 {
 
     /**
@@ -57,7 +56,7 @@ class Matrix4 {
      * Calculates the matrix invert
      * @returns {Float32Array}
      */
-    inverse() {
+    invert() {
         let tmp_0 = this._matrix[2 * 4 + 2] * this._matrix[3 * 4 + 3];
         let tmp_1 = this._matrix[3 * 4 + 2] * this._matrix[2 * 4 + 3];
         let tmp_2 = this._matrix[1 * 4 + 2] * this._matrix[3 * 4 + 3];
