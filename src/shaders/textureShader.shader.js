@@ -38,8 +38,8 @@ function TextureShader() {
         // uniforms:
         {
             uSampler: {type: 'tex', value: 0},
-            uMatrix: {type: 'mat4', value: mat4.create()},
-            uTransform: {type: 'mat4', value: mat4.create()},
+            uMatrix: {type: 'mat4', value: new Float32Array(16)},
+            uTransform: {type: 'mat4', value: new Float32Array(16)},
             uColor: [1.0, 1.0, 1.0, 1.0]
         },
         // attributes:

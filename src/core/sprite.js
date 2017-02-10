@@ -6,7 +6,11 @@ AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor:
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 AttributeDictionary.addRule("sprite", "_texture", {visible: false});
 AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
-AttributeDictionary.addRule("sprite", "_atlasRegion", {displayName: "Region", available: function() { return isObjectAssigned(this._atlas) }});
+AttributeDictionary.addRule("sprite", "_atlasRegion", {
+    displayName: "Region", available: function () {
+        return isObjectAssigned(this._atlas)
+    }
+});
 
 function Sprite(params) {
     params = params || {};
@@ -29,36 +33,36 @@ function Sprite(params) {
 
 inheritsFrom(Sprite, GameObject);
 
-Sprite.prototype.getBaseWidth = function() {
+Sprite.prototype.getBaseWidth = function () {
     return this._textureWidth;
 };
 
-Sprite.prototype.getBaseHeight = function() {
+Sprite.prototype.getBaseHeight = function () {
     return this._textureHeight;
 };
 
 Sprite.prototype.getMatrix = function () {
-    var x, y, width, height;
+    let x, y, width, height;
 
     x = this.transform.getPosition().x;
     y = this.transform.getPosition().y;
     width = this._textureWidth * this.transform.getScale().x;
     height = this._textureHeight * this.transform.getScale().y;
 
-    mat4.identity(this._transformMatrix);
+    this._transformMatrix.identity();
 
     if (this._wrapMode != WrapMode.REPEAT) {
-        mat4.translate(this._transformMatrix, this._transformMatrix, [x - width * this._origin.x, y - height * this._origin.y, 0]);
+        this._transformMatrix.translate([x - width * this._origin.x, y - height * this._origin.y, 0]);
     } else {
-        mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
+        this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
     }
 
-    mat4.translate(this._transformMatrix, this._transformMatrix, [width * this._origin.x, height * this._origin.y, 0]);
-    mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
-    mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
+    this._transformMatrix.translate([width * this._origin.x, height * this._origin.y, 0]);
+    this._transformMatrix.rotate([0.0, 0.0, 1.0], this.transform.getRotation());
+    this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
+    this._transformMatrix.scale([width, height, 0]);
 
-    return this._transformMatrix;
+    return this._transformMatrix.asArray();
 };
 
 Sprite.prototype.setWrapMode = function (wrapMode) {
@@ -93,7 +97,7 @@ Sprite.prototype.setSource = function (path) {
 
         if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
             ContentLoader.loadFile(path).then(
-                (function(data) {
+                (function (data) {
                     var atlas = Objectify.restoreFromString(data);
 
                     // is this a valid atlas?
@@ -108,7 +112,7 @@ Sprite.prototype.setSource = function (path) {
                         EventManager.emit(SC.EVENTS.CONTENT_ASSET_LOADED, path);
                     }
 
-                }).bind(this), function(err) {
+                }).bind(this), function (err) {
                     console.log("failed");
                 }
             );
@@ -123,7 +127,7 @@ Sprite.prototype.setSource = function (path) {
     }
 };
 
-Sprite.prototype._assignTextureFromPath = function(path) {
+Sprite.prototype._assignTextureFromPath = function (path) {
     Texture2D.fromPath(path).then(
         (function (texture) {
             this.setTexture(texture);

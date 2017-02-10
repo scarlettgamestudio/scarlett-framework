@@ -6,15 +6,12 @@ function PrimitiveRender(game) {
         throw "Cannot create primitive render, the Game object is missing from the parameters";
     }
 
-    // public properties:
-
-
     // private properties:
     this._game = game;
     this._gl = game.getRenderContext().getContext();
     this._primitiveShader = new PrimitiveShader();
     this._vertexBuffer = this._gl.createBuffer();
-    this._transformMatrix = mat4.create();
+    this._transformMatrix = new Matrix4();
     this._rectangleData = new Float32Array([
         0.0, 0.0,
         1.0, 0.0,
@@ -36,7 +33,7 @@ PrimitiveRender.prototype.unload = function () {
 
 PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
     // TODO: refactor this method
-    var gl = this._gl;
+    let gl = this._gl;
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 
@@ -48,8 +45,8 @@ PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
     gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
     // calculate transformation matrix:
-    mat4.identity(this._transformMatrix);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [vector.x, vector.y, 0]);
+    this._transformMatrix.identity();
+    this._transformMatrix.translate([vector.x, vector.y, 0]);
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
@@ -61,12 +58,12 @@ PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
 };
 
 PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, color) {
-    var gl = this._gl;
-    var transformMatrix = this._transformMatrix;
+    let gl = this._gl;
+    let transformMatrix = this._transformMatrix;
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 
-    var triangleData = new Float32Array([
+    let triangleData = new Float32Array([
         vectorA.x, vectorA.y,
         vectorB.x, vectorB.y,
         vectorC.x, vectorC.y
@@ -80,7 +77,7 @@ PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, co
     gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
     // calculate transformation matrix (if not provided):
-    mat4.identity(transformMatrix);
+    this._transformMatrix.identity();
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
@@ -91,12 +88,12 @@ PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, co
 };
 
 PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, color) {
-    var gl = this._gl;
+    let gl = this._gl;
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 
-    var triangleData = [];
-    for (var i = 0; i < iterations; i++) {
+    let triangleData = [];
+    for (let i = 0; i < iterations; i++) {
         triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
         triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
     }
@@ -109,7 +106,7 @@ PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, c
     gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
     gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
-    mat4.identity(this._transformMatrix);
+    this._transformMatrix.identity();
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
@@ -120,8 +117,8 @@ PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, c
 };
 
 PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) {
-    var gl = this._gl;
-    var transformMatrix = this._transformMatrix;
+    let gl = this._gl;
+    let transformMatrix = this._transformMatrix;
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 
@@ -133,17 +130,17 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) 
     gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
     // calculate transformation matrix (if not provided):
-    mat4.identity(transformMatrix);
-    mat4.translate(transformMatrix, transformMatrix, [rectangle.x, rectangle.y, 0]);
+    this._transformMatrix.identity();
+    this._transformMatrix.translate([rectangle.x, rectangle.y, 0]);
 
     // rotate the rectangle?
     if (rotation) {
-        mat4.translate(transformMatrix, transformMatrix, [rectangle.width / 2, rectangle.height / 2, 0]);
-        mat4.rotate(transformMatrix, transformMatrix, rotation, [0.0, 0.0, 1.0]);
-        mat4.translate(transformMatrix, transformMatrix, [-rectangle.width / 2, -rectangle.height / 2, 0]);
+        this._transformMatrix.translate([rectangle.width / 2, rectangle.height / 2, 0]);
+        this._transformMatrix.rotate([0.0, 0.0, 1.0], rotation);
+        this._transformMatrix.translate([-rectangle.width / 2, -rectangle.height / 2, 0]);
     }
 
-    mat4.scale(transformMatrix, transformMatrix, [rectangle.width, rectangle.height, 0]);
+    this._transformMatrix.scale([rectangle.width, rectangle.height, 0]);
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
@@ -154,7 +151,7 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) 
 };
 
 PrimitiveRender.prototype.drawRectangleFromMatrix = function (matrix, color) {
-    var gl = this._gl;
+    let gl = this._gl;
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 
@@ -174,12 +171,12 @@ PrimitiveRender.prototype.drawRectangleFromMatrix = function (matrix, color) {
 };
 
 PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
-    var gl = this._gl;
+    let gl = this._gl;
     //gl.lineWidth(thickness); // not all implementations support this
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 
-    var pointData = new Float32Array([
+    let pointData = new Float32Array([
         vectorA.x, vectorA.y,
         vectorB.x, vectorB.y
     ]);
@@ -191,7 +188,7 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
     gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
     gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
-    mat4.identity(this._transformMatrix);
+    this._transformMatrix.identity();
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());

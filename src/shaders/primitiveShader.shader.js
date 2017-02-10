@@ -29,8 +29,8 @@ function PrimitiveShader() {
         ].join('\n'),
         // uniforms:
         {
-            uMatrix: {type: 'mat4', value: mat4.create()},
-            uTransform: {type: 'mat4', value: mat4.create()},
+            uMatrix: {type: 'mat4', value: new Float32Array(16)},
+            uTransform: {type: 'mat4', value: new Float32Array(16)},
             uColor: [0.0, 0.0, 0.0, 1.0],
             uPointSize: 2
         },
