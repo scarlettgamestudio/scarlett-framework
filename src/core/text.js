@@ -204,6 +204,8 @@ Text.prototype.setTexture = function (texture) {
     this._textureWidth = this._texture.getWidth();
     this._textureHeight = this._texture.getHeight();
 
+    let gl = this._gl;
+
     // the line below is already done when creating a Texture2D with content loader
     // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

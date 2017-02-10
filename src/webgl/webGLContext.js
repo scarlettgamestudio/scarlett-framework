@@ -8,7 +8,7 @@ function WebGLContext(params) {
 
 
     // private properties:
-    this._logger = new Logger(arguments.callee.name);
+    this._logger = new Logger("WebGLContext");
     this._canvas = null;
     this._gl = null;
 
@@ -55,7 +55,7 @@ WebGLContext.prototype.assignContextFromContainer = function (canvas) {
 };
 
 WebGLContext.prototype.getName = function () {
-    return SCARLETT.WEBGL;
+    return SC.WEBGL;
 };
 
 WebGLContext.prototype.getContext = function () {

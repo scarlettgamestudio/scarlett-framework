@@ -10,7 +10,9 @@ function Texture2D(image) {
     this._uid = generateUID();
     this._source = image;
     this._texture = null;
-    this._gl = gl = GameManager.renderContext.getContext();
+    this._gl = GameManager.renderContext.getContext();
+
+    let gl = this._gl;
 
     // Prepare the webgl texture:
     this._texture = gl.createTexture();
