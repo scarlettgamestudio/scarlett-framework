@@ -17,7 +17,7 @@ This repository contains the Scarlett Framework Module and associated libraries.
 * Install GruntJS by running "npm install -g grunt-cli" in your computer terminal
 * Open a terminal in the root folder and execute "npm install" for dependency resolution
 
-### Optional Setup ###
+### Optional Setup & Build ###
 
 * To activate automatic project build on code change simply run "grunt dev" on the root folder. 
 * To change the directory output of the build file, change the 'copyToDirectory' target in Gruntfile.js.
