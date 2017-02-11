@@ -1,83 +1,126 @@
 /**
  * Texture2D class
  */
-function Texture2D(image) {
-    if (!isObjectAssigned(image)) {
-        throw new Error("Cannot create Texture2D without an image source");
+class Texture2D {
+    /**
+     *
+     * @param image
+     */
+    constructor(image) {
+        if (!isObjectAssigned(image)) {
+            throw new Error("Cannot create Texture2D without an image source");
+        }
+
+        // private properties:
+        this._uid = generateUID();
+        this._source = image;
+        this._texture = null;
+        this._gl = GameManager.renderContext.getContext();
+
+        // Prepare the webgl texture:
+        this._texture = this._gl.createTexture();
+
+        // binding
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+
+        // Set the parameters so we can render any size image.
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+
+        // Upload the image into the texture.
+        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._source);
+
+        //this._gl.bindTexture(gl.TEXTURE_2D, null);
+
+        this._hasLoaded = true;
     }
 
-    // private properties:
-    this._uid = generateUID();
-    this._source = image;
-    this._texture = null;
-    this._gl = GameManager.renderContext.getContext();
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
+    fromPath(path) {
+        return new Promise((function (resolve, reject) {
+            ContentLoader.loadImage(path).then(function (image) {
+                resolve(new Texture2D(image));
 
-    let gl = this._gl;
+            }, function () {
+                reject();
 
-    // Prepare the webgl texture:
-    this._texture = gl.createTexture();
+            });
+        }).bind(this));
+    };
 
-    // binding
-    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    /**
+     *
+     * @returns {Number}
+     */
+    getUID() {
+        return this._uid;
+    };
 
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    /**
+     *
+     */
+    bind() {
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+    };
 
-    // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._source);
+    /**
+     *
+     * @param imageData
+     */
+    setImageData(imageData) {
+        this._source = imageData;
+    };
 
-    //gl.bindTexture(gl.TEXTURE_2D, null);
+    /**
+     *
+     * @returns {*}
+     */
+    getImageData() {
+        return this._source;
+    };
 
-    this._hasLoaded = true;
+    /**
+     * Gets the texture width
+     * @returns {Number}
+     */
+    getWidth() {
+        return this._source.width;
+    };
+
+    /**
+     * Gets the texture height
+     * @returns {Number}
+     */
+    getHeight() {
+        return this._source.height;
+    };
+
+    /**
+     * Gets the Texture
+     * @returns {WebGLTexture|*|null}
+     */
+    getTexture() {
+        return this._texture;
+    };
+
+    /**
+     *
+     * @returns {boolean}
+     */
+    isReady() {
+        return this._hasLoaded;
+    };
+
+    /**
+
+     */
+    unload() {
+
+    }
 }
-
-Texture2D.fromPath = function (path) {
-    return new Promise((function (resolve, reject) {
-        ContentLoader.loadImage(path).then(function (image) {
-            resolve(new Texture2D(image));
-
-        }, function () {
-            reject();
-
-        });
-    }).bind(this));
-};
-
-Texture2D.prototype.getUID = function () {
-    return this._uid;
-};
-
-Texture2D.prototype.bind = function () {
-    this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-};
-
-Texture2D.prototype.setImageData = function (imageData) {
-    this._source = imageData;
-};
-
-Texture2D.prototype.getWidth = function () {
-    return this._source.width;
-};
-
-Texture2D.prototype.getHeight = function () {
-    return this._source.height;
-};
-
-Texture2D.prototype.getImageData = function () {
-    return this._source;
-};
-
-Texture2D.prototype.getTexture = function () {
-    return this._texture;
-};
-
-Texture2D.prototype.isReady = function () {
-    return this._hasLoaded;
-};
-
-Texture2D.prototype.unload = function () {
-
-};
