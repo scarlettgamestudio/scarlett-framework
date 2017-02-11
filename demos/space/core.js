@@ -7,8 +7,6 @@ var player;
 var playerTex, playerBulletTex, enemyTex1, enemyTex2, backgroundTex;
 var lastBurst = ENEMY_BURST_DELAY / 2;
 var enemies = [];
-var text;
-var textTexture;
 
 game.init();
 
@@ -37,44 +35,7 @@ gameScene.initialize = function () {
     enemyTex1 = new Texture2D(ContentLoader.getImage("enemy1"));
     enemyTex2 = new Texture2D(ContentLoader.getImage("enemy2"));
     backgroundTex = new Texture2D(ContentLoader.getImage("background"));
-    textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
 
-    var load = require('load-bmfont');
-
-    load('assets/fnt/open-sans-sdf.fnt', function(err, font) {
-        if (err)
-            throw err;
-
-        //The BMFont spec in JSON form
-        /*console.log(font.common.lineHeight);
-        console.log(font.info);
-        console.log(font.chars);
-        console.log(font.kernings);*/
-
-        text = new Text({font: font, texture: textTexture, text: "Lorem ipsum\r\ndolore"});
-        text.transform.setPosition(-300, -180);
-        text.setColor(Color.fromRGBA(232,78,64, 1.0));
-
-        // set initial text area value
-        document.getElementById('str').value = text.getText();
-        document.getElementById('stroke').value = text.getStroke().getSize();
-        document.getElementById('dropShadow').value = text.getDropShadow().getSize();
-
-        document.getElementById('scale').value = text.getFontSize();
-        document.getElementById('gamma').value = text.getGamma();
-
-        document.getElementById('letterSpacing').value = text.getLetterSpacing();
-
-        document.getElementById('wordwrap').checked = text.getWordWrap();
-        document.getElementById('charwrap').checked = text.getCharacterWrap();
-        document.getElementById('debug').checked = text.getDebug();
-
-        document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
-        document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
-        document.getElementById('alignRight').checked = text.getAlign() == Text.AlignType.RIGHT;
-
-    });
-    
     var background = new Sprite({texture: backgroundTex});
     background.setWrapMode(WrapMode.REPEAT);
     sc.assignScript("backgroundAgent", background);
