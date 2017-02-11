@@ -24,12 +24,12 @@ This repository contains the Scarlett Framework Module and associated libraries.
 
 ### Build & Distribution ###
 
-* To create a distribution ES6 file (minified and uglified) run "grunt dev-concat" (concatenates all source files into one). The ES6 files are located under the './build/' folder.
+* To create a distribution ES6 file run "grunt dev-concat" (concatenates all source files into one). The ES6 files are located under the './build/' folder.
 * To generate a ES5 file run "grunt dist" to execute babelJS and convert the framework from ES6. The ES5 files are located under the  './build-es5/' folder.
 
 ### Recommended Code Editors ###
 
-* IntelliJ Ultimate or Webstorm
+* Webstorm or IntelliJ Ultimate 
 * Visual Studio Code
 * Atom
 
