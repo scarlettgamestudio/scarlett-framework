@@ -17,11 +17,15 @@ This repository contains the Scarlett Framework Module and associated libraries.
 * Install GruntJS by running "npm install -g grunt-cli" in your computer terminal
 * Open a terminal in the root folder and execute "npm install" for dependency resolution
 
-### Optional Setup & Build ###
+### Optional Setup ###
 
 * To activate automatic project build on code change simply run "grunt dev" on the root folder. 
 * To change the directory output of the build file, change the 'copyToDirectory' target in Gruntfile.js.
-* To create a distribution file (minified and uglified) run "grunt dist"
+
+### Build & Distribution ###
+
+* To create a distribution ES6 file (minified and uglified) run "grunt dev-concat" (concatenates all source files into one). The ES6 files are located under the './build/' folder.
+* To generate a ES5 file run "grunt dist" to execute babelJS and convert the framework from ES6. The ES5 files are located under the  './build-es5/' folder.
 
 ### Recommended Code Editors ###
 
