@@ -4,6 +4,9 @@
   "dependencies": {
     "matter-js": "^0.10.0"
   },
+  "scripts": {
+    "start": "py -3 -m http.server 8080"
+  },
   "devDependencies": {
     "babel-cli": "^6.22.2",
     "babel-preset-es2015": "^6.22.0",

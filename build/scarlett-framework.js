@@ -8,7 +8,9 @@
 
 More Information @ https://scarlett.anlagehub.com | https://github.com/scarlettgamestudio/
 
- */;/**
+
+ **/
+;/**
 * matter-js 0.10.0 by @liabru 2016-05-01
 * http://brm.io/matter-js/
 * License MIT
@@ -10218,12 +10220,6 @@ Path.makeRelative = function (basePath, fullPath) {
  * Created by Luis on 08/02/2017.
  */
 
-/**
- * TextUtils Class
- */
-var TextUtils = function () {
-};
-
 // TODO: replace for extensions.js array insert? supports multiple arguments...
 Array.prototype.insert = function (index) {
     this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
@@ -10238,413 +10234,422 @@ String.prototype.insert = function (index, string) {
 };
 
 /**
- * Measures a given character's width based on the provided font style
- * @param {string} char character to measure
- * @param {FontStyle} fontStyle font style to measure with
- * @returns {number} the character width if valid and 0 if invalid
- * @public
+ * TextUtils Class
  */
-TextUtils.measureCharacterWidth = function(fontStyle, char){
-    // don't go further if parameters are invalid
-    if (!fontStyle || !char) {
-        return 0;
-    }
+class TextUtils{
 
-    var scale = fontStyle.getScale();
+    //#region Static Methods
 
-    // if scale is invalid (0 or null)
-    if (!scale){
-        return 0;
-    }
-
-    // retrieve character ID
-    var charID = fontStyle.findCharID(char);
-
-    // don't go further if char id is invalid
-    if (charID === null){
-        return 0;
-    }
-
-    // calculate character 'width'
-    // xadvance is based not only on the width but also on the padding, thus being used instead of width (?)
-    var charWidth = fontStyle.getFontDescription().chars[charID].xadvance * scale;
-
-    return charWidth;
-};
-
-/**
- * Measures the given text string width based on the provided font style
- * @param {FontStyle} fontStyle font style to measure with
- * @param {string} textStr text string to measure
- * @returns {number} the given text string width if valid and 0 if invalid
- * @public
- */
-TextUtils.measureTextWidth = function(fontStyle, textStr){
-    // don't go further if parameters or scale are invalid
-    if (!fontStyle || !textStr || !fontStyle.getScale()){
-        return 0;
-    }
-
-    // set initial width
-    var width = 0;
-    // set initial letter spacing (for the first character, basically)
-    var currentLetterSpacing = 0;
-    // just to keep track of reverting to the original letter spacing value, so we only do it once
-    var revertedToOriginalValue = false;
-
-    // iterate through every character
-    for (var c = 0; c < textStr.length; c++){
-        // retrieve character at position c
-        var char = textStr[c];
-
-        // if there is already one or more valid characters, then we can use the actual letter spacing value
-        if (!revertedToOriginalValue && width > 0){
-            // revert to original value
-            currentLetterSpacing = fontStyle.getLetterSpacing();
-            // make sure we only enter this condition once
-            revertedToOriginalValue = true;
+    /**
+     * Measures a given character's width based on the provided font style
+     * @param {string} char character to measure
+     * @param {FontStyle} fontStyle font style to measure with
+     * @returns {number} the character width if valid and 0 if invalid
+     * @public
+     */
+    static measureCharacterWidth(fontStyle, char){
+        // don't go further if parameters are invalid
+        if (!fontStyle || !char) {
+            return 0;
         }
 
-        // store character's width temporarily
-        var tempWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+        let scale = fontStyle.getScale();
 
-        // if valid
-        if (tempWidth > 0){
-            // add its width
-            // if tempWidth was 0, adding letter spacing wouldn't make much sense.
-            width += tempWidth + currentLetterSpacing;
-        }
-    }
-
-    // return total width
-    return width;
-};
-
-TextUtils.wrapWordsShortVersion = function(fontStyle, textStr, maxLineWidth){
-
-    var result = [];
-
-    if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
-        return result;
-    }
-
-    // retrieve words
-    var words = textStr.split(' ');
-
-    // no need to go further if there is only 1 word
-    if (words.length == 1){
-        return words;
-    }
-
-    var whitespace = " ";
-    // get first word and remove it from the array
-    var currentLine = words.shift();
-
-    // iterate through the words
-    for (var w = 0; w < words.length; w++){
-        // retrieve word
-        var word = words[w];
-
-        // simulate line width with the current word and whitespaces in between
-        var tempLine = currentLine + whitespace + word;
-
-        var tempWidth = TextUtils.measureTextWidth(fontStyle, tempLine);
-
-        if (tempWidth > maxLineWidth){
-            result.push(currentLine);
-            currentLine = word;
-        }
-        else {
-            currentLine += whitespace + word;
-        }
-    }
-
-    // push last line
-    result.push(currentLine);
-
-    return result;
-};
-
-/**
- * Wraps the words of a given text depending on a maximum width and font style
- * @param {FontStyle} fontStyle font style to measure with
- * @param {string} textStr text string to wrap
- * @param {number} maxLineWidth maximum width per line
- * @param {boolean} characterWrap whether it should character wrap or not
- * @returns {Array} wrapped text in lines
- * @public
- */
-TextUtils.wrapWordsLongVersion = function(fontStyle, textStr, maxLineWidth, characterWrap){
-    var result = [];
-
-    if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
-        return result;
-    }
-
-    // retrieve words
-    var words = textStr.split(' ');
-
-    // get first word and remove it from the array
-    var currentLine = "";//words.shift();
-    // store its width
-    var currentLineWordWidth = 0;//TextUtils.measureTextWidth(currentLine, scale);
-
-    var whitespace = "";// " ";
-    var whitespaceWidth = 0;//TextUtils.measureCharacterWidth(whitespace, scale);
-    // just to keep track of reverting whitespace to its original value (its real width)
-    var revertedToOriginalValue = false;
-
-    // iterate through the words
-    for (var w = 0; w < words.length; w++){
-        // retrieve word
-        var word = words[w];
-
-        // just a way to not consider whitespace and its width (along with a possible letter spacing value)
-        // if there aren't any characters or words already in the current line.
-        if (!revertedToOriginalValue && currentLineWordWidth > 0){
-            whitespace = " ";
-            // letter spacing also affects the whitespace width when there is at least 1 word
-            whitespaceWidth = TextUtils.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
-            // make sure we only enter this condition once (per line)
-            revertedToOriginalValue = true;
+        // if scale is invalid (0 or null)
+        if (!scale){
+            return 0;
         }
 
-        // calculate word width according to the text scale (not characters length!)
-        var wordWidth = TextUtils.measureTextWidth(fontStyle, word);
+        // retrieve character ID
+        let charID = fontStyle.findCharID(char);
 
-        // TODO: think of a cleaner way of doing this? maybe wrapTextByCharacter shouldn't return line objects?
-        if (characterWrap && wordWidth > maxLineWidth){
-            var tempLine = currentLine + whitespace + word;
+        // don't go further if char id is invalid
+        if (charID === null){
+            return 0;
+        }
 
-            var characterWrappedLines = TextUtils.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
+        // calculate character 'width'
+        // xadvance is based not only on the width but also on the padding, thus being used instead of width (?)
+        let charWidth = fontStyle.getFontDescription().chars[charID].xadvance * scale;
 
-            // currentLine is the last line so maybe next word also fits
-            currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
-            currentLineWordWidth = TextUtils.measureTextWidth(fontStyle, currentLine);
-            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
-            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
-            whitespace = "";
-            whitespaceWidth = 0;
-            revertedToOriginalValue = false;
+        return charWidth;
+    }
 
-            // push the others
-            for (var cline = 0; cline < characterWrappedLines.length; cline++){
-                var characterLine = characterWrappedLines[cline].chars.join("");
-                result.push(characterLine);
+    /**
+     * Measures the given text string width based on the provided font style
+     * @param {FontStyle} fontStyle font style to measure with
+     * @param {string} textStr text string to measure
+     * @returns {number} the given text string width if valid and 0 if invalid
+     * @public
+     */
+    static measureTextWidth(fontStyle, textStr){
+        // don't go further if parameters or scale are invalid
+        if (!fontStyle || !textStr || !fontStyle.getScale()){
+            return 0;
+        }
+
+        // set initial width
+        let width = 0;
+        // set initial letter spacing (for the first character, basically)
+        let currentLetterSpacing = 0;
+        // just to keep track of reverting to the original letter spacing value, so we only do it once
+        let revertedToOriginalValue = false;
+
+        // iterate through every character
+        for (let c = 0; c < textStr.length; c++){
+            // retrieve character at position c
+            let char = textStr[c];
+
+            // if there is already one or more valid characters, then we can use the actual letter spacing value
+            if (!revertedToOriginalValue && width > 0){
+                // revert to original value
+                currentLetterSpacing = fontStyle.getLetterSpacing();
+                // make sure we only enter this condition once
+                revertedToOriginalValue = true;
             }
-            // no need to go further in this iteration
-            continue;
+
+            // store character's width temporarily
+            let tempWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+
+            // if valid
+            if (tempWidth > 0){
+                // add its width
+                // if tempWidth was 0, adding letter spacing wouldn't make much sense.
+                width += tempWidth + currentLetterSpacing;
+            }
         }
 
-        // simulate line width with the current word, a whitespace in between and also extra line spacing if any
-        var tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
-
-        if (tempWidth > maxLineWidth){
-            result.push(currentLine);
-            currentLine = word;
-            currentLineWordWidth = wordWidth;
-            // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
-            // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
-            whitespace = "";
-            whitespaceWidth = 0;
-            revertedToOriginalValue = false;
-        }
-        else {
-            currentLine += whitespace + word;
-            currentLineWordWidth += whitespaceWidth + wordWidth;
-        }
+        // return total width
+        return width;
     }
 
-    // push last line
-    result.push(currentLine);
+    static wrapWordsShortVersion(fontStyle, textStr, maxLineWidth){
+        let result = [];
 
-    return result;
-};
+        if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+            return result;
+        }
 
-/**
- * Wraps the characters of a given text depending on a maximum width and text scale
- * @param {FontStyle} fontStyle font style to measure with
- * @param {string} textStr text string to wrap
- * @param {number} maxLineWidth maximum width per line
- * @returns {Array} wrapped text in lines
- * @public
- */
-TextUtils.wrapTextByCharacter = function(fontStyle, textStr, maxLineWidth){
-    // create empty array
-    var lines = [];
+        // retrieve words
+        let words = textStr.split(' ');
 
-    // TODO: trim?
-    // if parameters are invalid, no need to go further
-    if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0){
+        // no need to go further if there is only 1 word
+        if (words.length == 1){
+            return words;
+        }
+
+        let whitespace = " ";
+        // get first word and remove it from the array
+        let currentLine = words.shift();
+
+        // iterate through the words
+        for (let w = 0; w < words.length; w++){
+            // retrieve word
+            let word = words[w];
+
+            // simulate line width with the current word and whitespaces in between
+            let tempLine = currentLine + whitespace + word;
+
+            let tempWidth = TextUtils.measureTextWidth(fontStyle, tempLine);
+
+            if (tempWidth > maxLineWidth){
+                result.push(currentLine);
+                currentLine = word;
+            }
+            else {
+                currentLine += whitespace + word;
+            }
+        }
+
+        // push last line
+        result.push(currentLine);
+
+        return result;
+    }
+
+    /**
+     * Wraps the words of a given text depending on a maximum width and font style
+     * @param {FontStyle} fontStyle font style to measure with
+     * @param {string} textStr text string to wrap
+     * @param {number} maxLineWidth maximum width per line
+     * @param {boolean} characterWrap whether it should character wrap or not
+     * @returns {Array} wrapped text in lines
+     * @public
+     */
+    static wrapWordsLongVersion(fontStyle, textStr, maxLineWidth, characterWrap){
+        let result = [];
+
+        if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+            return result;
+        }
+
+        // retrieve words
+        let words = textStr.split(' ');
+
+        // get first word and remove it from the array
+        let currentLine = "";//words.shift();
+        // store its width
+        let currentLineWordWidth = 0;//TextUtils.measureTextWidth(currentLine, scale);
+
+        let whitespace = "";// " ";
+        let whitespaceWidth = 0;//TextUtils.measureCharacterWidth(whitespace, scale);
+        // just to keep track of reverting whitespace to its original value (its real width)
+        let revertedToOriginalValue = false;
+
+        // iterate through the words
+        for (let w = 0; w < words.length; w++){
+            // retrieve word
+            let word = words[w];
+
+            // just a way to not consider whitespace and its width (along with a possible letter spacing value)
+            // if there aren't any characters or words already in the current line.
+            if (!revertedToOriginalValue && currentLineWordWidth > 0){
+                whitespace = " ";
+                // letter spacing also affects the whitespace width when there is at least 1 word
+                whitespaceWidth = TextUtils.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
+                // make sure we only enter this condition once (per line)
+                revertedToOriginalValue = true;
+            }
+
+            // calculate word width according to the text scale (not characters length!)
+            let wordWidth = TextUtils.measureTextWidth(fontStyle, word);
+
+            // TODO: think of a cleaner way of doing this? maybe wrapTextByCharacter shouldn't return line objects?
+            if (characterWrap && wordWidth > maxLineWidth){
+                let tempLine = currentLine + whitespace + word;
+
+                let characterWrappedLines = TextUtils.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
+
+                // currentLine is the last line so maybe next word also fits
+                currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
+                currentLineWordWidth = TextUtils.measureTextWidth(fontStyle, currentLine);
+                // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+                // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+                whitespace = "";
+                whitespaceWidth = 0;
+                revertedToOriginalValue = false;
+
+                // push the others
+                for (let cline = 0; cline < characterWrappedLines.length; cline++){
+                    let characterLine = characterWrappedLines[cline].chars.join("");
+                    result.push(characterLine);
+                }
+                // no need to go further in this iteration
+                continue;
+            }
+
+            // simulate line width with the current word, a whitespace in between and also extra line spacing if any
+            let tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
+
+            if (tempWidth > maxLineWidth){
+                result.push(currentLine);
+                currentLine = word;
+                currentLineWordWidth = wordWidth;
+                // reset whitespace values as currentLineWordWidth can be 0... and would consider whitespace
+                // in the beginning of a new line, which we are trying to avoid (the reason of all this mess!)
+                whitespace = "";
+                whitespaceWidth = 0;
+                revertedToOriginalValue = false;
+            }
+            else {
+                currentLine += whitespace + word;
+                currentLineWordWidth += whitespaceWidth + wordWidth;
+            }
+        }
+
+        // push last line
+        result.push(currentLine);
+
+        return result;
+    }
+
+    /**
+     * Wraps the characters of a given text depending on a maximum width and text scale
+     * @param {FontStyle} fontStyle font style to measure with
+     * @param {string} textStr text string to wrap
+     * @param {number} maxLineWidth maximum width per line
+     * @returns {Array} wrapped text in lines
+     * @public
+     */
+    static wrapTextByCharacter(fontStyle, textStr, maxLineWidth){
+        // create empty array
+        let lines = [];
+
+        // TODO: trim?
+        // if parameters are invalid, no need to go further
+        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0){
+            return lines;
+        }
+
+        // create first line, since it's sure to have some text
+        lines.push({
+            chars: [],
+            width: 0
+        });
+
+        // set initial value for letter spacing (for the first character iteration, basically...)
+        let currentLetterSpacing = 0;
+        // just to keep track of reverting to letter spacing original value
+        let revertedToOriginalValue = false;
+
+        // iterate through text characters
+        for (let c = 0; c < textStr.length; c++){
+            // retrieve text character
+            let char = textStr[c];
+
+            // store current line index
+            let currentLine = lines.length - 1;
+
+            // after the first (valid) character of current line, get the actual value of letter spacing
+            if (!revertedToOriginalValue && lines[currentLine].width > 0){
+                // revert to original value
+                currentLetterSpacing = fontStyle.getLetterSpacing();
+                // make sure we only enter this condition once (per line, thus the resets down below)
+                revertedToOriginalValue = true;
+            }
+
+            // retrieve character width
+            let charWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+
+            // current width + char width + letter spacing if there is at least 1 character
+            let tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
+
+            // if current line width + the current character width is > than the max width
+            if(tempWidth > maxLineWidth){
+                // create a new and empty line
+                lines.push({
+                    chars: [],
+                    width: 0
+                });
+
+                // update current line index
+                currentLine++;
+                // reset letter spacing!
+                currentLetterSpacing = 0;
+                // and the variable that keeps track of reverting to actual letter spacing value
+                revertedToOriginalValue = false;
+
+                // skip if the character is a whitespace
+                if (char === " "){
+                    continue;
+                }
+            }
+
+            // add character and its width to current line (plus letter spacing if there is at least 1 character)
+            lines[currentLine].width += charWidth + currentLetterSpacing;
+            lines[currentLine].chars.push(char);
+        }
+
         return lines;
     }
 
-    // create first line, since it's sure to have some text
-    lines.push({
-        chars: [],
-        width: 0
-    });
+    /**
+     * Converts a given text into a Line Object, with an array of characters and the line total width
+     * @param {FontStyle} fontStyle font style to measure with
+     * @param {string} textStr text string to convert into a line object
+     * @returns {{chars: Array, width: number}}
+     * @public
+     */
+    static convertTextStringToLineFormat(fontStyle, textStr){
+        // define empty line
+        let line = {
+            chars: Array(),
+            width: 0
+        };
 
-    // set initial value for letter spacing (for the first character iteration, basically...)
-    var currentLetterSpacing = 0;
-    // just to keep track of reverting to letter spacing original value
-    var revertedToOriginalValue = false;
-
-    // iterate through text characters
-    for (var c = 0; c < textStr.length; c++){
-        // retrieve text character
-        var char = textStr[c];
-
-        // store current line index
-        var currentLine = lines.length - 1;
-
-        // after the first (valid) character of current line, get the actual value of letter spacing
-        if (!revertedToOriginalValue && lines[currentLine].width > 0){
-            // revert to original value
-            currentLetterSpacing = fontStyle.getLetterSpacing();
-            // make sure we only enter this condition once (per line, thus the resets down below)
-            revertedToOriginalValue = true;
+        // return empty if any of the values or scale is invalid
+        if (!fontStyle || !textStr || !fontStyle.getScale()){
+            return line;
         }
 
-        // retrieve character width
-        var charWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+        // set line characters and width
+        line.chars = textStr.split("");
+        line.width = TextUtils.measureTextWidth(fontStyle, textStr);
 
-        // current width + char width + letter spacing if there is at least 1 character
-        var tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
-
-        // if current line width + the current character width is > than the max width
-        if(tempWidth > maxLineWidth){
-            // create a new and empty line
-            lines.push({
-                chars: [],
-                width: 0
-            });
-
-            // update current line index
-            currentLine++;
-            // reset letter spacing!
-            currentLetterSpacing = 0;
-            // and the variable that keeps track of reverting to actual letter spacing value
-            revertedToOriginalValue = false;
-
-            // skip if the character is a whitespace
-            if (char === " "){
-                continue;
-            }
-        }
-
-        // add character and its width to current line (plus letter spacing if there is at least 1 character)
-        lines[currentLine].width += charWidth + currentLetterSpacing;
-        lines[currentLine].chars.push(char);
-    }
-
-    return lines;
-};
-
-/**
- * Converts a given text into a Line Object, with an array of characters and the line total width
- * @param {FontStyle} fontStyle font style to measure with
- * @param {string} textStr text string to convert into a line object
- * @returns {{chars: Array, width: number}}
- * @public
- */
-TextUtils.convertTextStringToLineFormat = function(fontStyle, textStr){
-    // define empty line
-    var line = {
-        chars: Array(),
-        width: 0
-    };
-
-    // return empty if any of the values or scale is invalid
-    if (!fontStyle || !textStr || !fontStyle.getScale()){
         return line;
     }
 
-    // set line characters and width
-    line.chars = textStr.split("");
-    line.width = TextUtils.measureTextWidth(fontStyle, textStr);
+    /**
+     * Creates the definitive lines to draw onto the screen
+     * @param {FontStyle} fontStyle font style to measure with
+     * @param {string} textStr text string to draw
+     * @param {number} maxLineWidth maximum line width
+     * @param {boolean} wordWrap whether it should word wrap or not
+     * @param {boolean} characterWrap whether it should character wrap or not
+     * @returns {Array} text split into lines
+     * @public
+     */
+    static measureText(fontStyle, textStr, maxLineWidth, wordWrap, characterWrap) {
+        // create empty array
+        let resultLines = [];
 
-    return line;
-};
+        // if parameters or scale are invalid, there is no need to go further
+        if (!fontStyle || !textStr || !maxLineWidth || !fontStyle.getScale()){
+            return resultLines;
+        }
 
-/**
- * Creates the definitive lines to draw onto the screen
- * @param {FontStyle} fontStyle font style to measure with
- * @param {string} textStr text string to draw
- * @param {number} maxLineWidth maximum line width
- * @param {boolean} wordWrap whether it should word wrap or not
- * @param {boolean} characterWrap whether it should character wrap or not
- * @returns {Array} text split into lines
- * @public
- */
-TextUtils.measureText = function (fontStyle, textStr, maxLineWidth, wordWrap, characterWrap) {
-    // create empty array
-    var resultLines = [];
+        // create first line, since it's sure to have some text
+        resultLines.push({
+            chars: [],
+            width: 0
+        });
 
-    // if parameters or scale are invalid, there is no need to go further
-    if (!fontStyle || !textStr || !maxLineWidth || !fontStyle.getScale()){
+        // store original text
+        let useText = textStr;
+
+        // create array for user defined lines
+        let userDefinedLines = [];
+
+        // word wrap by inserting \n in the original text
+        if (wordWrap){
+            // initialize resulting text
+            let wrappedText = "";
+            // split text into lines defined by the user
+            userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
+
+            // iterate through lines
+            for (let l = 0; l < userDefinedLines.length; l++){
+                // wrap line
+                let wrappedLine = TextUtils.wrapWordsLongVersion(fontStyle, userDefinedLines[l],
+                    maxLineWidth, characterWrap).join('\n');
+                // always insert a break at the end since the split gets rid of the user defined breaks...
+                wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
+                // concatenate to resulting wrapping text
+                wrappedText = wrappedText.concat(wrappedLine);
+            }
+
+            // assign useText to resulting wrapping text
+            useText = wrappedText;
+        }
+
+        // split text into lines defined by the users (and also word wrapped now ;))
+        userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
+
+        // iterate through user defined lines (with special characters)
+        for (let l = 0; l < userDefinedLines.length; l++){
+
+            let userDefinedLine = userDefinedLines[l];
+
+            let preparedLines = [];
+
+            // only perform character wrap if word wrap isn't enabled in the first place
+            if (!wordWrap && characterWrap) {
+                preparedLines = TextUtils.wrapTextByCharacter(fontStyle, userDefinedLine, maxLineWidth);
+            }
+            else {
+                preparedLines.push(TextUtils.convertTextStringToLineFormat(fontStyle, userDefinedLine));
+            }
+
+            // extended result array (does not create a new array such as concat)
+            Array.prototype.push.apply(resultLines, preparedLines);
+        }
+
         return resultLines;
     }
 
-    // create first line, since it's sure to have some text
-    resultLines.push({
-        chars: [],
-        width: 0
-    });
+    //#endregion
 
-    // store original text
-    var useText = textStr;
-
-    // create array for user defined lines
-    var userDefinedLines = [];
-
-    // word wrap by inserting \n in the original text
-    if (wordWrap){
-        // initialize resulting text
-        var wrappedText = "";
-        // split text into lines defined by the user
-        userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
-
-        // iterate through lines
-        for (var l = 0; l < userDefinedLines.length; l++){
-            // wrap line
-            var wrappedLine = TextUtils.wrapWordsLongVersion(fontStyle, userDefinedLines[l],
-                    maxLineWidth, characterWrap).join('\n');
-            // always insert a break at the end since the split gets rid of the user defined breaks...
-            wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
-            // concatenate to resulting wrapping text
-            wrappedText = wrappedText.concat(wrappedLine);
-        }
-
-        // assign useText to resulting wrapping text
-        useText = wrappedText;
-    }
-
-    // split text into lines defined by the users (and also word wrapped now ;))
-    userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
-
-    // iterate through user defined lines (with special characters)
-    for (var l = 0; l < userDefinedLines.length; l++){
-
-        var userDefinedLine = userDefinedLines[l];
-
-        var preparedLines = [];
-
-        // only perform character wrap if word wrap isn't enabled in the first place
-        if (!wordWrap && characterWrap) {
-            preparedLines = TextUtils.wrapTextByCharacter(fontStyle, userDefinedLine, maxLineWidth);
-        }
-        else {
-            preparedLines.push(TextUtils.convertTextStringToLineFormat(fontStyle, userDefinedLine));
-        }
-
-        // extended result array (does not create a new array such as concat)
-        Array.prototype.push.apply(resultLines, preparedLines);
-    }
-
-    return resultLines;
-};
-;/**
+};/**
  * General utility class
  */
 var Utility = function () {
@@ -12059,451 +12064,543 @@ Camera2D.restore = function (data) {
 
 /**
  * Color Class
- * Sets Colors' values using either default ([0-1] or RGBA ([0-255] and alpha as [0-1]) format
- * @param {number} r red value ([0-1] vs [0-255])
- * @param {number} g green value ([0-1] vs [0-255])
- * @param {number} b blue value ([0-1] vs [0-255])
- * @param {number} a alpha value ([0-1])
- * @param {boolean} asRGBA whether it should consider the first 3 arguments to be in RGBA format
- * @constructor
  */
-function Color(r, g, b, a, asRGBA) {
+class Color{
 
-    // default values (public)
-    this.r = 0.0;
-    this.g = 0.0;
-    this.b = 0.0;
-    this.a = 1.0;
+    //#region Static Properties
 
-    // set the properties with the given values
-    this.setSpecial(r, g, b, a, asRGBA);
+    static get CornflowerBlue(){
+        return Color.fromRGB(100.0, 149.0, 237.0);
+    }
+
+    static get Scarlet(){
+        return Color.fromRGB(255.0, 36.0, 0.0);
+    }
+
+    static get Red(){
+        return Color.fromRGB(255.0, 0.0, 0.0);
+    }
+
+    static get Green(){
+        return Color.fromRGB(0.0, 255.0, 0.0);
+    }
+
+    static get Blue(){
+        return Color.fromRGB(0.0, 0.0, 255.0);
+    }
+
+    static get White(){
+        return Color.fromRGB(255.0, 255.0, 255.0);
+    }
+
+    static get Black(){
+        return Color.fromRGB(0.0, 0.0, 0.0);
+    }
+
+    static get Gray(){
+        return Color.fromRGB(80.0, 80.0, 80.0);
+    }
+
+    static get Nephritis(){
+        return Color.fromRGB(39.0, 174.0, 96.0);
+    }
+
+    static get Wisteria(){
+        return Color.fromRGB(142.0, 68.0, 173.0);
+    }
+
+    static get Amethyst(){
+        return Color.fromRGB(155.0, 89.0, 182.0);
+    }
+
+    static get Carrot(){
+        return Color.fromRGB(230, 126, 34);
+    }
+
+    static get Pumpkin(){
+        return Color.fromRGB(211, 84, 0);
+    }
+
+    static get Orange(){
+        return Color.fromRGB(243, 156, 18);
+    }
+
+    static get SunFlower(){
+        return Color.fromRGB(241, 196, 15);
+    }
+
+    static get Alizarin(){
+        return Color.fromRGB(231, 76, 60);
+    }
+
+    //#endregion
+
+    //#region Constructors
+
+    /**
+     * Sets Colors' values using either default ([0-1] or RGBA ([0-255] and alpha as [0-1]) format
+     * @param {number} r red value ([0-1] vs [0-255])
+     * @param {number} g green value ([0-1] vs [0-255])
+     * @param {number} b blue value ([0-1] vs [0-255])
+     * @param {number} a alpha value ([0-1])
+     * @param {boolean} asRGBA whether it should consider the first 3 arguments to be in RGBA format
+     * @constructor
+     */
+    constructor(r, g, b, a, asRGBA) {
+
+        // default values (public)
+        this.r = 0.0;
+        this.g = 0.0;
+        this.b = 0.0;
+        this.a = 1.0;
+
+        // set the properties with the given values
+        this.setSpecial(r, g, b, a, asRGBA);
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     */
+    static restore(data) {
+        return new Color(data.r, data.g, data.b, data.a, false);
+    }
+
+    /**
+     * Attempts to create and retrieve a Color object given RGBA values
+     * @param {number} red red value [0-255]
+     * @param {number} green red value [0-255]
+     * @param {number} blue red value [0-255]
+     * @param {number} alpha red value [0-1]
+     * @returns {Color|null} Color object if valid or null if invalid
+     */
+    static fromRGBA(red, green, blue, alpha) {
+
+        // no need to go further if arguments are invalid
+        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
+            return null;
+        }
+
+        return new Color(red, green, blue, alpha, true);
+    }
+
+    /**
+     * Attempts to create and retrieve a Color object given a hexadecimal value
+     * @param {string} hex hexadecimal color
+     * @returns {Color|null} Color object if valid or null if invalid
+     */
+    static fromHex(hex) {
+
+        // no need to go further if argument is invalid
+        if (!isString(hex)){
+            return null;
+        }
+
+        // convert to RGBA
+        let rgba = Color.hexToRGBA(hex);
+
+        if (!rgba){
+            return null;
+        }
+
+        return Color.fromRGBA(rgba.r, rgba.g, rgba.b, rgba.a);
+    }
+
+    static fromRGB(red, green, blue) {
+        return Color.fromRGBA(red, green, blue, 1.0);
+    }
+
+    static random(alpha) {
+        alpha = !isNumber(alpha) ? 1.0 : alpha;
+        return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
+    }
+
+    /*
+     Based on http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+     */
+
+    /**
+     * Attempts to convert the given red, green and blue values to hexadecimal format
+     * @param {number} r red value [0-255]
+     * @param {number} g green value [0-255]
+     * @param {number} b blue value [0-255]
+     * @returns {string} hexadecimal string or an empty string if invalid arguments were provided
+     */
+    static rgbToHex(r, g, b) {
+
+        if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
+            return "";
+        }
+
+        r = MathHelper.clamp(r, 0, 255);
+        g = MathHelper.clamp(g, 0, 255);
+        b = MathHelper.clamp(b, 0, 255);
+
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    /**
+     * Converts the given hexadecimal string to RGBA format ([0-255], [0-255], [0-255], [0-1])
+     * @param {string} hex hexadecimal string
+     * @returns {{r: number, g: number, b: number, a: number}|null} an object with rgba values or null if invalid
+     */
+    static hexToRGBA(hex) {
+        // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
+        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
+        hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
+            return r + r + g + g + b + b + a + a;
+        });
+
+        // the last 2 digits (referent to alpha) are optional
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
+        return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16),
+                // convert value to 0-1
+                a: result[4] != 'undefined' ? parseInt(result[4], 16) / 255 : 1
+            } : null;
+    }
+
+    //#endregion
+
+    //#region Public Methods
+
+    /**
+     * Clones the color object, returning a copy of it
+     * @returns {Color} copy of the color
+     */
+    clone() {
+        return new Color(this.r, this.g, this.b, this.a, false);
+    }
+
+    /**
+     * Sets Colors' values using either default ([0-1] or RGBA ([0-255] and alpha as [0-1]) format
+     * @param {number} r red value ([0-1] vs [0-255])
+     * @param {number} g green value ([0-1] vs [0-255])
+     * @param {number} b blue value ([0-1] vs [0-255])
+     * @param {number} a alpha value ([0-1])
+     * @param {boolean} asRGBA whether it should consider the first 3 arguments to be in RGBA format
+     */
+    setSpecial(r, g, b, a, asRGBA) {
+
+        // default values
+        let currentColor = this;
+        let maxRange = 1.0;
+
+        // change current color and max range if chosen format is set to RGBA
+        if (asRGBA === true){
+            currentColor = this.toRGBA();
+            maxRange = 255.0;
+        }
+
+        // validate type and fall back to current color when needed
+        r = isNumber(r) ? r : currentColor.r;
+        g = isNumber(g) ? g : currentColor.g;
+        b = isNumber(b) ? b : currentColor.b;
+        a = isNumber(a) ? a : currentColor.a;
+
+        // make sure the values are in the range
+        this.r = MathHelper.clamp(r, 0.0, maxRange) / maxRange;
+        this.g = MathHelper.clamp(g, 0.0, maxRange) / maxRange;
+        this.b = MathHelper.clamp(b, 0.0, maxRange) / maxRange;
+        this.a = MathHelper.clamp(a, 0.0, 1.0);
+    }
+
+    /**
+     * Sets Colors' values using default format ([0-1], [0-1], [0-1], [0-1])
+     * @param {number} r red value [0-1]
+     * @param {number} g green value [0-1]
+     * @param {number} b blue value [0-1]
+     * @param {number} a alpha value [0-1]
+     */
+    set(r, g, b, a) {
+        this.setSpecial(r, g, b, a, false);
+    }
+
+    /**
+     * Sets Colors' values using a RGBA format ([0-255], [0-255], [0-255], [0-1] format)
+     * @param {number} r red value [0-255]
+     * @param {number} g green value [0-255]
+     * @param {number} b blue value [0-255]
+     * @param {number} a alpha value [0-1]
+     */
+    setAsRGBA(r, g, b, a) {
+        this.setSpecial(r, g, b, a, true);
+    }
+
+    /**
+     * Compares the color object ignoring the alpha color
+     * @param {{r: number, g: number, b: number}} obj an object with red, green and blue values
+     * @returns {boolean|null} whether the objects are equal or null if an invalid argument was provided
+     */
+    equalsIgnoreAlpha(obj) {
+
+        // validate argument before testing
+        if (!isNumber(obj.r) || !isNumber(obj.g) || !isNumber(obj.b)){
+            return null;
+        }
+
+        return (obj.r === this.r && obj.g === this.g && obj.b === this.b);
+    }
+
+    /**
+     * Compares the color object
+     * @param {{r: number, g: number, b: number, a: number}} obj an object with red, green, blue and alpha values
+     * @returns {boolean|null} whether the objects are equal or null if an invalid argument was provided
+     */
+    equals(obj) {
+
+        // validate argument before testing
+        if (!isNumber(obj.a)){
+            return null;
+        }
+
+        return (this.equalsIgnoreAlpha(obj) && obj.a === this.a);
+    }
+
+    /**
+     *
+     */
+    objectify() {
+        return {
+            r: this.r,
+            g: this.g,
+            b: this.b,
+            a: this.a
+        };
+    }
+
+    /**
+     * Converts Color format ([0-1], [0-1], [0-1], [0-1]) back to RGBA ([0-255], [0-255], [0-255], [0-1])
+     * @returns {{r: number, g: number, b: number, a: number}} object with color in rgba format
+     */
+    toRGBA() {
+        return {
+            r: this.r * 255,
+            g: this.g * 255,
+            b: this.b * 255,
+            a: this.a
+        };
+    }
+
+    /**
+     * Converts the color to hexadecimal format, returning it
+     * @returns {string} hexadecimal string
+     */
+    toHex() {
+        // convert back to RGBA format
+        let rgba = this.toRGBA();
+        // convert to Hex
+        return Color.rgbToHex(rgba.r, rgba.g, rgba.b);
+    }
+
+    /**
+     * Converts the color to an array, returning it
+     * @returns {Array} array containing rgba values [r,g,b,a]
+     */
+    toArray() {
+        return [this.r, this.g, this.b, this.a];
+    }
+
+    /**
+     * Converts the color to a Float32Array, returning it
+     * @returns {Float32Array} array containing rgba values [r,g,b,a]
+     */
+    toFloat32Array() {
+        return new Float32Array([this.r, this.g, this.b, this.a]);
+    }
+
+    /**
+     *
+     */
+    unload() {
+
+    }
+
+    //#endregion
+
+    //#endregion
+
 }
 
-/**
- * Clones the color object, returning a copy of it
- * @returns {Color} copy of the color
- */
-Color.prototype.clone = function() {
-   return new Color(this.r, this.g, this.b, this.a, false);
-};
-
-/**
- * Sets Colors' values using either default ([0-1] or RGBA ([0-255] and alpha as [0-1]) format
- * @param {number} r red value ([0-1] vs [0-255])
- * @param {number} g green value ([0-1] vs [0-255])
- * @param {number} b blue value ([0-1] vs [0-255])
- * @param {number} a alpha value ([0-1])
- * @param {boolean} asRGBA whether it should consider the first 3 arguments to be in RGBA format
- */
-Color.prototype.setSpecial = function (r, g, b, a, asRGBA) {
-
-    // default values
-    var currentColor = this;
-    var maxRange = 1.0;
-
-    // change current color and max range if chosen format is set to RGBA
-    if (asRGBA === true){
-        currentColor = this.toRGBA();
-        maxRange = 255.0;
-    }
-
-    // validate type and fall back to current color when needed
-    r = isNumber(r) ? r : currentColor.r;
-    g = isNumber(g) ? g : currentColor.g;
-    b = isNumber(b) ? b : currentColor.b;
-    a = isNumber(a) ? a : currentColor.a;
-
-    // make sure the values are in the range
-    this.r = MathHelper.clamp(r, 0.0, maxRange) / maxRange;
-    this.g = MathHelper.clamp(g, 0.0, maxRange) / maxRange;
-    this.b = MathHelper.clamp(b, 0.0, maxRange) / maxRange;
-    this.a = MathHelper.clamp(a, 0.0, 1.0);
-};
-
-/**
- * Sets Colors' values using default format ([0-1], [0-1], [0-1], [0-1])
- * @param {number} r red value [0-1]
- * @param {number} g green value [0-1]
- * @param {number} b blue value [0-1]
- * @param {number} a alpha value [0-1]
- */
-Color.prototype.set = function(r, g, b, a) {
-    this.setSpecial(r, g, b, a, false);
-};
-
-/**
- * Sets Colors' values using a RGBA format ([0-255], [0-255], [0-255], [0-1] format)
- * @param {number} r red value [0-255]
- * @param {number} g green value [0-255]
- * @param {number} b blue value [0-255]
- * @param {number} a alpha value [0-1]
- */
-Color.prototype.setAsRGBA = function(r, g, b, a) {
-    this.setSpecial(r, g, b, a, true);
-};
-
-/**
- * Compares the color object ignoring the alpha color
- * @param {{r: number, g: number, b: number}} obj an object with red, green and blue values
- * @returns {boolean|null} whether the objects are equal or null if an invalid argument was provided
- */
-Color.prototype.equalsIgnoreAlpha = function (obj) {
-
-    // validate argument before testing
-    if (!isNumber(obj.r) || !isNumber(obj.g) || !isNumber(obj.b)){
-        return null;
-    }
-
-    return (obj.r === this.r && obj.g === this.g && obj.b === this.b);
-};
-
-/**
- * Compares the color object
- * @param {{r: number, g: number, b: number, a: number}} obj an object with red, green, blue and alpha values
- * @returns {boolean|null} whether the objects are equal or null if an invalid argument was provided
- */
-Color.prototype.equals = function (obj) {
-
-    // validate argument before testing
-    if (!isNumber(obj.a)){
-        return null;
-    }
-
-    return (this.equalsIgnoreAlpha(obj) && obj.a === this.a);
-};
-
-/**
- *
- */
-Color.prototype.objectify = function () {
-    return {
-        r: this.r,
-        g: this.g,
-        b: this.b,
-        a: this.a
-    };
-};
-
-/**
- *
- * @param data
- */
-Color.restore = function(data) {
-    return new Color(data.r, data.g, data.b, data.a, false);
-};
-
-/**
- * Converts Color format ([0-1], [0-1], [0-1], [0-1]) back to RGBA ([0-255], [0-255], [0-255], [0-1])
- * @returns {{r: number, g: number, b: number, a: number}} object with color in rgba format
- */
-Color.prototype.toRGBA = function () {
-    return {
-        r: this.r * 255,
-        g: this.g * 255,
-        b: this.b * 255,
-        a: this.a
-    };
-};
-
-/**
- * Converts the color to hexadecimal format, returning it
- * @returns {string} hexadecimal string
- */
-Color.prototype.toHex = function () {
-    // convert back to RGBA format
-    var rgba = this.toRGBA();
-    // convert to Hex
-    return Color.rgbToHex(rgba.r, rgba.g, rgba.b);
-};
-
-/**
- * Converts the color to an array, returning it
- * @returns {Array} array containing rgba values [r,g,b,a]
- */
-Color.prototype.toArray = function () {
-    return [this.r, this.g, this.b, this.a];
-};
-
-/**
- * Converts the color to a Float32Array, returning it
- * @returns {Float32Array} array containing rgba values [r,g,b,a]
- */
-Color.prototype.toFloat32Array = function () {
-    return new Float32Array([this.r, this.g, this.b, this.a]);
-};
-
-/**
- *
- */
-Color.prototype.unload = function () {
-
-};
-
-// static functions
-
-/**
- * Attempts to create and retrieve a Color object given RGBA values
- * @param {number} red red value [0-255]
- * @param {number} green red value [0-255]
- * @param {number} blue red value [0-255]
- * @param {number} alpha red value [0-1]
- * @returns {Color|null} Color object if valid or null if invalid
- */
-Color.fromRGBA = function (red, green, blue, alpha) {
-
-    // no need to go further if arguments are invalid
-    if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
-        return null;
-    }
-
-    return new Color(red, green, blue, alpha, true);
-};
-
-/**
- * Attempts to create and retrieve a Color object given a hexadecimal value
- * @param {string} hex hexadecimal color
- * @returns {Color|null} Color object if valid or null if invalid
- */
-Color.fromHex = function (hex) {
-
-    // no need to go further if argument is invalid
-    if (!isString(hex)){
-        return null;
-    }
-
-    // convert to RGBA
-    var rgba = Color.hexToRGBA(hex);
-
-    if (!rgba){
-        return null;
-    }
-
-    return Color.fromRGBA(rgba.r, rgba.g, rgba.b, rgba.a);
-};
-
-Color.fromRGB = function (red, green, blue) {
-    return Color.fromRGBA(red, green, blue, 1.0);
-};
-
-Color.random = function (alpha) {
-    alpha = !isNumber(alpha) ? 1.0 : alpha;
-    return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
-};
-
-/*
-    Based on http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
- */
-
-/**
- * Attempts to convert the given red, green and blue values to hexadecimal format
- * @param {number} r red value [0-255]
- * @param {number} g green value [0-255]
- * @param {number} b blue value [0-255]
- * @returns {string} hexadecimal string or an empty string if invalid arguments were provided
- */
-Color.rgbToHex = function(r, g, b) {
-
-    if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
-        return "";
-    }
-
-    r = MathHelper.clamp(r, 0, 255);
-    g = MathHelper.clamp(g, 0, 255);
-    b = MathHelper.clamp(b, 0, 255);
-
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-};
-
-/**
- * Converts the given hexadecimal string to RGBA format ([0-255], [0-255], [0-255], [0-1])
- * @param {string} hex hexadecimal string
- * @returns {{r: number, g: number, b: number, a: number}|null} an object with rgba values or null if invalid
- */
-Color.hexToRGBA = function (hex) {
-    // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
-    hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
-        return r + r + g + g + b + b + a + a;
-    });
-
-    // the last 2 digits (referent to alpha) are optional
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
-    return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16),
-            // convert value to 0-1
-            a: result[4] != 'undefined' ? parseInt(result[4], 16) / 255 : 1
-        } : null;
-};
-
-/*
-    #####################
- */
-
-// static properties
- Color.CornflowerBlue = Color.fromRGB(100.0, 149.0, 237.0);
- Color.Scarlet = Color.fromRGB(255.0, 36.0, 0.0);
- Color.Red = Color.fromRGB(255.0, 0.0, 0.0);
- Color.Green = Color.fromRGB(0.0, 255.0, 0.0);
- Color.Blue = Color.fromRGB(0.0, 0.0, 255.0);
- Color.White = Color.fromRGB(255.0, 255.0, 255.0);
- Color.Black = Color.fromRGB(0.0, 0.0, 0.0);
- Color.Gray = Color.fromRGB(80.0, 80.0, 80.0);
- Color.Nephritis = Color.fromRGB(39.0, 174.0, 96.0);
- Color.Wisteria = Color.fromRGB(142.0, 68.0, 173.0);
- Color.Amethyst = Color.fromRGB(155.0, 89.0, 182.0);
- Color.Carrot = Color.fromRGB(230, 126, 34);
- Color.Pumpkin = Color.fromRGB(211, 84, 0);
- Color.Orange = Color.fromRGB(243, 156, 18);
- Color.SunFlower = Color.fromRGB(241, 196, 15);
- Color.Alizarin = Color.fromRGB(231, 76, 60);
 ;/**
  * Created by Luis on 08/02/2017.
  */
 
 /**
  * FontStyle Class
- * @param fontDescription
- * @constructor
  */
-function FontStyle(fontDescription) {
+class FontStyle {
+    //#region Constructors
 
-    this._fontDescription = fontDescription;
-    this._fontSize = 70;
-    this._letterSpacing = 0;
-}
-
-FontStyle.prototype.getFontDescription = function(){
-    return this._fontDescription;
-};
-
-FontStyle.prototype.setFontDescription = function(fontInfo){
-
-    // don't go further if fontInfo is invalid
-    if (!isObjectAssigned(fontInfo)) {
-        throw new Error("fontInfo needs to be valid.");
+    /**
+     * @param fontDescription
+     * @constructor
+     */
+    constructor(fontDescription){
+        this._fontDescription = fontDescription;
+        this._fontSize = 70;
+        this._letterSpacing = 0;
     }
 
-    // TODO: make sure fontInfo follows bmfont format!
+    //#endregion
 
-    return this._fontDescription = fontInfo;
-};
+    //#region Methods
 
-FontStyle.prototype.getFontSize = function (){
-    return this._fontSize;
-};
+    //#region Static Methods
 
-FontStyle.prototype.setFontSize = function (size){
-    this._fontSize = size;
-};
-
-/**
- * Retrieves font style scale based on font size and font's description info size
- * @returns {number|null} font style scale or null if invalid
- */
-FontStyle.prototype.getScale = function(){
-
-    var metricsSize = this.getFontDescription().info.size;
-
-    // TODO: possibly validated in setFontInfo instead?
-    if (!metricsSize){
-        return null;
+    static restore(data){
+        // TODO:
+        return {};
     }
 
-    // calculate scale between generated font's size and the desired (font) size of the text
-    var scale = this.getFontSize() / metricsSize;
+    //#endregion
 
-    if (!scale || scale <= 0){
-        return null;
+    //#region Public Methods
+
+    getFontDescription(){
+        return this._fontDescription;
     }
 
-    return scale;
-};
+    setFontDescription(fontInfo){
 
-FontStyle.prototype.getLetterSpacing = function (){
-    return this._letterSpacing;
-};
-
-FontStyle.prototype.setLetterSpacing = function (spacing){
-    this._letterSpacing = spacing;
-};
-
-/**
- *
- * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
- * @returns {number|null} font's character's ID or null if invalid
- * @public
- */
-FontStyle.prototype.findCharID = function(char){
-
-    var fontDescriptionChars = this.getFontDescription().chars;
-
-    // make sure the parameter is valid
-    if (!char || !fontDescriptionChars || fontDescriptionChars.length == 0){
-        return null;
-    }
-    // retrieve character's ascii code
-    var charCode = char.charCodeAt(0);
-
-    // if code is invalid, no need to go further
-    if (!charCode){
-        return null;
-    }
-
-    // go through every character
-    for (var i = 0; i < fontDescriptionChars.length; i++){
-        // store glyphID (Ascii Code)
-        var glyphID = fontDescriptionChars[i].id;
-
-        // skip if invalid
-        if (!glyphID){
-            continue;
+        // don't go further if fontInfo is invalid
+        if (!isObjectAssigned(fontInfo)) {
+            throw new Error("fontInfo needs to be valid.");
         }
 
-        // if that's the code we are looking for
-        if (glyphID === charCode){
-            // return the iteration number (the position of that character inside the array of characters)
-            return i;
-        }
+        // TODO: make sure fontInfo follows bmfont format!
+
+        return this._fontDescription = fontInfo;
     }
-    return null;
-};
 
-/**
- * Retrieves Kerning value between the given characters
- * @param {number} firstCharCode first character ascii code
- * @param {number} secondCharCode second character ascii code
- * @returns {number} kerning value or 0 if not found
- * @public
- */
-FontStyle.prototype.getKerning = function (firstCharCode, secondCharCode) {
+    getFontSize(){
+        return this._fontSize;
+    }
 
-    var fontDescriptionKernings = this.getFontDescription().kernings;
+    setFontSize(size){
+        this._fontSize = size;
+    }
 
-    if (!firstCharCode || !secondCharCode ||
-                !fontDescriptionKernings|| !fontDescriptionKernings.length || fontDescriptionKernings.length === 0) {
+    /**
+     * Retrieves font style scale based on font size and font's description info size
+     * @returns {number|null} font style scale or null if invalid
+     */
+    getScale(){
+
+        let metricsSize = this.getFontDescription().info.size;
+
+        // TODO: possibly validated in setFontInfo instead?
+        if (!metricsSize){
+            return null;
+        }
+
+        // calculate scale between generated font's size and the desired (font) size of the text
+        let scale = this.getFontSize() / metricsSize;
+
+        if (!scale || scale <= 0){
+            return null;
+        }
+
+        return scale;
+    }
+
+    getLetterSpacing(){
+        return this._letterSpacing;
+    }
+
+    setLetterSpacing(spacing){
+        this._letterSpacing = spacing;
+    }
+
+    /**
+     *
+     * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
+     * @returns {number|null} font's character's ID or null if invalid
+     * @public
+     */
+    findCharID(char){
+
+        let fontDescriptionChars = this.getFontDescription().chars;
+
+        // make sure the parameter is valid
+        if (!char || !fontDescriptionChars || fontDescriptionChars.length == 0){
+            return null;
+        }
+        // retrieve character's ascii code
+        let charCode = char.charCodeAt(0);
+
+        // if code is invalid, no need to go further
+        if (!charCode){
+            return null;
+        }
+
+        // go through every character
+        for (let i = 0; i < fontDescriptionChars.length; i++){
+            // store glyphID (Ascii Code)
+            let glyphID = fontDescriptionChars[i].id;
+
+            // skip if invalid
+            if (!glyphID){
+                continue;
+            }
+
+            // if that's the code we are looking for
+            if (glyphID === charCode){
+                // return the iteration number (the position of that character inside the array of characters)
+                return i;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves Kerning value between the given characters
+     * @param {number} firstCharCode first character ascii code
+     * @param {number} secondCharCode second character ascii code
+     * @returns {number} kerning value or 0 if not found
+     * @public
+     */
+    getKerning(firstCharCode, secondCharCode) {
+
+        let fontDescriptionKernings = this.getFontDescription().kernings;
+
+        if (!firstCharCode || !secondCharCode ||
+            !fontDescriptionKernings|| !fontDescriptionKernings.length || fontDescriptionKernings.length === 0) {
+            return 0;
+        }
+
+        // iterate through the kernings
+        for (let i = 0; i < fontDescriptionKernings.length; i++) {
+            let kern = fontDescriptionKernings[i];
+
+            // skip if table is invalid
+            if (!kern || !kern.first || !kern.second){
+                continue;
+            }
+
+            // if there is a match
+            if (kern.first === firstCharCode && kern.second === secondCharCode)
+            // return kerning
+                return kern.amount;
+        }
+
+        // return 0 if there is no match
         return 0;
     }
 
-    // iterate through the kernings
-    for (var i = 0; i < fontDescriptionKernings.length; i++) {
-        var kern = fontDescriptionKernings[i];
+    //#endregion
 
-        // skip if table is invalid
-        if (!kern || !kern.first || !kern.second){
-            continue;
-        }
+    //#endregion
+}
 
-        // if there is a match
-        if (kern.first === firstCharCode && kern.second === secondCharCode)
-        // return kerning
-            return kern.amount;
-    }
-
-    // return 0 if there is no match
-    return 0;
-};
 
 
 ;/**
@@ -14129,677 +14226,734 @@ SpriteBatch.prototype.unload = function () {
  */
 
 /**
- * Stroke is a combination of a color and its size
- * @param {Color=} color stroke color
- * @param {number=} size size of the stroke
- * @constructor
+ * Stroke Class
  */
-function Stroke(color, size) {
-    // stroke color
-    this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
-    // stroke size
-    this._size = size || 0.0;
-}
+class Stroke{
 
-Stroke.prototype.getColor = function(){
-    return this._color;
-};
+    //#region Constructors
 
-/**
- * Sets stroke's color
- * @param {Color|{r:number, g:number, b:number, a:number}} color
- */
-Stroke.prototype.setColor = function(color){
-
-    if (color instanceof Color){
-        this._color = color.clone();
-        return;
+    /**
+     * Stroke is a combination of a color and its size
+     * @param {Color=} color stroke color
+     * @param {number=} size size of the stroke
+     * @constructor
+     */
+    constructor(color, size){
+        // stroke color
+        this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
+        // stroke size
+        this._size = size || 0.0;
     }
 
-    if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)){
-        throw new Error("The given stroke color is invalid");
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return {
+            color: Color.restore(data),
+            size: data.size
+        };
     }
 
-    this._color.set(color.r, color.g, color.b, color.a);
-};
+    //#endregion
 
-Stroke.prototype.setOpacity = function(alpha){
+    //#region Public Methods
 
-    if (!isNumber(alpha)){
-        throw new Error("The given alpha is invalid");
+    getColor(){
+        return this._color;
     }
 
-    var currentColor = this.getColor();
+    /**
+     * Sets stroke's color
+     * @param {Color} color
+     */
+    setColor(color){
 
-    this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
-};
+        if (color instanceof Color){
+            this._color = color.clone();
+            return;
+        }
 
-Stroke.prototype.getOpacity = function(){
-    return this.getColor().a;
-};
+        if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)){
+            throw new Error("The given stroke color is invalid");
+        }
 
-Stroke.prototype.getSize = function(){
-    return this._size;
-};
-
-Stroke.prototype.setSize = function(size){
-
-    if (!isNumber(size)){
-        throw new Error("The given size is invalid");
+        this._color.set(color.r, color.g, color.b, color.a);
     }
 
-    this._size = size;
-};
+    setOpacity(alpha){
 
-Stroke.prototype.objectify = function () {
-    return {
-        color: this._color.objectify(),
-        size: this.getSize()
-    };
-};
+        if (!isNumber(alpha)){
+            throw new Error("The given alpha is invalid");
+        }
 
-Stroke.prototype.restore = function (data) {
-    return {
-        color: Color.restore(data),
-        size: data.size
-    };
-};;/**
+        let currentColor = this.getColor();
+
+        this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
+    }
+
+    getOpacity(){
+        return this.getColor().a;
+    }
+
+    getSize(){
+        return this._size;
+    }
+
+    setSize(size){
+
+        if (!isNumber(size)){
+            throw new Error("The given size is invalid");
+        }
+
+        this._size = size;
+    }
+
+    objectify() {
+        return {
+            color: this._color.objectify(),
+            size: this.getSize()
+        };
+    }
+
+    //#endregion
+
+    //#endregion
+};/**
  * Created by Luis on 16/12/2016.
  */
-/**
- * Text class
- */
+
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
 AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
 AttributeDictionary.addRule("text", "_texture", {visible: false});
 
-function Text(params) {
-
-    params = params || {};
-    params.name = params.name || "Text";
-
-    GameObject.call(this, params);
-
-    this._fontStyle = new FontStyle(params.font || {});
-
-    this._fontStyle.setFontSize(params.fontSize || 70.0);
-    this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
-
-    this._wordWrap = true;
-    this._characterWrap = true;
-    this._alignType = Text.AlignType.LEFT;
-
-    this._textureSrc = "";
-    this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
-    this._text = params.text || "";
-
-    this._gamma = params.gamma || 2.0;
-
-    // TODO: normalize inside the setters?
-    // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
-    this._stroke = new Stroke(Color.fromRGBA(186,85,54, 0.5), 0.0);
-
-    this._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
-
-    // x and y values have to be between spread (defined in Hiero) / texture size
-    // e.g., 4 / 512
-    // need to normalize between those values
-    this._dropShadowOffset = new Vector2(0, 0);
-
-    // either 0 or 1
-    this._debug = 0;
-
-    this._gl = GameManager.renderContext.getContext();
-
-    this._vertexBuffer = this._gl.createBuffer();
-    this._textureBuffer = this._gl.createBuffer();
-    this._vertexIndicesBuffer = this._gl.createBuffer();
-    this._textShader = new TextShader();
-
-    // set text texture if defined
-    this.setTexture(params.texture);
-}
-
-inheritsFrom(Text, GameObject);
-
-Text.AlignType = {
-    LEFT: 1,
-    CENTER: 2,
-    RIGHT: 3
-};
-
-// TODO: remove
-var maxWidth = 500;
-
-Text.prototype.render = function (delta, spriteBatch) {
-
-    if (!this.enabled) {
-        return;
-    }
-
-    // TODO: don't render if font or font's texture are not valid/defined?
-
-    // get gl context
-    var gl = this._gl;
-
-    // use text shader
-    GameManager.activeGame.getShaderManager().useShader(this._textShader);
-
-    // enable shader attributes
-    gl.enableVertexAttribArray(this._textShader.attributes.aPos);
-    gl.enableVertexAttribArray(this._textShader.attributes.aTexCoord);
-
-    // draw text
-    this._drawText();
-
-    var cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
-
-    gl.uniformMatrix4fv(this._textShader.uniforms.uMatrix._location, false, cameraMatrix);
-    gl.uniformMatrix4fv(this._textShader.uniforms.uTransform._location, false, this.getMatrix());
-
-    // bind to texture unit 0
-    gl.activeTexture(gl.TEXTURE0);
-    this._texture.bind();
-    // tell the shader which unit you bound the texture to. In this case it's to sampler 0
-    gl.uniform1i(this._textShader.uniforms.uTexture._location, 0);
-
-    // debug
-    gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.vertexAttribPointer(this._textShader.attributes.aTexCoord, 2, gl.FLOAT, false, 0, 0);
-
-    // stroke
-    var strokeColor = this.getStroke().getColor();
-    gl.uniform4fv(this._textShader.uniforms.uOutlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
-
-    // stroke size
-    // max shader value is 0.5; bigger than that is considered no outline.
-    // in terms of raw values, we go from 0 to 10, so we calculate the scaled value between 0 and 10
-    var scaledValue = this.getStroke().getSize() * 0.7 / 10;
-
-    // revert the value, so 0 represents less stroke
-    // add 0.1 because 0.0 is visually bad
-    gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, 0.7 - scaledValue + 0.1);
-
-
-    var dropShadowColor = this.getDropShadow().getColor();
-    gl.uniform4fv(this._textShader.uniforms.uDropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
-    // stroke size
-    //  (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
-    gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
-
-    // 4 / 512 = 0.0058 = max smoothing value
-    this._dropShadowOffset.set(0.005, 0.005);
-    gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
-
-    var color = this.getColor();
-
-    // font color (tint)
-    gl.uniform4fv(this._textShader.uniforms.uColor._location, [color.r, color.g, color.b, color.a]);
-    //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50); // 192 / 255
-
-    // gamma (smoothing) value (how sharp is the text in the edges)
-    gl.uniform1f(this._textShader.uniforms.uGamma._location, this.getGamma() * 1.4142 / this.getFontSize());
-
-    // draw the glyphs
-    //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
-    gl.drawElements(gl.TRIANGLES, this._vertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-    // parent render function:
-    GameObject.prototype.render.call(this, delta, spriteBatch);
-};
-
-Text.prototype.unload = function () {
-    this._gl.deleteBuffer(this._vertexBuffer);
-    this._gl.deleteBuffer(this._textureBuffer);
-    this._gl.deleteBuffer(this._vertexIndicesBuffer);
-
-    this._textShader.unload();
-
-    // spritebatch related... TODO: add/remove when spritebatch is fixed?
-    //this._gl.deleteBuffer(this._texBuffer);
-    //this._textureShader.unload();
-};
-
-// TODO: rotate, scale... probably similar to sprite... think carefully about scaling?
-Text.prototype.getMatrix = function () {
-    let x, y;
-
-    x = this.transform.getPosition().x;
-    y = this.transform.getPosition().y;
-
-    this._transformMatrix.identity();
-
-    //mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
-    //mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
-    //mat4.translate(this._transformMatrix, this._transformMatrix, [-x, -y, 0]);
-
-    this._transformMatrix.translate([x, y, 0]);
-
-    return this._transformMatrix.asArray();
-};
-
-Text.prototype.getType = function () {
-    // TODO: is it even needed? we could replace this method in gameobject by this.name
-    return "Text";
-};
-
-Text.prototype.getTexture = function () {
-    return this._texture;
-};
-
-Text.prototype.setTexture = function (texture) {
-    // is this a ready texture?
-    if (!texture || !texture.isReady()) {
-        this._texture = null;
-        this._textureWidth = 0;
-        this._textureHeight = 0;
-        return;
-    }
-
-    this._texture = texture;
-
-    // cache the dimensions
-    this._textureWidth = this._texture.getWidth();
-    this._textureHeight = this._texture.getHeight();
-
-    let gl = this._gl;
-
-    // the line below is already done when creating a Texture2D with content loader
-    // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
-};
-
-Text.prototype.setColor = function (color) {
-    this._color = color;
-};
-
-Text.prototype.getColor = function () {
-    return this._color;
-};
+// TODO: remove this... use game object boundary?
+let maxWidth = 500;
 
 /**
- * Sets the outline effect of the text
- * @param {Stroke} stroke outline effect of the text
+ * Text class
  */
-Text.prototype.setStroke = function (stroke) {
-    this._stroke = stroke;
-};
+class Text extends GameObject {
 
-Text.prototype.getStroke = function () {
-    return this._stroke;
-};
+    //#region Static Properties
 
-Text.prototype.getDropShadow = function () {
-    return this._dropShadow;
-};
-
-/**
- * Sets the dropshadow effect of the text
- * @param {Stroke} shadow dropshadow effect of the text
- */
-Text.prototype.setDropShadow = function (shadow) {
-    this._dropShadow = shadow;
-};
-
-Text.prototype.setText = function (str) {
-    this._text = str;
-};
-
-Text.prototype.getText = function () {
-    return this._text;
-};
-
-Text.prototype.getFontStyle = function () {
-    return this._fontStyle;
-};
-
-/**
- * Sets the font style
- * @param {FontStyle} fontStyle font style
- */
-Text.prototype.setFontStyle = function (fontStyle) {
-    this._fontStyle = fontStyle;
-};
-
-/*
-    Just for API sake
- */
-
-Text.prototype.setFontSize = function (size) {
-    this.getFontStyle().setFontSize(size);
-};
-
-Text.prototype.getFontSize = function () {
-    return this.getFontStyle().getFontSize();
-};
-
-Text.prototype.getLetterSpacing = function(){
-    return this.getFontStyle().getLetterSpacing();
-};
-
-Text.prototype.setLetterSpacing = function(value){
-    this.getFontStyle().setLetterSpacing(value);
-};
-
-// #############
-
-Text.prototype.setGamma = function (gamma) {
-    this._gamma = gamma;
-};
-
-Text.prototype.getGamma = function () {
-    return this._gamma;
-};
-
-Text.prototype.setDebug = function (value) {
-    this._debug = value;
-};
-
-Text.prototype.getDebug = function () {
-    return this._debug;
-};
-
-Text.prototype.setWordWrap = function (wrap) {
-    this._wordWrap = wrap;
-};
-
-Text.prototype.getWordWrap = function () {
-    return this._wordWrap;
-};
-
-Text.prototype.setCharacterWrap = function (wrap) {
-    this._characterWrap = wrap;
-};
-
-Text.prototype.getCharacterWrap = function () {
-    return this._characterWrap;
-};
-
-/**
- * Sets Text alignment
- * @param {Text.AlignType} alignType
- */
-Text.prototype.setAlign = function (alignType) {
-    this._alignType = alignType;
-};
-
-Text.prototype.getAlign = function () {
-    return this._alignType;
-};
-
-Text.prototype.setTextureSrc = function (path) {
-    this._textureSrc = path;
-
-    if (path && path.length > 0) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
-                this.setTexture(texture);
-            }).bind(this), (function (error) {
-                this.setTexture(null);
-            }).bind(this)
-        );
-    } else {
-        this.setTexture(null);
-    }
-};
-
-Text.prototype.getTextureSrc = function () {
-    return this._textureSrc;
-};
-
-/**
- * Draws the text onto the screen
- * @private
- */
-Text.prototype._drawText = function () {
-    var fontStyle = this.getFontStyle();
-
-    if (!fontStyle){
-        return;
+    static get AlignType() {
+        return {
+            LEFT: 'LEFT',
+            CENTER: 'CENTER',
+            RIGHT: 'RIGHT'
+        };
     }
 
-    var fontDescription = fontStyle.getFontDescription();
+    //#endregion
 
-    // don't go further if font description isn't valid either
-    if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight){
-        return;
+    //#region Constructors
+
+    constructor(params){
+        params = params || {};
+        params.name = params.name || "Text";
+
+        super(params);
+
+        this._fontStyle = new FontStyle(params.font || {});
+
+        this._fontStyle.setFontSize(params.fontSize || 70.0);
+        this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
+
+        this._wordWrap = true;
+        this._characterWrap = true;
+        this._alignType = Text.AlignType.LEFT;
+
+        this._textureSrc = "";
+        this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
+        this._text = params.text || "";
+
+        this._gamma = params.gamma || 2.0;
+
+        // TODO: normalize inside the setters?
+        // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
+        this._stroke = new Stroke(Color.fromRGBA(186,85,54, 0.5), 0.0);
+
+        this._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
+
+        // x and y values have to be between spread (defined in Hiero) / texture size
+        // e.g., 4 / 512
+        // need to normalize between those values
+        this._dropShadowOffset = new Vector2(0, 0);
+
+        // either 0 or 1
+        this._debug = 0;
+
+        this._gl = GameManager.renderContext.getContext();
+
+        this._vertexBuffer = this._gl.createBuffer();
+        this._textureBuffer = this._gl.createBuffer();
+        this._vertexIndicesBuffer = this._gl.createBuffer();
+        this._textShader = new TextShader();
+
+        // set text texture if defined
+        this.setTexture(params.texture);
     }
 
-    // line height; falls back to font size
-    var lineHeight = fontDescription.common.lineHeight || this.getFontSize();
+    //#endregion
 
-    // text scale based on the font size
-    var scale = fontStyle.getScale();
+    //#region Methods
 
-    // don't go further if scale is invalid
-    if (!scale){
-        return;
+    //#region Static Methods
+
+    static restore(data){
+        // TODO:
+        return {
+
+        };
     }
 
-    // create the lines to draw onto the screen
-    var lines = TextUtils.measureText(fontStyle, this.getText(), maxWidth, this.getWordWrap(), this.getCharacterWrap());
+    //#endregion
 
-    // draws lines
-    this._drawLines(lines, scale, lineHeight);
-};
+    //#region Public Methods
 
-/**
- * Aligns a line according to its width and align type
- * @param {number} width width of the line to align
- * @returns {number} the aligned x position of the line
- * @private
- */
-Text.prototype._alignLine = function (width) {
-    // set return variable
-    var x;
+    //#region Overridden Methods
 
-    // change beginning of the line depending on the chosen alignment
-    switch(this.getAlign()) {
-        case Text.AlignType.LEFT:
-            x = this.transform.getPosition().x;
-            break;
-        case Text.AlignType.CENTER:
-            x = this.transform.getPosition().x + maxWidth / 2 - width / 2;
-            break;
-        case Text.AlignType.RIGHT:
-            x = this.transform.getPosition().x + maxWidth - width;
-            break;
-        // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
-        // case FontStyle.AlignType.JUSTIFIED:
-        default:
-            x = 0;
-            break;
-    }
-
-    return x;
-};
-
-/**
- * Draws the given text lines onto the screen
- * @param {Array} lines lines to draw
- * @param {number} scale scale of the text
- * * @param {number} lineHeight how much Y should increase to switch line
- * @private
- */
-Text.prototype._drawLines = function(lines, scale, lineHeight){
-
-    // TODO: maybe throw new Error when simply returning? so errors can be seen in the console?
-    // if parameters are invalid, no need to go further
-    if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0){
-        return;
-    }
-
-    // retrieve webgl context
-    var gl = this._gl;
-
-    // create shader arrays, which are filled inside prepareLineToBeDrawn
-    var vertexElements = [];
-    var textureElements = [];
-    var vertexIndices = [];
-
-    // create pen with the screen coordinates, where (0,0) is the center of the screen
-    var pen = {
-        x: 0,
-        y: this.transform.getPosition().y
-    };
-
-    for (var i = 0; i < lines.length; i++) {
-
-        // align line accordingly
-        pen.x = this._alignLine(lines[i].width);
-
-        // retrieve line characters
-        var line = lines[i].chars;
-
-        // prepare to draw line
-        this._prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices);
-
-        // update Y before drawing another line
-        // TODO: no need to recalculate this value every time...
-        pen.y += lineHeight * scale;
-    }
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
-    this._vertexBuffer.numItems = vertexElements.length / 2;
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._vertexIndicesBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
-    this._vertexIndicesBuffer.numItems = vertexIndices.length;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
-    this._textureBuffer.numItems = textureElements.length / 2;
-};
-
-/**
- * Prepares a line to be drawn
- * @param {Array} line array of characters whose draw is to be prepared
- * @param {number} scale text desired scale
- * @param {{x: number, y:number}} pen pen to draw with
- * @param {Array} vertexElements array to store the characters vertices
- * @param {Array} textureElements array to store the characters texture elements
- * @param {Array} vertexIndices array to store the vertices indices
- * @private
- */
-Text.prototype._prepareLineToBeDrawn = function(line, scale, pen, vertexElements, textureElements, vertexIndices){
-
-    var lastGlyphCode = 0;
-
-    // iterate through line characters
-    for (var i = 0; i < line.length; i++){
-
-        // retrieve line char
-        var char = line[i];
-
-        // prepare character to be drawn
-        lastGlyphCode = this._createGlyph(char, scale, pen, lastGlyphCode,
-            vertexElements, textureElements, vertexIndices);
-
-    }
-};
-
-/**
- * Creates the necessary vertices and texture elements to draw a given character
- * @param {string} char character to prepare to draw
- * @param {number} scale text scale
- * @param {{x: number, y: number}} pen pen to draw with
- * @param {number} lastGlyphCode last drawn glyph ascii code
- * @param {Array} outVertexElements out array to store the characters vertices
- * @param {Array} outTextureElements out array to store the characters texture elements
- * @param {Array} outVertexIndices out array to store the vertices indices
- * @returns {number} drawn glyph ascii code or 0 if invalid
- * @private
- */
-Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
-                                        outVertexElements, outTextureElements, outVertexIndices) {
-
-    var fontStyle = this.getFontStyle();
-
-    if (!fontStyle){
-        return 0;
-    }
-
-    var fontDescription = fontStyle.getFontDescription();
-
-    // if font's description or any of the parameters is missing, no need to go further
-    if (!fontDescription || !fontDescription.chars ||
-                !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
-                !outVertexElements || !outTextureElements || !outVertexIndices){
-        return 0;
-    }
-
-    // retrieve char ID
-    var charID = fontStyle.findCharID(char);
-
-    // return if null
-    if (charID === null){
-        return 0;
-    }
-
-    // retrieve font metrics
-    var metrics = fontDescription.chars[charID];
-
-    // retrieve character metrics
-    var width = metrics.width;
-    var height = metrics.height;
-    var xOffset = metrics.xoffset;
-    var yOffset = metrics.yoffset;
-    var xAdvance = metrics.xadvance;
-    var posX = metrics.x;
-    var posY = metrics.y;
-    var asciiCode = metrics.id;
-
-    // set kerning initial value
-    var kern = 0;
-
-    // only prepare character to be drawn if width and height are valid
-    if (width > 0 && height > 0) {
-        // if a glyph was created before
-        if (lastGlyphCode){
-            // retrieve kerning value between last character and current character
-            kern = fontStyle.getKerning(lastGlyphCode, asciiCode);
+    render(delta, spriteBatch) {
+        if (!this.enabled) {
+            return;
         }
 
-        // TODO: isn't there a way to reuse the indices?
-        var factor = (outVertexIndices.length / 6) * 4;
+        // TODO: don't render if font or font's texture are not valid/defined?
 
-        outVertexIndices.push(
-            0 + factor, 1 + factor, 2 + factor,
-            1 + factor, 2 + factor, 3 + factor
-        );
+        // get gl context
+        let gl = this._gl;
 
-        // Add a quad (= two triangles) per glyph.
-        outVertexElements.push(
-            pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
-            pen.x + ((xOffset + kern + width) * scale), pen.y + yOffset * scale,
-            pen.x + ((xOffset + kern) * scale), pen.y + (height + yOffset) * scale,
+        // use text shader
+        GameManager.activeGame.getShaderManager().useShader(this._textShader);
 
-            pen.x + ((xOffset + kern + width) * scale), pen.y + (height + yOffset) * scale
-        );
+        // enable shader attributes
+        gl.enableVertexAttribArray(this._textShader.attributes.aPos);
+        gl.enableVertexAttribArray(this._textShader.attributes.aTexCoord);
 
-        /*              ___
-         |\           \  |
-         | \           \ |
-         |__\ and then  \|
-         */
-        // example without scaling
-        /*
-         var bottomLeftX = pen.x + horiBearingX;
-         var bottomLeftY = pen.y + horiBearingY;
-         vertexElements.push(
+        // draw text
+        this._drawText();
+
+        let cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
+
+        gl.uniformMatrix4fv(this._textShader.uniforms.uMatrix._location, false, cameraMatrix);
+        gl.uniformMatrix4fv(this._textShader.uniforms.uTransform._location, false, this.getMatrix());
+
+        // bind to texture unit 0
+        gl.activeTexture(gl.TEXTURE0);
+        this._texture.bind();
+        // tell the shader which unit you bound the texture to. In this case it's to sampler 0
+        gl.uniform1i(this._textShader.uniforms.uTexture._location, 0);
+
+        // debug
+        gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
+        gl.vertexAttribPointer(this._textShader.attributes.aTexCoord, 2, gl.FLOAT, false, 0, 0);
+
+        // stroke
+        let strokeColor = this.getStroke().getColor();
+        gl.uniform4fv(this._textShader.uniforms.uOutlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
+
+        // stroke size
+        // max shader value is 0.5; bigger than that is considered no outline.
+        // in terms of raw values, we go from 0 to 10, so we calculate the scaled value between 0 and 10
+        let scaledValue = this.getStroke().getSize() * 0.7 / 10;
+
+        // revert the value, so 0 represents less stroke
+        // add 0.1 because 0.0 is visually bad
+        gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, 0.7 - scaledValue + 0.1);
+
+
+        let dropShadowColor = this.getDropShadow().getColor();
+        gl.uniform4fv(this._textShader.uniforms.uDropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
+        // stroke size
+        //  (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
+        gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
+
+        // 4 / 512 = 0.0058 = max smoothing value
+        this._dropShadowOffset.set(0.005, 0.005);
+        gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
+
+        let color = this.getColor();
+
+        // font color (tint)
+        gl.uniform4fv(this._textShader.uniforms.uColor._location, [color.r, color.g, color.b, color.a]);
+        //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50); // 192 / 255
+
+        // gamma (smoothing) value (how sharp is the text in the edges)
+        gl.uniform1f(this._textShader.uniforms.uGamma._location, this.getGamma() * 1.4142 / this.getFontSize());
+
+        // draw the glyphs
+        //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
+        gl.drawElements(gl.TRIANGLES, this._vertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+        // parent render function
+        super.render(delta, spriteBatch);
+    }
+
+    unload(){
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._gl.deleteBuffer(this._textureBuffer);
+        this._gl.deleteBuffer(this._vertexIndicesBuffer);
+
+        this._textShader.unload();
+
+        // spritebatch related... TODO: add/remove when spritebatch is fixed?
+        //this._gl.deleteBuffer(this._texBuffer);
+        //this._textureShader.unload();
+    }
+
+    // TODO: rotate, scale... probably similar to sprite... think carefully about scaling?
+    getMatrix(){
+        let x, y;
+
+        x = this.transform.getPosition().x;
+        y = this.transform.getPosition().y;
+
+        this._transformMatrix.identity();
+
+        //mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
+        //mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
+        //mat4.translate(this._transformMatrix, this._transformMatrix, [-x, -y, 0]);
+
+        this._transformMatrix.translate([x, y, 0]);
+
+        return this._transformMatrix.asArray();
+    }
+
+    //#endregion
+
+    getType(){
+        // TODO: is it even needed? we could replace this method in gameobject by this.name
+        return "Text";
+    }
+
+    getTexture() {
+        return this._texture;
+    };
+
+    setTexture(texture) {
+        // is this a ready texture?
+        if (!texture || !texture.isReady()) {
+            this._texture = null;
+            this._textureWidth = 0;
+            this._textureHeight = 0;
+            return;
+        }
+
+        this._texture = texture;
+
+        // cache the dimensions
+        this._textureWidth = this._texture.getWidth();
+        this._textureHeight = this._texture.getHeight();
+
+        let gl = this._gl;
+
+        // the line below is already done when creating a Texture2D with content loader
+        // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
+    }
+
+    setColor(color) {
+        this._color = color;
+    }
+
+    getColor() {
+        return this._color;
+    }
+
+    /**
+     * Sets the outline effect of the text
+     * @param {Stroke} stroke outline effect of the text
+     */
+    setStroke(stroke) {
+        this._stroke = stroke;
+    }
+
+    getStroke() {
+        return this._stroke;
+    }
+
+    getDropShadow() {
+        return this._dropShadow;
+    }
+
+    /**
+     * Sets the dropshadow effect of the text
+     * @param {Stroke} shadow dropshadow effect of the text
+     */
+    setDropShadow(shadow) {
+        this._dropShadow = shadow;
+    }
+
+    setText(str) {
+        this._text = str;
+    }
+
+    getText() {
+        return this._text;
+    }
+
+    getFontStyle() {
+        return this._fontStyle;
+    }
+
+    /**
+     * Sets the font style
+     * @param {FontStyle} fontStyle font style
+     */
+    setFontStyle(fontStyle) {
+        this._fontStyle = fontStyle;
+    }
+
+    /*
+     Just for API sake
+     */
+
+    setFontSize(size) {
+        this.getFontStyle().setFontSize(size);
+    }
+
+    getFontSize() {
+        return this.getFontStyle().getFontSize();
+    }
+
+    getLetterSpacing(){
+        return this.getFontStyle().getLetterSpacing();
+    }
+
+    setLetterSpacing(value){
+        this.getFontStyle().setLetterSpacing(value);
+    }
+
+    /*
+     End of 'for API Sake'
+     */
+
+    setGamma(gamma) {
+        this._gamma = gamma;
+    }
+
+    getGamma() {
+        return this._gamma;
+    }
+
+    setDebug(value) {
+        this._debug = value;
+    }
+
+    getDebug() {
+        return this._debug;
+    }
+
+    setWordWrap(wrap) {
+        this._wordWrap = wrap;
+    }
+
+    getWordWrap() {
+        return this._wordWrap;
+    }
+
+    setCharacterWrap(wrap) {
+        this._characterWrap = wrap;
+    }
+
+    getCharacterWrap() {
+        return this._characterWrap;
+    }
+
+    /**
+     * Sets Text alignment
+     * @param {Text.AlignType} alignType
+     */
+    setAlign(alignType) {
+        this._alignType = alignType;
+    }
+
+    getAlign() {
+        return this._alignType;
+    }
+
+    // TODO: use anonymous promises () => {}
+    setTextureSrc(path) {
+        this._textureSrc = path;
+
+        if (path && path.length > 0) {
+            Texture2D.fromPath(path).then(
+                (function (texture) {
+                    this.setTexture(texture);
+                }).bind(this), (function (error) {
+                    this.setTexture(null);
+                }).bind(this)
+            );
+        } else {
+            this.setTexture(null);
+        }
+    }
+
+    getTextureSrc() {
+        return this._textureSrc;
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     * Draws the text onto the screen
+     * @private
+     */
+    _drawText() {
+        let fontStyle = this.getFontStyle();
+
+        if (!fontStyle){
+            return;
+        }
+
+        let fontDescription = fontStyle.getFontDescription();
+
+        // don't go further if font description isn't valid either
+        if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight){
+            return;
+        }
+
+        // line height; falls back to font size
+        let lineHeight = fontDescription.common.lineHeight || this.getFontSize();
+
+        // text scale based on the font size
+        let scale = fontStyle.getScale();
+
+        // don't go further if scale is invalid
+        if (!scale){
+            return;
+        }
+
+        // create the lines to draw onto the screen
+        let lines = TextUtils.measureText(fontStyle, this.getText(), maxWidth, this.getWordWrap(), this.getCharacterWrap());
+
+        // draws lines
+        this._drawLines(lines, scale, lineHeight);
+    }
+
+    /**
+     * Aligns a line according to its width and align type
+     * @param {number} width width of the line to align
+     * @returns {number} the aligned x position of the line
+     * @private
+     */
+    _alignLine(width) {
+
+        // set return variable
+        let x;
+
+        // change beginning of the line depending on the chosen alignment
+        switch(this.getAlign()) {
+            case Text.AlignType.LEFT:
+                x = this.transform.getPosition().x;
+                break;
+            case Text.AlignType.CENTER:
+                x = this.transform.getPosition().x + maxWidth / 2 - width / 2;
+                break;
+            case Text.AlignType.RIGHT:
+                x = this.transform.getPosition().x + maxWidth - width;
+                break;
+            // TODO: implement AlignType.JUSTIFIED using Knuth and Plass's algorithm
+            // case FontStyle.AlignType.JUSTIFIED:
+            default:
+                x = 0;
+                break;
+        }
+
+        return x;
+    }
+
+    /**
+     * Draws the given text lines onto the screen
+     * @param {Array} lines lines to draw
+     * @param {number} scale scale of the text
+     * * @param {number} lineHeight how much Y should increase to switch line
+     * @private
+     */
+    _drawLines(lines, scale, lineHeight){
+
+        // TODO: maybe throw new Error when simply returning? so errors can be seen in the console?
+        // if parameters are invalid, no need to go further
+        if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0){
+            return;
+        }
+
+        // retrieve webgl context
+        let gl = this._gl;
+
+        // create shader arrays, which are filled inside prepareLineToBeDrawn
+        let vertexElements = [];
+        let textureElements = [];
+        let vertexIndices = [];
+
+        // create pen with the screen coordinates, where (0,0) is the center of the screen
+        let pen = {
+            x: 0,
+            y: this.transform.getPosition().y
+        };
+
+        for (let i = 0; i < lines.length; i++) {
+
+            // align line accordingly
+            pen.x = this._alignLine(lines[i].width);
+
+            // retrieve line characters
+            let line = lines[i].chars;
+
+            // prepare to draw line
+            this._prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices);
+
+            // update Y before drawing another line
+            // TODO: no need to recalculate this value every time...
+            pen.y += lineHeight * scale;
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
+        this._vertexBuffer.numItems = vertexElements.length / 2;
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._vertexIndicesBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
+        this._vertexIndicesBuffer.numItems = vertexIndices.length;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
+        this._textureBuffer.numItems = textureElements.length / 2;
+    }
+
+    /**
+     * Prepares a line to be drawn
+     * @param {Array} line array of characters whose draw is to be prepared
+     * @param {number} scale text desired scale
+     * @param {{x: number, y:number}} pen pen to draw with
+     * @param {Array} vertexElements array to store the characters vertices
+     * @param {Array} textureElements array to store the characters texture elements
+     * @param {Array} vertexIndices array to store the vertices indices
+     * @private
+     */
+    _prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices){
+
+        let lastGlyphCode = 0;
+
+        // iterate through line characters
+        for (let i = 0; i < line.length; i++){
+
+            // retrieve line char
+            let char = line[i];
+
+            // prepare character to be drawn
+            lastGlyphCode = this._createGlyph(char, scale, pen, lastGlyphCode,
+                vertexElements, textureElements, vertexIndices);
+
+        }
+    }
+
+    /**
+     * Creates the necessary vertices and texture elements to draw a given character
+     * @param {string} char character to prepare to draw
+     * @param {number} scale text scale
+     * @param {{x: number, y: number}} pen pen to draw with
+     * @param {number} lastGlyphCode last drawn glyph ascii code
+     * @param {Array} outVertexElements out array to store the characters vertices
+     * @param {Array} outTextureElements out array to store the characters texture elements
+     * @param {Array} outVertexIndices out array to store the vertices indices
+     * @returns {number} drawn glyph ascii code or 0 if invalid
+     * @private
+     */
+    _createGlyph(char, scale, pen, lastGlyphCode, outVertexElements, outTextureElements, outVertexIndices) {
+
+        let fontStyle = this.getFontStyle();
+
+        if (!fontStyle){
+            return 0;
+        }
+
+        let fontDescription = fontStyle.getFontDescription();
+
+        // if font's description or any of the parameters is missing, no need to go further
+        if (!fontDescription || !fontDescription.chars ||
+            !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
+            !outVertexElements || !outTextureElements || !outVertexIndices){
+            return 0;
+        }
+
+        // retrieve char ID
+        let charID = fontStyle.findCharID(char);
+
+        // return if null
+        if (charID === null){
+            return 0;
+        }
+
+        // retrieve font metrics
+        let metrics = fontDescription.chars[charID];
+
+        // retrieve character metrics
+        let width = metrics.width;
+        let height = metrics.height;
+        let xOffset = metrics.xoffset;
+        let yOffset = metrics.yoffset;
+        let xAdvance = metrics.xadvance;
+        let posX = metrics.x;
+        let posY = metrics.y;
+        let asciiCode = metrics.id;
+
+        // set kerning initial value
+        let kern = 0;
+
+        // only prepare character to be drawn if width and height are valid
+        if (width > 0 && height > 0) {
+            // if a glyph was created before
+            if (lastGlyphCode){
+                // retrieve kerning value between last character and current character
+                kern = fontStyle.getKerning(lastGlyphCode, asciiCode);
+            }
+
+            // TODO: isn't there a way to reuse the indices?
+            let factor = (outVertexIndices.length / 6) * 4;
+
+            outVertexIndices.push(
+                0 + factor, 1 + factor, 2 + factor,
+                1 + factor, 2 + factor, 3 + factor
+            );
+
+            // Add a quad (= two triangles) per glyph.
+            outVertexElements.push(
+                pen.x + ((xOffset + kern) * scale), pen.y + yOffset * scale,
+                pen.x + ((xOffset + kern + width) * scale), pen.y + yOffset * scale,
+                pen.x + ((xOffset + kern) * scale), pen.y + (height + yOffset) * scale,
+
+                pen.x + ((xOffset + kern + width) * scale), pen.y + (height + yOffset) * scale
+            );
+
+            /*              ___
+             |\           \  |
+             | \           \ |
+             |__\ and then  \|
+             */
+            // example without scaling
+            /*
+             var bottomLeftX = pen.x + horiBearingX;
+             var bottomLeftY = pen.y + horiBearingY;
+             vertexElements.push(
              bottomLeftX, bottomLeftY, // bottom left
              bottomLeftX + width, bottomLeftY, // bottom right
              bottomLeftX, bottomLeftY + height, // top left
@@ -14807,23 +14961,30 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
              bottomLeftX + width, bottomLeftY, // bottom right
              bottomLeftX, bottomLeftY + height, // top left
              bottomLeftX + width, bottomLeftY + height // top right
-         );*/
+             );*/
 
-        outTextureElements.push(
-            posX, posY,
-            posX + width, posY,
-            posX, posY + height,
+            outTextureElements.push(
+                posX, posY,
+                posX + width, posY,
+                posX, posY + height,
 
-            posX + width, posY + height
-        );
+                posX + width, posY + height
+            );
+        }
+
+        // TODO: not sure kern should actually be added to the pen or just help with the offset when drawing.
+        pen.x = pen.x + fontStyle.getLetterSpacing() + ((xAdvance + kern) * scale);
+
+        // return the last glyph ascii code
+        return asciiCode;
     }
 
-    // TODO: not sure kern should actually be added to the pen or just help with the offset when drawing.
-    pen.x = pen.x + fontStyle.getLetterSpacing() + ((xAdvance + kern) * scale);
+    //#endregion
 
-    // return the last glyph ascii code
-    return asciiCode;
-};
+    //#endregion
+
+
+}
 ;/**
  * Texture2D class
  */

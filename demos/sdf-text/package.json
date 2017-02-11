@@ -10,5 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "load-bmfont": "^1.2.4"
+  },
+  "devDependencies": {
   }
 }
