@@ -1,3 +1,5 @@
+AttributeDictionary.addRule("transform", "gameObject", {visible: false});
+
 /**
  * Transform class
  */

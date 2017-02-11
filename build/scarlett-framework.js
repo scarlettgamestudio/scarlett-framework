@@ -12016,23 +12016,35 @@ RigidBody.prototype.unload = function() {
  * @constructor
  */
 function ContentObject(params) {
-};function ProjectFile(params) {
-    params = params || {};
+};/**
+ * Project File class
+ */
+class ProjectFile {
+    /**
+     *
+     * @param params
+     */
+    constructor(params) {
+        params = params || {};
 
-    this.name = params.name || "New Project";
-    this.settings = params.settings || {};
-    this.editor = params.editor || {
-            lastScene: null,
-            layout: null
-        };
-    this.content = params.content || {};
-}
+        this.name = params.name || "New Project";
+        this.settings = params.settings || {};
+        this.editor = params.editor || {
+                lastScene: null,
+                layout: null
+            };
+        this.content = params.content || {};
+    }
 
-ProjectFile.restore = function (data) {
-    return new ProjectFile(data);
-};
-
-;/**
+    /**
+     *
+     * @param data
+     * @returns {ProjectFile}
+     */
+    static restore(data) {
+        return new ProjectFile(data);
+    }
+};/**
  * Content Texture Atlas
  * @param params
  * @constructor
@@ -14001,12 +14013,12 @@ class Sprite extends GameObject {
         this._source = path;
 
         if (path && path.length > 0) {
-            var ext = Path.getFileExtension(path);
+            let ext = Path.getFileExtension(path);
 
             if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
                 ContentLoader.loadFile(path).then(
                     (function (data) {
-                        var atlas = Objectify.restoreFromString(data);
+                        let atlas = Objectify.restoreFromString(data);
 
                         // is this a valid atlas?
                         if (atlas && isObjectAssigned(atlas.sourcePath)) {
@@ -14097,7 +14109,7 @@ class Sprite extends GameObject {
 
     // functions:
     objectify() {
-        var superObjectify = super.objectify();
+        let superObjectify = super.objectify();
         return Objectify.extend(superObjectify, {
             src: this._source,
             tint: this._tint.objectify()
@@ -14105,7 +14117,7 @@ class Sprite extends GameObject {
     };
 
     static restore(data) {
-        var sprite = new Sprite({
+        let sprite = new Sprite({
             name: data.name,
             transform: Transform.restore(data.transform),
             children: Objectify.restoreArray(data.children),
@@ -14989,7 +15001,7 @@ class Texture2D {
      * @param path
      * @returns {Promise}
      */
-    fromPath(path) {
+    static fromPath(path) {
         return new Promise((function (resolve, reject) {
             ContentLoader.loadImage(path).then(function (image) {
                 resolve(new Texture2D(image));
@@ -15070,7 +15082,9 @@ class Texture2D {
     unload() {
 
     }
-};/**
+};AttributeDictionary.addRule("transform", "gameObject", {visible: false});
+
+/**
  * Transform class
  */
 class Transform {
