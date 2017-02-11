@@ -10813,7 +10813,7 @@ var Matrix3 = function () {
         }
 
         /**
-         * Calculates the matrix invert
+         * Calculates the inverse matrix
          * @returns {Float32Array}
          */
 
@@ -10972,22 +10972,25 @@ var Matrix4 = function () {
 
             var d = 1.0 / (this._matrix[0 * 4 + 0] * t0 + this._matrix[1 * 4 + 0] * t1 + this._matrix[2 * 4 + 0] * t2 + this._matrix[3 * 4 + 0] * t3);
 
-            this._matrix[0] = d * t0;
-            this._matrix[1] = d * t1;
-            this._matrix[2] = d * t2;
-            this._matrix[3] = d * t3;
-            this._matrix[4] = d * (tmp_1 * this._matrix[1 * 4 + 0] + tmp_2 * this._matrix[2 * 4 + 0] + tmp_5 * this._matrix[3 * 4 + 0] - (tmp_0 * this._matrix[1 * 4 + 0] + tmp_3 * this._matrix[2 * 4 + 0] + tmp_4 * this._matrix[3 * 4 + 0]));
-            this._matrix[5] = d * (tmp_0 * this._matrix[0 * 4 + 0] + tmp_7 * this._matrix[2 * 4 + 0] + tmp_8 * this._matrix[3 * 4 + 0] - (tmp_1 * this._matrix[0 * 4 + 0] + tmp_6 * this._matrix[2 * 4 + 0] + tmp_9 * this._matrix[3 * 4 + 0]));
-            this._matrix[6] = d * (tmp_3 * this._matrix[0 * 4 + 0] + tmp_6 * this._matrix[1 * 4 + 0] + tmp_11 * this._matrix[3 * 4 + 0] - (tmp_2 * this._matrix[0 * 4 + 0] + tmp_7 * this._matrix[1 * 4 + 0] + tmp_10 * this._matrix[3 * 4 + 0]));
-            this._matrix[7] = d * (tmp_4 * this._matrix[0 * 4 + 0] + tmp_9 * this._matrix[1 * 4 + 0] + tmp_10 * this._matrix[2 * 4 + 0] - (tmp_5 * this._matrix[0 * 4 + 0] + tmp_8 * this._matrix[1 * 4 + 0] + tmp_11 * this._matrix[2 * 4 + 0]));
-            this._matrix[8] = d * (tmp_12 * this._matrix[1 * 4 + 3] + tmp_15 * this._matrix[2 * 4 + 3] + tmp_16 * this._matrix[3 * 4 + 3] - (tmp_13 * this._matrix[1 * 4 + 3] + tmp_14 * this._matrix[2 * 4 + 3] + tmp_17 * this._matrix[3 * 4 + 3]));
-            this._matrix[9] = d * (tmp_13 * this._matrix[0 * 4 + 3] + tmp_18 * this._matrix[2 * 4 + 3] + tmp_21 * this._matrix[3 * 4 + 3] - (tmp_12 * this._matrix[0 * 4 + 3] + tmp_19 * this._matrix[2 * 4 + 3] + tmp_20 * this._matrix[3 * 4 + 3]));
-            this._matrix[10] = d * (tmp_14 * this._matrix[0 * 4 + 3] + tmp_19 * this._matrix[1 * 4 + 3] + tmp_22 * this._matrix[3 * 4 + 3] - (tmp_15 * this._matrix[0 * 4 + 3] + tmp_18 * this._matrix[1 * 4 + 3] + tmp_23 * this._matrix[3 * 4 + 3]));
-            this._matrix[11] = d * (tmp_17 * this._matrix[0 * 4 + 3] + tmp_20 * this._matrix[1 * 4 + 3] + tmp_23 * this._matrix[2 * 4 + 3] - (tmp_16 * this._matrix[0 * 4 + 3] + tmp_21 * this._matrix[1 * 4 + 3] + tmp_22 * this._matrix[2 * 4 + 3]));
-            this._matrix[12] = d * (tmp_14 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[3 * 4 + 2] + tmp_13 * this._matrix[1 * 4 + 2] - (tmp_16 * this._matrix[3 * 4 + 2] + tmp_12 * this._matrix[1 * 4 + 2] + tmp_15 * this._matrix[2 * 4 + 2]));
-            this._matrix[13] = d * (tmp_20 * this._matrix[3 * 4 + 2] + tmp_12 * this._matrix[0 * 4 + 2] + tmp_19 * this._matrix[2 * 4 + 2] - (tmp_18 * this._matrix[2 * 4 + 2] + tmp_21 * this._matrix[3 * 4 + 2] + tmp_13 * this._matrix[0 * 4 + 2]));
-            this._matrix[14] = d * (tmp_18 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[3 * 4 + 2] + tmp_15 * this._matrix[0 * 4 + 2] - (tmp_22 * this._matrix[3 * 4 + 2] + tmp_14 * this._matrix[0 * 4 + 2] + tmp_19 * this._matrix[1 * 4 + 2]));
-            this._matrix[15] = d * (tmp_22 * this._matrix[2 * 4 + 2] + tmp_16 * this._matrix[0 * 4 + 2] + tmp_21 * this._matrix[1 * 4 + 2] - (tmp_20 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[0 * 4 + 2]));
+            var newMatrix = new Float32Array(16);
+            newMatrix[0] = d * t0;
+            newMatrix[1] = d * t1;
+            newMatrix[2] = d * t2;
+            newMatrix[3] = d * t3;
+            newMatrix[4] = d * (tmp_1 * this._matrix[1 * 4 + 0] + tmp_2 * this._matrix[2 * 4 + 0] + tmp_5 * this._matrix[3 * 4 + 0] - (tmp_0 * this._matrix[1 * 4 + 0] + tmp_3 * this._matrix[2 * 4 + 0] + tmp_4 * this._matrix[3 * 4 + 0]));
+            newMatrix[5] = d * (tmp_0 * this._matrix[0 * 4 + 0] + tmp_7 * this._matrix[2 * 4 + 0] + tmp_8 * this._matrix[3 * 4 + 0] - (tmp_1 * this._matrix[0 * 4 + 0] + tmp_6 * this._matrix[2 * 4 + 0] + tmp_9 * this._matrix[3 * 4 + 0]));
+            newMatrix[6] = d * (tmp_3 * this._matrix[0 * 4 + 0] + tmp_6 * this._matrix[1 * 4 + 0] + tmp_11 * this._matrix[3 * 4 + 0] - (tmp_2 * this._matrix[0 * 4 + 0] + tmp_7 * this._matrix[1 * 4 + 0] + tmp_10 * this._matrix[3 * 4 + 0]));
+            newMatrix[7] = d * (tmp_4 * this._matrix[0 * 4 + 0] + tmp_9 * this._matrix[1 * 4 + 0] + tmp_10 * this._matrix[2 * 4 + 0] - (tmp_5 * this._matrix[0 * 4 + 0] + tmp_8 * this._matrix[1 * 4 + 0] + tmp_11 * this._matrix[2 * 4 + 0]));
+            newMatrix[8] = d * (tmp_12 * this._matrix[1 * 4 + 3] + tmp_15 * this._matrix[2 * 4 + 3] + tmp_16 * this._matrix[3 * 4 + 3] - (tmp_13 * this._matrix[1 * 4 + 3] + tmp_14 * this._matrix[2 * 4 + 3] + tmp_17 * this._matrix[3 * 4 + 3]));
+            newMatrix[9] = d * (tmp_13 * this._matrix[0 * 4 + 3] + tmp_18 * this._matrix[2 * 4 + 3] + tmp_21 * this._matrix[3 * 4 + 3] - (tmp_12 * this._matrix[0 * 4 + 3] + tmp_19 * this._matrix[2 * 4 + 3] + tmp_20 * this._matrix[3 * 4 + 3]));
+            newMatrix[10] = d * (tmp_14 * this._matrix[0 * 4 + 3] + tmp_19 * this._matrix[1 * 4 + 3] + tmp_22 * this._matrix[3 * 4 + 3] - (tmp_15 * this._matrix[0 * 4 + 3] + tmp_18 * this._matrix[1 * 4 + 3] + tmp_23 * this._matrix[3 * 4 + 3]));
+            newMatrix[11] = d * (tmp_17 * this._matrix[0 * 4 + 3] + tmp_20 * this._matrix[1 * 4 + 3] + tmp_23 * this._matrix[2 * 4 + 3] - (tmp_16 * this._matrix[0 * 4 + 3] + tmp_21 * this._matrix[1 * 4 + 3] + tmp_22 * this._matrix[2 * 4 + 3]));
+            newMatrix[12] = d * (tmp_14 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[3 * 4 + 2] + tmp_13 * this._matrix[1 * 4 + 2] - (tmp_16 * this._matrix[3 * 4 + 2] + tmp_12 * this._matrix[1 * 4 + 2] + tmp_15 * this._matrix[2 * 4 + 2]));
+            newMatrix[13] = d * (tmp_20 * this._matrix[3 * 4 + 2] + tmp_12 * this._matrix[0 * 4 + 2] + tmp_19 * this._matrix[2 * 4 + 2] - (tmp_18 * this._matrix[2 * 4 + 2] + tmp_21 * this._matrix[3 * 4 + 2] + tmp_13 * this._matrix[0 * 4 + 2]));
+            newMatrix[14] = d * (tmp_18 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[3 * 4 + 2] + tmp_15 * this._matrix[0 * 4 + 2] - (tmp_22 * this._matrix[3 * 4 + 2] + tmp_14 * this._matrix[0 * 4 + 2] + tmp_19 * this._matrix[1 * 4 + 2]));
+            newMatrix[15] = d * (tmp_22 * this._matrix[2 * 4 + 2] + tmp_16 * this._matrix[0 * 4 + 2] + tmp_21 * this._matrix[1 * 4 + 2] - (tmp_20 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[0 * 4 + 2]));
+
+            this._matrix = newMatrix;
 
             return this._matrix;
         }
@@ -11330,8 +11333,6 @@ function Vector2(x, y) {
     // public properties:
     this.x = x || 0;
     this.y = y || 0;
-
-    // private properties:
 }
 
 // instance functions:
@@ -12850,305 +12851,327 @@ GameManager.renderContext = null;
 GameManager.activeScene = null;
 GameManager.activeProject = null;
 GameManager.activeGame = null;
-GameManager.activeProjectPath = null;; /**
-                                       * GameObject class
-                                       */
-AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
+GameManager.activeProjectPath = null;;AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
 AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
 
-function GameObject(params) {
-    params = params || {};
+/**
+ * GameObject class
+ */
 
-    // public properties:
-    this.name = params.name || "GameObject";
-    this.enabled = true;
+var GameObject = function () {
 
-    if (params.transform) {
-        params.transform.gameObject = this;
-    }
+    /**
+     * @param {Object} params
+     */
+    function GameObject(params) {
+        _classCallCheck(this, GameObject);
 
-    this.transform = params.transform || new Transform({ gameObject: this });
+        params = params || {};
 
-    // private properties:
-    this._uid = generateUID();
-    this._parent = params.parent || null;
-    this._children = params.children || [];
-    this._components = params.components || [];
-    this._transformMatrix = new Matrix4();
-}
+        // public properties:
+        this.name = params.name || "GameObject";
+        this.enabled = true;
 
-GameObject.prototype.equals = function (other) {
-    if (other.getUID) {
-        return this._uid === other.getUID();
-    }
-
-    return this === other;
-};
-
-GameObject.prototype.getBaseWidth = function () {
-    return 1;
-};
-
-GameObject.prototype.getBaseHeight = function () {
-    return 1;
-};
-
-GameObject.prototype.getType = function () {
-    return "GameObject";
-};
-
-GameObject.prototype.getUID = function () {
-    return this._uid;
-};
-
-GameObject.prototype.propagatePropertyUpdate = function (property, value) {
-    for (var i = 0; i < this._components.length; ++i) {
-        if (this._components[i]["onGameObject" + property + "Updated"]) {
-            this._components[i]["onGameObject" + property + "Updated"](value);
+        if (params.transform) {
+            params.transform.gameObject = this;
         }
-    }
-};
 
-GameObject.prototype.getMatrix = function () {
-    this._transformMatrix.identity();
-    this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
+        this.transform = params.transform || new Transform({ gameObject: this });
 
-    return this._transformMatrix.asArray();
-};
-
-GameObject.prototype.getParent = function () {
-    return this._parent;
-};
-
-GameObject.prototype.removeParent = function () {
-    if (this._parent) {
-        this._parent.removeChild(this);
-    } else {
-        GameManager.activeScene.removeGameObject(this);
+        // private properties:
+        this._uid = generateUID();
+        this._parent = params.parent || null;
+        this._children = params.children || [];
+        this._components = params.components || [];
+        this._transformMatrix = new Matrix4();
     }
 
-    this._parent = null;
-};
+    _createClass(GameObject, [{
+        key: "equals",
+        value: function equals(other) {
+            if (other.getUID) {
+                return this._uid === other.getUID();
+            }
 
-GameObject.prototype.setParent = function (gameObject) {
-    if (!gameObject) {
-        // since there is no game object specified we will try to look for a scene related to this game object
-        // and then add it to the root hierarchy:
-        if (GameManager.activeScene) {
-            GameManager.activeScene.addGameObject(this);
+            return this === other;
         }
-    } else {
-        // does the object has a parent?
-        if (this.getParent() != null) {
-            this.getParent().removeChild(this);
-        } else {
-            // maybe is part of a game scene root hierarchy? if so try to remove from that
-            if (GameManager.activeScene) {
+    }, {
+        key: "getBaseWidth",
+        value: function getBaseWidth() {
+            return 1;
+        }
+    }, {
+        key: "getBaseHeight",
+        value: function getBaseHeight() {
+            return 1;
+        }
+    }, {
+        key: "getType",
+        value: function getType() {
+            return "GameObject";
+        }
+    }, {
+        key: "getUID",
+        value: function getUID() {
+            return this._uid;
+        }
+    }, {
+        key: "propagatePropertyUpdate",
+        value: function propagatePropertyUpdate(property, value) {
+            for (var i = 0; i < this._components.length; ++i) {
+                if (this._components[i]["onGameObject" + property + "Updated"]) {
+                    this._components[i]["onGameObject" + property + "Updated"](value);
+                }
+            }
+        }
+    }, {
+        key: "getMatrix",
+
+
+        /**
+         * Resolves the GameObject transformation Matrix4
+         * @returns {Float32Array} 
+         */
+        value: function getMatrix() {
+            this._transformMatrix.identity();
+            this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
+
+            return this._transformMatrix.asArray();
+        }
+    }, {
+        key: "getParent",
+        value: function getParent() {
+            return this._parent;
+        }
+    }, {
+        key: "removeParent",
+        value: function removeParent() {
+            if (this._parent) {
+                this._parent.removeChild(this);
+            } else {
                 GameManager.activeScene.removeGameObject(this);
             }
+
+            this._parent = null;
         }
+    }, {
+        key: "setParent",
+        value: function setParent(gameObject) {
+            if (!gameObject) {
+                // since there is no game object specified we will try to look for a scene related to this game object
+                // and then add it to the root hierarchy:
+                if (GameManager.activeScene) {
+                    GameManager.activeScene.addGameObject(this);
+                }
+            } else {
+                // does the object has a parent?
+                if (this.getParent() != null) {
+                    this.getParent().removeChild(this);
+                } else {
+                    // maybe is part of a game scene root hierarchy? if so try to remove from that
+                    if (GameManager.activeScene) {
+                        GameManager.activeScene.removeGameObject(this);
+                    }
+                }
 
-        gameObject.addChild(this);
-    }
-};
-
-GameObject.prototype.removeChild = function (gameObject) {
-    for (var i = this._children.length - 1; i >= 0; i--) {
-        if (this._children[i].getUID() == gameObject.getUID()) {
-            return this._children.splice(i, 1);
-        }
-    }
-};
-
-GameObject.prototype.getChildren = function () {
-    return this._children;
-};
-
-GameObject.prototype.addChild = function (gameObject, index) {
-    // let's be safe, make sure to remove parent if any
-    gameObject.removeParent();
-
-    // update the object parent
-    gameObject._parent = this;
-
-    // add this to our children array
-    if (isObjectAssigned(index)) {
-        this._children.insert(index, gameObject);
-    } else {
-        this._children.push(gameObject);
-    }
-};
-
-GameObject.prototype.getHierarchyHash = function () {
-    if (this._parent) {
-        return this._parent.getHierarchyHash() + "." + this._uid;
-    }
-    return this._uid + "";
-};
-
-GameObject.prototype.isChild = function (gameObject) {
-    // check if is a child simply by getting the hierarchy hash:
-    var hierarchyHash = gameObject.getHierarchyHash().split("."); // this . x . y . z . other
-    var thisIndex = hierarchyHash.indexOf(this._uid + ""),
-        otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
-    return otherIndex > thisIndex && thisIndex >= 0;
-
-    // this way takes away more resources:
-    /*for (var i = 0; i < this._children.length; ++i) {
-        if (this._children[i].equals(gameObject)) {
-            return true;
-        } else {
-            if (this._children[i].isChild(gameObject)) {
-                return true;
+                gameObject.addChild(this);
             }
         }
-    }
-    return false;*/
-};
-
-GameObject.prototype.addComponent = function (component) {
-    if (isFunction(component.setGameObject)) {
-        component.setGameObject(this);
-    }
-
-    // set the related component game object:
-    component.gameObject = this;
-
-    this._components.push(component);
-};
-
-GameObject.prototype.update = function (delta) {
-    if (!this.enabled) {
-        return;
-    }
-
-    // update children:
-    this._children.forEach(function (elem) {
-        if (elem.update) {
-            elem.update(delta);
+    }, {
+        key: "removeChild",
+        value: function removeChild(gameObject) {
+            for (var i = this._children.length - 1; i >= 0; i--) {
+                if (this._children[i].getUID() == gameObject.getUID()) {
+                    return this._children.splice(i, 1);
+                }
+            }
         }
-    });
-
-    this._components.forEach(function (component) {
-        if (component.update) {
-            component.update(delta);
+    }, {
+        key: "getChildren",
+        value: function getChildren() {
+            return this._children;
         }
-    });
-};
+    }, {
+        key: "addChild",
+        value: function addChild(gameObject, index) {
+            // let's be safe, make sure to remove parent if any
+            gameObject.removeParent();
 
-GameObject.prototype.render = function (delta, spriteBatch) {
-    if (!this.enabled) {
-        return;
-    }
+            // update the object parent
+            gameObject._parent = this;
 
-    // render children:
-    this._children.forEach(function (elem) {
-        if (elem.render) {
-            elem.render(delta, spriteBatch);
+            // add this to our children array
+            if (isObjectAssigned(index)) {
+                this._children.insert(index, gameObject);
+            } else {
+                this._children.push(gameObject);
+            }
         }
-    });
-
-    this._components.forEach(function (component) {
-        if (component.render) {
-            component.render(delta, spriteBatch);
+    }, {
+        key: "getHierarchyHash",
+        value: function getHierarchyHash() {
+            if (this._parent) {
+                return this._parent.getHierarchyHash() + "." + this._uid;
+            }
+            return this._uid + "";
         }
-    });
-};
+    }, {
+        key: "isChild",
+        value: function isChild(gameObject) {
+            // check if is a child simply by getting the hierarchy hash:
+            var hierarchyHash = gameObject.getHierarchyHash().split("."); // this . x . y . z . other
+            var thisIndex = hierarchyHash.indexOf(this._uid + ""),
+                otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
+            return otherIndex > thisIndex && thisIndex >= 0;
 
-GameObject.prototype.getComponents = function () {
-    return this._components;
-};
-
-/**
- * Gets the boundary of this game object with added bulk if needed
- * @param bulk
- * @returns {Boundary}
- */
-GameObject.prototype.getBoundary = function (bulk) {
-    var mat = this.getMatrix();
-    var boundary = new Boundary(Vector2.transformMat4(new Vector2(0, 0), mat), Vector2.transformMat4(new Vector2(1, 0), mat), Vector2.transformMat4(new Vector2(1, 1), mat), Vector2.transformMat4(new Vector2(0, 1), mat));
-
-    if (bulk) {
-        boundary.topLeft.x -= bulk;
-        boundary.topLeft.y -= bulk;
-        boundary.topRight.x += bulk;
-        boundary.topRight.y -= bulk;
-        boundary.bottomRight.x += bulk;
-        boundary.bottomRight.y += bulk;
-        boundary.bottomLeft.x -= bulk;
-        boundary.bottomLeft.y += bulk;
-    }
-
-    return boundary;
-};
-
-/**
- * Fast boundary mapping without taking in consideration rotation
- * @param bulk
- * @returns {Rectangle}
- */
-GameObject.prototype.getRectangleBoundary = function (bulk) {
-    var vertices = this.getBoundary(bulk);
-
-    // find the min and max width to form the rectangle boundary
-    var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
-    var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
-
-    // return the generated rectangle:
-    return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-};
-
-/**
- *
- * @param gameObject
- * @param bulk
- * @param bulkOther
- * @returns {boolean}
- */
-GameObject.prototype.collidesWith = function (gameObject, bulk, bulkOther) {
-    return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
-};
-
-/**
- * Tests collision with a point
- * @param point
- * @param bulk
- * @returns {boolean}
- */
-GameObject.prototype.collidesWithPoint = function (point, bulk) {
-    var boundaryA = this.getBoundary(bulk);
-    var boundaryB = new Boundary(new Vector2(point.x, point.y), new Vector2(point.x + 1, point.y), new Vector2(point.x + 1, point.y + 1), new Vector2(point.x, point.y + 1));
-
-    return Boundary.overlap(boundaryA, boundaryB);
-};
-
-GameObject.prototype.objectify = function () {
-    return {
-        name: this.name,
-        transform: this.transform.objectify(),
-        children: Objectify.array(this._children),
-        components: Objectify.array(this._components)
-    };
-};
-
-GameObject.restore = function (data) {
-    return new GameObject({
-        name: data.name,
-        transform: Transform.restore(data.transform),
-        children: Objectify.restoreArray(data.children),
-        components: Objectify.restoreArray(data.components)
-    });
-};
-
-GameObject.prototype.unload = function () {
-    for (var i = 0; i < this._components.length; ++i) {
-        if (isFunction(this._components[i].unload)) {
-            this._components[i].unload();
+            // this way takes away more resources:
+            /*for (var i = 0; i < this._children.length; ++i) {
+                if (this._children[i].equals(gameObject)) {
+                    return true;
+                } else {
+                    if (this._children[i].isChild(gameObject)) {
+                        return true;
+                    }
+                }
+            }
+            return false;*/
         }
-    }
-};
+    }, {
+        key: "addComponent",
+        value: function addComponent(component) {
+            if (isFunction(component.setGameObject)) {
+                component.setGameObject(this);
+            }
+
+            // set the related component game object:
+            component.gameObject = this;
+
+            this._components.push(component);
+        }
+    }, {
+        key: "update",
+        value: function update(delta) {
+            if (!this.enabled) {
+                return;
+            }
+
+            // update children:
+            this._children.forEach(function (elem) {
+                if (elem.update) {
+                    elem.update(delta);
+                }
+            });
+
+            this._components.forEach(function (component) {
+                if (component.update) {
+                    component.update(delta);
+                }
+            });
+        }
+    }, {
+        key: "render",
+        value: function render(delta, spriteBatch) {
+            if (!this.enabled) {
+                return;
+            }
+
+            // render children:
+            this._children.forEach(function (elem) {
+                if (elem.render) {
+                    elem.render(delta, spriteBatch);
+                }
+            });
+
+            this._components.forEach(function (component) {
+                if (component.render) {
+                    component.render(delta, spriteBatch);
+                }
+            });
+        }
+    }, {
+        key: "getComponents",
+        value: function getComponents() {
+            return this._components;
+        }
+    }, {
+        key: "getBoundary",
+        value: function getBoundary(bulk) {
+            var mat = this.getMatrix();
+            var boundary = new Boundary(Vector2.transformMat4(new Vector2(0, 0), mat), Vector2.transformMat4(new Vector2(1, 0), mat), Vector2.transformMat4(new Vector2(1, 1), mat), Vector2.transformMat4(new Vector2(0, 1), mat));
+
+            if (bulk) {
+                boundary.topLeft.x -= bulk;
+                boundary.topLeft.y -= bulk;
+                boundary.topRight.x += bulk;
+                boundary.topRight.y -= bulk;
+                boundary.bottomRight.x += bulk;
+                boundary.bottomRight.y += bulk;
+                boundary.bottomLeft.x -= bulk;
+                boundary.bottomLeft.y += bulk;
+            }
+
+            return boundary;
+        }
+    }, {
+        key: "getRectangleBoundary",
+        value: function getRectangleBoundary(bulk) {
+            var vertices = this.getBoundary(bulk);
+
+            // find the min and max width to form the rectangle boundary
+            var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+            var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+            var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+            var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+
+            // return the generated rectangle:
+            return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+        }
+    }, {
+        key: "collidesWith",
+        value: function collidesWith(gameObject, bulk, bulkOther) {
+            return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
+        }
+    }, {
+        key: "collidesWithPoint",
+        value: function collidesWithPoint(point, bulk) {
+            var boundaryA = this.getBoundary(bulk);
+            var boundaryB = new Boundary(new Vector2(point.x, point.y), new Vector2(point.x + 1, point.y), new Vector2(point.x + 1, point.y + 1), new Vector2(point.x, point.y + 1));
+
+            return Boundary.overlap(boundaryA, boundaryB);
+        }
+    }, {
+        key: "objectify",
+        value: function objectify() {
+            return {
+                name: this.name,
+                transform: this.transform.objectify(),
+                children: Objectify.array(this._children),
+                components: Objectify.array(this._components)
+            };
+        }
+    }, {
+        key: "unload",
+        value: function unload() {
+            for (var i = 0; i < this._components.length; ++i) {
+                if (isFunction(this._components[i].unload)) {
+                    this._components[i].unload();
+                }
+            }
+        }
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            return new GameObject({
+                name: data.name,
+                transform: Transform.restore(data.transform),
+                children: Objectify.restoreArray(data.children),
+                components: Objectify.restoreArray(data.components)
+            });
+        }
+    }]);
+
+    return GameObject;
+}();
 
 ; /**
   * GameProject class
@@ -13749,198 +13772,235 @@ AttributeDictionary.addRule("sprite", "_atlasRegion", {
     }
 });
 
-function Sprite(params) {
-    params = params || {};
-    params.name = params.name || "Sprite";
+var Sprite = function (_GameObject) {
+    _inherits(Sprite, _GameObject);
 
-    GameObject.call(this, params);
+    /**
+     * Class constructor
+     * @param {Object} params
+     */
+    function Sprite(params) {
+        _classCallCheck(this, Sprite);
 
-    // private properties:
-    this._source = "";
-    this._atlasRegion = "";
-    this._tint = params.tint || Color.fromRGB(255, 255, 255);
-    this._textureWidth = 0;
-    this._textureHeight = 0;
-    this._origin = new Vector2(0.5, 0.5);
-    this._wrapMode = WrapMode.CLAMP;
-    this._atlas = null;
+        params = params || {};
+        params.name = params.name || "Sprite";
 
-    this.setTexture(params.texture);
-}
+        // private properties:
+        var _this = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, params));
 
-inheritsFrom(Sprite, GameObject);
+        _this._source = "";
+        _this._atlasRegion = "";
+        _this._tint = params.tint || Color.fromRGB(255, 255, 255);
+        _this._textureWidth = 0;
+        _this._textureHeight = 0;
+        _this._origin = new Vector2(0.5, 0.5);
+        _this._wrapMode = WrapMode.CLAMP;
+        _this._atlas = null;
 
-Sprite.prototype.getBaseWidth = function () {
-    return this._textureWidth;
-};
-
-Sprite.prototype.getBaseHeight = function () {
-    return this._textureHeight;
-};
-
-Sprite.prototype.getMatrix = function () {
-    var x = void 0,
-        y = void 0,
-        width = void 0,
-        height = void 0;
-
-    x = this.transform.getPosition().x;
-    y = this.transform.getPosition().y;
-    width = this._textureWidth * this.transform.getScale().x;
-    height = this._textureHeight * this.transform.getScale().y;
-
-    this._transformMatrix.identity();
-
-    if (this._wrapMode != WrapMode.REPEAT) {
-        this._transformMatrix.translate([x - width * this._origin.x, y - height * this._origin.y, 0]);
-    } else {
-        this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
+        _this.setTexture(params.texture);
+        return _this;
     }
 
-    this._transformMatrix.translate([width * this._origin.x, height * this._origin.y, 0]);
-    this._transformMatrix.rotate([0.0, 0.0, 1.0], this.transform.getRotation());
-    this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
-    this._transformMatrix.scale([width, height, 0]);
-
-    return this._transformMatrix.asArray();
-};
-
-Sprite.prototype.setWrapMode = function (wrapMode) {
-    this._wrapMode = wrapMode;
-};
-
-Sprite.prototype.getWrapMode = function () {
-    return this._wrapMode;
-};
-
-Sprite.prototype.setOrigin = function (origin) {
-    this._origin = origin;
-};
-
-Sprite.prototype.getOrigin = function () {
-    return this._origin;
-};
-
-Sprite.prototype.setTint = function (color) {
-    this._tint = color;
-};
-
-Sprite.prototype.getTint = function () {
-    return this._tint;
-};
-
-Sprite.prototype.setSource = function (path) {
-    this._source = path;
-
-    if (path && path.length > 0) {
-        var ext = Path.getFileExtension(path);
-
-        if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
-            ContentLoader.loadFile(path).then(function (data) {
-                var atlas = Objectify.restoreFromString(data);
-
-                // is this a valid atlas?
-                if (atlas && isObjectAssigned(atlas.sourcePath)) {
-                    // seems so!
-                    this._atlas = atlas;
-                    this._assignTextureFromPath(this._atlas.sourcePath);
-
-                    // FIXME: change to a more appropriate event?
-                    // this is currently being used so the property editor refreshes the view after the atlas
-                    // is asynchronously loaded.
-                    EventManager.emit(SC.EVENTS.CONTENT_ASSET_LOADED, path);
-                }
-            }.bind(this), function (err) {
-                console.log("failed");
-            });
-        } else {
-            this._atlas = null;
-            this._assignTextureFromPath(path);
+    _createClass(Sprite, [{
+        key: "getBaseWidth",
+        value: function getBaseWidth() {
+            return this._textureWidth;
         }
-    } else {
-        this.setTexture(null);
-    }
-};
+    }, {
+        key: "getBaseHeight",
+        value: function getBaseHeight() {
+            return this._textureHeight;
+        }
+    }, {
+        key: "getMatrix",
+        value: function getMatrix() {
+            var x = void 0,
+                y = void 0,
+                width = void 0,
+                height = void 0;
 
-Sprite.prototype._assignTextureFromPath = function (path) {
-    Texture2D.fromPath(path).then(function (texture) {
-        this.setTexture(texture);
-    }.bind(this), function (error) {
-        this.setTexture(null);
-    }.bind(this));
-};
+            x = this.transform.getPosition().x;
+            y = this.transform.getPosition().y;
+            width = this._textureWidth * this.transform.getScale().x;
+            height = this._textureHeight * this.transform.getScale().y;
 
-Sprite.prototype.getAtlasRegion = function () {
-    return this._atlasRegion;
-};
+            this._transformMatrix.identity();
 
-Sprite.prototype.setAtlasRegion = function (value) {
-    this._atlasRegion = value;
-};
+            if (this._wrapMode != WrapMode.REPEAT) {
+                this._transformMatrix.translate([x - width * this._origin.x, y - height * this._origin.y, 0]);
+            } else {
+                this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
+            }
 
-Sprite.prototype.getSource = function () {
-    return this._source;
-};
+            this._transformMatrix.translate([width * this._origin.x, height * this._origin.y, 0]);
+            this._transformMatrix.rotate([0.0, 0.0, 1.0], this.transform.getRotation());
+            this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
+            this._transformMatrix.scale([width, height, 0]);
 
-Sprite.prototype.getType = function () {
-    return "Sprite";
-};
+            return this._transformMatrix.asArray();
+        }
+    }, {
+        key: "setWrapMode",
+        value: function setWrapMode(wrapMode) {
+            this._wrapMode = wrapMode;
+        }
+    }, {
+        key: "getWrapMode",
+        value: function getWrapMode() {
+            return this._wrapMode;
+        }
+    }, {
+        key: "setOrigin",
+        value: function setOrigin(origin) {
+            this._origin = origin;
+        }
+    }, {
+        key: "getOrigin",
+        value: function getOrigin() {
+            return this._origin;
+        }
+    }, {
+        key: "setTint",
+        value: function setTint(color) {
+            this._tint = color;
+        }
+    }, {
+        key: "getTint",
+        value: function getTint() {
+            return this._tint;
+        }
+    }, {
+        key: "setSource",
+        value: function setSource(path) {
+            this._source = path;
 
-Sprite.prototype.getTexture = function () {
-    return this._texture;
-};
+            if (path && path.length > 0) {
+                var ext = Path.getFileExtension(path);
 
-Sprite.prototype.setTexture = function (texture) {
-    // is this a ready texture?
-    if (!texture || !texture.isReady()) {
-        this._texture = null;
-        this._textureWidth = 0;
-        this._textureHeight = 0;
-        return;
-    }
+                if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
+                    ContentLoader.loadFile(path).then(function (data) {
+                        var atlas = Objectify.restoreFromString(data);
 
-    this._texture = texture;
+                        // is this a valid atlas?
+                        if (atlas && isObjectAssigned(atlas.sourcePath)) {
+                            // seems so!
+                            this._atlas = atlas;
+                            this._assignTextureFromPath(this._atlas.sourcePath);
 
-    // cache the dimensions
-    this._textureWidth = this._texture.getWidth();
-    this._textureHeight = this._texture.getHeight();
-};
+                            // FIXME: change to a more appropriate event?
+                            // this is currently being used so the property editor refreshes the view after the atlas
+                            // is asynchronously loaded.
+                            EventManager.emit(SC.EVENTS.CONTENT_ASSET_LOADED, path);
+                        }
+                    }.bind(this), function (err) {
+                        console.log("failed");
+                    });
+                } else {
+                    this._atlas = null;
+                    this._assignTextureFromPath(path);
+                }
+            } else {
+                this.setTexture(null);
+            }
+        }
+    }, {
+        key: "_assignTextureFromPath",
+        value: function _assignTextureFromPath(path) {
+            Texture2D.fromPath(path).then(function (texture) {
+                this.setTexture(texture);
+            }.bind(this), function (error) {
+                this.setTexture(null);
+            }.bind(this));
+        }
+    }, {
+        key: "getAtlasRegion",
+        value: function getAtlasRegion() {
+            return this._atlasRegion;
+        }
+    }, {
+        key: "setAtlasRegion",
+        value: function setAtlasRegion(value) {
+            this._atlasRegion = value;
+        }
+    }, {
+        key: "getSource",
+        value: function getSource() {
+            return this._source;
+        }
+    }, {
+        key: "getType",
+        value: function getType() {
+            return "Sprite";
+        }
+    }, {
+        key: "getTexture",
+        value: function getTexture() {
+            return this._texture;
+        }
+    }, {
+        key: "setTexture",
+        value: function setTexture(texture) {
+            // is this a ready texture?
+            if (!texture || !texture.isReady()) {
+                this._texture = null;
+                this._textureWidth = 0;
+                this._textureHeight = 0;
+                return;
+            }
 
-Sprite.prototype.render = function (delta, spriteBatch) {
-    if (!this.enabled) {
-        return;
-    }
+            this._texture = texture;
 
-    // just store the sprite to render on flush:
-    spriteBatch.storeSprite(this);
+            // cache the dimensions
+            this._textureWidth = this._texture.getWidth();
+            this._textureHeight = this._texture.getHeight();
+        }
+    }, {
+        key: "render",
+        value: function render(delta, spriteBatch) {
+            if (!this.enabled) {
+                return;
+            }
 
-    // parent render function:
-    GameObject.prototype.render.call(this, delta, spriteBatch);
-};
+            // just store the sprite to render on flush:
+            spriteBatch.storeSprite(this);
 
-// functions:
-Sprite.prototype.objectify = function () {
-    var superObjectify = GameObject.prototype.objectify.call(this);
-    return Objectify.extend(superObjectify, {
-        src: this._source,
-        tint: this._tint.objectify()
-    });
-};
+            // parent render function:
+            _get(Sprite.prototype.__proto__ || Object.getPrototypeOf(Sprite.prototype), "render", this).call(this, delta, spriteBatch);
+        }
+    }, {
+        key: "objectify",
 
-Sprite.restore = function (data) {
-    var sprite = new Sprite({
-        name: data.name,
-        transform: Transform.restore(data.transform),
-        children: Objectify.restoreArray(data.children),
-        components: Objectify.restoreArray(data.components)
-    });
 
-    sprite.setSource(data.src);
+        // functions:
+        value: function objectify() {
+            var superObjectify = _get(Sprite.prototype.__proto__ || Object.getPrototypeOf(Sprite.prototype), "objectify", this).call(this);
+            return Objectify.extend(superObjectify, {
+                src: this._source,
+                tint: this._tint.objectify()
+            });
+        }
+    }, {
+        key: "unload",
+        value: function unload() {}
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            var sprite = new Sprite({
+                name: data.name,
+                transform: Transform.restore(data.transform),
+                children: Objectify.restoreArray(data.children),
+                components: Objectify.restoreArray(data.components)
+            });
 
-    return sprite;
-};
+            sprite.setSource(data.src);
 
-Sprite.prototype.unload = function () {};
+            return sprite;
+        }
+    }]);
+
+    return Sprite;
+}(GameObject);
+
 ; /**
   * SpriteBatch class
   */
@@ -14188,8 +14248,8 @@ var maxWidth = 500;
  * Text class
  */
 
-var Text = function (_GameObject) {
-    _inherits(Text, _GameObject);
+var Text = function (_GameObject2) {
+    _inherits(Text, _GameObject2);
 
     _createClass(Text, null, [{
         key: "AlignType",
@@ -14217,47 +14277,47 @@ var Text = function (_GameObject) {
         params = params || {};
         params.name = params.name || "Text";
 
-        var _this = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
+        var _this2 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
 
-        _this._fontStyle = new FontStyle(params.font || {});
+        _this2._fontStyle = new FontStyle(params.font || {});
 
-        _this._fontStyle.setFontSize(params.fontSize || 70.0);
-        _this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
+        _this2._fontStyle.setFontSize(params.fontSize || 70.0);
+        _this2._fontStyle.setLetterSpacing(params.letterSpacing || 0);
 
-        _this._wordWrap = true;
-        _this._characterWrap = true;
-        _this._alignType = Text.AlignType.LEFT;
+        _this2._wordWrap = true;
+        _this2._characterWrap = true;
+        _this2._alignType = Text.AlignType.LEFT;
 
-        _this._textureSrc = "";
-        _this._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
-        _this._text = params.text || "";
+        _this2._textureSrc = "";
+        _this2._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
+        _this2._text = params.text || "";
 
-        _this._gamma = params.gamma || 2.0;
+        _this2._gamma = params.gamma || 2.0;
 
         // TODO: normalize inside the setters?
         // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
-        _this._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
+        _this2._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
-        _this._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
+        _this2._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
 
         // x and y values have to be between spread (defined in Hiero) / texture size
         // e.g., 4 / 512
         // need to normalize between those values
-        _this._dropShadowOffset = new Vector2(0, 0);
+        _this2._dropShadowOffset = new Vector2(0, 0);
 
         // either 0 or 1
-        _this._debug = 0;
+        _this2._debug = 0;
 
-        _this._gl = GameManager.renderContext.getContext();
+        _this2._gl = GameManager.renderContext.getContext();
 
-        _this._vertexBuffer = _this._gl.createBuffer();
-        _this._textureBuffer = _this._gl.createBuffer();
-        _this._vertexIndicesBuffer = _this._gl.createBuffer();
-        _this._textShader = new TextShader();
+        _this2._vertexBuffer = _this2._gl.createBuffer();
+        _this2._textureBuffer = _this2._gl.createBuffer();
+        _this2._vertexIndicesBuffer = _this2._gl.createBuffer();
+        _this2._textShader = new TextShader();
 
         // set text texture if defined
-        _this.setTexture(params.texture);
-        return _this;
+        _this2.setTexture(params.texture);
+        return _this2;
     }
 
     //#endregion
