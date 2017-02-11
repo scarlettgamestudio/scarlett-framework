@@ -29,7 +29,7 @@ This repository contains the Scarlett Framework Module and associated libraries.
 
 ### Recommended Code Editors ###
 
-* Webstorm or IntelliJ Ultimate 
+* Webstorm
 * Visual Studio Code
 * Atom
 
