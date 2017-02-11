@@ -14126,7 +14126,19 @@ var maxWidth = 500;
 var Text = function (_GameObject) {
     _inherits(Text, _GameObject);
 
-    //#region Constructors
+    _createClass(Text, null, [{
+        key: "AlignType",
+        get: function get() {
+            return {
+                LEFT: 'LEFT',
+                CENTER: 'CENTER',
+                RIGHT: 'RIGHT'
+            };
+        }
+
+        //#region Constructors
+
+    }]);
 
     function Text(params) {
         _classCallCheck(this, Text);
@@ -14795,11 +14807,6 @@ var Text = function (_GameObject) {
     return Text;
 }(GameObject);
 
-Text.AlignType = {
-    LEFT: 0,
-    RIGHT: 1,
-    CENTER: 2
-};
 ; /**
   * Texture2D class
   */

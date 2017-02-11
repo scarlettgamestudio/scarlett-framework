@@ -16,6 +16,18 @@ let maxWidth = 500;
  */
 class Text extends GameObject {
 
+    //#region Static Properties
+
+    static get AlignType() {
+        return {
+            LEFT: 'LEFT',
+            CENTER: 'CENTER',
+            RIGHT: 'RIGHT'
+        };
+    }
+
+    //#endregion
+
     //#region Constructors
 
     constructor(params){
@@ -636,9 +648,3 @@ class Text extends GameObject {
 
     //#endregion
 }
-
-Text.AlignType = {
-    LEFT: 0,
-    RIGHT: 1,
-    CENTER: 2
-};
