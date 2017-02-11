@@ -30,7 +30,7 @@ class Text extends GameObject {
 
     //#region Constructors
 
-    constructor(params){
+    constructor(params) {
         params = params || {};
         params.name = params.name || "Text";
 
@@ -46,14 +46,14 @@ class Text extends GameObject {
         this._alignType = Text.AlignType.LEFT;
 
         this._textureSrc = "";
-        this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
+        this._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
         this._text = params.text || "";
 
         this._gamma = params.gamma || 2.0;
 
         // TODO: normalize inside the setters?
         // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
-        this._stroke = new Stroke(Color.fromRGBA(186,85,54, 0.5), 0.0);
+        this._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
         this._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
 
@@ -82,11 +82,9 @@ class Text extends GameObject {
 
     //#region Static Methods
 
-    static restore(data){
+    static restore(data) {
         // TODO:
-        return {
-
-        };
+        return {};
     }
 
     //#endregion
@@ -176,7 +174,7 @@ class Text extends GameObject {
         super.render(delta, spriteBatch);
     }
 
-    unload(){
+    unload() {
         this._gl.deleteBuffer(this._vertexBuffer);
         this._gl.deleteBuffer(this._textureBuffer);
         this._gl.deleteBuffer(this._vertexIndicesBuffer);
@@ -189,7 +187,7 @@ class Text extends GameObject {
     }
 
     // TODO: rotate, scale... probably similar to sprite... think carefully about scaling?
-    getMatrix(){
+    getMatrix() {
         let x, y;
 
         x = this.transform.getPosition().x;
@@ -208,7 +206,7 @@ class Text extends GameObject {
 
     //#endregion
 
-    getType(){
+    getType() {
         // TODO: is it even needed? we could replace this method in gameobject by this.name
         return "Text";
     }
@@ -308,11 +306,11 @@ class Text extends GameObject {
         return this.getFontStyle().getFontSize();
     }
 
-    getLetterSpacing(){
+    getLetterSpacing() {
         return this.getFontStyle().getLetterSpacing();
     }
 
-    setLetterSpacing(value){
+    setLetterSpacing(value) {
         this.getFontStyle().setLetterSpacing(value);
     }
 
@@ -396,14 +394,14 @@ class Text extends GameObject {
     _drawText() {
         let fontStyle = this.getFontStyle();
 
-        if (!fontStyle){
+        if (!fontStyle) {
             return;
         }
 
         let fontDescription = fontStyle.getFontDescription();
 
         // don't go further if font description isn't valid either
-        if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight){
+        if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight) {
             return;
         }
 
@@ -414,7 +412,7 @@ class Text extends GameObject {
         let scale = fontStyle.getScale();
 
         // don't go further if scale is invalid
-        if (!scale){
+        if (!scale) {
             return;
         }
 
@@ -437,7 +435,7 @@ class Text extends GameObject {
         let x;
 
         // change beginning of the line depending on the chosen alignment
-        switch(this.getAlign()) {
+        switch (this.getAlign()) {
             case Text.AlignType.LEFT:
                 x = this.transform.getPosition().x;
                 break;
@@ -464,11 +462,11 @@ class Text extends GameObject {
      * * @param {number} lineHeight how much Y should increase to switch line
      * @private
      */
-    _drawLines(lines, scale, lineHeight){
+    _drawLines(lines, scale, lineHeight) {
 
         // TODO: maybe throw new Error when simply returning? so errors can be seen in the console?
         // if parameters are invalid, no need to go further
-        if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0){
+        if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0) {
             return;
         }
 
@@ -525,12 +523,12 @@ class Text extends GameObject {
      * @param {Array} vertexIndices array to store the vertices indices
      * @private
      */
-    _prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices){
+    _prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices) {
 
         let lastGlyphCode = 0;
 
         // iterate through line characters
-        for (let i = 0; i < line.length; i++){
+        for (let i = 0; i < line.length; i++) {
 
             // retrieve line char
             let char = line[i];
@@ -558,16 +556,14 @@ class Text extends GameObject {
 
         let fontStyle = this.getFontStyle();
 
-        if (!fontStyle){
+        if (!fontStyle) {
             return 0;
         }
 
         let fontDescription = fontStyle.getFontDescription();
 
         // if font's description or any of the parameters is missing, no need to go further
-        if (!fontDescription || !fontDescription.chars ||
-            !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
-            !outVertexElements || !outTextureElements || !outVertexIndices){
+        if (!fontDescription || !fontDescription.chars || !char || !scale || scale <= 0 || !pen || lastGlyphCode == null || !outVertexElements || !outTextureElements || !outVertexIndices) {
             return 0;
         }
 
@@ -575,7 +571,7 @@ class Text extends GameObject {
         let charID = fontStyle.findCharID(char);
 
         // return if null
-        if (charID === null){
+        if (charID === null) {
             return 0;
         }
 
@@ -598,7 +594,7 @@ class Text extends GameObject {
         // only prepare character to be drawn if width and height are valid
         if (width > 0 && height > 0) {
             // if a glyph was created before
-            if (lastGlyphCode){
+            if (lastGlyphCode) {
                 // retrieve kerning value between last character and current character
                 kern = fontStyle.getKerning(lastGlyphCode, asciiCode);
             }

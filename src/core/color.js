@@ -3,71 +3,71 @@ SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 /**
  * Color Class
  */
-class Color{
+class Color {
 
     //#region Static Properties
 
-    static get CornflowerBlue(){
+    static get CornflowerBlue() {
         return Color.fromRGB(100.0, 149.0, 237.0);
     }
 
-    static get Scarlet(){
+    static get Scarlet() {
         return Color.fromRGB(255.0, 36.0, 0.0);
     }
 
-    static get Red(){
+    static get Red() {
         return Color.fromRGB(255.0, 0.0, 0.0);
     }
 
-    static get Green(){
+    static get Green() {
         return Color.fromRGB(0.0, 255.0, 0.0);
     }
 
-    static get Blue(){
+    static get Blue() {
         return Color.fromRGB(0.0, 0.0, 255.0);
     }
 
-    static get White(){
+    static get White() {
         return Color.fromRGB(255.0, 255.0, 255.0);
     }
 
-    static get Black(){
+    static get Black() {
         return Color.fromRGB(0.0, 0.0, 0.0);
     }
 
-    static get Gray(){
+    static get Gray() {
         return Color.fromRGB(80.0, 80.0, 80.0);
     }
 
-    static get Nephritis(){
+    static get Nephritis() {
         return Color.fromRGB(39.0, 174.0, 96.0);
     }
 
-    static get Wisteria(){
+    static get Wisteria() {
         return Color.fromRGB(142.0, 68.0, 173.0);
     }
 
-    static get Amethyst(){
+    static get Amethyst() {
         return Color.fromRGB(155.0, 89.0, 182.0);
     }
 
-    static get Carrot(){
+    static get Carrot() {
         return Color.fromRGB(230, 126, 34);
     }
 
-    static get Pumpkin(){
+    static get Pumpkin() {
         return Color.fromRGB(211, 84, 0);
     }
 
-    static get Orange(){
+    static get Orange() {
         return Color.fromRGB(243, 156, 18);
     }
 
-    static get SunFlower(){
+    static get SunFlower() {
         return Color.fromRGB(241, 196, 15);
     }
 
-    static get Alizarin(){
+    static get Alizarin() {
         return Color.fromRGB(231, 76, 60);
     }
 
@@ -121,7 +121,7 @@ class Color{
     static fromRGBA(red, green, blue, alpha) {
 
         // no need to go further if arguments are invalid
-        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
+        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)) {
             return null;
         }
 
@@ -136,14 +136,14 @@ class Color{
     static fromHex(hex) {
 
         // no need to go further if argument is invalid
-        if (!isString(hex)){
+        if (!isString(hex)) {
             return null;
         }
 
         // convert to RGBA
         let rgba = Color.hexToRGBA(hex);
 
-        if (!rgba){
+        if (!rgba) {
             return null;
         }
 
@@ -172,7 +172,7 @@ class Color{
      */
     static rgbToHex(r, g, b) {
 
-        if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
+        if (!isNumber(r) || !isNumber(g) || !isNumber(b)) {
             return "";
         }
 
@@ -191,7 +191,7 @@ class Color{
     static hexToRGBA(hex) {
         // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
         let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
-        hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
+        hex = hex.replace(shorthandRegex, function (m, r, g, b, a) {
             return r + r + g + g + b + b + a + a;
         });
 
@@ -233,7 +233,7 @@ class Color{
         let maxRange = 1.0;
 
         // change current color and max range if chosen format is set to RGBA
-        if (asRGBA === true){
+        if (asRGBA === true) {
             currentColor = this.toRGBA();
             maxRange = 255.0;
         }
@@ -281,7 +281,7 @@ class Color{
     equalsIgnoreAlpha(obj) {
 
         // validate argument before testing
-        if (!isNumber(obj.r) || !isNumber(obj.g) || !isNumber(obj.b)){
+        if (!isNumber(obj.r) || !isNumber(obj.g) || !isNumber(obj.b)) {
             return null;
         }
 
@@ -296,7 +296,7 @@ class Color{
     equals(obj) {
 
         // validate argument before testing
-        if (!isNumber(obj.a)){
+        if (!isNumber(obj.a)) {
             return null;
         }
 

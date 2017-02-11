@@ -5,7 +5,7 @@
 /**
  * Stroke Class
  */
-class Stroke{
+class Stroke {
 
     //#region Constructors
 
@@ -15,7 +15,7 @@ class Stroke{
      * @param {number=} size size of the stroke
      * @constructor
      */
-    constructor(color, size){
+    constructor(color, size) {
         // stroke color
         this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
         // stroke size
@@ -39,7 +39,7 @@ class Stroke{
 
     //#region Public Methods
 
-    getColor(){
+    getColor() {
         return this._color;
     }
 
@@ -47,23 +47,23 @@ class Stroke{
      * Sets stroke's color
      * @param {Color} color
      */
-    setColor(color){
+    setColor(color) {
 
-        if (color instanceof Color){
+        if (color instanceof Color) {
             this._color = color.clone();
             return;
         }
 
-        if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)){
+        if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)) {
             throw new Error("The given stroke color is invalid");
         }
 
         this._color.set(color.r, color.g, color.b, color.a);
     }
 
-    setOpacity(alpha){
+    setOpacity(alpha) {
 
-        if (!isNumber(alpha)){
+        if (!isNumber(alpha)) {
             throw new Error("The given alpha is invalid");
         }
 
@@ -72,17 +72,17 @@ class Stroke{
         this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
     }
 
-    getOpacity(){
+    getOpacity() {
         return this.getColor().a;
     }
 
-    getSize(){
+    getSize() {
         return this._size;
     }
 
-    setSize(size){
+    setSize(size) {
 
-        if (!isNumber(size)){
+        if (!isNumber(size)) {
             throw new Error("The given size is invalid");
         }
 
