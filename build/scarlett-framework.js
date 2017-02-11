@@ -11035,6 +11035,44 @@ class Matrix3 {
     }
 
     /**
+     * Multiples the current Matrix3 by another Matrix3
+     * @param matrix3
+     */
+    multiply(matrix3) {
+        let a00 = this._matrix[0 * 3 + 0];
+        let a01 = this._matrix[0 * 3 + 1];
+        let a02 = this._matrix[0 * 3 + 2];
+        let a10 = this._matrix[1 * 3 + 0];
+        let a11 = this._matrix[1 * 3 + 1];
+        let a12 = this._matrix[1 * 3 + 2];
+        let a20 = this._matrix[2 * 3 + 0];
+        let a21 = this._matrix[2 * 3 + 1];
+        let a22 = this._matrix[2 * 3 + 2];
+
+        let b00 = matrix3[0 * 3 + 0];
+        let b01 = matrix3[0 * 3 + 1];
+        let b02 = matrix3[0 * 3 + 2];
+        let b10 = matrix3[1 * 3 + 0];
+        let b11 = matrix3[1 * 3 + 1];
+        let b12 = matrix3[1 * 3 + 2];
+        let b20 = matrix3[2 * 3 + 0];
+        let b21 = matrix3[2 * 3 + 1];
+        let b22 = matrix3[2 * 3 + 2];
+
+        this._matrix[0] = a00 * b00 + a01 * b10 + a02 * b20;
+        this._matrix[1] = a00 * b01 + a01 * b11 + a02 * b21;
+        this._matrix[2] = a00 * b02 + a01 * b12 + a02 * b22;
+        this._matrix[3] = a10 * b00 + a11 * b10 + a12 * b20;
+        this._matrix[4] = a10 * b01 + a11 * b11 + a12 * b21;
+        this._matrix[5] = a10 * b02 + a11 * b12 + a12 * b22;
+        this._matrix[6] = a20 * b00 + a21 * b10 + a22 * b20;
+        this._matrix[7] = a20 * b01 + a21 * b11 + a22 * b21;
+        this._matrix[8] = a20 * b02 + a21 * b12 + a22 * b22;
+
+        return this._matrix;
+    }
+
+    /**
      * Set Matrix identity
      * @returns {Float32Array}
      */
@@ -11178,6 +11216,65 @@ class Matrix4 {
             (tmp_20 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[0 * 4 + 2]));
 
         this._matrix = newMatrix;
+
+        return this._matrix;
+    }
+
+    /**
+     * Multiples the current Matrix4 by another Matrix4
+     * @param matrix4
+     */
+    multiply(matrix4) {
+        let a00 = this._matrix[0 * 4 + 0];
+        let a01 = this._matrix[0 * 4 + 1];
+        let a02 = this._matrix[0 * 4 + 2];
+        let a03 = this._matrix[0 * 4 + 3];
+        let a10 = this._matrix[1 * 4 + 0];
+        let a11 = this._matrix[1 * 4 + 1];
+        let a12 = this._matrix[1 * 4 + 2];
+        let a13 = this._matrix[1 * 4 + 3];
+        let a20 = this._matrix[2 * 4 + 0];
+        let a21 = this._matrix[2 * 4 + 1];
+        let a22 = this._matrix[2 * 4 + 2];
+        let a23 = this._matrix[2 * 4 + 3];
+        let a30 = this._matrix[3 * 4 + 0];
+        let a31 = this._matrix[3 * 4 + 1];
+        let a32 = this._matrix[3 * 4 + 2];
+        let a33 = this._matrix[3 * 4 + 3];
+
+        let b00 = matrix4[0 * 4 + 0];
+        let b01 = matrix4[0 * 4 + 1];
+        let b02 = matrix4[0 * 4 + 2];
+        let b03 = matrix4[0 * 4 + 3];
+        let b10 = matrix4[1 * 4 + 0];
+        let b11 = matrix4[1 * 4 + 1];
+        let b12 = matrix4[1 * 4 + 2];
+        let b13 = matrix4[1 * 4 + 3];
+        let b20 = matrix4[2 * 4 + 0];
+        let b21 = matrix4[2 * 4 + 1];
+        let b22 = matrix4[2 * 4 + 2];
+        let b23 = matrix4[2 * 4 + 3];
+        let b30 = matrix4[3 * 4 + 0];
+        let b31 = matrix4[3 * 4 + 1];
+        let b32 = matrix4[3 * 4 + 2];
+        let b33 = matrix4[3 * 4 + 3];
+
+        this._matrix[0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
+        this._matrix[1] = a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03;
+        this._matrix[2] = a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03;
+        this._matrix[3] = a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03;
+        this._matrix[4] = a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13;
+        this._matrix[5] = a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13;
+        this._matrix[6] = a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13;
+        this._matrix[7] = a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13;
+        this._matrix[8] = a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23;
+        this._matrix[9] = a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23;
+        this._matrix[10] = a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23;
+        this._matrix[11] = a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23;
+        this._matrix[12] = a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33;
+        this._matrix[13] = a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33;
+        this._matrix[14] = a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33;
+        this._matrix[15] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
 
         return this._matrix;
     }
@@ -11965,97 +12062,135 @@ TextureAtlas.prototype.getType = function () {
 };;/**
  * Camera2D class
  */
-function Camera2D(x, y, viewWidth, viewHeight, zoom) {
-    // public properties:
-    this.x = x || 0;
-    this.y = y || 0;
-    this.zoom = zoom || 1.0;
-    this.viewWidth = viewWidth || 0;
-    this.viewHeight = viewHeight || 0;
+class Camera2D {
+    /**
+     *
+     * @param x
+     * @param y
+     * @param viewWidth
+     * @param viewHeight
+     * @param zoom
+     */
+    constructor(x, y, viewWidth, viewHeight, zoom) {
+        // public properties:
+        this.x = x || 0;
+        this.y = y || 0;
+        this.zoom = zoom || 1.0;
+        this.viewWidth = viewWidth || 0;
+        this.viewHeight = viewHeight || 0;
 
-    // private properties:
-    this._lastX = null;
-    this._lastY = null;
-    this._lastZoom = null;
-    this._matrix = new Matrix4();
-}
-
-Camera2D.prototype.calculateMatrix = function () {
-    // generate orthographic perspective:
-    this._matrix.orthographic(
-        this.x + -this.viewWidth * this.zoom / 2.0,
-        this.x + this.viewWidth * this.zoom / 2.0,
-        this.y + this.viewHeight * this.zoom / 2.0,
-        this.y + -this.viewHeight * this.zoom / 2.0,
-        0.0, 1.0
-    );
-
-    this._lastX = this.x;
-    this._lastY = this.y;
-    this._lastZoom = this.zoom;
-
-    return this._matrix.asArray();
-};
-
-Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
-    this.viewWidth = viewWidth;
-    this.viewHeight = viewHeight;
-
-    // force the camera calculations
-    this.calculateMatrix();
-};
-
-Camera2D.prototype.getViewWidth = function () {
-    return this.viewWidth;
-};
-
-Camera2D.prototype.getViewHeight = function () {
-    return this.viewHeight;
-};
-
-/**
- * Calculates (if necessary) and returns the transformation matrix of the camera
- * @returns {mat4|*}
- */
-Camera2D.prototype.getMatrix = function () {
-    // needs to have a new calculation?
-    if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
-        return this.calculateMatrix();
+        // private properties:
+        this._lastX = null;
+        this._lastY = null;
+        this._lastZoom = null;
+        this._matrix = new Matrix4();
     }
 
-    return this._matrix.asArray();
-};
+    /**
+     *
+     * @returns {Float32Array}
+     */
+    calculateMatrix() {
+        // generate orthographic perspective:
+        this._matrix.orthographic(
+            this.x + -this.viewWidth * this.zoom / 2.0,
+            this.x + this.viewWidth * this.zoom / 2.0,
+            this.y + this.viewHeight * this.zoom / 2.0,
+            this.y + -this.viewHeight * this.zoom / 2.0,
+            0.0, 1.0
+        );
 
-/**
- * Gets the world coordinates based on the screen X and Y
- * @param screenX
- * @param screenY
- */
-Camera2D.prototype.screenToWorldCoordinates = function (screenX, screenY) {
-    // first we normalize the screen position:
-    let x = (2.0 * screenX) / this.viewWidth - 1.0;
-    let y = 1.0 - (2.0 * screenY) / this.viewHeight;
+        this._lastX = this.x;
+        this._lastY = this.y;
+        this._lastZoom = this.zoom;
 
-    // then we calculate and return the world coordinates:
-    return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
-};
-
-
-Camera2D.prototype.unload = function () {
-
-};
-
-Camera2D.prototype.objectify = function () {
-    return {
-        x: this.x,
-        y: this.y,
-        zoom: this.zoom
+        return this._matrix.asArray();
     }
-};
 
-Camera2D.restore = function (data) {
-    return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
-};;SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
+    /**
+     *
+     * @param viewWidth
+     * @param viewHeight
+     */
+    setViewSize(viewWidth, viewHeight) {
+        this.viewWidth = viewWidth;
+        this.viewHeight = viewHeight;
+
+        // force the camera calculations
+        this.calculateMatrix();
+    };
+
+    /**
+     *
+     * @returns {*|number}
+     */
+    getViewWidth() {
+        return this.viewWidth;
+    };
+
+    /**
+     *
+     * @returns {*|number}
+     */
+    getViewHeight() {
+        return this.viewHeight;
+    };
+
+    /**
+     *
+     * @returns {Float32Array}
+     */
+    getMatrix() {
+        // needs to have a new calculation?
+        if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
+            return this.calculateMatrix();
+        }
+
+        return this._matrix.asArray();
+    };
+
+    /**
+     *
+     * @param screenX
+     * @param screenY
+     */
+    screenToWorldCoordinates(screenX, screenY) {
+        // first we normalize the screen position:
+        let x = (2.0 * screenX) / this.viewWidth - 1.0;
+        let y = 1.0 - (2.0 * screenY) / this.viewHeight;
+
+        // then we calculate and return the world coordinates:
+        return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
+    };
+
+    /**
+     *
+     */
+    unload() {
+
+    }
+
+    /**
+     *
+     * @returns {{x: (*|number), y: (*|number), zoom: (*|number)}}
+     */
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y,
+            zoom: this.zoom
+        }
+    };
+
+    /**
+     *
+     * @param data
+     * @returns {Camera2D}
+     */
+    static restore(data) {
+        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
+    };
+};SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
 /**
  * Color Class
