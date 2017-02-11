@@ -97,12 +97,12 @@ class Sprite extends GameObject {
         this._source = path;
 
         if (path && path.length > 0) {
-            var ext = Path.getFileExtension(path);
+            let ext = Path.getFileExtension(path);
 
             if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
                 ContentLoader.loadFile(path).then(
                     (function (data) {
-                        var atlas = Objectify.restoreFromString(data);
+                        let atlas = Objectify.restoreFromString(data);
 
                         // is this a valid atlas?
                         if (atlas && isObjectAssigned(atlas.sourcePath)) {
@@ -193,7 +193,7 @@ class Sprite extends GameObject {
 
     // functions:
     objectify() {
-        var superObjectify = super.objectify();
+        let superObjectify = super.objectify();
         return Objectify.extend(superObjectify, {
             src: this._source,
             tint: this._tint.objectify()
@@ -201,7 +201,7 @@ class Sprite extends GameObject {
     };
 
     static restore(data) {
-        var sprite = new Sprite({
+        let sprite = new Sprite({
             name: data.name,
             transform: Transform.restore(data.transform),
             children: Objectify.restoreArray(data.children),

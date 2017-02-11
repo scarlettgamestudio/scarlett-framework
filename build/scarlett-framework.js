@@ -11040,6 +11040,44 @@ class Matrix3 {
     }
 
     /**
+     * Multiples the current Matrix3 by another Matrix3
+     * @param matrix3
+     */
+    multiply(matrix3) {
+        let a00 = this._matrix[0 * 3 + 0];
+        let a01 = this._matrix[0 * 3 + 1];
+        let a02 = this._matrix[0 * 3 + 2];
+        let a10 = this._matrix[1 * 3 + 0];
+        let a11 = this._matrix[1 * 3 + 1];
+        let a12 = this._matrix[1 * 3 + 2];
+        let a20 = this._matrix[2 * 3 + 0];
+        let a21 = this._matrix[2 * 3 + 1];
+        let a22 = this._matrix[2 * 3 + 2];
+
+        let b00 = matrix3[0 * 3 + 0];
+        let b01 = matrix3[0 * 3 + 1];
+        let b02 = matrix3[0 * 3 + 2];
+        let b10 = matrix3[1 * 3 + 0];
+        let b11 = matrix3[1 * 3 + 1];
+        let b12 = matrix3[1 * 3 + 2];
+        let b20 = matrix3[2 * 3 + 0];
+        let b21 = matrix3[2 * 3 + 1];
+        let b22 = matrix3[2 * 3 + 2];
+
+        this._matrix[0] = a00 * b00 + a01 * b10 + a02 * b20;
+        this._matrix[1] = a00 * b01 + a01 * b11 + a02 * b21;
+        this._matrix[2] = a00 * b02 + a01 * b12 + a02 * b22;
+        this._matrix[3] = a10 * b00 + a11 * b10 + a12 * b20;
+        this._matrix[4] = a10 * b01 + a11 * b11 + a12 * b21;
+        this._matrix[5] = a10 * b02 + a11 * b12 + a12 * b22;
+        this._matrix[6] = a20 * b00 + a21 * b10 + a22 * b20;
+        this._matrix[7] = a20 * b01 + a21 * b11 + a22 * b21;
+        this._matrix[8] = a20 * b02 + a21 * b12 + a22 * b22;
+
+        return this._matrix;
+    }
+
+    /**
      * Set Matrix identity
      * @returns {Float32Array}
      */
@@ -11112,7 +11150,7 @@ class Matrix4 {
     }
 
     /**
-     * Calculates the matrix invert
+     * Calculates the inverse matrix
      * @returns {Float32Array}
      */
     invert() {
@@ -11183,6 +11221,65 @@ class Matrix4 {
             (tmp_20 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[0 * 4 + 2]));
 
         this._matrix = newMatrix;
+
+        return this._matrix;
+    }
+
+    /**
+     * Multiples the current Matrix4 by another Matrix4
+     * @param matrix4
+     */
+    multiply(matrix4) {
+        let a00 = this._matrix[0 * 4 + 0];
+        let a01 = this._matrix[0 * 4 + 1];
+        let a02 = this._matrix[0 * 4 + 2];
+        let a03 = this._matrix[0 * 4 + 3];
+        let a10 = this._matrix[1 * 4 + 0];
+        let a11 = this._matrix[1 * 4 + 1];
+        let a12 = this._matrix[1 * 4 + 2];
+        let a13 = this._matrix[1 * 4 + 3];
+        let a20 = this._matrix[2 * 4 + 0];
+        let a21 = this._matrix[2 * 4 + 1];
+        let a22 = this._matrix[2 * 4 + 2];
+        let a23 = this._matrix[2 * 4 + 3];
+        let a30 = this._matrix[3 * 4 + 0];
+        let a31 = this._matrix[3 * 4 + 1];
+        let a32 = this._matrix[3 * 4 + 2];
+        let a33 = this._matrix[3 * 4 + 3];
+
+        let b00 = matrix4[0 * 4 + 0];
+        let b01 = matrix4[0 * 4 + 1];
+        let b02 = matrix4[0 * 4 + 2];
+        let b03 = matrix4[0 * 4 + 3];
+        let b10 = matrix4[1 * 4 + 0];
+        let b11 = matrix4[1 * 4 + 1];
+        let b12 = matrix4[1 * 4 + 2];
+        let b13 = matrix4[1 * 4 + 3];
+        let b20 = matrix4[2 * 4 + 0];
+        let b21 = matrix4[2 * 4 + 1];
+        let b22 = matrix4[2 * 4 + 2];
+        let b23 = matrix4[2 * 4 + 3];
+        let b30 = matrix4[3 * 4 + 0];
+        let b31 = matrix4[3 * 4 + 1];
+        let b32 = matrix4[3 * 4 + 2];
+        let b33 = matrix4[3 * 4 + 3];
+
+        this._matrix[0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
+        this._matrix[1] = a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03;
+        this._matrix[2] = a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03;
+        this._matrix[3] = a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03;
+        this._matrix[4] = a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13;
+        this._matrix[5] = a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13;
+        this._matrix[6] = a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13;
+        this._matrix[7] = a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13;
+        this._matrix[8] = a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23;
+        this._matrix[9] = a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23;
+        this._matrix[10] = a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23;
+        this._matrix[11] = a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23;
+        this._matrix[12] = a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33;
+        this._matrix[13] = a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33;
+        this._matrix[14] = a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33;
+        this._matrix[15] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
 
         return this._matrix;
     }
@@ -11970,97 +12067,135 @@ TextureAtlas.prototype.getType = function () {
 };;/**
  * Camera2D class
  */
-function Camera2D(x, y, viewWidth, viewHeight, zoom) {
-    // public properties:
-    this.x = x || 0;
-    this.y = y || 0;
-    this.zoom = zoom || 1.0;
-    this.viewWidth = viewWidth || 0;
-    this.viewHeight = viewHeight || 0;
+class Camera2D {
+    /**
+     *
+     * @param x
+     * @param y
+     * @param viewWidth
+     * @param viewHeight
+     * @param zoom
+     */
+    constructor(x, y, viewWidth, viewHeight, zoom) {
+        // public properties:
+        this.x = x || 0;
+        this.y = y || 0;
+        this.zoom = zoom || 1.0;
+        this.viewWidth = viewWidth || 0;
+        this.viewHeight = viewHeight || 0;
 
-    // private properties:
-    this._lastX = null;
-    this._lastY = null;
-    this._lastZoom = null;
-    this._matrix = new Matrix4();
-}
-
-Camera2D.prototype.calculateMatrix = function () {
-    // generate orthographic perspective:
-    this._matrix.orthographic(
-        this.x + -this.viewWidth * this.zoom / 2.0,
-        this.x + this.viewWidth * this.zoom / 2.0,
-        this.y + this.viewHeight * this.zoom / 2.0,
-        this.y + -this.viewHeight * this.zoom / 2.0,
-        0.0, 1.0
-    );
-
-    this._lastX = this.x;
-    this._lastY = this.y;
-    this._lastZoom = this.zoom;
-
-    return this._matrix.asArray();
-};
-
-Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
-    this.viewWidth = viewWidth;
-    this.viewHeight = viewHeight;
-
-    // force the camera calculations
-    this.calculateMatrix();
-};
-
-Camera2D.prototype.getViewWidth = function () {
-    return this.viewWidth;
-};
-
-Camera2D.prototype.getViewHeight = function () {
-    return this.viewHeight;
-};
-
-/**
- * Calculates (if necessary) and returns the transformation matrix of the camera
- * @returns {mat4|*}
- */
-Camera2D.prototype.getMatrix = function () {
-    // needs to have a new calculation?
-    if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
-        return this.calculateMatrix();
+        // private properties:
+        this._lastX = null;
+        this._lastY = null;
+        this._lastZoom = null;
+        this._matrix = new Matrix4();
     }
 
-    return this._matrix.asArray();
-};
+    /**
+     *
+     * @returns {Float32Array}
+     */
+    calculateMatrix() {
+        // generate orthographic perspective:
+        this._matrix.orthographic(
+            this.x + -this.viewWidth * this.zoom / 2.0,
+            this.x + this.viewWidth * this.zoom / 2.0,
+            this.y + this.viewHeight * this.zoom / 2.0,
+            this.y + -this.viewHeight * this.zoom / 2.0,
+            0.0, 1.0
+        );
 
-/**
- * Gets the world coordinates based on the screen X and Y
- * @param screenX
- * @param screenY
- */
-Camera2D.prototype.screenToWorldCoordinates = function (screenX, screenY) {
-    // first we normalize the screen position:
-    let x = (2.0 * screenX) / this.viewWidth - 1.0;
-    let y = 1.0 - (2.0 * screenY) / this.viewHeight;
+        this._lastX = this.x;
+        this._lastY = this.y;
+        this._lastZoom = this.zoom;
 
-    // then we calculate and return the world coordinates:
-    return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
-};
-
-
-Camera2D.prototype.unload = function () {
-
-};
-
-Camera2D.prototype.objectify = function () {
-    return {
-        x: this.x,
-        y: this.y,
-        zoom: this.zoom
+        return this._matrix.asArray();
     }
-};
 
-Camera2D.restore = function (data) {
-    return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
-};;SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
+    /**
+     *
+     * @param viewWidth
+     * @param viewHeight
+     */
+    setViewSize(viewWidth, viewHeight) {
+        this.viewWidth = viewWidth;
+        this.viewHeight = viewHeight;
+
+        // force the camera calculations
+        this.calculateMatrix();
+    };
+
+    /**
+     *
+     * @returns {*|number}
+     */
+    getViewWidth() {
+        return this.viewWidth;
+    };
+
+    /**
+     *
+     * @returns {*|number}
+     */
+    getViewHeight() {
+        return this.viewHeight;
+    };
+
+    /**
+     *
+     * @returns {Float32Array}
+     */
+    getMatrix() {
+        // needs to have a new calculation?
+        if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
+            return this.calculateMatrix();
+        }
+
+        return this._matrix.asArray();
+    };
+
+    /**
+     *
+     * @param screenX
+     * @param screenY
+     */
+    screenToWorldCoordinates(screenX, screenY) {
+        // first we normalize the screen position:
+        let x = (2.0 * screenX) / this.viewWidth - 1.0;
+        let y = 1.0 - (2.0 * screenY) / this.viewHeight;
+
+        // then we calculate and return the world coordinates:
+        return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
+    };
+
+    /**
+     *
+     */
+    unload() {
+
+    }
+
+    /**
+     *
+     * @returns {{x: (*|number), y: (*|number), zoom: (*|number)}}
+     */
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y,
+            zoom: this.zoom
+        }
+    };
+
+    /**
+     *
+     * @param data
+     * @returns {Camera2D}
+     */
+    static restore(data) {
+        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
+    };
+};SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
 /**
  * Color Class
@@ -13258,21 +13393,7 @@ class GameObject {
             }
         }
     };
-};/**
- * GameProject class
- */
-function GameProject (name) {
-	// public properties:
-	this.name = name;
-}
-
-GameProject.prototype.toJSON = function() {
-	return {
-		name: this.name
-	};
-};
-
-;AttributeDictionary.addRule("gameScene", "_game", {visible: false});
+};AttributeDictionary.addRule("gameScene", "_game", {visible: false});
 AttributeDictionary.addRule("gameScene", "_gameObjects", {visible: false});
 AttributeDictionary.addRule("gameScene", "_camera", {visible: false});
 AttributeDictionary.addRule("gameScene", "_spriteBatch", {visible: false});
@@ -14988,212 +15109,339 @@ class Text extends GameObject {
 ;/**
  * Texture2D class
  */
-function Texture2D(image) {
-    if (!isObjectAssigned(image)) {
-        throw new Error("Cannot create Texture2D without an image source");
+class Texture2D {
+    /**
+     *
+     * @param image
+     */
+    constructor(image) {
+        if (!isObjectAssigned(image)) {
+            throw new Error("Cannot create Texture2D without an image source");
+        }
+
+        // private properties:
+        this._uid = generateUID();
+        this._source = image;
+        this._texture = null;
+        this._gl = GameManager.renderContext.getContext();
+
+        // Prepare the webgl texture:
+        this._texture = this._gl.createTexture();
+
+        // binding
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+
+        // Set the parameters so we can render any size image.
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+
+        // Upload the image into the texture.
+        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._source);
+
+        //this._gl.bindTexture(gl.TEXTURE_2D, null);
+
+        this._hasLoaded = true;
     }
 
-    // private properties:
-    this._uid = generateUID();
-    this._source = image;
-    this._texture = null;
-    this._gl = GameManager.renderContext.getContext();
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
+    fromPath(path) {
+        return new Promise((function (resolve, reject) {
+            ContentLoader.loadImage(path).then(function (image) {
+                resolve(new Texture2D(image));
 
-    let gl = this._gl;
+            }, function () {
+                reject();
 
-    // Prepare the webgl texture:
-    this._texture = gl.createTexture();
+            });
+        }).bind(this));
+    };
 
-    // binding
-    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    /**
+     *
+     * @returns {Number}
+     */
+    getUID() {
+        return this._uid;
+    };
 
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    /**
+     *
+     */
+    bind() {
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+    };
 
-    // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._source);
+    /**
+     *
+     * @param imageData
+     */
+    setImageData(imageData) {
+        this._source = imageData;
+    };
 
-    //gl.bindTexture(gl.TEXTURE_2D, null);
+    /**
+     *
+     * @returns {*}
+     */
+    getImageData() {
+        return this._source;
+    };
 
-    this._hasLoaded = true;
-}
+    /**
+     * Gets the texture width
+     * @returns {Number}
+     */
+    getWidth() {
+        return this._source.width;
+    };
 
-Texture2D.fromPath = function (path) {
-    return new Promise((function (resolve, reject) {
-        ContentLoader.loadImage(path).then(function (image) {
-            resolve(new Texture2D(image));
+    /**
+     * Gets the texture height
+     * @returns {Number}
+     */
+    getHeight() {
+        return this._source.height;
+    };
 
-        }, function () {
-            reject();
+    /**
+     * Gets the Texture
+     * @returns {WebGLTexture|*|null}
+     */
+    getTexture() {
+        return this._texture;
+    };
 
-        });
-    }).bind(this));
-};
+    /**
+     *
+     * @returns {boolean}
+     */
+    isReady() {
+        return this._hasLoaded;
+    };
 
-Texture2D.prototype.getUID = function () {
-    return this._uid;
-};
+    /**
 
-Texture2D.prototype.bind = function () {
-    this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-};
+     */
+    unload() {
 
-Texture2D.prototype.setImageData = function (imageData) {
-    this._source = imageData;
-};
-
-Texture2D.prototype.getWidth = function () {
-    return this._source.width;
-};
-
-Texture2D.prototype.getHeight = function () {
-    return this._source.height;
-};
-
-Texture2D.prototype.getImageData = function () {
-    return this._source;
-};
-
-Texture2D.prototype.getTexture = function () {
-    return this._texture;
-};
-
-Texture2D.prototype.isReady = function () {
-    return this._hasLoaded;
-};
-
-Texture2D.prototype.unload = function () {
-
-};;/**
+    }
+};/**
  * Transform class
  */
-AttributeDictionary.addRule("transform", "gameObject", {ownContainer: true});
+class Transform {
+    /**
+     *
+     * @param params
+     */
+    constructor(params) {
+        params = params || {};
 
-function Transform(params) {
-    params = params || {};
+        // public properties:
+        this.gameObject = params.gameObject || null;
 
-    // public properties:
-    this.gameObject = params.gameObject || null;
+        // private properties:
+        this._position = params.position || new Vector2();
+        this._rotation = params.rotation || 0.0;
+        this._scale = params.scale || new Vector2(1.0, 1.0);
 
-    // private properties:
-    this._position = params.position || new Vector2();
-    this._rotation = params.rotation || 0.0;
-    this._scale = params.scale || new Vector2(1.0, 1.0);
-
-    this._overridePositionFunction = null;
-    this._overrideRotationFunction = null;
-    this._overrideScaleFunction = null;
-}
-
-Transform.prototype.clearPositionGetter = function () {
-    this._overridePositionFunction = null;
-};
-
-Transform.prototype.clearRotationGetter = function () {
-    this._overrideRotationFunction = null;
-};
-
-Transform.prototype.clearScaleGetter = function () {
-    this._overrideScaleFunction = null;
-};
-
-Transform.prototype.overridePositionGetter = function (overrideFunction) {
-    this._overridePositionFunction = overrideFunction;
-};
-
-Transform.prototype.overrideScaleGetter = function (overrideFunction) {
-    this._overrideScaleFunction = overrideFunction;
-};
-
-Transform.prototype.overrideRotationGetter = function (overrideFunction) {
-    this._overrideRotationFunction = overrideFunction;
-};
-
-Transform.prototype.lookAt = function(position) {
-    var direction = this.getPosition().subtract(position).normalize();
-    this.setRotation(Math.atan2(direction.y, direction.x));
-};
-
-Transform.prototype.setPosition = function (x, y) {
-    this._position.set(x, y);
-    this.gameObject.propagatePropertyUpdate("Position", this._position);
-};
-
-Transform.prototype.getPosition = function () {
-    if (isFunction(this._overridePositionFunction)) {
-        return this._overridePositionFunction();
+        this._overridePositionFunction = null;
+        this._overrideRotationFunction = null;
+        this._overrideScaleFunction = null;
     }
 
-    return this._position;
-};
-
-Transform.prototype.translate = function(x, y) {
-    var curPos = this.getPosition();
-    this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
-};
-
-Transform.prototype.rotate = function(value) {
-    this.setRotation(this.getRotation() + (value || 0));
-};
-
-Transform.prototype.scale = function(x, y) {
-    var curScale = this.getScale();
-    this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
-};
-
-Transform.prototype.setRotation = function (value) {
-    this._rotation = value;
-    this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
-};
-
-Transform.prototype.getRotation = function () {
-    if (isFunction(this._overrideRotationFunction)) {
-        return this._overrideRotationFunction();
-    }
-
-    return this._rotation;
-};
-
-Transform.prototype.setScale = function (x, y) {
-    this._scale.set(x, y || x);
-    this.gameObject.propagatePropertyUpdate("Scale", this._scale);
-};
-
-Transform.prototype.getScale = function () {
-    if (isFunction(this._overrideScaleFunction)) {
-        return this._overrideScaleFunction();
-    }
-
-    return this._scale;
-};
-
-Transform.prototype.clone = function() {
-    return Transform.restore(this.objectify());
-};
-
-Transform.prototype.objectify = function () {
-    return {
-        position: this._position.objectify(),
-        rotation: this._rotation,
-        scale: this._scale.objectify()
+    /**
+     *
+     */
+    clearPositionGetter() {
+        this._overridePositionFunction = null;
     };
-};
 
-Transform.restore = function (data) {
-    return new Transform({
-        position: Vector2.restore(data.position),
-        rotation: data.rotation,
-        scale: Vector2.restore(data.scale)
-    });
-};
+    /**
+     *
+     */
+    clearRotationGetter() {
+        this._overrideRotationFunction = null;
+    };
 
-Transform.prototype.unload = function () {
+    /**
+     *
+     */
+    clearScaleGetter() {
+        this._overrideScaleFunction = null;
+    };
 
-};
-;var WrapMode = {
+    /**
+     *
+     * @param overrideFunction
+     */
+    overridePositionGetter(overrideFunction) {
+        this._overridePositionFunction = overrideFunction;
+    };
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideScaleGetter(overrideFunction) {
+        this._overrideScaleFunction = overrideFunction;
+    };
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideRotationGetter(overrideFunction) {
+        this._overrideRotationFunction = overrideFunction;
+    };
+
+    /**
+     *
+     * @param position
+     */
+    lookAt(position) {
+        let direction = this.getPosition().subtract(position).normalize();
+        this.setRotation(Math.atan2(direction.y, direction.x));
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setPosition(x, y) {
+        this._position.set(x, y);
+        this.gameObject.propagatePropertyUpdate("Position", this._position);
+    };
+
+    /**
+     *
+     * @returns {*}
+     */
+    getPosition() {
+        if (isFunction(this._overridePositionFunction)) {
+            return this._overridePositionFunction();
+        }
+
+        return this._position;
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    translate(x, y) {
+        let curPos = this.getPosition();
+        this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+    };
+
+    /**
+     *
+     * @param value
+     */
+    rotate(value) {
+        this.setRotation(this.getRotation() + (value || 0));
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    scale(x, y) {
+        let curScale = this.getScale();
+        this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+    };
+
+    /**
+     *
+     * @param value
+     */
+    setRotation(value) {
+        this._rotation = value;
+        this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
+    };
+
+    /**
+     *
+     * @returns {*}
+     */
+    getRotation() {
+        if (isFunction(this._overrideRotationFunction)) {
+            return this._overrideRotationFunction();
+        }
+
+        return this._rotation;
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setScale(x, y) {
+        this._scale.set(x, y || x);
+        this.gameObject.propagatePropertyUpdate("Scale", this._scale);
+    };
+
+    /**
+     *
+     * @returns {*}
+     */
+    getScale() {
+        if (isFunction(this._overrideScaleFunction)) {
+            return this._overrideScaleFunction();
+        }
+
+        return this._scale;
+    };
+
+    /**
+     *
+     * @returns {Transform}
+     */
+    clone() {
+        return Transform.restore(this.objectify());
+    };
+
+    /**
+     *
+     * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
+     */
+    objectify() {
+        return {
+            position: this._position.objectify(),
+            rotation: this._rotation,
+            scale: this._scale.objectify()
+        };
+    };
+
+    /**
+     *
+     * @param data
+     * @returns {Transform}
+     */
+    static restore(data) {
+        return new Transform({
+            position: Vector2.restore(data.position),
+            rotation: data.rotation,
+            scale: Vector2.restore(data.scale)
+        });
+    };
+
+    /**
+     *
+     */
+    unload() {
+
+    };
+};var WrapMode = {
     CLAMP: 0,
     REPEAT: 1
 };;/**
