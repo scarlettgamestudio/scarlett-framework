@@ -1,17 +1,19 @@
 /**
  * Created by Luis on 16/12/2016.
  */
-/**
- * Text class
- */
+
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
 AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
 AttributeDictionary.addRule("text", "_texture", {visible: false});
 
+// TODO: remove this... use game object boundary?
 let maxWidth = 500;
 
+/**
+ * Text class
+ */
 class Text extends GameObject {
 
     //#region Constructors
