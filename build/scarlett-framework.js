@@ -15162,7 +15162,7 @@ class Texture2D {
      * @param path
      * @returns {Promise}
      */
-    fromPath(path) {
+    static fromPath(path) {
         return new Promise((function (resolve, reject) {
             ContentLoader.loadImage(path).then(function (image) {
                 resolve(new Texture2D(image));
@@ -15243,7 +15243,9 @@ class Texture2D {
     unload() {
 
     }
-};/**
+};AttributeDictionary.addRule("transform", "gameObject", {visible: false});
+
+/**
  * Transform class
  */
 class Transform {
