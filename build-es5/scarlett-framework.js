@@ -15189,17 +15189,6 @@ var Texture2D = function () {
 
 
     _createClass(Texture2D, [{
-        key: "fromPath",
-        value: function fromPath(path) {
-            return new Promise(function (resolve, reject) {
-                ContentLoader.loadImage(path).then(function (image) {
-                    resolve(new Texture2D(image));
-                }, function () {
-                    reject();
-                });
-            }.bind(this));
-        }
-    }, {
         key: "getUID",
 
 
@@ -15293,14 +15282,27 @@ var Texture2D = function () {
         /**
            */
         value: function unload() {}
+    }], [{
+        key: "fromPath",
+        value: function fromPath(path) {
+            return new Promise(function (resolve, reject) {
+                ContentLoader.loadImage(path).then(function (image) {
+                    resolve(new Texture2D(image));
+                }, function () {
+                    reject();
+                });
+            }.bind(this));
+        }
     }]);
 
     return Texture2D;
 }();
 
-; /**
-  * Transform class
-  */
+;AttributeDictionary.addRule("transform", "gameObject", { visible: false });
+
+/**
+ * Transform class
+ */
 
 var Transform = function () {
     /**
