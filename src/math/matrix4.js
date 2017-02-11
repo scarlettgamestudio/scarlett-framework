@@ -129,6 +129,65 @@ class Matrix4 {
     }
 
     /**
+     * Multiples the current Matrix4 by another Matrix4
+     * @param matrix4
+     */
+    multiply(matrix4) {
+        let a00 = this._matrix[0 * 4 + 0];
+        let a01 = this._matrix[0 * 4 + 1];
+        let a02 = this._matrix[0 * 4 + 2];
+        let a03 = this._matrix[0 * 4 + 3];
+        let a10 = this._matrix[1 * 4 + 0];
+        let a11 = this._matrix[1 * 4 + 1];
+        let a12 = this._matrix[1 * 4 + 2];
+        let a13 = this._matrix[1 * 4 + 3];
+        let a20 = this._matrix[2 * 4 + 0];
+        let a21 = this._matrix[2 * 4 + 1];
+        let a22 = this._matrix[2 * 4 + 2];
+        let a23 = this._matrix[2 * 4 + 3];
+        let a30 = this._matrix[3 * 4 + 0];
+        let a31 = this._matrix[3 * 4 + 1];
+        let a32 = this._matrix[3 * 4 + 2];
+        let a33 = this._matrix[3 * 4 + 3];
+
+        let b00 = matrix4[0 * 4 + 0];
+        let b01 = matrix4[0 * 4 + 1];
+        let b02 = matrix4[0 * 4 + 2];
+        let b03 = matrix4[0 * 4 + 3];
+        let b10 = matrix4[1 * 4 + 0];
+        let b11 = matrix4[1 * 4 + 1];
+        let b12 = matrix4[1 * 4 + 2];
+        let b13 = matrix4[1 * 4 + 3];
+        let b20 = matrix4[2 * 4 + 0];
+        let b21 = matrix4[2 * 4 + 1];
+        let b22 = matrix4[2 * 4 + 2];
+        let b23 = matrix4[2 * 4 + 3];
+        let b30 = matrix4[3 * 4 + 0];
+        let b31 = matrix4[3 * 4 + 1];
+        let b32 = matrix4[3 * 4 + 2];
+        let b33 = matrix4[3 * 4 + 3];
+
+        this._matrix[0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
+        this._matrix[1] = a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03;
+        this._matrix[2] = a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03;
+        this._matrix[3] = a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03;
+        this._matrix[4] = a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13;
+        this._matrix[5] = a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13;
+        this._matrix[6] = a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13;
+        this._matrix[7] = a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13;
+        this._matrix[8] = a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23;
+        this._matrix[9] = a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23;
+        this._matrix[10] = a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23;
+        this._matrix[11] = a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23;
+        this._matrix[12] = a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33;
+        this._matrix[13] = a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33;
+        this._matrix[14] = a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33;
+        this._matrix[15] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
+
+        return this._matrix;
+    }
+
+    /**
      * Set Matrix identity
      * @returns {Float32Array}
      */

@@ -1,0 +1,38 @@
+<html>
+<head>
+    <script type="text/javascript" src="../../build/scarlett-framework.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+
+    let _store = {};
+
+    class BaseInput {
+        constructor() {
+            this.customVar = "abc";
+        }
+    }
+
+    class PlayerInput extends BaseInput {
+
+        constructor() {
+            super();
+            this.strength = 200
+        }
+
+        update(delta) {
+            //debug.log("received delta: " + delta);
+        }
+    }
+
+    _store["playerInput"] = PlayerInput;
+
+    let playerInputCmp = new _store["playerInput"]();
+    playerInputCmp.update(20);
+
+    debug.log(getType(playerInputCmp));
+    debug.log(JSON.stringify(playerInputCmp));
+
+</script>
+</body>
+</html>
