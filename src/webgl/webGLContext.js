@@ -1,67 +1,80 @@
 /**
- * WebGL Context class
+ * WebGLContext Class
  */
-function WebGLContext(params) {
-    params = params || {};
+class WebGLContext{
 
-    // public properties:
+    //#region Constructors
 
+    constructor(params){
 
-    // private properties:
-    this._logger = new Logger("WebGLContext");
-    this._canvas = null;
-    this._gl = null;
+        params = params || {};
 
-    if (isObjectAssigned(params.renderContainer)) {
-        this.assignContextFromContainer(params.renderContainer);
+        // public properties:
+
+        // private properties:
+        this._logger = new Logger("WebGLContext");
+        this._canvas = null;
+        this._gl = null;
+
+        if (isObjectAssigned(params.renderContainer)) {
+            this.assignContextFromContainer(params.renderContainer);
+        }
+
     }
+
+    //#endregion
+
+    //#region Methods
+
+    setVirtualResolution(width, height) {
+        if (isObjectAssigned(this._gl)) {
+            this._canvas.width = width;
+            this._canvas.height = height;
+
+            this._gl.viewport(0, 0, width, height);
+        }
+    }
+
+    assignContextFromContainer(canvas) {
+        // let's try to get the webgl context from the given container:
+        // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
+        // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
+        let gl = this._gl = canvas.getContext("experimental-webgl", {alpha: false}) ||
+            canvas.getContext("webgl", {alpha: false}) ||
+            canvas.getContext("webkit-3d", {alpha: false}) || canvas.getContext("moz-webgl", {alpha: false});
+
+        if (!isObjectAssigned(this._gl)) {
+            this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
+            return;
+        }
+
+        this._canvas = canvas;
+
+        // disable gl functions:
+        gl.disable(gl.CULL_FACE);
+        gl.disable(gl.DEPTH_TEST);
+
+        gl.blendFuncSeparate(
+            gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA,
+            gl.ONE, gl.ONE);
+
+        // enable gl functions:
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    }
+
+    getName() {
+        return SC.WEBGL;
+    }
+
+    getContext() {
+        return this._gl;
+    }
+
+    unload() {
+
+    }
+
+    //#endregion
+
 }
-
-WebGLContext.prototype.setVirtualResolution = function (width, height) {
-    if (isObjectAssigned(this._gl)) {
-        this._canvas.width = width;
-        this._canvas.height = height;
-
-        this._gl.viewport(0, 0, width, height);
-    }
-};
-
-WebGLContext.prototype.assignContextFromContainer = function (canvas) {
-    // let's try to get the webgl context from the given container:
-    // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
-    // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
-    var gl = this._gl = canvas.getContext("experimental-webgl", {alpha: false}) ||
-        canvas.getContext("webgl", {alpha: false}) ||
-        canvas.getContext("webkit-3d", {alpha: false}) || canvas.getContext("moz-webgl", {alpha: false});
-
-    if (!isObjectAssigned(this._gl)) {
-        this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
-        return;
-    }
-
-    this._canvas = canvas;
-
-    // disable gl functions:
-    gl.disable(gl.CULL_FACE);
-    gl.disable(gl.DEPTH_TEST);
-
-    gl.blendFuncSeparate(
-        gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA,
-        gl.ONE, gl.ONE);
-
-    // enable gl functions:
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-};
-
-WebGLContext.prototype.getName = function () {
-    return SC.WEBGL;
-};
-
-WebGLContext.prototype.getContext = function () {
-    return this._gl;
-};
-
-WebGLContext.prototype.unload = function () {
-
-};

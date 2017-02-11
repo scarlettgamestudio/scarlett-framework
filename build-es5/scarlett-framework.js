@@ -15791,225 +15791,289 @@ Keys.BackSlash = 220;
 Keys.CloseBraket = 221;
 Keys.SingleQuote = 222;
 ; /**
-  * WebGL Context class
+  * WebGLContext Class
   */
-function WebGLContext(params) {
-    params = params || {};
 
-    // public properties:
+var WebGLContext = function () {
 
+    //#region Constructors
 
-    // private properties:
-    this._logger = new Logger("WebGLContext");
-    this._canvas = null;
-    this._gl = null;
+    function WebGLContext(params) {
+        _classCallCheck(this, WebGLContext);
 
-    if (isObjectAssigned(params.renderContainer)) {
-        this.assignContextFromContainer(params.renderContainer);
-    }
-}
+        params = params || {};
 
-WebGLContext.prototype.setVirtualResolution = function (width, height) {
-    if (isObjectAssigned(this._gl)) {
-        this._canvas.width = width;
-        this._canvas.height = height;
+        // public properties:
 
-        this._gl.viewport(0, 0, width, height);
-    }
-};
+        // private properties:
+        this._logger = new Logger("WebGLContext");
+        this._canvas = null;
+        this._gl = null;
 
-WebGLContext.prototype.assignContextFromContainer = function (canvas) {
-    // let's try to get the webgl context from the given container:
-    // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
-    // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
-    var gl = this._gl = canvas.getContext("experimental-webgl", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("webkit-3d", { alpha: false }) || canvas.getContext("moz-webgl", { alpha: false });
-
-    if (!isObjectAssigned(this._gl)) {
-        this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
-        return;
+        if (isObjectAssigned(params.renderContainer)) {
+            this.assignContextFromContainer(params.renderContainer);
+        }
     }
 
-    this._canvas = canvas;
+    //#endregion
 
-    // disable gl functions:
-    gl.disable(gl.CULL_FACE);
-    gl.disable(gl.DEPTH_TEST);
+    //#region Methods
 
-    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
+    _createClass(WebGLContext, [{
+        key: "setVirtualResolution",
+        value: function setVirtualResolution(width, height) {
+            if (isObjectAssigned(this._gl)) {
+                this._canvas.width = width;
+                this._canvas.height = height;
 
-    // enable gl functions:
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-};
+                this._gl.viewport(0, 0, width, height);
+            }
+        }
+    }, {
+        key: "assignContextFromContainer",
+        value: function assignContextFromContainer(canvas) {
+            // let's try to get the webgl context from the given container:
+            // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
+            // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
+            var gl = this._gl = canvas.getContext("experimental-webgl", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("webkit-3d", { alpha: false }) || canvas.getContext("moz-webgl", { alpha: false });
 
-WebGLContext.prototype.getName = function () {
-    return SC.WEBGL;
-};
+            if (!isObjectAssigned(this._gl)) {
+                this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
+                return;
+            }
 
-WebGLContext.prototype.getContext = function () {
-    return this._gl;
-};
+            this._canvas = canvas;
 
-WebGLContext.prototype.unload = function () {};; /**
-                                                 * WebGL Utils class
-                                                 *
-                                                 * Some boilerplate code fetched from Gregg Tavares webgl utilities
-                                                 * http://webglfundamentals.org/webgl/resources/webgl-utils.js
-                                                 */
-function WebGLUtils() {
-    // private fields
-    this._logger = new Logger("WebGLUtils");
-}
+            // disable gl functions:
+            gl.disable(gl.CULL_FACE);
+            gl.disable(gl.DEPTH_TEST);
 
-/**
- * Compiles a shader
- * @param gl
- * @param shaderSource
- * @param shaderType
- */
-WebGLUtils.prototype._compileShader = function (gl, shaderSource, shaderType) {
-    // Create the shader object
-    var shader = gl.createShader(shaderType);
+            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE);
 
-    // Load the shader source
-    gl.shaderSource(shader, shaderSource);
+            // enable gl functions:
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        }
+    }, {
+        key: "getName",
+        value: function getName() {
+            return SC.WEBGL;
+        }
+    }, {
+        key: "getContext",
+        value: function getContext() {
+            return this._gl;
+        }
+    }, {
+        key: "unload",
+        value: function unload() {}
 
-    // Compile the shader
-    gl.compileShader(shader);
+        //#endregion
 
-    // Check the compile status
-    var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    if (!compiled) {
-        // Something went wrong during compilation; get the error
-        var lastError = gl.getShaderInfoLog(shader);
+    }]);
 
-        this._logger.error("Error compiling shader '" + shader + "':" + lastError);
+    return WebGLContext;
+}();
 
-        gl.deleteShader(shader);
+; /**
+  * WebGL Utils class
+  *
+  * Some boilerplate code fetched from Gregg Tavares webgl utilities
+  * http://webglfundamentals.org/webgl/resources/webgl-utils.js
+  */
 
-        return null;
+var WebGLUtils = function () {
+
+    //#region Constructors
+
+    function WebGLUtils() {
+        _classCallCheck(this, WebGLUtils);
+
+        // private fields
+        this._logger = new Logger("WebGLUtils");
     }
 
-    return shader;
-};
+    //#endregion
 
-/**
- * Creates a program from 2 shaders.
- * @param gl
- * @param vertexShader
- * @param fragmentShader
- * @returns {WebGLProgram}
- */
-WebGLUtils.prototype.createProgram = function (gl, vertexShader, fragmentShader) {
-    // create a program.
-    var program = gl.createProgram();
+    //#region Methods
 
-    // attach the shaders.
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    /**
+     * Compiles a shader
+     * @param gl
+     * @param shaderSource
+     * @param shaderType
+     */
 
-    // link the program.
-    gl.linkProgram(program);
 
-    // Check if it linked.
-    var success = gl.getProgramParameter(program, gl.LINK_STATUS);
-    if (!success) {
-        // something went wrong with the link
-        this._logger.error("Program filed to link:" + gl.getProgramInfoLog(program));
-        // TEST: gl.getError() has more info?
-    }
+    _createClass(WebGLUtils, [{
+        key: "_compileShader",
+        value: function _compileShader(gl, shaderSource, shaderType) {
+            // Create the shader object
+            var shader = gl.createShader(shaderType);
 
-    return program;
-};
+            // Load the shader source
+            gl.shaderSource(shader, shaderSource);
 
-/**
- * Creates a shader from the script string
- * @param gl
- * @param script
- * @param shaderType
- * @returns {null}
- */
-WebGLUtils.prototype.createShader = function (gl, script, shaderType) {
-    // If we didn't pass in a type, use the 'type' from
-    // the script tag.
-    var glShaderType;
-    if (shaderType === "vertex") {
-        glShaderType = gl.VERTEX_SHADER;
-    } else if (shaderType === "fragment") {
-        glShaderType = gl.FRAGMENT_SHADER;
-    } else if (!shaderType) {
-        this._logger.warn("Shader type not set, discarding..");
-        return null;
-    }
+            // Compile the shader
+            gl.compileShader(shader);
 
-    return this._compileShader(gl, script, glShaderType);
-};
+            // Check the compile status
+            var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+            if (!compiled) {
+                // Something went wrong during compilation; get the error
+                var lastError = gl.getShaderInfoLog(shader);
 
-/**
- * Creates a shader from the content of a script tag
- * @param gl
- * @param scriptId
- * @param shaderType
- */
-WebGLUtils.prototype.createShaderFromScript = function (gl, scriptId, shaderType) {
-    // look up the script tag by id.
-    var shaderScriptElem = document.getElementById(scriptId);
-    if (!shaderScriptElem) {
-        this._logger.warn("Unknown script target element, discarding..");
-        return null;
-    }
+                this._logger.error("Error compiling shader '" + shader + "':" + lastError);
 
-    // extract the contents of the script tag.
-    this.createShader(gl, shaderScriptElem.text, shaderType);
-};
+                gl.deleteShader(shader);
 
-/**
- * Creates a program based on both vertex and fragment given scripts
- * @param gl
- * @param vertexScript
- * @param fragmentScript
- */
-WebGLUtils.prototype.createProgramFromScripts = function (gl, vertexScript, fragmentScript) {
-    var vshader = this.createShader(gl, vertexScript, "vertex");
-    var fshader = this.createShader(gl, fragmentScript, "fragment");
+                return null;
+            }
 
-    if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
-        return this.createProgram(gl, vshader, fshader);
-    } else {
-        this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
-    }
+            return shader;
+        }
 
-    // clean up shaders
-    gl.deleteShader(vshader);
-    gl.deleteShader(fshader);
+        /**
+         * Creates a program from 2 shaders.
+         * @param gl
+         * @param vertexShader
+         * @param fragmentShader
+         * @returns {WebGLProgram}
+         */
 
-    return null;
-};
+    }, {
+        key: "createProgram",
+        value: function createProgram(gl, vertexShader, fragmentShader) {
+            // create a program.
+            var program = gl.createProgram();
 
-/**
- * Creates a program based on both vertex and fragment given elements
- * @param gl
- * @param vertexScriptId
- * @param fragmentScriptId
- */
-WebGLUtils.prototype.createProgramFromScriptElements = function (gl, vertexScriptId, fragmentScriptId) {
-    var vshader = this.createShaderFromScript(gl, vertexScriptId, "vertex");
-    var fshader = this.createShaderFromScript(gl, fragmentScriptId, "fragment");
+            // attach the shaders.
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
 
-    if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
-        return this.createProgram(gl, vshader, fshader);
-    } else {
-        this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
-    }
+            // link the program.
+            gl.linkProgram(program);
 
-    // clean up shaders
-    gl.deleteShader(vshader);
-    gl.deleteShader(fshader);
+            // Check if it linked.
+            var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+            if (!success) {
+                // something went wrong with the link
+                this._logger.error("Program filed to link:" + gl.getProgramInfoLog(program));
+                // TEST: gl.getError() has more info?
+            }
 
-    return null;
-};
+            return program;
+        }
+
+        /**
+         * Creates a shader from the script string
+         * @param gl
+         * @param script
+         * @param shaderType
+         * @returns {null}
+         */
+
+    }, {
+        key: "createShader",
+        value: function createShader(gl, script, shaderType) {
+            // If we didn't pass in a type, use the 'type' from
+            // the script tag.
+            var glShaderType = void 0;
+            if (shaderType === "vertex") {
+                glShaderType = gl.VERTEX_SHADER;
+            } else if (shaderType === "fragment") {
+                glShaderType = gl.FRAGMENT_SHADER;
+            } else if (!shaderType) {
+                this._logger.warn("Shader type not set, discarding..");
+                return null;
+            }
+
+            return this._compileShader(gl, script, glShaderType);
+        }
+
+        /**
+         * Creates a shader from the content of a script tag
+         * @param gl
+         * @param scriptId
+         * @param shaderType
+         */
+
+    }, {
+        key: "createShaderFromScript",
+        value: function createShaderFromScript(gl, scriptId, shaderType) {
+            // look up the script tag by id.
+            var shaderScriptElem = document.getElementById(scriptId);
+            if (!shaderScriptElem) {
+                this._logger.warn("Unknown script target element, discarding..");
+                return null;
+            }
+
+            // extract the contents of the script tag.
+            this.createShader(gl, shaderScriptElem.text, shaderType);
+        }
+
+        /**
+         * Creates a program based on both vertex and fragment given scripts
+         * @param gl
+         * @param vertexScript
+         * @param fragmentScript
+         */
+
+    }, {
+        key: "createProgramFromScripts",
+        value: function createProgramFromScripts(gl, vertexScript, fragmentScript) {
+            var vshader = this.createShader(gl, vertexScript, "vertex");
+            var fshader = this.createShader(gl, fragmentScript, "fragment");
+
+            if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
+                return this.createProgram(gl, vshader, fshader);
+            } else {
+                this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
+            }
+
+            // clean up shaders
+            gl.deleteShader(vshader);
+            gl.deleteShader(fshader);
+
+            return null;
+        }
+
+        /**
+         * Creates a program based on both vertex and fragment given elements
+         * @param gl
+         * @param vertexScriptId
+         * @param fragmentScriptId
+         */
+
+    }, {
+        key: "createProgramFromScriptElements",
+        value: function createProgramFromScriptElements(gl, vertexScriptId, fragmentScriptId) {
+            var vshader = this.createShaderFromScript(gl, vertexScriptId, "vertex");
+            var fshader = this.createShaderFromScript(gl, fragmentScriptId, "fragment");
+
+            if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
+                return this.createProgram(gl, vshader, fshader);
+            } else {
+                this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
+            }
+
+            // clean up shaders
+            gl.deleteShader(vshader);
+            gl.deleteShader(fshader);
+
+            return null;
+        }
+
+        //#endregion
+
+    }]);
+
+    return WebGLUtils;
+}();
 
 /* for simplicity sake, add a global instance of the webgl utils */
+
+
 var glu = new WebGLUtils();
 
 ; /**
