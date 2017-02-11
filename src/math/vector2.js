@@ -10,9 +10,6 @@ function Vector2(x, y) {
     // public properties:
     this.x = x || 0;
     this.y = y || 0;
-
-    // private properties:
-
 }
 
 // instance functions:
