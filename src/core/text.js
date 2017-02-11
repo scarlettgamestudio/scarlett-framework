@@ -80,6 +80,17 @@ class Text extends GameObject {
 
     //#region Methods
 
+    //#region Static Methods
+
+    static restore(data){
+        // TODO:
+        return {
+
+        };
+    }
+
+    //#endregion
+
     //#region Public Methods
 
     //#region Overridden Methods
@@ -647,4 +658,6 @@ class Text extends GameObject {
     //#endregion
 
     //#endregion
+
+
 }

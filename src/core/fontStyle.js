@@ -22,6 +22,17 @@ class FontStyle {
 
     //#region Methods
 
+    //#region Static Methods
+
+    static restore(data){
+        // TODO:
+        return {};
+    }
+
+    //#endregion
+
+    //#region Public Methods
+
     getFontDescription(){
         return this._fontDescription;
     }
@@ -152,6 +163,8 @@ class FontStyle {
         // return 0 if there is no match
         return 0;
     }
+
+    //#endregion
 
     //#endregion
 }

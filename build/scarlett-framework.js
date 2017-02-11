@@ -12162,6 +12162,116 @@ class Color{
 
     //#region Methods
 
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     */
+    static restore(data) {
+        return new Color(data.r, data.g, data.b, data.a, false);
+    }
+
+    /**
+     * Attempts to create and retrieve a Color object given RGBA values
+     * @param {number} red red value [0-255]
+     * @param {number} green red value [0-255]
+     * @param {number} blue red value [0-255]
+     * @param {number} alpha red value [0-1]
+     * @returns {Color|null} Color object if valid or null if invalid
+     */
+    static fromRGBA(red, green, blue, alpha) {
+
+        // no need to go further if arguments are invalid
+        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
+            return null;
+        }
+
+        return new Color(red, green, blue, alpha, true);
+    }
+
+    /**
+     * Attempts to create and retrieve a Color object given a hexadecimal value
+     * @param {string} hex hexadecimal color
+     * @returns {Color|null} Color object if valid or null if invalid
+     */
+    static fromHex(hex) {
+
+        // no need to go further if argument is invalid
+        if (!isString(hex)){
+            return null;
+        }
+
+        // convert to RGBA
+        let rgba = Color.hexToRGBA(hex);
+
+        if (!rgba){
+            return null;
+        }
+
+        return Color.fromRGBA(rgba.r, rgba.g, rgba.b, rgba.a);
+    }
+
+    static fromRGB(red, green, blue) {
+        return Color.fromRGBA(red, green, blue, 1.0);
+    }
+
+    static random(alpha) {
+        alpha = !isNumber(alpha) ? 1.0 : alpha;
+        return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
+    }
+
+    /*
+     Based on http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+     */
+
+    /**
+     * Attempts to convert the given red, green and blue values to hexadecimal format
+     * @param {number} r red value [0-255]
+     * @param {number} g green value [0-255]
+     * @param {number} b blue value [0-255]
+     * @returns {string} hexadecimal string or an empty string if invalid arguments were provided
+     */
+    static rgbToHex(r, g, b) {
+
+        if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
+            return "";
+        }
+
+        r = MathHelper.clamp(r, 0, 255);
+        g = MathHelper.clamp(g, 0, 255);
+        b = MathHelper.clamp(b, 0, 255);
+
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    /**
+     * Converts the given hexadecimal string to RGBA format ([0-255], [0-255], [0-255], [0-1])
+     * @param {string} hex hexadecimal string
+     * @returns {{r: number, g: number, b: number, a: number}|null} an object with rgba values or null if invalid
+     */
+    static hexToRGBA(hex) {
+        // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
+        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
+        hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
+            return r + r + g + g + b + b + a + a;
+        });
+
+        // the last 2 digits (referent to alpha) are optional
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
+        return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16),
+                // convert value to 0-1
+                a: result[4] != 'undefined' ? parseInt(result[4], 16) / 255 : 1
+            } : null;
+    }
+
+    //#endregion
+
+    //#region Public Methods
+
     /**
      * Clones the color object, returning a copy of it
      * @returns {Color} copy of the color
@@ -12316,113 +12426,8 @@ class Color{
 
     //#endregion
 
-    //#region Static Methods
-
-    /**
-     *
-     * @param data
-     */
-    static restore(data) {
-        return new Color(data.r, data.g, data.b, data.a, false);
-    }
-
     //#endregion
 
-    /**
-     * Attempts to create and retrieve a Color object given RGBA values
-     * @param {number} red red value [0-255]
-     * @param {number} green red value [0-255]
-     * @param {number} blue red value [0-255]
-     * @param {number} alpha red value [0-1]
-     * @returns {Color|null} Color object if valid or null if invalid
-     */
-    static fromRGBA(red, green, blue, alpha) {
-
-        // no need to go further if arguments are invalid
-        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
-            return null;
-        }
-
-        return new Color(red, green, blue, alpha, true);
-    }
-
-    /**
-     * Attempts to create and retrieve a Color object given a hexadecimal value
-     * @param {string} hex hexadecimal color
-     * @returns {Color|null} Color object if valid or null if invalid
-     */
-    static fromHex(hex) {
-
-        // no need to go further if argument is invalid
-        if (!isString(hex)){
-            return null;
-        }
-
-        // convert to RGBA
-        let rgba = Color.hexToRGBA(hex);
-
-        if (!rgba){
-            return null;
-        }
-
-        return Color.fromRGBA(rgba.r, rgba.g, rgba.b, rgba.a);
-    }
-
-    static fromRGB(red, green, blue) {
-        return Color.fromRGBA(red, green, blue, 1.0);
-    }
-
-    static random(alpha) {
-        alpha = !isNumber(alpha) ? 1.0 : alpha;
-        return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
-    }
-
-    /*
-     Based on http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-     */
-
-    /**
-     * Attempts to convert the given red, green and blue values to hexadecimal format
-     * @param {number} r red value [0-255]
-     * @param {number} g green value [0-255]
-     * @param {number} b blue value [0-255]
-     * @returns {string} hexadecimal string or an empty string if invalid arguments were provided
-     */
-    static rgbToHex(r, g, b) {
-
-        if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
-            return "";
-        }
-
-        r = MathHelper.clamp(r, 0, 255);
-        g = MathHelper.clamp(g, 0, 255);
-        b = MathHelper.clamp(b, 0, 255);
-
-        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-    }
-
-    /**
-     * Converts the given hexadecimal string to RGBA format ([0-255], [0-255], [0-255], [0-1])
-     * @param {string} hex hexadecimal string
-     * @returns {{r: number, g: number, b: number, a: number}|null} an object with rgba values or null if invalid
-     */
-    static hexToRGBA(hex) {
-        // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
-        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
-        hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
-            return r + r + g + g + b + b + a + a;
-        });
-
-        // the last 2 digits (referent to alpha) are optional
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
-        return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16),
-                // convert value to 0-1
-                a: result[4] != 'undefined' ? parseInt(result[4], 16) / 255 : 1
-            } : null;
-    }
 }
 
 ;/**
@@ -12448,6 +12453,17 @@ class FontStyle {
     //#endregion
 
     //#region Methods
+
+    //#region Static Methods
+
+    static restore(data){
+        // TODO:
+        return {};
+    }
+
+    //#endregion
+
+    //#region Public Methods
 
     getFontDescription(){
         return this._fontDescription;
@@ -12579,6 +12595,8 @@ class FontStyle {
         // return 0 if there is no match
         return 0;
     }
+
+    //#endregion
 
     //#endregion
 }
@@ -14217,81 +14235,103 @@ SpriteBatch.prototype.unload = function () {
  */
 
 /**
- * Stroke is a combination of a color and its size
- * @param {Color=} color stroke color
- * @param {number=} size size of the stroke
- * @constructor
+ * Stroke Class
  */
-function Stroke(color, size) {
-    // stroke color
-    this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
-    // stroke size
-    this._size = size || 0.0;
-}
+class Stroke{
 
-Stroke.prototype.getColor = function(){
-    return this._color;
-};
+    //#region Constructors
 
-/**
- * Sets stroke's color
- * @param {Color|{r:number, g:number, b:number, a:number}} color
- */
-Stroke.prototype.setColor = function(color){
-
-    if (color instanceof Color){
-        this._color = color.clone();
-        return;
+    /**
+     * Stroke is a combination of a color and its size
+     * @param {Color=} color stroke color
+     * @param {number=} size size of the stroke
+     * @constructor
+     */
+    constructor(color, size){
+        // stroke color
+        this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
+        // stroke size
+        this._size = size || 0.0;
     }
 
-    if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)){
-        throw new Error("The given stroke color is invalid");
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return {
+            color: Color.restore(data),
+            size: data.size
+        };
     }
 
-    this._color.set(color.r, color.g, color.b, color.a);
-};
+    //#endregion
 
-Stroke.prototype.setOpacity = function(alpha){
+    //#region Public Methods
 
-    if (!isNumber(alpha)){
-        throw new Error("The given alpha is invalid");
+    getColor(){
+        return this._color;
     }
 
-    var currentColor = this.getColor();
+    /**
+     * Sets stroke's color
+     * @param {Color} color
+     */
+    setColor(color){
 
-    this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
-};
+        if (color instanceof Color){
+            this._color = color.clone();
+            return;
+        }
 
-Stroke.prototype.getOpacity = function(){
-    return this.getColor().a;
-};
+        if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)){
+            throw new Error("The given stroke color is invalid");
+        }
 
-Stroke.prototype.getSize = function(){
-    return this._size;
-};
-
-Stroke.prototype.setSize = function(size){
-
-    if (!isNumber(size)){
-        throw new Error("The given size is invalid");
+        this._color.set(color.r, color.g, color.b, color.a);
     }
 
-    this._size = size;
-};
+    setOpacity(alpha){
 
-Stroke.prototype.objectify = function () {
-    return {
-        color: this._color.objectify(),
-        size: this.getSize()
-    };
-};
+        if (!isNumber(alpha)){
+            throw new Error("The given alpha is invalid");
+        }
 
-Stroke.prototype.restore = function (data) {
-    return {
-        color: Color.restore(data),
-        size: data.size
-    };
-};;/**
+        let currentColor = this.getColor();
+
+        this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
+    }
+
+    getOpacity(){
+        return this.getColor().a;
+    }
+
+    getSize(){
+        return this._size;
+    }
+
+    setSize(size){
+
+        if (!isNumber(size)){
+            throw new Error("The given size is invalid");
+        }
+
+        this._size = size;
+    }
+
+    objectify() {
+        return {
+            color: this._color.objectify(),
+            size: this.getSize()
+        };
+    }
+
+    //#endregion
+
+    //#endregion
+};/**
  * Created by Luis on 16/12/2016.
  */
 
@@ -14372,6 +14412,17 @@ class Text extends GameObject {
     //#endregion
 
     //#region Methods
+
+    //#region Static Methods
+
+    static restore(data){
+        // TODO:
+        return {
+
+        };
+    }
+
+    //#endregion
 
     //#region Public Methods
 
@@ -14940,6 +14991,8 @@ class Text extends GameObject {
     //#endregion
 
     //#endregion
+
+
 }
 ;/**
  * Texture2D class

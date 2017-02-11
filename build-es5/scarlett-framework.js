@@ -11974,14 +11974,26 @@ var Color = function () {
 
     //#region Methods
 
+    //#region Static Methods
+
     /**
-     * Clones the color object, returning a copy of it
-     * @returns {Color} copy of the color
+     *
+     * @param data
      */
 
 
     _createClass(Color, [{
         key: "clone",
+
+
+        //#endregion
+
+        //#region Public Methods
+
+        /**
+         * Clones the color object, returning a copy of it
+         * @returns {Color} copy of the color
+         */
         value: function clone() {
             return new Color(this.r, this.g, this.b, this.a, false);
         }
@@ -12163,20 +12175,13 @@ var Color = function () {
 
         //#endregion
 
-        //#region Static Methods
-
-        /**
-         *
-         * @param data
-         */
+        //#endregion
 
     }], [{
         key: "restore",
         value: function restore(data) {
             return new Color(data.r, data.g, data.b, data.a, false);
         }
-
-        //#endregion
 
         /**
          * Attempts to create and retrieve a Color object given RGBA values
@@ -12319,8 +12324,16 @@ var FontStyle = function () {
 
     //#region Methods
 
+    //#region Static Methods
+
     _createClass(FontStyle, [{
         key: "getFontDescription",
+
+
+        //#endregion
+
+        //#region Public Methods
+
         value: function getFontDescription() {
             return this._fontDescription;
         }
@@ -12467,6 +12480,14 @@ var FontStyle = function () {
 
         //#endregion
 
+        //#endregion
+
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            // TODO:
+            return {};
+        }
     }]);
 
     return FontStyle;
@@ -14032,83 +14053,127 @@ SpriteBatch.prototype.unload = function () {
     */
 
 /**
- * Stroke is a combination of a color and its size
- * @param {Color=} color stroke color
- * @param {number=} size size of the stroke
- * @constructor
+ * Stroke Class
  */
-function Stroke(color, size) {
-    // stroke color
-    this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
-    // stroke size
-    this._size = size || 0.0;
-}
 
-Stroke.prototype.getColor = function () {
-    return this._color;
-};
+var Stroke = function () {
 
-/**
- * Sets stroke's color
- * @param {Color|{r:number, g:number, b:number, a:number}} color
- */
-Stroke.prototype.setColor = function (color) {
+    //#region Constructors
 
-    if (color instanceof Color) {
-        this._color = color.clone();
-        return;
+    /**
+     * Stroke is a combination of a color and its size
+     * @param {Color=} color stroke color
+     * @param {number=} size size of the stroke
+     * @constructor
+     */
+    function Stroke(color, size) {
+        _classCallCheck(this, Stroke);
+
+        // stroke color
+        this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
+        // stroke size
+        this._size = size || 0.0;
     }
 
-    if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)) {
-        throw new Error("The given stroke color is invalid");
-    }
+    //#endregion
 
-    this._color.set(color.r, color.g, color.b, color.a);
-};
+    //#region Methods
 
-Stroke.prototype.setOpacity = function (alpha) {
+    //#region Static Methods
 
-    if (!isNumber(alpha)) {
-        throw new Error("The given alpha is invalid");
-    }
+    _createClass(Stroke, [{
+        key: "getColor",
 
-    var currentColor = this.getColor();
 
-    this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
-};
+        //#endregion
 
-Stroke.prototype.getOpacity = function () {
-    return this.getColor().a;
-};
+        //#region Public Methods
 
-Stroke.prototype.getSize = function () {
-    return this._size;
-};
+        value: function getColor() {
+            return this._color;
+        }
 
-Stroke.prototype.setSize = function (size) {
+        /**
+         * Sets stroke's color
+         * @param {Color} color
+         */
 
-    if (!isNumber(size)) {
-        throw new Error("The given size is invalid");
-    }
+    }, {
+        key: "setColor",
+        value: function setColor(color) {
 
-    this._size = size;
-};
+            if (color instanceof Color) {
+                this._color = color.clone();
+                return;
+            }
 
-Stroke.prototype.objectify = function () {
-    return {
-        color: this._color.objectify(),
-        size: this.getSize()
-    };
-};
+            if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)) {
+                throw new Error("The given stroke color is invalid");
+            }
 
-Stroke.prototype.restore = function (data) {
-    return {
-        color: Color.restore(data),
-        size: data.size
-    };
-};; /**
-    * Created by Luis on 16/12/2016.
-    */
+            this._color.set(color.r, color.g, color.b, color.a);
+        }
+    }, {
+        key: "setOpacity",
+        value: function setOpacity(alpha) {
+
+            if (!isNumber(alpha)) {
+                throw new Error("The given alpha is invalid");
+            }
+
+            var currentColor = this.getColor();
+
+            this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
+        }
+    }, {
+        key: "getOpacity",
+        value: function getOpacity() {
+            return this.getColor().a;
+        }
+    }, {
+        key: "getSize",
+        value: function getSize() {
+            return this._size;
+        }
+    }, {
+        key: "setSize",
+        value: function setSize(size) {
+
+            if (!isNumber(size)) {
+                throw new Error("The given size is invalid");
+            }
+
+            this._size = size;
+        }
+    }, {
+        key: "objectify",
+        value: function objectify() {
+            return {
+                color: this._color.objectify(),
+                size: this.getSize()
+            };
+        }
+
+        //#endregion
+
+        //#endregion
+
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            return {
+                color: Color.restore(data),
+                size: data.size
+            };
+        }
+    }]);
+
+    return Stroke;
+}();
+
+; /**
+  * Created by Luis on 16/12/2016.
+  */
 
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_textureSrc", { displayName: "Image Src", editor: "filepath" });
@@ -14128,6 +14193,10 @@ var Text = function (_GameObject) {
 
     _createClass(Text, null, [{
         key: "AlignType",
+
+
+        //#region Static Properties
+
         get: function get() {
             return {
                 LEFT: 'LEFT',
@@ -14135,6 +14204,8 @@ var Text = function (_GameObject) {
                 RIGHT: 'RIGHT'
             };
         }
+
+        //#endregion
 
         //#region Constructors
 
@@ -14193,12 +14264,18 @@ var Text = function (_GameObject) {
 
     //#region Methods
 
-    //#region Public Methods
-
-    //#region Overridden Methods
+    //#region Static Methods
 
     _createClass(Text, [{
         key: "render",
+
+
+        //#endregion
+
+        //#region Public Methods
+
+        //#region Overridden Methods
+
         value: function render(delta, spriteBatch) {
             if (!this.enabled) {
                 return;
@@ -14802,6 +14879,13 @@ var Text = function (_GameObject) {
 
         //#endregion
 
+
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            // TODO:
+            return {};
+        }
     }]);
 
     return Text;

@@ -100,6 +100,116 @@ class Color{
 
     //#region Methods
 
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     */
+    static restore(data) {
+        return new Color(data.r, data.g, data.b, data.a, false);
+    }
+
+    /**
+     * Attempts to create and retrieve a Color object given RGBA values
+     * @param {number} red red value [0-255]
+     * @param {number} green red value [0-255]
+     * @param {number} blue red value [0-255]
+     * @param {number} alpha red value [0-1]
+     * @returns {Color|null} Color object if valid or null if invalid
+     */
+    static fromRGBA(red, green, blue, alpha) {
+
+        // no need to go further if arguments are invalid
+        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
+            return null;
+        }
+
+        return new Color(red, green, blue, alpha, true);
+    }
+
+    /**
+     * Attempts to create and retrieve a Color object given a hexadecimal value
+     * @param {string} hex hexadecimal color
+     * @returns {Color|null} Color object if valid or null if invalid
+     */
+    static fromHex(hex) {
+
+        // no need to go further if argument is invalid
+        if (!isString(hex)){
+            return null;
+        }
+
+        // convert to RGBA
+        let rgba = Color.hexToRGBA(hex);
+
+        if (!rgba){
+            return null;
+        }
+
+        return Color.fromRGBA(rgba.r, rgba.g, rgba.b, rgba.a);
+    }
+
+    static fromRGB(red, green, blue) {
+        return Color.fromRGBA(red, green, blue, 1.0);
+    }
+
+    static random(alpha) {
+        alpha = !isNumber(alpha) ? 1.0 : alpha;
+        return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
+    }
+
+    /*
+     Based on http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+     */
+
+    /**
+     * Attempts to convert the given red, green and blue values to hexadecimal format
+     * @param {number} r red value [0-255]
+     * @param {number} g green value [0-255]
+     * @param {number} b blue value [0-255]
+     * @returns {string} hexadecimal string or an empty string if invalid arguments were provided
+     */
+    static rgbToHex(r, g, b) {
+
+        if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
+            return "";
+        }
+
+        r = MathHelper.clamp(r, 0, 255);
+        g = MathHelper.clamp(g, 0, 255);
+        b = MathHelper.clamp(b, 0, 255);
+
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    /**
+     * Converts the given hexadecimal string to RGBA format ([0-255], [0-255], [0-255], [0-1])
+     * @param {string} hex hexadecimal string
+     * @returns {{r: number, g: number, b: number, a: number}|null} an object with rgba values or null if invalid
+     */
+    static hexToRGBA(hex) {
+        // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
+        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
+        hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
+            return r + r + g + g + b + b + a + a;
+        });
+
+        // the last 2 digits (referent to alpha) are optional
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
+        return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16),
+                // convert value to 0-1
+                a: result[4] != 'undefined' ? parseInt(result[4], 16) / 255 : 1
+            } : null;
+    }
+
+    //#endregion
+
+    //#region Public Methods
+
     /**
      * Clones the color object, returning a copy of it
      * @returns {Color} copy of the color
@@ -254,112 +364,7 @@ class Color{
 
     //#endregion
 
-    //#region Static Methods
-
-    /**
-     *
-     * @param data
-     */
-    static restore(data) {
-        return new Color(data.r, data.g, data.b, data.a, false);
-    }
-
     //#endregion
 
-    /**
-     * Attempts to create and retrieve a Color object given RGBA values
-     * @param {number} red red value [0-255]
-     * @param {number} green red value [0-255]
-     * @param {number} blue red value [0-255]
-     * @param {number} alpha red value [0-1]
-     * @returns {Color|null} Color object if valid or null if invalid
-     */
-    static fromRGBA(red, green, blue, alpha) {
-
-        // no need to go further if arguments are invalid
-        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
-            return null;
-        }
-
-        return new Color(red, green, blue, alpha, true);
-    }
-
-    /**
-     * Attempts to create and retrieve a Color object given a hexadecimal value
-     * @param {string} hex hexadecimal color
-     * @returns {Color|null} Color object if valid or null if invalid
-     */
-    static fromHex(hex) {
-
-        // no need to go further if argument is invalid
-        if (!isString(hex)){
-            return null;
-        }
-
-        // convert to RGBA
-        let rgba = Color.hexToRGBA(hex);
-
-        if (!rgba){
-            return null;
-        }
-
-        return Color.fromRGBA(rgba.r, rgba.g, rgba.b, rgba.a);
-    }
-
-    static fromRGB(red, green, blue) {
-        return Color.fromRGBA(red, green, blue, 1.0);
-    }
-
-    static random(alpha) {
-        alpha = !isNumber(alpha) ? 1.0 : alpha;
-        return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
-    }
-
-    /*
-     Based on http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-     */
-
-    /**
-     * Attempts to convert the given red, green and blue values to hexadecimal format
-     * @param {number} r red value [0-255]
-     * @param {number} g green value [0-255]
-     * @param {number} b blue value [0-255]
-     * @returns {string} hexadecimal string or an empty string if invalid arguments were provided
-     */
-    static rgbToHex(r, g, b) {
-
-        if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
-            return "";
-        }
-
-        r = MathHelper.clamp(r, 0, 255);
-        g = MathHelper.clamp(g, 0, 255);
-        b = MathHelper.clamp(b, 0, 255);
-
-        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-    }
-
-    /**
-     * Converts the given hexadecimal string to RGBA format ([0-255], [0-255], [0-255], [0-1])
-     * @param {string} hex hexadecimal string
-     * @returns {{r: number, g: number, b: number, a: number}|null} an object with rgba values or null if invalid
-     */
-    static hexToRGBA(hex) {
-        // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
-        let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
-        hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
-            return r + r + g + g + b + b + a + a;
-        });
-
-        // the last 2 digits (referent to alpha) are optional
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
-        return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16),
-                // convert value to 0-1
-                a: result[4] != 'undefined' ? parseInt(result[4], 16) / 255 : 1
-            } : null;
-    }
 }
 
