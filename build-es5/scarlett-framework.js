@@ -10839,6 +10839,47 @@ var Matrix3 = function () {
         }
 
         /**
+         * Multiples the current Matrix3 by another Matrix3
+         * @param matrix3
+         */
+
+    }, {
+        key: "multiply",
+        value: function multiply(matrix3) {
+            var a00 = this._matrix[0 * 3 + 0];
+            var a01 = this._matrix[0 * 3 + 1];
+            var a02 = this._matrix[0 * 3 + 2];
+            var a10 = this._matrix[1 * 3 + 0];
+            var a11 = this._matrix[1 * 3 + 1];
+            var a12 = this._matrix[1 * 3 + 2];
+            var a20 = this._matrix[2 * 3 + 0];
+            var a21 = this._matrix[2 * 3 + 1];
+            var a22 = this._matrix[2 * 3 + 2];
+
+            var b00 = matrix3[0 * 3 + 0];
+            var b01 = matrix3[0 * 3 + 1];
+            var b02 = matrix3[0 * 3 + 2];
+            var b10 = matrix3[1 * 3 + 0];
+            var b11 = matrix3[1 * 3 + 1];
+            var b12 = matrix3[1 * 3 + 2];
+            var b20 = matrix3[2 * 3 + 0];
+            var b21 = matrix3[2 * 3 + 1];
+            var b22 = matrix3[2 * 3 + 2];
+
+            this._matrix[0] = a00 * b00 + a01 * b10 + a02 * b20;
+            this._matrix[1] = a00 * b01 + a01 * b11 + a02 * b21;
+            this._matrix[2] = a00 * b02 + a01 * b12 + a02 * b22;
+            this._matrix[3] = a10 * b00 + a11 * b10 + a12 * b20;
+            this._matrix[4] = a10 * b01 + a11 * b11 + a12 * b21;
+            this._matrix[5] = a10 * b02 + a11 * b12 + a12 * b22;
+            this._matrix[6] = a20 * b00 + a21 * b10 + a22 * b20;
+            this._matrix[7] = a20 * b01 + a21 * b11 + a22 * b21;
+            this._matrix[8] = a20 * b02 + a21 * b12 + a22 * b22;
+
+            return this._matrix;
+        }
+
+        /**
          * Set Matrix identity
          * @returns {Float32Array}
          */
@@ -10933,7 +10974,7 @@ var Matrix4 = function () {
         }
 
         /**
-         * Calculates the matrix invert
+         * Calculates the inverse matrix
          * @returns {Float32Array}
          */
 
@@ -10991,6 +11032,68 @@ var Matrix4 = function () {
             newMatrix[15] = d * (tmp_22 * this._matrix[2 * 4 + 2] + tmp_16 * this._matrix[0 * 4 + 2] + tmp_21 * this._matrix[1 * 4 + 2] - (tmp_20 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[0 * 4 + 2]));
 
             this._matrix = newMatrix;
+
+            return this._matrix;
+        }
+
+        /**
+         * Multiples the current Matrix4 by another Matrix4
+         * @param matrix4
+         */
+
+    }, {
+        key: "multiply",
+        value: function multiply(matrix4) {
+            var a00 = this._matrix[0 * 4 + 0];
+            var a01 = this._matrix[0 * 4 + 1];
+            var a02 = this._matrix[0 * 4 + 2];
+            var a03 = this._matrix[0 * 4 + 3];
+            var a10 = this._matrix[1 * 4 + 0];
+            var a11 = this._matrix[1 * 4 + 1];
+            var a12 = this._matrix[1 * 4 + 2];
+            var a13 = this._matrix[1 * 4 + 3];
+            var a20 = this._matrix[2 * 4 + 0];
+            var a21 = this._matrix[2 * 4 + 1];
+            var a22 = this._matrix[2 * 4 + 2];
+            var a23 = this._matrix[2 * 4 + 3];
+            var a30 = this._matrix[3 * 4 + 0];
+            var a31 = this._matrix[3 * 4 + 1];
+            var a32 = this._matrix[3 * 4 + 2];
+            var a33 = this._matrix[3 * 4 + 3];
+
+            var b00 = matrix4[0 * 4 + 0];
+            var b01 = matrix4[0 * 4 + 1];
+            var b02 = matrix4[0 * 4 + 2];
+            var b03 = matrix4[0 * 4 + 3];
+            var b10 = matrix4[1 * 4 + 0];
+            var b11 = matrix4[1 * 4 + 1];
+            var b12 = matrix4[1 * 4 + 2];
+            var b13 = matrix4[1 * 4 + 3];
+            var b20 = matrix4[2 * 4 + 0];
+            var b21 = matrix4[2 * 4 + 1];
+            var b22 = matrix4[2 * 4 + 2];
+            var b23 = matrix4[2 * 4 + 3];
+            var b30 = matrix4[3 * 4 + 0];
+            var b31 = matrix4[3 * 4 + 1];
+            var b32 = matrix4[3 * 4 + 2];
+            var b33 = matrix4[3 * 4 + 3];
+
+            this._matrix[0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
+            this._matrix[1] = a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03;
+            this._matrix[2] = a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03;
+            this._matrix[3] = a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03;
+            this._matrix[4] = a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13;
+            this._matrix[5] = a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13;
+            this._matrix[6] = a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13;
+            this._matrix[7] = a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13;
+            this._matrix[8] = a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23;
+            this._matrix[9] = a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23;
+            this._matrix[10] = a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23;
+            this._matrix[11] = a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23;
+            this._matrix[12] = a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33;
+            this._matrix[13] = a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33;
+            this._matrix[14] = a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33;
+            this._matrix[15] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
 
             return this._matrix;
         }
@@ -11723,21 +11826,45 @@ RigidBody.prototype.unload = function () {
     * @param params
     * @constructor
     */
-function ContentObject(params) {};function ProjectFile(params) {
-    params = params || {};
+function ContentObject(params) {}; /**
+                                   * Project File class
+                                   */
 
-    this.name = params.name || "New Project";
-    this.settings = params.settings || {};
-    this.editor = params.editor || {
-        lastScene: null,
-        layout: null
-    };
-    this.content = params.content || {};
-}
+var ProjectFile = function () {
+    /**
+     *
+     * @param params
+     */
+    function ProjectFile(params) {
+        _classCallCheck(this, ProjectFile);
 
-ProjectFile.restore = function (data) {
-    return new ProjectFile(data);
-};
+        params = params || {};
+
+        this.name = params.name || "New Project";
+        this.settings = params.settings || {};
+        this.editor = params.editor || {
+            lastScene: null,
+            layout: null
+        };
+        this.content = params.content || {};
+    }
+
+    /**
+     *
+     * @param data
+     * @returns {ProjectFile}
+     */
+
+
+    _createClass(ProjectFile, null, [{
+        key: "restore",
+        value: function restore(data) {
+            return new ProjectFile(data);
+        }
+    }]);
+
+    return ProjectFile;
+}();
 
 ; /**
   * Content Texture Atlas
@@ -11769,88 +11896,163 @@ TextureAtlas.prototype.getType = function () {
 };; /**
     * Camera2D class
     */
-function Camera2D(x, y, viewWidth, viewHeight, zoom) {
-    // public properties:
-    this.x = x || 0;
-    this.y = y || 0;
-    this.zoom = zoom || 1.0;
-    this.viewWidth = viewWidth || 0;
-    this.viewHeight = viewHeight || 0;
 
-    // private properties:
-    this._lastX = null;
-    this._lastY = null;
-    this._lastZoom = null;
-    this._matrix = new Matrix4();
-}
+var Camera2D = function () {
+    /**
+     *
+     * @param x
+     * @param y
+     * @param viewWidth
+     * @param viewHeight
+     * @param zoom
+     */
+    function Camera2D(x, y, viewWidth, viewHeight, zoom) {
+        _classCallCheck(this, Camera2D);
 
-Camera2D.prototype.calculateMatrix = function () {
-    // generate orthographic perspective:
-    this._matrix.orthographic(this.x + -this.viewWidth * this.zoom / 2.0, this.x + this.viewWidth * this.zoom / 2.0, this.y + this.viewHeight * this.zoom / 2.0, this.y + -this.viewHeight * this.zoom / 2.0, 0.0, 1.0);
+        // public properties:
+        this.x = x || 0;
+        this.y = y || 0;
+        this.zoom = zoom || 1.0;
+        this.viewWidth = viewWidth || 0;
+        this.viewHeight = viewHeight || 0;
 
-    this._lastX = this.x;
-    this._lastY = this.y;
-    this._lastZoom = this.zoom;
-
-    return this._matrix.asArray();
-};
-
-Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
-    this.viewWidth = viewWidth;
-    this.viewHeight = viewHeight;
-
-    // force the camera calculations
-    this.calculateMatrix();
-};
-
-Camera2D.prototype.getViewWidth = function () {
-    return this.viewWidth;
-};
-
-Camera2D.prototype.getViewHeight = function () {
-    return this.viewHeight;
-};
-
-/**
- * Calculates (if necessary) and returns the transformation matrix of the camera
- * @returns {mat4|*}
- */
-Camera2D.prototype.getMatrix = function () {
-    // needs to have a new calculation?
-    if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
-        return this.calculateMatrix();
+        // private properties:
+        this._lastX = null;
+        this._lastY = null;
+        this._lastZoom = null;
+        this._matrix = new Matrix4();
     }
 
-    return this._matrix.asArray();
-};
+    /**
+     *
+     * @returns {Float32Array}
+     */
 
-/**
- * Gets the world coordinates based on the screen X and Y
- * @param screenX
- * @param screenY
- */
-Camera2D.prototype.screenToWorldCoordinates = function (screenX, screenY) {
-    // first we normalize the screen position:
-    var x = 2.0 * screenX / this.viewWidth - 1.0;
-    var y = 1.0 - 2.0 * screenY / this.viewHeight;
 
-    // then we calculate and return the world coordinates:
-    return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
-};
+    _createClass(Camera2D, [{
+        key: "calculateMatrix",
+        value: function calculateMatrix() {
+            // generate orthographic perspective:
+            this._matrix.orthographic(this.x + -this.viewWidth * this.zoom / 2.0, this.x + this.viewWidth * this.zoom / 2.0, this.y + this.viewHeight * this.zoom / 2.0, this.y + -this.viewHeight * this.zoom / 2.0, 0.0, 1.0);
 
-Camera2D.prototype.unload = function () {};
+            this._lastX = this.x;
+            this._lastY = this.y;
+            this._lastZoom = this.zoom;
 
-Camera2D.prototype.objectify = function () {
-    return {
-        x: this.x,
-        y: this.y,
-        zoom: this.zoom
-    };
-};
+            return this._matrix.asArray();
+        }
 
-Camera2D.restore = function (data) {
-    return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
-};;SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
+        /**
+         *
+         * @param viewWidth
+         * @param viewHeight
+         */
+
+    }, {
+        key: "setViewSize",
+        value: function setViewSize(viewWidth, viewHeight) {
+            this.viewWidth = viewWidth;
+            this.viewHeight = viewHeight;
+
+            // force the camera calculations
+            this.calculateMatrix();
+        }
+    }, {
+        key: "getViewWidth",
+
+
+        /**
+         *
+         * @returns {*|number}
+         */
+        value: function getViewWidth() {
+            return this.viewWidth;
+        }
+    }, {
+        key: "getViewHeight",
+
+
+        /**
+         *
+         * @returns {*|number}
+         */
+        value: function getViewHeight() {
+            return this.viewHeight;
+        }
+    }, {
+        key: "getMatrix",
+
+
+        /**
+         *
+         * @returns {Float32Array}
+         */
+        value: function getMatrix() {
+            // needs to have a new calculation?
+            if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
+                return this.calculateMatrix();
+            }
+
+            return this._matrix.asArray();
+        }
+    }, {
+        key: "screenToWorldCoordinates",
+
+
+        /**
+         *
+         * @param screenX
+         * @param screenY
+         */
+        value: function screenToWorldCoordinates(screenX, screenY) {
+            // first we normalize the screen position:
+            var x = 2.0 * screenX / this.viewWidth - 1.0;
+            var y = 1.0 - 2.0 * screenY / this.viewHeight;
+
+            // then we calculate and return the world coordinates:
+            return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
+        }
+    }, {
+        key: "unload",
+
+
+        /**
+         *
+         */
+        value: function unload() {}
+
+        /**
+         *
+         * @returns {{x: (*|number), y: (*|number), zoom: (*|number)}}
+         */
+
+    }, {
+        key: "objectify",
+        value: function objectify() {
+            return {
+                x: this.x,
+                y: this.y,
+                zoom: this.zoom
+            };
+        }
+    }], [{
+        key: "restore",
+
+
+        /**
+         *
+         * @param data
+         * @returns {Camera2D}
+         */
+        value: function restore(data) {
+            return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
+        }
+    }]);
+
+    return Camera2D;
+}();
+
+;SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
 /**
  * Color Class
@@ -13172,20 +13374,6 @@ var GameObject = function () {
 
     return GameObject;
 }();
-
-; /**
-  * GameProject class
-  */
-function GameProject(name) {
-    // public properties:
-    this.name = name;
-}
-
-GameProject.prototype.toJSON = function () {
-    return {
-        name: this.name
-    };
-};
 
 ;AttributeDictionary.addRule("gameScene", "_game", { visible: false });
 AttributeDictionary.addRule("gameScene", "_gameObjects", { visible: false });
@@ -14954,205 +15142,439 @@ var Text = function (_GameObject2) {
 ; /**
   * Texture2D class
   */
-function Texture2D(image) {
-    if (!isObjectAssigned(image)) {
-        throw new Error("Cannot create Texture2D without an image source");
+
+var Texture2D = function () {
+    /**
+     *
+     * @param image
+     */
+    function Texture2D(image) {
+        _classCallCheck(this, Texture2D);
+
+        if (!isObjectAssigned(image)) {
+            throw new Error("Cannot create Texture2D without an image source");
+        }
+
+        // private properties:
+        this._uid = generateUID();
+        this._source = image;
+        this._texture = null;
+        this._gl = GameManager.renderContext.getContext();
+
+        // Prepare the webgl texture:
+        this._texture = this._gl.createTexture();
+
+        // binding
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+
+        // Set the parameters so we can render any size image.
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+
+        // Upload the image into the texture.
+        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._source);
+
+        //this._gl.bindTexture(gl.TEXTURE_2D, null);
+
+        this._hasLoaded = true;
     }
 
-    // private properties:
-    this._uid = generateUID();
-    this._source = image;
-    this._texture = null;
-    this._gl = GameManager.renderContext.getContext();
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
 
-    var gl = this._gl;
 
-    // Prepare the webgl texture:
-    this._texture = gl.createTexture();
+    _createClass(Texture2D, [{
+        key: "fromPath",
+        value: function fromPath(path) {
+            return new Promise(function (resolve, reject) {
+                ContentLoader.loadImage(path).then(function (image) {
+                    resolve(new Texture2D(image));
+                }, function () {
+                    reject();
+                });
+            }.bind(this));
+        }
+    }, {
+        key: "getUID",
 
-    // binding
-    gl.bindTexture(gl.TEXTURE_2D, this._texture);
 
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        /**
+         *
+         * @returns {Number}
+         */
+        value: function getUID() {
+            return this._uid;
+        }
+    }, {
+        key: "bind",
 
-    // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._source);
 
-    //gl.bindTexture(gl.TEXTURE_2D, null);
+        /**
+         *
+         */
+        value: function bind() {
+            this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+        }
+    }, {
+        key: "setImageData",
 
-    this._hasLoaded = true;
-}
 
-Texture2D.fromPath = function (path) {
-    return new Promise(function (resolve, reject) {
-        ContentLoader.loadImage(path).then(function (image) {
-            resolve(new Texture2D(image));
-        }, function () {
-            reject();
-        });
-    }.bind(this));
-};
+        /**
+         *
+         * @param imageData
+         */
+        value: function setImageData(imageData) {
+            this._source = imageData;
+        }
+    }, {
+        key: "getImageData",
 
-Texture2D.prototype.getUID = function () {
-    return this._uid;
-};
 
-Texture2D.prototype.bind = function () {
-    this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-};
+        /**
+         *
+         * @returns {*}
+         */
+        value: function getImageData() {
+            return this._source;
+        }
+    }, {
+        key: "getWidth",
 
-Texture2D.prototype.setImageData = function (imageData) {
-    this._source = imageData;
-};
 
-Texture2D.prototype.getWidth = function () {
-    return this._source.width;
-};
+        /**
+         * Gets the texture width
+         * @returns {Number}
+         */
+        value: function getWidth() {
+            return this._source.width;
+        }
+    }, {
+        key: "getHeight",
 
-Texture2D.prototype.getHeight = function () {
-    return this._source.height;
-};
 
-Texture2D.prototype.getImageData = function () {
-    return this._source;
-};
+        /**
+         * Gets the texture height
+         * @returns {Number}
+         */
+        value: function getHeight() {
+            return this._source.height;
+        }
+    }, {
+        key: "getTexture",
 
-Texture2D.prototype.getTexture = function () {
-    return this._texture;
-};
 
-Texture2D.prototype.isReady = function () {
-    return this._hasLoaded;
-};
+        /**
+         * Gets the Texture
+         * @returns {WebGLTexture|*|null}
+         */
+        value: function getTexture() {
+            return this._texture;
+        }
+    }, {
+        key: "isReady",
 
-Texture2D.prototype.unload = function () {};; /**
-                                              * Transform class
-                                              */
-AttributeDictionary.addRule("transform", "gameObject", { ownContainer: true });
 
-function Transform(params) {
-    params = params || {};
+        /**
+         *
+         * @returns {boolean}
+         */
+        value: function isReady() {
+            return this._hasLoaded;
+        }
+    }, {
+        key: "unload",
 
-    // public properties:
-    this.gameObject = params.gameObject || null;
 
-    // private properties:
-    this._position = params.position || new Vector2();
-    this._rotation = params.rotation || 0.0;
-    this._scale = params.scale || new Vector2(1.0, 1.0);
+        /**
+           */
+        value: function unload() {}
+    }]);
 
-    this._overridePositionFunction = null;
-    this._overrideRotationFunction = null;
-    this._overrideScaleFunction = null;
-}
+    return Texture2D;
+}();
 
-Transform.prototype.clearPositionGetter = function () {
-    this._overridePositionFunction = null;
-};
+; /**
+  * Transform class
+  */
 
-Transform.prototype.clearRotationGetter = function () {
-    this._overrideRotationFunction = null;
-};
+var Transform = function () {
+    /**
+     *
+     * @param params
+     */
+    function Transform(params) {
+        _classCallCheck(this, Transform);
 
-Transform.prototype.clearScaleGetter = function () {
-    this._overrideScaleFunction = null;
-};
+        params = params || {};
 
-Transform.prototype.overridePositionGetter = function (overrideFunction) {
-    this._overridePositionFunction = overrideFunction;
-};
+        // public properties:
+        this.gameObject = params.gameObject || null;
 
-Transform.prototype.overrideScaleGetter = function (overrideFunction) {
-    this._overrideScaleFunction = overrideFunction;
-};
+        // private properties:
+        this._position = params.position || new Vector2();
+        this._rotation = params.rotation || 0.0;
+        this._scale = params.scale || new Vector2(1.0, 1.0);
 
-Transform.prototype.overrideRotationGetter = function (overrideFunction) {
-    this._overrideRotationFunction = overrideFunction;
-};
-
-Transform.prototype.lookAt = function (position) {
-    var direction = this.getPosition().subtract(position).normalize();
-    this.setRotation(Math.atan2(direction.y, direction.x));
-};
-
-Transform.prototype.setPosition = function (x, y) {
-    this._position.set(x, y);
-    this.gameObject.propagatePropertyUpdate("Position", this._position);
-};
-
-Transform.prototype.getPosition = function () {
-    if (isFunction(this._overridePositionFunction)) {
-        return this._overridePositionFunction();
+        this._overridePositionFunction = null;
+        this._overrideRotationFunction = null;
+        this._overrideScaleFunction = null;
     }
 
-    return this._position;
-};
+    /**
+     *
+     */
 
-Transform.prototype.translate = function (x, y) {
-    var curPos = this.getPosition();
-    this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
-};
 
-Transform.prototype.rotate = function (value) {
-    this.setRotation(this.getRotation() + (value || 0));
-};
+    _createClass(Transform, [{
+        key: "clearPositionGetter",
+        value: function clearPositionGetter() {
+            this._overridePositionFunction = null;
+        }
+    }, {
+        key: "clearRotationGetter",
 
-Transform.prototype.scale = function (x, y) {
-    var curScale = this.getScale();
-    this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
-};
 
-Transform.prototype.setRotation = function (value) {
-    this._rotation = value;
-    this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
-};
+        /**
+         *
+         */
+        value: function clearRotationGetter() {
+            this._overrideRotationFunction = null;
+        }
+    }, {
+        key: "clearScaleGetter",
 
-Transform.prototype.getRotation = function () {
-    if (isFunction(this._overrideRotationFunction)) {
-        return this._overrideRotationFunction();
-    }
 
-    return this._rotation;
-};
+        /**
+         *
+         */
+        value: function clearScaleGetter() {
+            this._overrideScaleFunction = null;
+        }
+    }, {
+        key: "overridePositionGetter",
 
-Transform.prototype.setScale = function (x, y) {
-    this._scale.set(x, y || x);
-    this.gameObject.propagatePropertyUpdate("Scale", this._scale);
-};
 
-Transform.prototype.getScale = function () {
-    if (isFunction(this._overrideScaleFunction)) {
-        return this._overrideScaleFunction();
-    }
+        /**
+         *
+         * @param overrideFunction
+         */
+        value: function overridePositionGetter(overrideFunction) {
+            this._overridePositionFunction = overrideFunction;
+        }
+    }, {
+        key: "overrideScaleGetter",
 
-    return this._scale;
-};
 
-Transform.prototype.clone = function () {
-    return Transform.restore(this.objectify());
-};
+        /**
+         *
+         * @param overrideFunction
+         */
+        value: function overrideScaleGetter(overrideFunction) {
+            this._overrideScaleFunction = overrideFunction;
+        }
+    }, {
+        key: "overrideRotationGetter",
 
-Transform.prototype.objectify = function () {
-    return {
-        position: this._position.objectify(),
-        rotation: this._rotation,
-        scale: this._scale.objectify()
-    };
-};
 
-Transform.restore = function (data) {
-    return new Transform({
-        position: Vector2.restore(data.position),
-        rotation: data.rotation,
-        scale: Vector2.restore(data.scale)
-    });
-};
+        /**
+         *
+         * @param overrideFunction
+         */
+        value: function overrideRotationGetter(overrideFunction) {
+            this._overrideRotationFunction = overrideFunction;
+        }
+    }, {
+        key: "lookAt",
 
-Transform.prototype.unload = function () {};
+
+        /**
+         *
+         * @param position
+         */
+        value: function lookAt(position) {
+            var direction = this.getPosition().subtract(position).normalize();
+            this.setRotation(Math.atan2(direction.y, direction.x));
+        }
+    }, {
+        key: "setPosition",
+
+
+        /**
+         *
+         * @param x
+         * @param y
+         */
+        value: function setPosition(x, y) {
+            this._position.set(x, y);
+            this.gameObject.propagatePropertyUpdate("Position", this._position);
+        }
+    }, {
+        key: "getPosition",
+
+
+        /**
+         *
+         * @returns {*}
+         */
+        value: function getPosition() {
+            if (isFunction(this._overridePositionFunction)) {
+                return this._overridePositionFunction();
+            }
+
+            return this._position;
+        }
+    }, {
+        key: "translate",
+
+
+        /**
+         *
+         * @param x
+         * @param y
+         */
+        value: function translate(x, y) {
+            var curPos = this.getPosition();
+            this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+        }
+    }, {
+        key: "rotate",
+
+
+        /**
+         *
+         * @param value
+         */
+        value: function rotate(value) {
+            this.setRotation(this.getRotation() + (value || 0));
+        }
+    }, {
+        key: "scale",
+
+
+        /**
+         *
+         * @param x
+         * @param y
+         */
+        value: function scale(x, y) {
+            var curScale = this.getScale();
+            this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+        }
+    }, {
+        key: "setRotation",
+
+
+        /**
+         *
+         * @param value
+         */
+        value: function setRotation(value) {
+            this._rotation = value;
+            this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
+        }
+    }, {
+        key: "getRotation",
+
+
+        /**
+         *
+         * @returns {*}
+         */
+        value: function getRotation() {
+            if (isFunction(this._overrideRotationFunction)) {
+                return this._overrideRotationFunction();
+            }
+
+            return this._rotation;
+        }
+    }, {
+        key: "setScale",
+
+
+        /**
+         *
+         * @param x
+         * @param y
+         */
+        value: function setScale(x, y) {
+            this._scale.set(x, y || x);
+            this.gameObject.propagatePropertyUpdate("Scale", this._scale);
+        }
+    }, {
+        key: "getScale",
+
+
+        /**
+         *
+         * @returns {*}
+         */
+        value: function getScale() {
+            if (isFunction(this._overrideScaleFunction)) {
+                return this._overrideScaleFunction();
+            }
+
+            return this._scale;
+        }
+    }, {
+        key: "clone",
+
+
+        /**
+         *
+         * @returns {Transform}
+         */
+        value: function clone() {
+            return Transform.restore(this.objectify());
+        }
+    }, {
+        key: "objectify",
+
+
+        /**
+         *
+         * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
+         */
+        value: function objectify() {
+            return {
+                position: this._position.objectify(),
+                rotation: this._rotation,
+                scale: this._scale.objectify()
+            };
+        }
+    }, {
+        key: "unload",
+
+
+        /**
+         *
+         */
+        value: function unload() {}
+    }], [{
+        key: "restore",
+
+
+        /**
+         *
+         * @param data
+         * @returns {Transform}
+         */
+        value: function restore(data) {
+            return new Transform({
+                position: Vector2.restore(data.position),
+                rotation: data.rotation,
+                scale: Vector2.restore(data.scale)
+            });
+        }
+    }]);
+
+    return Transform;
+}();
+
 ;var WrapMode = {
     CLAMP: 0,
     REPEAT: 1
