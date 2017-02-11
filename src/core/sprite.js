@@ -123,7 +123,7 @@ class Sprite extends GameObject {
 
             } else {
                 this._atlas = null;
-                this._assignTextureFromPath(path); 
+                this._assignTextureFromPath(path);
             }
 
         } else {
@@ -200,21 +200,21 @@ class Sprite extends GameObject {
         });
     };
 
+    static restore(data) {
+        var sprite = new Sprite({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+
+        sprite.setSource(data.src);
+
+        return sprite;
+    }
+
     unload() {
 
     };
 
 }
-
-Sprite.restore = function(data) {
-    var sprite = new Sprite({
-        name: data.name,
-        transform: Transform.restore(data.transform),
-        children: Objectify.restoreArray(data.children),
-        components: Objectify.restoreArray(data.components)
-    });
-
-    sprite.setSource(data.src);
-
-    return sprite;
-};

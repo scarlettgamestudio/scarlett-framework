@@ -13144,6 +13144,16 @@ class GameObject {
         };
     };
 
+    static restore(data) {
+        return new GameObject({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+    };
+
+
     unload() {
         for (let i = 0; i < this._components.length; ++i) {
             if (isFunction(this._components[i].unload)) {
@@ -13151,17 +13161,7 @@ class GameObject {
             }
         }
     };
-}
-
-GameObject.restore = function (data) {
-    return new GameObject({
-        name: data.name,
-        transform: Transform.restore(data.transform),
-        children: Objectify.restoreArray(data.children),
-        components: Objectify.restoreArray(data.components)
-    });
-};
-;/**
+};/**
  * GameProject class
  */
 function GameProject (name) {
@@ -13906,7 +13906,7 @@ class Sprite extends GameObject {
 
             } else {
                 this._atlas = null;
-                this._assignTextureFromPath(path); 
+                this._assignTextureFromPath(path);
             }
 
         } else {
@@ -13983,24 +13983,24 @@ class Sprite extends GameObject {
         });
     };
 
+    static restore(data) {
+        var sprite = new Sprite({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+
+        sprite.setSource(data.src);
+
+        return sprite;
+    }
+
     unload() {
 
     };
 
-}
-
-Sprite.restore = function(data) {
-    var sprite = new Sprite({
-        name: data.name,
-        transform: Transform.restore(data.transform),
-        children: Objectify.restoreArray(data.children),
-        components: Objectify.restoreArray(data.components)
-    });
-
-    sprite.setSource(data.src);
-
-    return sprite;
-};;/**
+};/**
  * SpriteBatch class
  */
 function SpriteBatch(game) {

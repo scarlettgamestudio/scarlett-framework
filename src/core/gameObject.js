@@ -277,6 +277,16 @@ class GameObject {
         };
     };
 
+    static restore(data) {
+        return new GameObject({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+    };
+
+
     unload() {
         for (let i = 0; i < this._components.length; ++i) {
             if (isFunction(this._components[i].unload)) {
@@ -285,12 +295,3 @@ class GameObject {
         }
     };
 }
-
-GameObject.restore = function (data) {
-    return new GameObject({
-        name: data.name,
-        transform: Transform.restore(data.transform),
-        children: Objectify.restoreArray(data.children),
-        components: Objectify.restoreArray(data.components)
-    });
-};
