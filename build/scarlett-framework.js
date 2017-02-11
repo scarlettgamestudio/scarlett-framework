@@ -13296,21 +13296,7 @@ class GameObject {
             }
         }
     };
-};/**
- * GameProject class
- */
-function GameProject (name) {
-	// public properties:
-	this.name = name;
-}
-
-GameProject.prototype.toJSON = function() {
-	return {
-		name: this.name
-	};
-};
-
-;AttributeDictionary.addRule("gameScene", "_game", {visible: false});
+};AttributeDictionary.addRule("gameScene", "_game", {visible: false});
 AttributeDictionary.addRule("gameScene", "_gameObjects", {visible: false});
 AttributeDictionary.addRule("gameScene", "_camera", {visible: false});
 AttributeDictionary.addRule("gameScene", "_spriteBatch", {visible: false});
@@ -14962,212 +14948,339 @@ Text.prototype._createGlyph = function (char, scale, pen, lastGlyphCode,
 ;/**
  * Texture2D class
  */
-function Texture2D(image) {
-    if (!isObjectAssigned(image)) {
-        throw new Error("Cannot create Texture2D without an image source");
+class Texture2D {
+    /**
+     *
+     * @param image
+     */
+    constructor(image) {
+        if (!isObjectAssigned(image)) {
+            throw new Error("Cannot create Texture2D without an image source");
+        }
+
+        // private properties:
+        this._uid = generateUID();
+        this._source = image;
+        this._texture = null;
+        this._gl = GameManager.renderContext.getContext();
+
+        // Prepare the webgl texture:
+        this._texture = this._gl.createTexture();
+
+        // binding
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+
+        // Set the parameters so we can render any size image.
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+        this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+
+        // Upload the image into the texture.
+        this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._source);
+
+        //this._gl.bindTexture(gl.TEXTURE_2D, null);
+
+        this._hasLoaded = true;
     }
 
-    // private properties:
-    this._uid = generateUID();
-    this._source = image;
-    this._texture = null;
-    this._gl = GameManager.renderContext.getContext();
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
+    fromPath(path) {
+        return new Promise((function (resolve, reject) {
+            ContentLoader.loadImage(path).then(function (image) {
+                resolve(new Texture2D(image));
 
-    let gl = this._gl;
+            }, function () {
+                reject();
 
-    // Prepare the webgl texture:
-    this._texture = gl.createTexture();
+            });
+        }).bind(this));
+    };
 
-    // binding
-    gl.bindTexture(gl.TEXTURE_2D, this._texture);
+    /**
+     *
+     * @returns {Number}
+     */
+    getUID() {
+        return this._uid;
+    };
 
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    /**
+     *
+     */
+    bind() {
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+    };
 
-    // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._source);
+    /**
+     *
+     * @param imageData
+     */
+    setImageData(imageData) {
+        this._source = imageData;
+    };
 
-    //gl.bindTexture(gl.TEXTURE_2D, null);
+    /**
+     *
+     * @returns {*}
+     */
+    getImageData() {
+        return this._source;
+    };
 
-    this._hasLoaded = true;
-}
+    /**
+     * Gets the texture width
+     * @returns {Number}
+     */
+    getWidth() {
+        return this._source.width;
+    };
 
-Texture2D.fromPath = function (path) {
-    return new Promise((function (resolve, reject) {
-        ContentLoader.loadImage(path).then(function (image) {
-            resolve(new Texture2D(image));
+    /**
+     * Gets the texture height
+     * @returns {Number}
+     */
+    getHeight() {
+        return this._source.height;
+    };
 
-        }, function () {
-            reject();
+    /**
+     * Gets the Texture
+     * @returns {WebGLTexture|*|null}
+     */
+    getTexture() {
+        return this._texture;
+    };
 
-        });
-    }).bind(this));
-};
+    /**
+     *
+     * @returns {boolean}
+     */
+    isReady() {
+        return this._hasLoaded;
+    };
 
-Texture2D.prototype.getUID = function () {
-    return this._uid;
-};
+    /**
 
-Texture2D.prototype.bind = function () {
-    this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-};
+     */
+    unload() {
 
-Texture2D.prototype.setImageData = function (imageData) {
-    this._source = imageData;
-};
-
-Texture2D.prototype.getWidth = function () {
-    return this._source.width;
-};
-
-Texture2D.prototype.getHeight = function () {
-    return this._source.height;
-};
-
-Texture2D.prototype.getImageData = function () {
-    return this._source;
-};
-
-Texture2D.prototype.getTexture = function () {
-    return this._texture;
-};
-
-Texture2D.prototype.isReady = function () {
-    return this._hasLoaded;
-};
-
-Texture2D.prototype.unload = function () {
-
-};;/**
+    }
+};/**
  * Transform class
  */
-AttributeDictionary.addRule("transform", "gameObject", {ownContainer: true});
+class Transform {
+    /**
+     *
+     * @param params
+     */
+    constructor(params) {
+        params = params || {};
 
-function Transform(params) {
-    params = params || {};
+        // public properties:
+        this.gameObject = params.gameObject || null;
 
-    // public properties:
-    this.gameObject = params.gameObject || null;
+        // private properties:
+        this._position = params.position || new Vector2();
+        this._rotation = params.rotation || 0.0;
+        this._scale = params.scale || new Vector2(1.0, 1.0);
 
-    // private properties:
-    this._position = params.position || new Vector2();
-    this._rotation = params.rotation || 0.0;
-    this._scale = params.scale || new Vector2(1.0, 1.0);
-
-    this._overridePositionFunction = null;
-    this._overrideRotationFunction = null;
-    this._overrideScaleFunction = null;
-}
-
-Transform.prototype.clearPositionGetter = function () {
-    this._overridePositionFunction = null;
-};
-
-Transform.prototype.clearRotationGetter = function () {
-    this._overrideRotationFunction = null;
-};
-
-Transform.prototype.clearScaleGetter = function () {
-    this._overrideScaleFunction = null;
-};
-
-Transform.prototype.overridePositionGetter = function (overrideFunction) {
-    this._overridePositionFunction = overrideFunction;
-};
-
-Transform.prototype.overrideScaleGetter = function (overrideFunction) {
-    this._overrideScaleFunction = overrideFunction;
-};
-
-Transform.prototype.overrideRotationGetter = function (overrideFunction) {
-    this._overrideRotationFunction = overrideFunction;
-};
-
-Transform.prototype.lookAt = function(position) {
-    var direction = this.getPosition().subtract(position).normalize();
-    this.setRotation(Math.atan2(direction.y, direction.x));
-};
-
-Transform.prototype.setPosition = function (x, y) {
-    this._position.set(x, y);
-    this.gameObject.propagatePropertyUpdate("Position", this._position);
-};
-
-Transform.prototype.getPosition = function () {
-    if (isFunction(this._overridePositionFunction)) {
-        return this._overridePositionFunction();
+        this._overridePositionFunction = null;
+        this._overrideRotationFunction = null;
+        this._overrideScaleFunction = null;
     }
 
-    return this._position;
-};
-
-Transform.prototype.translate = function(x, y) {
-    var curPos = this.getPosition();
-    this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
-};
-
-Transform.prototype.rotate = function(value) {
-    this.setRotation(this.getRotation() + (value || 0));
-};
-
-Transform.prototype.scale = function(x, y) {
-    var curScale = this.getScale();
-    this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
-};
-
-Transform.prototype.setRotation = function (value) {
-    this._rotation = value;
-    this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
-};
-
-Transform.prototype.getRotation = function () {
-    if (isFunction(this._overrideRotationFunction)) {
-        return this._overrideRotationFunction();
-    }
-
-    return this._rotation;
-};
-
-Transform.prototype.setScale = function (x, y) {
-    this._scale.set(x, y || x);
-    this.gameObject.propagatePropertyUpdate("Scale", this._scale);
-};
-
-Transform.prototype.getScale = function () {
-    if (isFunction(this._overrideScaleFunction)) {
-        return this._overrideScaleFunction();
-    }
-
-    return this._scale;
-};
-
-Transform.prototype.clone = function() {
-    return Transform.restore(this.objectify());
-};
-
-Transform.prototype.objectify = function () {
-    return {
-        position: this._position.objectify(),
-        rotation: this._rotation,
-        scale: this._scale.objectify()
+    /**
+     *
+     */
+    clearPositionGetter() {
+        this._overridePositionFunction = null;
     };
-};
 
-Transform.restore = function (data) {
-    return new Transform({
-        position: Vector2.restore(data.position),
-        rotation: data.rotation,
-        scale: Vector2.restore(data.scale)
-    });
-};
+    /**
+     *
+     */
+    clearRotationGetter() {
+        this._overrideRotationFunction = null;
+    };
 
-Transform.prototype.unload = function () {
+    /**
+     *
+     */
+    clearScaleGetter() {
+        this._overrideScaleFunction = null;
+    };
 
-};
-;var WrapMode = {
+    /**
+     *
+     * @param overrideFunction
+     */
+    overridePositionGetter(overrideFunction) {
+        this._overridePositionFunction = overrideFunction;
+    };
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideScaleGetter(overrideFunction) {
+        this._overrideScaleFunction = overrideFunction;
+    };
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideRotationGetter(overrideFunction) {
+        this._overrideRotationFunction = overrideFunction;
+    };
+
+    /**
+     *
+     * @param position
+     */
+    lookAt(position) {
+        let direction = this.getPosition().subtract(position).normalize();
+        this.setRotation(Math.atan2(direction.y, direction.x));
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setPosition(x, y) {
+        this._position.set(x, y);
+        this.gameObject.propagatePropertyUpdate("Position", this._position);
+    };
+
+    /**
+     *
+     * @returns {*}
+     */
+    getPosition() {
+        if (isFunction(this._overridePositionFunction)) {
+            return this._overridePositionFunction();
+        }
+
+        return this._position;
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    translate(x, y) {
+        let curPos = this.getPosition();
+        this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+    };
+
+    /**
+     *
+     * @param value
+     */
+    rotate(value) {
+        this.setRotation(this.getRotation() + (value || 0));
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    scale(x, y) {
+        let curScale = this.getScale();
+        this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+    };
+
+    /**
+     *
+     * @param value
+     */
+    setRotation(value) {
+        this._rotation = value;
+        this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
+    };
+
+    /**
+     *
+     * @returns {*}
+     */
+    getRotation() {
+        if (isFunction(this._overrideRotationFunction)) {
+            return this._overrideRotationFunction();
+        }
+
+        return this._rotation;
+    };
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setScale(x, y) {
+        this._scale.set(x, y || x);
+        this.gameObject.propagatePropertyUpdate("Scale", this._scale);
+    };
+
+    /**
+     *
+     * @returns {*}
+     */
+    getScale() {
+        if (isFunction(this._overrideScaleFunction)) {
+            return this._overrideScaleFunction();
+        }
+
+        return this._scale;
+    };
+
+    /**
+     *
+     * @returns {Transform}
+     */
+    clone() {
+        return Transform.restore(this.objectify());
+    };
+
+    /**
+     *
+     * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
+     */
+    objectify() {
+        return {
+            position: this._position.objectify(),
+            rotation: this._rotation,
+            scale: this._scale.objectify()
+        };
+    };
+
+    /**
+     *
+     * @param data
+     * @returns {Transform}
+     */
+    static restore(data) {
+        return new Transform({
+            position: Vector2.restore(data.position),
+            rotation: data.rotation,
+            scale: Vector2.restore(data.scale)
+        });
+    };
+
+    /**
+     *
+     */
+    unload() {
+
+    };
+};var WrapMode = {
     CLAMP: 0,
     REPEAT: 1
 };;/**
