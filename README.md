@@ -23,6 +23,18 @@ This repository contains the Scarlett Framework Module and associated libraries.
 * To change the directory output of the build file, change the 'copyToDirectory' target in Gruntfile.js.
 * To create a distribution file (minified and uglified) run "grunt dist"
 
+### Recommended Code Editors ###
+
+* IntelliJ Ultimate or Webstorm
+* Visual Studio Code
+* Atom
+
+### IntelliJ/Webstorm Users ###
+
+This project uses the latest Ecma6 Javascript features and therefore if you are using an IDE such as IntelliJ or Webstorm it might detect code errors when using the default settings.
+
+To allow Ecma6 syntax make sure to change the Javascript Version in the settings menu (Settings -> Languages & Frameworks -> Javascript).
+
 ### Development Hints ###
 
 * All main source code can be found in the /src folder
