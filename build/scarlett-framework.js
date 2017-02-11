@@ -11107,7 +11107,7 @@ class Matrix4 {
     }
 
     /**
-     * Calculates the matrix invert
+     * Calculates the inverse matrix
      * @returns {Float32Array}
      */
     invert() {
