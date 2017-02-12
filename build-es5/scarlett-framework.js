@@ -9917,89 +9917,148 @@ Objectify.extend = function (objA, objB) {
 };; /**
     * IO Path utility class
     */
-var Path = function Path() {};
 
-/**
- *
- * @type {boolean}
- * @private
- */
-Path._IS_WIN = navigator.platform.toLowerCase().indexOf('win') > -1;
+var Path = function () {
+    _createClass(Path, null, [{
+        key: "_IS_WIN",
 
-/**
- * The appropriate system trailing slash
- * @type {string}
- */
-Path.TRAILING_SLASH = Path._IS_WIN ? "\\" : "/";
 
-/**
- * Ensures this is a valid string directory (eg. ends with slash)
- * @param path
- * @returns {string}
- */
-Path.wrapDirectoryPath = function (path) {
-    return path + (path.endsWith('/') || path.endsWith('\\') ? '' : Path.TRAILING_SLASH);
-};
+        //#region Static Properties
 
-/**
- * Strips only the directory path (excludes file names)
- * @param path
- */
-Path.getDirectory = function (path) {
-    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-    return path.substring(0, index >= 0 ? index : path.length);
-};
+        /**
+         *
+         * @type {boolean}
+         * @private
+         */
+        get: function get() {
+            return navigator.platform.toLowerCase().indexOf('win') > -1;
+        }
 
-/**
- * Returns the directory name from a given path
- * @param path
- * @returns {string}
- */
-Path.getDirectoryName = function (path) {
-    if (path.endsWith("/") || path.endsWith("\\")) {
-        path = path.substring(0, path.length - 1);
+        /**
+         * The appropriate system trailing slash
+         * @type {string}
+         * @public
+         */
+
+    }, {
+        key: "TRAILING_SLASH",
+        get: function get() {
+            return Path._IS_WIN ? "\\" : "/";
+        }
+
+        //#endregion
+
+        //#region Constructors
+
+    }]);
+
+    function Path() {
+        _classCallCheck(this, Path);
     }
 
-    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-    return path.substring(index + 1, path.length);
-};
+    //#endregion
 
-/**
- * Gets a filename from a given path
- * @param path
- */
-Path.getFilename = function (path) {
-    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-    return path.substring(index >= 0 && index < path.length - 1 ? index + 1 : 0, path.length);
-};
+    //#region Static Methods
 
-/**
- * Gets a file extension from a given path
- * @param path
- */
-Path.getFileExtension = function (path) {
-    return path.substring(path.lastIndexOf('.'), path.length);
-};
+    /**
+     * Ensures this is a valid string directory (eg. ends with slash)
+     * @param path
+     * @returns {string}
+     */
 
-/**
- * Checks if pathA can be contained inside pathB
- * @param pathA
- * @param pathB
- */
-Path.relativeTo = function (pathA, pathB) {
-    return Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0;
-};
 
-/**
- * Makes the full path relative to the base path
- * @param basePath
- * @param fullPath
- */
-Path.makeRelative = function (basePath, fullPath) {
-    return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
-};; /**
-    * Created by Luis on 08/02/2017.
-    */
+    _createClass(Path, null, [{
+        key: "wrapDirectoryPath",
+        value: function wrapDirectoryPath(path) {
+            return path + (path.endsWith('/') || path.endsWith('\\') ? '' : Path.TRAILING_SLASH);
+        }
+
+        /**
+         * Strips only the directory path (excludes file names)
+         * @param path
+         */
+
+    }, {
+        key: "getDirectory",
+        value: function getDirectory(path) {
+            var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+            return path.substring(0, index >= 0 ? index : path.length);
+        }
+
+        /**
+         * Returns the directory name from a given path
+         * @param path
+         * @returns {string}
+         */
+
+    }, {
+        key: "getDirectoryName",
+        value: function getDirectoryName(path) {
+            if (path.endsWith("/") || path.endsWith("\\")) {
+                path = path.substring(0, path.length - 1);
+            }
+
+            var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+            return path.substring(index + 1, path.length);
+        }
+
+        /**
+         * Gets a filename from a given path
+         * @param path
+         */
+
+    }, {
+        key: "getFilename",
+        value: function getFilename(path) {
+            var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+            return path.substring(index >= 0 && index < path.length - 1 ? index + 1 : 0, path.length);
+        }
+
+        /**
+         * Gets a file extension from a given path
+         * @param path
+         */
+
+    }, {
+        key: "getFileExtension",
+        value: function getFileExtension(path) {
+            return path.substring(path.lastIndexOf('.'), path.length);
+        }
+
+        /**
+         * Checks if pathA can be contained inside pathB
+         * @param pathA
+         * @param pathB
+         */
+
+    }, {
+        key: "relativeTo",
+        value: function relativeTo(pathA, pathB) {
+            return Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0;
+        }
+
+        /**
+         * Makes the full path relative to the base path
+         * @param basePath
+         * @param fullPath
+         */
+
+    }, {
+        key: "makeRelative",
+        value: function makeRelative(basePath, fullPath) {
+            return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
+        }
+
+        //#endregion
+
+    }]);
+
+    return Path;
+}();
+
+; /**
+  * Created by Luis on 08/02/2017.
+  */
 
 // TODO: replace for extensions.js array insert? supports multiple arguments...
 Array.prototype.insert = function (index) {
@@ -10455,7 +10514,11 @@ var TextUtils = function () {
 ; /**
   * General utility class
   */
-var Utility = function Utility() {};
+
+var Utility = function Utility() {
+    _classCallCheck(this, Utility);
+};
+
 ; /**
   * GridExt class
   */
