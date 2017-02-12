@@ -11910,53 +11910,65 @@ Vector3.prototype.cross = function (vector) {
 	return new Vector3((this.y * vector.z) - (this.z * vector.y),
 		(this.z * vector.x) - (this.x * vector.z),
 		(this.x * vector.y) - (this.y * vector.x));
-};;/**
- * Vector4 class for tri dimensional point references
+};;SetterDictionary.addRule("vector4", ["x", "y", "z", "w"]);
+
+/**
+ * Vector4 Class for tri dimensional point references
  */
-SetterDictionary.addRule("vector4", ["x", "y", "z", "w"]);
+class Vector4 {
 
-function Vector4(x, y, z, w) {
-	// public properties:
-	this.x = x || 0;
-	this.y = y || 0;
-	this.z = z || 0;
-	this.w = w || 0;
+    //#region Constructors
 
-	// private properties:
+    constructor(x, y, z, w) {
+        // just because they 'should' be declared here
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.w = 0;
+
+        this.set(x, y, z, w);
+    }
+
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new Vector4(data.x, data.y, data.z, data.w);
+    }
+
+    //#endregion
+
+    set(x, y, z, w) {
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
+        this.w = w || 0;
+    }
+
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            w: this.w
+        };
+    }
+
+    equals(obj) {
+        return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
+    }
+
+    unload() {
+
+    }
+
+    //#endregion
 
 }
-
-// instance functions
-
-Vector4.prototype.set = function(x, y, z, w) {
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.w = w;
-};
-
-Vector4.prototype.objectify = function() {
-	return {
-		x: this.x,
-		y: this.y,
-		z: this.z,
-		w: this.w
-	};
-};
-
-Vector4.restore = function(data) {
-	return new Vector4(data.x, data.y, data.z, data.w);
-};
-
-Vector4.prototype.equals = function(obj) {
-	return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
-};
-
-Vector4.prototype.unload = function () {
-	
-};
-
-// static functions
 ;function RigidBody (params) {
 	params = params || {};
 
