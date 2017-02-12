@@ -16192,205 +16192,253 @@ var WebGLUtils = function () {
 var glu = new WebGLUtils();
 
 ; /**
-  * Shader class
+  * Shader Class
   * Some cool code ideas were applied from Pixi.JS Shader class
   */
-function Shader(vertexScript, fragmentScript, uniforms, attributes) {
-    if (!isObjectAssigned(vertexScript) || !isObjectAssigned(fragmentScript)) {
-        throw new Error("Vertex and Fragment scripts are required to create a shader, discarding..");
-    }
 
-    if (!isObjectAssigned(GameManager.renderContext)) {
-        throw new Error("The WebGL render context is not yet set, can't create shader.");
-    }
+var Shader = function () {
 
-    // public properties:
-    this.uniforms = uniforms || {};
-    this.attributes = attributes || {};
+    //#region Constructors
 
-    // private properties:
-    this._gl = GameManager.renderContext.getContext();
-    this._program = null;
-    this._vertexScript = vertexScript;
-    this._fragmentScript = fragmentScript;
-    this._textureCount = 1;
-    this._uid = generateUID();
+    function Shader(vertexScript, fragmentScript, uniforms, attributes) {
+        _classCallCheck(this, Shader);
 
-    this.setup();
-}
-
-/**
- * Setup shader logic
- */
-Shader.prototype.setup = function () {
-    if (this.compile()) {
-        var shaderManager = GameManager.activeGame.getShaderManager();
-        if (shaderManager) {
-            shaderManager.useShader(this);
-        } else {
-            this._gl.useProgram(this._program);
+        if (!isObjectAssigned(vertexScript) || !isObjectAssigned(fragmentScript)) {
+            throw new Error("Vertex and Fragment scripts are required to create a shader, discarding..");
         }
 
-        // cache some script locations:
-        this.cacheUniformLocations(Object.keys(this.uniforms));
-        this.cacheAttributeLocations(Object.keys(this.attributes));
-    } else {
-        debug.error("Shader setup failed");
-    }
-};
+        if (!isObjectAssigned(GameManager.renderContext)) {
+            throw new Error("The WebGL render context is not yet set, can't create shader.");
+        }
 
-/**
- * Compiles the shader and generates the shader program
- * @returns {boolean}
- */
-Shader.prototype.compile = function () {
-    var program = glu.createProgramFromScripts(this._gl, this._vertexScript, this._fragmentScript);
+        // public properties:
+        this.uniforms = uniforms || {};
+        this.attributes = attributes || {};
 
-    if (isObjectAssigned(program)) {
-        this._program = program;
+        // private properties:
+        this._gl = GameManager.renderContext.getContext();
+        this._program = null;
+        this._vertexScript = vertexScript;
+        this._fragmentScript = fragmentScript;
+        this._textureCount = 1;
+        this._uid = generateUID();
 
-        return true;
-    } else {
-        program = null;
+        this.setup();
     }
 
-    return false;
-};
+    //#endregion
 
-/**
- * Gets the unique id of this shader instance
- */
-Shader.prototype.getUID = function () {
-    return this._uid;
-};
+    //#region Methods
 
-/**
- * Cache the uniform locations for faster re-utilization
- * @param keys
- */
-Shader.prototype.cacheUniformLocations = function (keys) {
-    for (var i = 0; i < keys.length; ++i) {
-        this.uniforms[keys[i]]._location = this._gl.getUniformLocation(this._program, keys[i]);
-    }
-};
+    /**
+     * Setup shader logic
+     */
 
-/**
- * Cache the attribute locations for faster re-utilization
- * @param keys
- */
-Shader.prototype.cacheAttributeLocations = function (keys) {
-    for (var i = 0; i < keys.length; ++i) {
-        this.attributes[keys[i]] = this._gl.getAttribLocation(this._program, keys[i]);
-    }
-};
 
-/**
- * Syncs all the uniforms attached to this shader
- */
-Shader.prototype.syncUniforms = function () {
-    this._textureCount = 1;
+    _createClass(Shader, [{
+        key: "setup",
+        value: function setup() {
+            if (this.compile()) {
+                var shaderManager = GameManager.activeGame.getShaderManager();
+                if (shaderManager) {
+                    shaderManager.useShader(this);
+                } else {
+                    this._gl.useProgram(this._program);
+                }
 
-    for (var key in this.uniforms) {
-        this.syncUniform(this.uniforms[key]);
-    }
-};
+                // cache some script locations:
+                this.cacheUniformLocations(Object.keys(this.uniforms));
+                this.cacheAttributeLocations(Object.keys(this.attributes));
+            } else {
+                debug.error("Shader setup failed");
+            }
+        }
 
-/**
- * Synchronizes/updates the values for the given uniform
- * @param uniform
- */
-Shader.prototype.syncUniform = function (uniform) {
-    var location = uniform._location,
-        value = uniform.value,
-        gl = this._gl;
+        /**
+         * Compiles the shader and generates the shader program
+         * @returns {boolean}
+         */
 
-    // depending on the uniform type, WebGL has different ways of synchronizing values
-    // the values can either be a Float32Array or JS Array object
-    switch (uniform.type) {
-        case 'b':
-        case 'bool':
-            gl.uniform1i(location, value ? 1 : 0);
-            break;
-        case 'i':
-        case '1i':
-            gl.uniform1i(location, value);
-            break;
-        case '2i':
-            gl.uniform2i(location, value[0], value[1]);
-            break;
-        case '3i':
-            gl.uniform3i(location, value[0], value[1], value[2]);
-            break;
-        case '4i':
-            gl.uniform4i(location, value[0], value[1], value[2], value[3]);
-            break;
-        case 'f':
-        case '1f':
-            gl.uniform1f(location, value);
-            break;
-        case '2f':
-            gl.uniform2f(location, value[0], value[1]);
-            break;
-        case '3f':
-            gl.uniform3f(location, value[0], value[1], value[2]);
-            break;
-        case '4f':
-            gl.uniform4f(location, value[0], value[1], value[2], value[3]);
-            break;
-        case 'm2':
-        case 'mat2':
-            gl.uniformMatrix2fv(location, uniform.transpose, value);
-            break;
-        case 'm3':
-        case 'mat3':
-            gl.uniformMatrix3fv(location, uniform.transpose, value);
-            break;
-        case 'm4':
-        case 'mat4':
-            gl.uniformMatrix4fv(location, uniform.transpose, value);
-            break;
-        case 'tex':
+    }, {
+        key: "compile",
+        value: function compile() {
+            var program = glu.createProgramFromScripts(this._gl, this._vertexScript, this._fragmentScript);
+
+            if (isObjectAssigned(program)) {
+                this._program = program;
+
+                return true;
+            } else {
+                program = null;
+            }
+
+            return false;
+        }
+
+        /**
+         * Gets the unique id of this shader instance
+         */
+
+    }, {
+        key: "getUID",
+        value: function getUID() {
+            return this._uid;
+        }
+
+        /**
+         * Cache the uniform locations for faster re-utilization
+         * @param keys
+         */
+
+    }, {
+        key: "cacheUniformLocations",
+        value: function cacheUniformLocations(keys) {
+            for (var i = 0; i < keys.length; ++i) {
+                this.uniforms[keys[i]]._location = this._gl.getUniformLocation(this._program, keys[i]);
+            }
+        }
+
+        /**
+         * Cache the attribute locations for faster re-utilization
+         * @param keys
+         */
+
+    }, {
+        key: "cacheAttributeLocations",
+        value: function cacheAttributeLocations(keys) {
+            for (var i = 0; i < keys.length; ++i) {
+                this.attributes[keys[i]] = this._gl.getAttribLocation(this._program, keys[i]);
+            }
+        }
+
+        /**
+         * Syncs all the uniforms attached to this shader
+         */
+
+    }, {
+        key: "syncUniforms",
+        value: function syncUniforms() {
+            this._textureCount = 1;
+
+            for (var key in this.uniforms) {
+                this.syncUniform(this.uniforms[key]);
+            }
+        }
+
+        /**
+         * Synchronizes/updates the values for the given uniform
+         * @param uniform
+         */
+
+    }, {
+        key: "syncUniform",
+        value: function syncUniform(uniform) {
+            var location = uniform._location;
+            var value = uniform.value;
+            var gl = this._gl;
+
+            // depending on the uniform type, WebGL has different ways of synchronizing values
+            // the values can either be a Float32Array or JS Array object
+            switch (uniform.type) {
+                case 'b':
+                case 'bool':
+                    gl.uniform1i(location, value ? 1 : 0);
+                    break;
+                case 'i':
+                case '1i':
+                    gl.uniform1i(location, value);
+                    break;
+                case '2i':
+                    gl.uniform2i(location, value[0], value[1]);
+                    break;
+                case '3i':
+                    gl.uniform3i(location, value[0], value[1], value[2]);
+                    break;
+                case '4i':
+                    gl.uniform4i(location, value[0], value[1], value[2], value[3]);
+                    break;
+                case 'f':
+                case '1f':
+                    gl.uniform1f(location, value);
+                    break;
+                case '2f':
+                    gl.uniform2f(location, value[0], value[1]);
+                    break;
+                case '3f':
+                    gl.uniform3f(location, value[0], value[1], value[2]);
+                    break;
+                case '4f':
+                    gl.uniform4f(location, value[0], value[1], value[2], value[3]);
+                    break;
+                case 'm2':
+                case 'mat2':
+                    // TODO: implement matrix2 transpose
+                    gl.uniformMatrix2fv(location, uniform.transpose, value);
+                    break;
+                case 'm3':
+                case 'mat3':
+                    // TODO: implement matrix3 transpose
+                    gl.uniformMatrix3fv(location, uniform.transpose, value);
+                    break;
+                case 'm4':
+                case 'mat4':
+                    // TODO: implement matrix4 transpose
+                    gl.uniformMatrix4fv(location, uniform.transpose, value);
+                    break;
+                case 'tex':
+                    if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
+                        debug.warn("Could not assign texture uniform because the texture isn't ready.");
+                        break;
+                    }
+
+                    gl.activeTexture(gl["TEXTURE" + this._textureCount]);
+
+                    var texture = uniform.value.getImageData()._glTextures[gl.id];
+
+                    // the texture was already sampled?
+                    if (!isObjectAssigned(texture)) {
+                        // TODO: do stuff here? :D
+                    }
+
+                    break;
+                default:
+                    debug.warn("Unknown uniform type: " + uniform.type);
+                    break;
+            }
+        }
+    }, {
+        key: "getProgram",
+        value: function getProgram() {
+            return this._program;
+        }
+    }, {
+        key: "initSampler2D",
+        value: function initSampler2D(uniform) {
             if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-                debug.warn("Could not assign texture uniform because the texture isn't ready.");
-                break;
+                debug.warn("Could not initialize sampler2D because the texture isn't ready.");
+                return;
             }
 
-            gl.activeTexture(gl["TEXTURE" + this._textureCount]);
+            var imgData = uniform.value.getImageData();
+            var texture = imgData.baseTexture;
+        }
+    }, {
+        key: "unload",
+        value: function unload() {
+            // clean up program using WebGL flow
+            this._gl.deleteProgram(this._program);
+        }
 
-            var texture = uniform.value.getImageData()._glTextures[gl.id];
+        //#endregion
 
-            // the texture was already sampled?
-            if (!isObjectAssigned(texture)) {
-                // TODO: do stuff here? :D
-            }
+    }]);
 
-            break;
-        default:
-            debug.warn("Unknown uniform type: " + uniform.type);
-            break;
-    }
-};
+    return Shader;
+}();
 
-Shader.prototype.getProgram = function () {
-    return this._program;
-};
-
-Shader.prototype.initSampler2D = function (uniform) {
-    if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-        debug.warn("Could not initialize sampler2D because the texture isn't ready.");
-        return;
-    }
-
-    var imgData = uniform.value.getImageData();
-    var texture = imgData.baseTexture;
-};
-
-Shader.prototype.unload = function () {
-    // clean up program using WebGL flow
-    this._gl.deleteProgram(this._program);
-};; /**
-    * ShaderManager class
-    */
+; /**
+  * ShaderManager class
+  */
 
 var ShaderManager = function () {
 
@@ -16436,119 +16484,183 @@ var ShaderManager = function () {
 ; /**
   * Created by Luis on 16/12/2016.
   */
-function TestShader() {
-    Shader.call(this,
-    // inline-vertex shader:
-    [
-    // an attribute will receive data from a buffer
-    'attribute vec4 a_position;',
 
-    // all shaders have a main function
-    'void main() {',
-    // gl_Position is a special variable a vertex shader
-    // is responsible for setting
-    'gl_Position = a_position;', '}'].join('\n'),
-    // inline-fragment shader
-    [
-    // fragment shaders don't have a default precision so we need
-    // to pick one. mediump is a good default
-    'precision mediump float;', 'void main() {',
-    // gl_FragColor is a special variable a fragment shader
-    // is responsible for setting
-    'gl_FragColor = vec4(1, 0, 0.5, 1);', '}'].join('\n'),
-    // uniforms:
-    {},
-    // attributes:
-    {
-        a_position: 0
-    });
-}
+/**
+ * TestShader Class
+ */
 
-inheritsFrom(TestShader, Shader);; /**
-                                   * Created by Luis on 16/12/2016.
-                                   */
-function TextShader() {
-    Shader.call(this,
-    // inline-vertex shader:
-    ['attribute vec2 aPos;', 'attribute vec2 aTexCoord;', 'uniform mat4 uMatrix;', 'uniform mat4 uTransform;', 'uniform vec2 uTexSize;', 'varying vec2 vTexCoord;', 'void main() {', 'gl_Position = uMatrix * uTransform * vec4(aPos, 0, 1);', 'vTexCoord = aTexCoord / uTexSize;', '}'].join('\n'),
-    // inline-fragment shader
-    ['#ifdef GL_ES', '   precision mediump float;', '#endif', 'uniform sampler2D uTexture;', 'uniform vec4 uColor;', 'uniform float uGamma;', 'uniform float uOutlineDistance;', 'uniform vec4 uOutlineColor;', 'uniform vec4 uDropShadowColor;', 'uniform float uDropShadowSmoothing;', 'uniform vec2 uDropShadowOffset;', 'uniform float uDebug;', 'varying vec2 vTexCoord;', 'void main() {', '  float distance = texture2D(uTexture, vTexCoord).a;', '  vec4 finalColor = uColor;', '  if (uDebug > 0.0) {', '     gl_FragColor = vec4(distance, distance, distance, 1);', '  } else {',
-    // outline effect
-    '       if (uOutlineDistance <= 0.5) {', '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);', '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);', '           finalColor = vec4(color.rgb, color.a * alpha);', '       } else {', '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '           finalColor = vec4(uColor.rgb, uColor.a * alpha);', '       }',
-    // drop shadow effect
-    //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-    //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
+var TestShader = function (_Shader) {
+    _inherits(TestShader, _Shader);
 
-    '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;', '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);', '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
-    // inner effect is the other way around... text, shadow
-    '       gl_FragColor = mix(shadow, finalColor, finalColor.a);', '  }', '}'].join('\n'),
-    // uniforms:
-    {
-        uMatrix: { type: 'mat4', value: new Float32Array(16) },
-        uTransform: { type: 'mat4', value: new Float32Array(16) },
-        uTexture: { type: 'tex', value: 0 },
-        uTexSize: { type: '1i', value: 24 },
-        uColor: [1.0, 0.0, 0.0, 1.0],
-        uOutlineColor: [1.0, 1.0, 1.0, 1.0],
-        uDropShadowColor: [0.0, 0.0, 0.0, 1.0],
-        uDropShadowSmoothing: { type: '1i', value: 0 },
-        uDropShadowOffset: [0.0, 0.0],
-        uOutlineDistance: { type: '1i', value: 0 },
-        uGamma: { type: '1i', value: 0 },
-        uDebug: { type: '1i', value: 1 }
-    },
-    // attributes:
-    {
-        aPos: 0,
-        aTexCoord: 0
-    });
-}
+    _createClass(TestShader, null, [{
+        key: "shaderContent",
+        get: function get() {
+            return {
+                vertex: [
+                // an attribute will receive data from a buffer
+                'attribute vec4 a_position;',
 
-inheritsFrom(TextShader, Shader);; /**
-                                   * TextureShader class
-                                   * @depends shader.js
-                                   */
-function TextureShader() {
-    Shader.call(this,
-    // inline-vertex shader:
-    ['precision mediump float;', 'attribute vec2 aVertexPosition;', 'attribute vec2 aTextureCoord;', 'uniform mat4 uMatrix;', 'uniform mat4 uTransform;', 'varying vec2 vTextureCoord;', 'void main(void){', '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);', '   vTextureCoord = aTextureCoord;', '}'].join('\n'),
-    // inline-fragment shader
-    ['precision mediump float;', 'varying vec2 vTextureCoord;', 'varying vec4 vColor;', 'uniform sampler2D uSampler;', 'uniform vec4 uColor;', 'void main(void){', '   gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;', '}'].join('\n'),
-    // uniforms:
-    {
-        uSampler: { type: 'tex', value: 0 },
-        uMatrix: { type: 'mat4', value: new Float32Array(16) },
-        uTransform: { type: 'mat4', value: new Float32Array(16) },
-        uColor: [1.0, 1.0, 1.0, 1.0]
-    },
-    // attributes:
-    {
-        aVertexPosition: 0,
-        aTextureCoord: 0
-    });
-}
+                // all shaders have a main function
+                'void main() {',
+                // gl_Position is a special variable a vertex shader
+                // is responsible for setting
+                'gl_Position = a_position;', '}'].join('\n'),
+                fragment: [
+                // fragment shaders don't have a default precision so we need
+                // to pick one. mediump is a good default
+                'precision mediump float;', 'void main() {',
+                // gl_FragColor is a special variable a fragment shader
+                // is responsible for setting
+                'gl_FragColor = vec4(1, 0, 0.5, 1);', '}'].join('\n'),
+                uniforms: {},
+                attributes: {
+                    a_position: 0
+                }
+            };
+        }
+    }]);
 
-inheritsFrom(TextureShader, Shader);; /**
-                                      * PrimitiveShader class
-                                      * @depends shader.js
-                                      */
-function PrimitiveShader() {
-    Shader.call(this,
-    // inline-vertex shader:
-    ['attribute vec2 aVertexPosition;', 'uniform mat4 uMatrix;', 'uniform mat4 uTransform;', 'uniform float uPointSize;', 'void main(void) {', '   gl_PointSize = uPointSize;', '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);', '}'].join('\n'),
-    // inline-fragment shader
-    ['precision mediump float;', 'uniform vec4 uColor;', 'void main(void) {', '   gl_FragColor = uColor;', '}'].join('\n'),
-    // uniforms:
-    {
-        uMatrix: { type: 'mat4', value: new Float32Array(16) },
-        uTransform: { type: 'mat4', value: new Float32Array(16) },
-        uColor: [0.0, 0.0, 0.0, 1.0],
-        uPointSize: 2
-    },
-    // attributes:
-    {
-        aVertexPosition: 0
-    });
-}
+    function TestShader() {
+        _classCallCheck(this, TestShader);
 
-inheritsFrom(PrimitiveShader, Shader);
+        var content = TestShader.shaderContent;
+
+        return _possibleConstructorReturn(this, (TestShader.__proto__ || Object.getPrototypeOf(TestShader)).call(this, content.vertex, content.fragment, content.uniforms, content.attributes));
+    }
+
+    return TestShader;
+}(Shader);
+
+; /**
+  * Created by Luis on 16/12/2016.
+  */
+
+/**
+ * TextShader Class
+ */
+
+var TextShader = function (_Shader2) {
+    _inherits(TextShader, _Shader2);
+
+    _createClass(TextShader, null, [{
+        key: "shaderContent",
+        get: function get() {
+            return {
+                vertex: ['attribute vec2 aPos;', 'attribute vec2 aTexCoord;', 'uniform mat4 uMatrix;', 'uniform mat4 uTransform;', 'uniform vec2 uTexSize;', 'varying vec2 vTexCoord;', 'void main() {', '   gl_Position = uMatrix * uTransform * vec4(aPos, 0, 1);', '   vTexCoord = aTexCoord / uTexSize;', '}'].join('\n'),
+                fragment: ['#ifdef GL_ES', '   precision mediump float;', '#endif', 'uniform sampler2D uTexture;', 'uniform vec4 uColor;', 'uniform float uGamma;', 'uniform float uOutlineDistance;', 'uniform vec4 uOutlineColor;', 'uniform vec4 uDropShadowColor;', 'uniform float uDropShadowSmoothing;', 'uniform vec2 uDropShadowOffset;', 'uniform float uDebug;', 'varying vec2 vTexCoord;', 'void main() {', '   float distance = texture2D(uTexture, vTexCoord).a;', '   vec4 finalColor = uColor;', '   if (uDebug > 0.0) {', '       gl_FragColor = vec4(distance, distance, distance, 1);', '   } else {',
+                // outline effect
+                '       if (uOutlineDistance <= 0.5) {', '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);', '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);', '           finalColor = vec4(color.rgb, color.a * alpha);', '       } else {', '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '           finalColor = vec4(uColor.rgb, uColor.a * alpha);', '       }',
+                // drop shadow effect
+                //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
+
+                '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;', '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);', '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
+                // inner effect is the other way around... text, shadow
+                '       gl_FragColor = mix(shadow, finalColor, finalColor.a);', '  }', '}'].join('\n'),
+                uniforms: {
+                    uMatrix: { type: 'mat4', value: new Float32Array(16) },
+                    uTransform: { type: 'mat4', value: new Float32Array(16) },
+                    uTexture: { type: 'tex', value: 0 },
+                    uTexSize: { type: '1i', value: 24 },
+                    uColor: [1.0, 0.0, 0.0, 1.0],
+                    uOutlineColor: [1.0, 1.0, 1.0, 1.0],
+                    uDropShadowColor: [0.0, 0.0, 0.0, 1.0],
+                    uDropShadowSmoothing: { type: '1i', value: 0 },
+                    uDropShadowOffset: [0.0, 0.0],
+                    uOutlineDistance: { type: '1i', value: 0 },
+                    uGamma: { type: '1i', value: 0 },
+                    uDebug: { type: '1i', value: 1 }
+                },
+                attributes: {
+                    aPos: 0,
+                    aTexCoord: 0
+                }
+            };
+        }
+    }]);
+
+    function TextShader() {
+        _classCallCheck(this, TextShader);
+
+        var content = TextShader.shaderContent;
+
+        return _possibleConstructorReturn(this, (TextShader.__proto__ || Object.getPrototypeOf(TextShader)).call(this, content.vertex, content.fragment, content.uniforms, content.attributes));
+    }
+
+    return TextShader;
+}(Shader);
+
+; /**
+  * TextureShader Class
+  */
+
+var TextureShader = function (_Shader3) {
+    _inherits(TextureShader, _Shader3);
+
+    _createClass(TextureShader, null, [{
+        key: "shaderContent",
+        get: function get() {
+            return {
+                vertex: ['precision mediump float;', 'attribute vec2 aVertexPosition;', 'attribute vec2 aTextureCoord;', 'uniform mat4 uMatrix;', 'uniform mat4 uTransform;', 'varying vec2 vTextureCoord;', 'void main(void){', '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);', '   vTextureCoord = aTextureCoord;', '}'].join('\n'),
+                fragment: ['precision mediump float;', 'varying vec2 vTextureCoord;', 'varying vec4 vColor;', 'uniform sampler2D uSampler;', 'uniform vec4 uColor;', 'void main(void){', '   gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;', '}'].join('\n'),
+                uniforms: {
+                    uSampler: { type: 'tex', value: 0 },
+                    uMatrix: { type: 'mat4', value: new Float32Array(16) },
+                    uTransform: { type: 'mat4', value: new Float32Array(16) },
+                    uColor: [1.0, 1.0, 1.0, 1.0]
+                },
+                attributes: {
+                    aVertexPosition: 0,
+                    aTextureCoord: 0
+                }
+            };
+        }
+    }]);
+
+    function TextureShader() {
+        _classCallCheck(this, TextureShader);
+
+        var content = TextureShader.shaderContent;
+
+        return _possibleConstructorReturn(this, (TextureShader.__proto__ || Object.getPrototypeOf(TextureShader)).call(this, content.vertex, content.fragment, content.uniforms, content.attributes));
+    }
+
+    return TextureShader;
+}(Shader);
+
+; /**
+  * PrimitiveShader Class
+  */
+
+var PrimitiveShader = function (_Shader4) {
+    _inherits(PrimitiveShader, _Shader4);
+
+    _createClass(PrimitiveShader, null, [{
+        key: "shaderContent",
+        get: function get() {
+            return {
+                vertex: ['attribute vec2 aVertexPosition;', 'uniform mat4 uMatrix;', 'uniform mat4 uTransform;', 'uniform float uPointSize;', 'void main(void) {', '   gl_PointSize = uPointSize;', '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);', '}'].join('\n'),
+                fragment: ['precision mediump float;', 'uniform vec4 uColor;', 'void main(void) {', '   gl_FragColor = uColor;', '}'].join('\n'),
+                uniforms: {
+                    uMatrix: { type: 'mat4', value: new Float32Array(16) },
+                    uTransform: { type: 'mat4', value: new Float32Array(16) },
+                    uColor: [0.0, 0.0, 0.0, 1.0],
+                    uPointSize: 2
+                },
+                attributes: {
+                    aVertexPosition: 0
+                }
+            };
+        }
+    }]);
+
+    function PrimitiveShader() {
+        _classCallCheck(this, PrimitiveShader);
+
+        var content = PrimitiveShader.shaderContent;
+
+        return _possibleConstructorReturn(this, (PrimitiveShader.__proto__ || Object.getPrototypeOf(PrimitiveShader)).call(this, content.vertex, content.fragment, content.uniforms, content.attributes));
+    }
+
+    return PrimitiveShader;
+}(Shader);

@@ -9,7 +9,7 @@ class ShaderManager {
      * @param game
      * @constructor
      */
-    constructor(game){
+    constructor(game) {
         // private variables
         this._game = game;
         this._gl = this._game.getRenderContext().getContext();
