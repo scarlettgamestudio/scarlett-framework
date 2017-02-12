@@ -9,7 +9,7 @@ class Objectify {
 
     //#region Constructors
 
-    constructor(){
+    constructor() {
 
     }
 
