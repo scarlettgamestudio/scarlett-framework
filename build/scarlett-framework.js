@@ -11541,110 +11541,121 @@ Ray.prototype.equals = function(obj) {
 
 Ray.prototype.unload = function () {
 
-};;/**
+};;SetterDictionary.addRule("rectangle", ["x", "y", "width", "height"]);
+
+/**
  * Rectangle class
  */
-/**
- * @constructor
- */
-SetterDictionary.addRule("rectangle", ["x", "y", "width", "height"]);
+class Rectangle {
 
-function Rectangle(x, y, width, height) {
-    // public properties:
-    this.x = x || 0;
-    this.y = y || 0;
-    this.width = width || 10;
-    this.height = height || 10;
+    //#region Constructors
 
-    // private properties:
+    constructor(x, y, width, height) {
+        this.x = 0;
+        this.y = 0;
+        this.width = 0;
+        this.height = 0;
 
-}
-
-// static methods
-
-Rectangle.fromVectors = function (va, vb) {
-    var x, y, width, height;
-
-    if (va.x > vb.x) {
-        x = vb.x;
-        width = Math.abs(va.x - vb.x);
-    } else {
-        x = va.x;
-        width = Math.abs(vb.x - va.x);
+        this.set(x, y, width, height);
     }
 
-    if (va.y > vb.y) {
-        y = vb.y;
-        height = Math.abs(va.y - vb.y);
-    } else {
-        y = va.y;
-        height = Math.abs(vb.y - va.y);
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new Rectangle(data.x, data.y, data.width, data.height);
     }
 
-    return new Rectangle(x, y, width, height);
-};
+    static fromVectors(vectorA, vectorB) {
+        let x, y, width, height;
 
-// instance methods
+        if (vectorA.x > vectorB.x) {
+            x = vectorB.x;
+            width = Math.abs(vectorA.x - vectorB.x);
+        } else {
+            x = vectorA.x;
+            width = Math.abs(vectorB.x - vectorA.x);
+        }
 
-/**
- * Get the rectangle vertices based on the position and width/height
- * @returns {{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
- */
-Rectangle.prototype.getVertices = function () {
-    return {
-        topLeft: new Vector2(this.x, this.y),
-        topRight: new Vector2(this.x + this.width, this.y),
-        bottomRight: new Vector2(this.x + this.width, this.y + this.height),
-        bottomLeft: new Vector2(this.x, this.y + this.height)
+        if (vectorA.y > vectorB.y) {
+            y = vectorB.y;
+            height = Math.abs(vectorA.y - vectorB.y);
+        } else {
+            y = vectorA.y;
+            height = Math.abs(vectorB.y - vectorA.y);
+        }
+
+        return new Rectangle(x, y, width, height);
     }
-};
 
-/**
- * Checks if the rectangle is intersecting another given rectangle
- * @param rectangle
- * @returns {boolean}
- */
-Rectangle.prototype.intersects = function (rectangle) {
-    return (rectangle.x <= this.x + this.width && this.x <= rectangle.x + rectangle.width &&
-    rectangle.y <= this.y + this.height && this.y <= rectangle.y + rectangle.height);
-};
+    //#endregion
 
-/**
- * Checks if the given rectangle is contained by the instance
- * @param rectangle
- */
-Rectangle.prototype.contains = function (rectangle) {
-    return (rectangle.x >= this.x && rectangle.x + rectangle.width <= this.x + this.width &&
-    rectangle.y >= this.y && rectangle.y + rectangle.height <= this.y + this.height);
-};
+    set(x, y, width, height) {
+        this.x = x || 0;
+        this.y = y || 0;
+        this.width = width || 10;
+        this.height = height || 10;
+    }
 
-Rectangle.prototype.set = function (x, y, width, height) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-};
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height
+        };
+    }
 
-Rectangle.prototype.objectify = function () {
-    return {
-        x: this.x,
-        y: this.y,
-        width: this.width,
-        height: this.height
-    };
-};
+    equals(obj) {
+        return (obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height);
+    }
 
-Rectangle.restore = function (data) {
-    return new Rectangle(data.x, data.y, data.width, data.height);
-};
+    unload() {
 
-Rectangle.prototype.equals = function (obj) {
-    return (obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height);
-};
+    }
 
-Rectangle.prototype.unload = function () {
+    /**
+     * Get the rectangle vertices based on the position and width/height
+     * @returns {{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
+     */
+    getVertices() {
+        return {
+            topLeft: new Vector2(this.x, this.y),
+            topRight: new Vector2(this.x + this.width, this.y),
+            bottomRight: new Vector2(this.x + this.width, this.y + this.height),
+            bottomLeft: new Vector2(this.x, this.y + this.height)
+        }
+    }
 
-};;SetterDictionary.addRule("vector2", ["x", "y"]);
+    /**
+     * Checks if the rectangle is intersecting the given rectangle
+     * @param {Rectangle} rectangle
+     * @returns {boolean}
+     */
+    intersects(rectangle) {
+        return (
+            rectangle.x <= this.x + this.width && this.x <= rectangle.x + rectangle.width &&
+            rectangle.y <= this.y + this.height && this.y <= rectangle.y + rectangle.height
+        );
+    }
+
+    /**
+     * Checks if the given rectangle is contained by the instance
+     * @param {Rectangle} rectangle
+     */
+    contains(rectangle) {
+        return (
+            rectangle.x >= this.x && rectangle.x + rectangle.width <= this.x + this.width &&
+            rectangle.y >= this.y && rectangle.y + rectangle.height <= this.y + this.height
+        );
+    }
+
+    //#endregion
+
+};SetterDictionary.addRule("vector2", ["x", "y"]);
 
 /**
  * Vector2 Class for bi dimensional point references
@@ -11653,7 +11664,7 @@ class Vector2 {
 
     //#region Constructors
 
-    constructor(x, y){
+    constructor(x, y) {
         this.x = 0;
         this.y = 0;
 
@@ -11666,7 +11677,7 @@ class Vector2 {
 
     //#region Static Methods
 
-    static restore (data) {
+    static restore(data) {
         return new Vector2(data.x, data.y);
     }
 

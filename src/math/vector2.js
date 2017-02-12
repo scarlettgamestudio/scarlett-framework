@@ -7,7 +7,7 @@ class Vector2 {
 
     //#region Constructors
 
-    constructor(x, y){
+    constructor(x, y) {
         this.x = 0;
         this.y = 0;
 
@@ -20,7 +20,7 @@ class Vector2 {
 
     //#region Static Methods
 
-    static restore (data) {
+    static restore(data) {
         return new Vector2(data.x, data.y);
     }
 
