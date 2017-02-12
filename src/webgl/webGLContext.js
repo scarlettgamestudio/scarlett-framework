@@ -1,11 +1,11 @@
 /**
  * WebGLContext Class
  */
-class WebGLContext{
+class WebGLContext {
 
     //#region Constructors
 
-    constructor(params){
+    constructor(params) {
 
         params = params || {};
 

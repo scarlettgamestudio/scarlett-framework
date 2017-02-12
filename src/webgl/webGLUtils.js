@@ -169,7 +169,6 @@ class WebGLUtils {
 
 }
 
-
 /* for simplicity sake, add a global instance of the webgl utils */
-var glu = new WebGLUtils();
+let glu = new WebGLUtils();
 
