@@ -1,6 +1,10 @@
 /**
  * General utility class
  */
-var Utility = function () {
+class Utility {
 
-};
+    constructor() {
+
+    }
+
+}
