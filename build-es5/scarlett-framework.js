@@ -10707,161 +10707,279 @@ GridExt.prototype.render = function (delta) {
             this._primitiveRender.drawRectangle(new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4), this._gridColor);
         }
     }
-};; /**
-    * Boundary structure
-    * @param topLeft
-    * @param topRight
-    * @param bottomRight
-    * @param bottomLeft
-    * @constructor
+};; /*
+    Boundary Class
     */
-function Boundary(topLeft, topRight, bottomRight, bottomLeft) {
-    // public properties:
-    this.topLeft = topLeft || new Vector2();
-    this.topRight = topRight || new Vector2();
-    this.bottomRight = bottomRight || new Vector2();
-    this.bottomLeft = bottomLeft || new Vector2();
-}
 
-/**
- * Returns all vertices in an array (topLeft, topRight, bottomRight, bottomLeft)
- */
-Boundary.prototype.getVertices = function () {
-    return [this.topLeft, this.topRight, this.bottomRight, this.bottomLeft];
-};
+var Boundary = function () {
 
-/**
- * Calculate the normals of each boundary side and returns a object mapped with the values of each side
- */
-Boundary.prototype.getNormals = function () {
-    return {
-        top: new Vector2(this.topRight.x - this.topLeft.x, this.topRight.y - this.topLeft.y).normalLeft(),
-        right: new Vector2(this.bottomRight.x - this.topRight.x, this.bottomRight.y - this.topRight.y).normalLeft(),
-        bottom: new Vector2(this.bottomLeft.x - this.bottomRight.x, this.bottomLeft.y - this.bottomRight.y).normalLeft(),
-        left: new Vector2(this.topLeft.x - this.bottomLeft.x, this.topLeft.y - this.bottomLeft.y).normalLeft()
-    };
-};
+    //#region Constructors
 
-/**
- * Tests if the boundary is overlapping another
- * @param other
- * @returns {boolean}
- */
-Boundary.prototype.overlapsWith = function (other) {
-    return Boundary.overlap(this, other);
-};
+    /**
+     * Boundary structure
+     * @param {Vector2} topLeft
+     * @param {Vector2} topRight
+     * @param {Vector2} bottomRight
+     * @param {Vector2} bottomLeft
+     * @constructor
+     */
+    function Boundary(topLeft, topRight, bottomRight, bottomLeft) {
+        _classCallCheck(this, Boundary);
 
-/**
- * Tests if two boundaries are overlapping each other
- * @param boundaryA
- * @param boundaryB
- * @returns {boolean}
- */
-Boundary.overlap = function (boundaryA, boundaryB) {
-    // the following collision detection is based on the separating axis theorem:
-    // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
-    var normA = boundaryA.getNormals();
-    var normB = boundaryB.getNormals();
-
-    function getMinMax(boundary, norm) {
-        var probeA = boundary.topRight.dot(norm);
-        var probeB = boundary.bottomRight.dot(norm);
-        var probeC = boundary.bottomLeft.dot(norm);
-        var probeD = boundary.topLeft.dot(norm);
-
-        return {
-            max: Math.max(probeA, probeB, probeC, probeD),
-            min: Math.min(probeA, probeB, probeC, probeD)
-        };
+        // public properties:
+        this.topLeft = topLeft || new Vector2();
+        this.topRight = topRight || new Vector2();
+        this.bottomRight = bottomRight || new Vector2();
+        this.bottomLeft = bottomLeft || new Vector2();
     }
 
-    var p1, p2, normNode, norm;
-    for (var i = 0; i < 4; i++) {
-        normNode = i >= 2 ? normB : normA;
-        norm = i % 2 == 0 ? normNode.bottom : normNode.right;
-        p1 = getMinMax(boundaryA, norm);
-        p2 = getMinMax(boundaryB, norm);
+    //#endregion
 
-        if (p1.max < p2.min || p2.max < p1.min) {
-            return false;
+    //#region Methods
+
+    //#region Static Methods
+
+    _createClass(Boundary, [{
+        key: "getVertices",
+
+
+        //#endregion
+
+        /**
+         * Returns all vertices in an array
+         * @returns {Array.<{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}>}
+         */
+        value: function getVertices() {
+            return [this.topLeft, this.topRight, this.bottomRight, this.bottomLeft];
         }
+
+        /**
+         * Calculate the normals of each boundary side and returns a object mapped with the values of each side
+         * @returns {{top: Vector2, right: Vector2, bottom: Vector2, left: Vector2}}
+         */
+
+    }, {
+        key: "getNormals",
+        value: function getNormals() {
+            return {
+                top: new Vector2(this.topRight.x - this.topLeft.x, this.topRight.y - this.topLeft.y).normalLeft(),
+                right: new Vector2(this.bottomRight.x - this.topRight.x, this.bottomRight.y - this.topRight.y).normalLeft(),
+                bottom: new Vector2(this.bottomLeft.x - this.bottomRight.x, this.bottomLeft.y - this.bottomRight.y).normalLeft(),
+                left: new Vector2(this.topLeft.x - this.bottomLeft.x, this.topLeft.y - this.bottomLeft.y).normalLeft()
+            };
+        }
+
+        /**
+         * Tests if the boundary is overlapping another
+         * @param other
+         * @returns {boolean}
+         */
+
+    }, {
+        key: "overlapsWith",
+        value: function overlapsWith(other) {
+            return Boundary.overlap(this, other);
+        }
+
+        //#endregion
+
+    }], [{
+        key: "getMinMax",
+        value: function getMinMax(boundary, norm) {
+            var probeA = boundary.topRight.dot(norm);
+            var probeB = boundary.bottomRight.dot(norm);
+            var probeC = boundary.bottomLeft.dot(norm);
+            var probeD = boundary.topLeft.dot(norm);
+
+            return {
+                max: Math.max(probeA, probeB, probeC, probeD),
+                min: Math.min(probeA, probeB, probeC, probeD)
+            };
+        }
+
+        /**
+         * Tests if two boundaries are overlapping each other
+         * @param {Boundary} boundaryA
+         * @param {Boundary} boundaryB
+         * @returns {boolean} whether the boundaries overlap
+         */
+
+    }, {
+        key: "overlap",
+        value: function overlap(boundaryA, boundaryB) {
+            // the following collision detection is based on the separating axis theorem:
+            // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+            var normA = boundaryA.getNormals();
+            var normB = boundaryB.getNormals();
+
+            var p1 = void 0,
+                p2 = void 0,
+                normNode = void 0,
+                norm = void 0;
+            for (var i = 0; i < 4; i++) {
+                normNode = i >= 2 ? normB : normA;
+                norm = i % 2 == 0 ? normNode.bottom : normNode.right;
+                p1 = Boundary.getMinMax(boundaryA, norm);
+                p2 = Boundary.getMinMax(boundaryB, norm);
+
+                if (p1.max < p2.min || p2.max < p1.min) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /**
+         * Creates a boundary object based on the given vector and adds the specified bulk dimension
+         * @param {Vector2} vec
+         * @param bulk
+         * @returns {Boundary} a boundary based on the given vector and bulk
+         */
+
+    }, {
+        key: "fromVector2",
+        value: function fromVector2(vec, bulk) {
+            var halfBulk = bulk / 2.0;
+            return new Boundary(new Vector2(vec.x - halfBulk, vec.y - halfBulk), new Vector2(vec.x + halfBulk, vec.y - halfBulk), new Vector2(vec.x + halfBulk, vec.y + halfBulk), new Vector2(vec.x - halfBulk, vec.y + halfBulk));
+        }
+    }]);
+
+    return Boundary;
+}();
+
+; /**
+  * Math Helper utility Class
+  */
+
+var MathHelper = function () {
+    _createClass(MathHelper, null, [{
+        key: "PI",
+
+
+        //#region Static Properties
+
+        /**
+         * PI value
+         * @type {number}
+         */
+        get: function get() {
+            return Math.PI;
+        }
+
+        /**
+         * PI multiplied by two
+         * @type {number}
+         */
+
+    }, {
+        key: "PI2",
+        get: function get() {
+            return MathHelper.PI * 2.0;
+        }
+
+        /**
+         * PI multiplied by four
+         * @type {number}
+         */
+
+    }, {
+        key: "PI4",
+        get: function get() {
+            return MathHelper.PI * 4.0;
+        }
+
+        /**
+         * PI divided by two
+         * @type {number}
+         */
+
+    }, {
+        key: "PIo2",
+        get: function get() {
+            return MathHelper.PI / 2.0;
+        }
+
+        /**
+         * PI divided by four
+         * @type {number}
+         */
+
+    }, {
+        key: "PIo4",
+        get: function get() {
+            return MathHelper.PI / 4.0;
+        }
+
+        //#endregion
+
+        //#region Constructors
+
+        /**
+         * @constructor
+         */
+
+    }]);
+
+    function MathHelper() {
+        _classCallCheck(this, MathHelper);
     }
 
-    return true;
-};
+    //#endregion
 
-/**
- * Creates a boundary object based on a given vector and adds the specified bulk dimension
- * @param vec
- * @param bulk
- */
-Boundary.fromVector2 = function (vec, bulk) {
-    var halfBulk = bulk / 2.0;
-    return new Boundary(new Vector2(vec.x - halfBulk, vec.y - halfBulk), new Vector2(vec.x + halfBulk, vec.y - halfBulk), new Vector2(vec.x + halfBulk, vec.y + halfBulk), new Vector2(vec.x - halfBulk, vec.y + halfBulk));
-};; /**
-    * Math helper utility class
-    * @constructor
-    */
-var MathHelper = function MathHelper() {};
+    //#region Methods
 
-/**
- * PI value
- * @type {number}
- */
-MathHelper.PI = Math.PI;
+    //#region Static Methods
 
-/**
- * PI multiplied by two
- * @type {number}
- */
-MathHelper.PI2 = MathHelper.PI * 2.0;
+    /**
+     * Clamp a value between a min and max value
+     * @param value
+     * @param min
+     * @param max
+     */
 
-/**
- * PI multiplied by four
- * @type {number}
- */
-MathHelper.PI4 = MathHelper.PI * 4.0;
 
-/**
- * PI divided by two
- * @type {number}
- */
-MathHelper.PIo2 = MathHelper.PI / 2.0;
+    _createClass(MathHelper, null, [{
+        key: "clamp",
+        value: function clamp(value, min, max) {
+            return value < min ? min : value > max ? max : value;
+        }
 
-/**
- * PI divided by four
- * @type {number}
- */
-MathHelper.PIo4 = MathHelper.PI / 4.0;
+        /**
+         * Converts degree to radians
+         * @param degrees
+         */
 
-/**
- * Clamp a value between a min and max value
- * @param value
- * @param min
- * @param max
- */
-MathHelper.clamp = function (value, min, max) {
-    return value < min ? min : value > max ? max : value;
-};
+    }, {
+        key: "degToRad",
+        value: function degToRad(degrees) {
+            return degrees * 0.0174532925;
+        }
 
-/**
- * Converts degree to radians
- * @param degrees
- */
-MathHelper.degToRad = function (degrees) {
-    return degrees * 0.0174532925;
-};
+        /**
+         * Converts radians to degrees
+         * @param radians
+         */
 
-/**
- * Converts radians to degrees
- * @param radians
- */
-MathHelper.radToDeg = function (radians) {
-    return radians * 57.295779513;
-};; /**
-    * Matrix3 class @ based on Tdl.Math
-    * https://github.com/greggman/tdl/blob/master/tdl/math.js
-    */
+    }, {
+        key: "radToDeg",
+        value: function radToDeg(radians) {
+            return radians * 57.295779513;
+        }
+
+        //#endregion
+
+        //#endregion
+
+    }]);
+
+    return MathHelper;
+}();
+
+; /**
+  * Matrix3 class @ based on Tdl.Math
+  * https://github.com/greggman/tdl/blob/master/tdl/math.js
+  */
 
 var Matrix3 = function () {
 
@@ -11405,43 +11523,71 @@ var Matrix4 = function () {
     return Matrix4;
 }();
 
-; /**
-  * Rectangle class
-  */
+;SetterDictionary.addRule("ray", ["origin", "direction"]);
+
 /**
- * @constructor
+ * Ray Class (TODO: this class is not yet working!)
  */
-SetterDictionary.addRule("ray", ["origin", "direction"]);
 
-function Ray(origin, direction) {
-    // public properties:
-    this.origin = origin || 0;
-    this.direction = direction || 0;
+var Ray = function () {
 
-    // private properties:
-}
+    //#region Constructors
 
-Ray.prototype.set = function (origin, direction) {
-    this.origin = origin;
-    this.direction = direction;
-};
+    function Ray(origin, direction) {
+        _classCallCheck(this, Ray);
 
-Ray.prototype.objectify = function () {
-    return {
-        origin: this.origin,
-        direction: this.direction
-    };
-};
+        this.origin = 0;
+        this.direction = 0;
 
-Ray.restore = function (data) {
-    return new Ray(data.origin, data.direction);
-};
+        this.set(origin, direction);
+    }
 
-Ray.prototype.equals = function (obj) {
-    return obj.origin === this.origin && obj.direction === this.direction;
-};
+    //#endregion
 
-Ray.prototype.unload = function () {};;SetterDictionary.addRule("rectangle", ["x", "y", "width", "height"]);
+    //#region Methods
+
+    //#region Static Methods
+
+    _createClass(Ray, [{
+        key: "set",
+
+
+        //#endregion
+
+        value: function set(origin, direction) {
+            this.origin = origin || 0;
+            this.direction = direction || 0;
+        }
+    }, {
+        key: "objectify",
+        value: function objectify() {
+            return {
+                origin: this.origin,
+                direction: this.direction
+            };
+        }
+    }, {
+        key: "equals",
+        value: function equals(obj) {
+            return obj.origin === this.origin && obj.direction === this.direction;
+        }
+    }, {
+        key: "unload",
+        value: function unload() {}
+
+        //#endregion
+
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            return new Ray(data.origin, data.direction);
+        }
+    }]);
+
+    return Ray;
+}();
+
+;SetterDictionary.addRule("rectangle", ["x", "y", "width", "height"]);
 
 /**
  * Rectangle class

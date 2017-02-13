@@ -1,40 +1,51 @@
-/**
- * Rectangle class
- */
-/**
- * @constructor
- */
 SetterDictionary.addRule("ray", ["origin", "direction"]);
 
-function Ray(origin, direction) {
-    // public properties:
-    this.origin = origin || 0;
-    this.direction = direction || 0;
+/**
+ * Ray Class (TODO: this class is not yet working!)
+ */
+class Ray {
 
-    // private properties:
+    //#region Constructors
+
+    constructor(origin, direction) {
+        this.origin = 0;
+        this.direction = 0;
+
+        this.set(origin, direction);
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new Ray(data.origin, data.direction);
+    }
+
+    //#endregion
+
+    set(origin, direction) {
+        this.origin = origin || 0;
+        this.direction = direction || 0;
+    }
+
+    objectify() {
+        return {
+            origin: this.origin,
+            direction: this.direction
+        };
+    }
+
+    equals(obj) {
+        return (obj.origin === this.origin && obj.direction === this.direction);
+    }
+
+    unload() {
+
+    }
+
+    //#endregion
 
 }
-
-Ray.prototype.set = function(origin, direction) {
-    this.origin = origin;
-    this.direction = direction;
-};
-
-Ray.prototype.objectify = function() {
-    return {
-        origin: this.origin,
-        direction: this.direction
-    };
-};
-
-Ray.restore = function(data) {
-    return new Ray(data.origin, data.direction);
-};
-
-Ray.prototype.equals = function(obj) {
-    return (obj.origin === this.origin && obj.direction === this.direction);
-};
-
-Ray.prototype.unload = function () {
-
-};
