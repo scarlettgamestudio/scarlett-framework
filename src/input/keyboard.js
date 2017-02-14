@@ -1,30 +1,18 @@
+// unique key
+let _keyboardSingleton = Symbol('keyboardSingleton');
+
 /**
  * Global Keyboard handler
- * TODO: make it a singleton?
  */
 class Keyboard {
 
-    //#region Static Properties
-
-    static get keys() {
-        if (this._keys == null || !this._keys) {
-            this._keys = [];
-        }
-        return this._keys;
-    }
-
-    static set keys(keys) {
-        if (keys) {
-            this._keys = keys;
-        }
-    }
-
-    //#endregion
-
     //#region Constructors
 
-    constructor() {
-        Keyboard.keys = [];
+    constructor(keyboardSingletonToken) {
+        if (_keyboardSingleton !== keyboardSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._keys = [];
     }
 
     //#endregion
@@ -33,41 +21,52 @@ class Keyboard {
 
     //#region Static Methods
 
-    static removeKey(key) {
-        let idx = Keyboard.keys.indexOf(key);
+    static get instance() {
+        if (!this[_keyboardSingleton]) {
+            this[_keyboardSingleton] = new Keyboard(_keyboardSingleton);
+        }
+
+        return this[_keyboardSingleton];
+    }
+
+    //#endregion
+
+
+    removeKey(key) {
+        let idx = this._keys.indexOf(key);
         if (idx >= 0) {
-            Keyboard.keys.splice(idx, 1);
+            this._keys.splice(idx, 1);
         }
     }
 
-    static removeKeys(keys) {
-        keys.forEach(function (key) {
-            Keyboard.removeKey(key);
-        });
+    removeKeys(keys) {
+        keys.forEach((function (key) {
+            this.removeKey(key);
+        }).bind(this));
     }
 
-    static addKey(key) {
-        if (Keyboard.keys.indexOf(key) < 0) {
-            Keyboard.keys.push(key);
+    addKey(key) {
+        if (this._keys.indexOf(key) < 0) {
+            this._keys.push(key);
         }
     }
 
-    static addKeys(keys) {
-        keys.forEach(function (key) {
-            Keyboard.addKey(key);
-        })
+    addKeys(keys) {
+        keys.forEach((function (key) {
+            this.addKey(key);
+        }).bind(this));
     }
 
-    static setKeys(keys) {
-        Keyboard.keys = keys;
+    setKeys(keys) {
+        this._keys = keys;
     }
 
-    static clearKeys() {
-        Keyboard.keys = [];
+    clearKeys() {
+        this._keys = [];
     }
 
-    static getState() {
-        return new KeyboardState(Keyboard.keys);
+    getState() {
+        return new KeyboardState(this._keys);
     }
 
     /**
@@ -75,8 +74,8 @@ class Keyboard {
      * @param key
      * @returns {boolean}
      */
-    static isKeyDown(key) {
-        return Keyboard.keys.indexOf(key) >= 0;
+    isKeyDown(key) {
+        return this._keys.indexOf(key) >= 0;
     }
 
     /**
@@ -84,17 +83,12 @@ class Keyboard {
      * @param key
      * @returns {boolean}
      */
-    static isKeyUp(key) {
-        return Keyboard.keys.indexOf(key) < 0;
+    isKeyUp(key) {
+        return this._keys.indexOf(key) < 0;
     }
 
     //#endregion
 
-    //#endregion
-
 }
-
-// internal key data:
-//Keyboard._keys = [];
 
 

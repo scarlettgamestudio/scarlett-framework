@@ -94,7 +94,7 @@ Game.prototype._keyUpListener = function (e) {
     }
 
     // update the keyboard data:
-    Keyboard.removeKeys(keys);
+    Keyboard.instance.removeKeys(keys);
 };
 
 Game.prototype._keyDownListener = function (e) {
@@ -109,7 +109,7 @@ Game.prototype._keyDownListener = function (e) {
     }
 
     // update the keyboard data:
-    Keyboard.addKeys(keys);
+    Keyboard.instance.addKeys(keys);
 };
 
 /**

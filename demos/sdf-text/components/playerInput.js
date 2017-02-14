@@ -29,19 +29,21 @@ script.prototype.update = function (delta) {
     var directionHorizontal = 0;
     var directionVertical = 0;
 
-    if (Keyboard.isKeyDown(Keys.RightArrow) || Keyboard.isKeyDown(Keys.D)) {
+    var keyboard = Keyboard.instance;
+
+    if (keyboard.isKeyDown(Keys.RightArrow) || keyboard.isKeyDown(Keys.D)) {
         directionHorizontal = 1;
-    } else if (Keyboard.isKeyDown(Keys.LeftArrow) || Keyboard.isKeyDown(Keys.A)) {
+    } else if (keyboard.isKeyDown(Keys.LeftArrow) || keyboard.isKeyDown(Keys.A)) {
         directionHorizontal = -1;
     }
 
-    if (Keyboard.isKeyDown(Keys.UpArrow) || Keyboard.isKeyDown(Keys.W)) {
+    if (keyboard.isKeyDown(Keys.UpArrow) || keyboard.isKeyDown(Keys.W)) {
         directionVertical = -1;
-    } else if (Keyboard.isKeyDown(Keys.DownArrow) || Keyboard.isKeyDown(Keys.S)) {
+    } else if (keyboard.isKeyDown(Keys.DownArrow) || keyboard.isKeyDown(Keys.S)) {
         directionVertical = 1;
     }
 
-    if (Keyboard.isKeyDown(Keys.Enter) || Keyboard.isKeyDown(Keys.K) || Keyboard.isKeyDown(Keys.Space)) {
+    if (keyboard.isKeyDown(Keys.Enter) || keyboard.isKeyDown(Keys.K) || keyboard.isKeyDown(Keys.Space)) {
         this.shoot(delta);
     }
 

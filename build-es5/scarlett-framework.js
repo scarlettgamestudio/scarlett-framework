@@ -13225,7 +13225,7 @@ Game.prototype._keyUpListener = function (e) {
     }
 
     // update the keyboard data:
-    Keyboard.removeKeys(keys);
+    Keyboard.instance.removeKeys(keys);
 };
 
 Game.prototype._keyDownListener = function (e) {
@@ -13240,7 +13240,7 @@ Game.prototype._keyDownListener = function (e) {
     }
 
     // update the keyboard data:
-    Keyboard.addKeys(keys);
+    Keyboard.instance.addKeys(keys);
 };
 
 /**
@@ -16013,42 +16013,24 @@ var Transform = function () {
 ;var WrapMode = {
     CLAMP: 0,
     REPEAT: 1
-};; /**
-    * Global Keyboard handler
-    * @constructor
-    */
+};; // unique key
+var _keyboardSingleton = Symbol('keyboardSingleton');
 
-// TODO: make it a singleton?
+/**
+ * Global Keyboard handler
+ */
 
 var Keyboard = function () {
-    _createClass(Keyboard, null, [{
-        key: "keys",
 
+    //#region Constructors
 
-        //#region Static Properties
-
-        get: function get() {
-            if (this._keys == null || !this._keys) {
-                this._keys = [];
-            }
-            return this._keys;
-        },
-        set: function set(keys) {
-            if (keys) {
-                this._keys = keys;
-            }
-        }
-
-        //#endregion
-
-        //#region Constructors
-
-    }]);
-
-    function Keyboard() {
+    function Keyboard(keyboardSingletonToken) {
         _classCallCheck(this, Keyboard);
 
-        Keyboard.keys = [];
+        if (_keyboardSingleton !== keyboardSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._keys = [];
     }
 
     //#endregion
@@ -16057,49 +16039,54 @@ var Keyboard = function () {
 
     //#region Static Methods
 
-    _createClass(Keyboard, null, [{
+    _createClass(Keyboard, [{
         key: "removeKey",
+
+
+        //#endregion
+
+
         value: function removeKey(key) {
-            var idx = Keyboard.keys.indexOf(key);
+            var idx = this._keys.indexOf(key);
             if (idx >= 0) {
-                Keyboard.keys.splice(idx, 1);
+                this._keys.splice(idx, 1);
             }
         }
     }, {
         key: "removeKeys",
         value: function removeKeys(keys) {
             keys.forEach(function (key) {
-                Keyboard.removeKey(key);
-            });
+                this.removeKey(key);
+            }.bind(this));
         }
     }, {
         key: "addKey",
         value: function addKey(key) {
-            if (Keyboard.keys.indexOf(key) < 0) {
-                Keyboard.keys.push(key);
+            if (this._keys.indexOf(key) < 0) {
+                this._keys.push(key);
             }
         }
     }, {
         key: "addKeys",
         value: function addKeys(keys) {
             keys.forEach(function (key) {
-                Keyboard.addKey(key);
-            });
+                this.addKey(key);
+            }.bind(this));
         }
     }, {
         key: "setKeys",
         value: function setKeys(keys) {
-            Keyboard.keys = keys;
+            this._keys = keys;
         }
     }, {
         key: "clearKeys",
         value: function clearKeys() {
-            Keyboard.keys = [];
+            this._keys = [];
         }
     }, {
         key: "getState",
         value: function getState() {
-            return new KeyboardState(Keyboard.keys);
+            return new KeyboardState(this._keys);
         }
 
         /**
@@ -16111,7 +16098,7 @@ var Keyboard = function () {
     }, {
         key: "isKeyDown",
         value: function isKeyDown(key) {
-            return Keyboard.keys.indexOf(key) >= 0;
+            return this._keys.indexOf(key) >= 0;
         }
 
         /**
@@ -16123,13 +16110,20 @@ var Keyboard = function () {
     }, {
         key: "isKeyUp",
         value: function isKeyUp(key) {
-            return Keyboard.keys.indexOf(key) < 0;
+            return this._keys.indexOf(key) < 0;
         }
 
         //#endregion
 
-        //#endregion
+    }], [{
+        key: "instance",
+        get: function get() {
+            if (!this[_keyboardSingleton]) {
+                this[_keyboardSingleton] = new Keyboard(_keyboardSingleton);
+            }
 
+            return this[_keyboardSingleton];
+        }
     }]);
 
     return Keyboard;

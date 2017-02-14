@@ -10,12 +10,6 @@ script.prototype.update = function(delta) {
     this.gameObject.transform.translate(this.amount * delta);
 };
 
-
-
-
-
-
-
 var script = sc.addScript("simpleInput");
 
 script.properties.add("strength", {
@@ -26,9 +20,11 @@ script.properties.add("strength", {
 script.prototype.update = function(delta) {
     var direction = 0;
 
-    if (Keyboard.isKeyDown(Keys.RightArrow) || Keyboard.isKeyDown(Keys.D)) {
+    var keyboard = Keyboard.instance;
+
+    if (keyboard.isKeyDown(Keys.RightArrow) || keyboard.isKeyDown(Keys.D)) {
         direction = 1;
-    } else if (Keyboard.isKeyDown(Keys.LeftArrow) || Keyboard.isKeyDown(Keys.A)) {
+    } else if (keyboard.isKeyDown(Keys.LeftArrow) || keyboard.isKeyDown(Keys.A)) {
         direction = -1;
     }
 
