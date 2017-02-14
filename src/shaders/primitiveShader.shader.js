@@ -30,7 +30,7 @@ class PrimitiveShader extends Shader {
                 uMatrix: {type: 'mat4', value: new Float32Array(16)},
                 uTransform: {type: 'mat4', value: new Float32Array(16)},
                 uColor: [0.0, 0.0, 0.0, 1.0],
-                uPointSize: 2
+                uPointSize: {type: '1i', value: 2}
             },
             attributes: {
                 aVertexPosition: 0

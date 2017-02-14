@@ -86,6 +86,13 @@ class Shader {
      */
     cacheUniformLocations(keys) {
         for (let i = 0; i < keys.length; ++i) {
+            let type = typeof(this.uniforms[keys[i]]);
+
+            if (type !== "object"){
+                debug.warn("Shader's uniform " + keys[i] + " is not an object.");
+                continue;
+            }
+
             this.uniforms[keys[i]]._location = this._gl.getUniformLocation(this._program, keys[i]);
         }
     }

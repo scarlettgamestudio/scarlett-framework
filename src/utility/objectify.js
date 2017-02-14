@@ -61,7 +61,7 @@ class Objectify {
      * @param object
      * @param beautify
      */
-    createDataString(object, beautify) {
+    static createDataString(object, beautify) {
         if (beautify) {
             return JSON.stringify(Objectify.create(object), null, 4);
         }
@@ -73,7 +73,7 @@ class Objectify {
      * Checks if a given object contains the objectify method
      * @param object
      */
-    hasObjectify(object) {
+    static hasObjectify(object) {
         return isObjectAssigned(object) && isFunction(object.objectify);
     }
 

@@ -9843,15 +9843,27 @@ var Objectify = function () {
          * @param array
          */
 
-    }, {
-        key: "createDataString",
+    }], [{
+        key: "restoreArray",
+        value: function restoreArray(array) {
+            var result = [];
+            array.forEach(function (elem) {
+                if (elem._otype) {
+                    result.push(Objectify.restore(elem, elem._otype));
+                }
+            });
 
+            return result;
+        }
 
         /**
          * Creates a valid JSON "stringify" data object
          * @param object
          * @param beautify
          */
+
+    }, {
+        key: "createDataString",
         value: function createDataString(object, beautify) {
             if (beautify) {
                 return JSON.stringify(Objectify.create(object), null, 4);
@@ -9876,18 +9888,6 @@ var Objectify = function () {
          * @param object
          */
 
-    }], [{
-        key: "restoreArray",
-        value: function restoreArray(array) {
-            var result = [];
-            array.forEach(function (elem) {
-                if (elem._otype) {
-                    result.push(Objectify.restore(elem, elem._otype));
-                }
-            });
-
-            return result;
-        }
     }, {
         key: "create",
         value: function create(object) {
@@ -10572,144 +10572,181 @@ var Utility = function Utility() {
 };
 
 ; /**
-  * GridExt class
+  * Grid Extension Class
   */
-function GridExt(params) {
-    params = params || {};
 
-    if (!params.game) {
-        throw "cannot create debug extension without game parameter";
+var GridExt = function () {
+
+    //#region Constructors
+
+    function GridExt(params) {
+        _classCallCheck(this, GridExt);
+
+        params = params || {};
+
+        if (!params.game) {
+            throw "cannot create debug extension without game parameter";
+        }
+
+        // public properties:
+        this.enabled = true;
+
+        // private properties:
+        this._game = params.game || null;
+        this._gridSize = params.gridSize || 32;
+        this._gridColor = params.gridColor || Color.Red;
+        this._originLines = true;
+        this._zoomMultiplier = 2;
+        // TODO: maybe get a batch here?
+        this._primitiveRender = new PrimitiveRender(params.game);
     }
 
-    // public properties:
-    this.enabled = true;
+    //#endregion
 
-    // private properties:
-    this._game = params.game || null;
-    this._gridSize = params.gridSize || 32;
-    this._gridColor = params.gridColor || Color.Red;
-    this._originLines = true;
-    this._zoomMultiplier = 2;
-    this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
-}
+    //#region Methods
 
-/**
- *
- * @param enable
- */
-GridExt.prototype.setOriginLines = function (enable) {
-    this._originLines = enable;
-};
+    /**
+     *
+     * @param enable
+     */
 
-/**
- *
- * @param value
- */
-GridExt.prototype.setGridSize = function (value) {
-    this._gridSize = value;
-};
 
-/**
- *
- */
-GridExt.prototype.getGridSize = function () {
-    return this._gridSize;
-};
+    _createClass(GridExt, [{
+        key: "setOriginLines",
+        value: function setOriginLines(enable) {
+            this._originLines = enable;
+        }
 
-/**
- *
- * @param color
- */
-GridExt.prototype.setGridColor = function (color) {
-    this._gridColor = color;
-};
+        /**
+         *
+         * @param value
+         */
 
-/**
- *
- * @param delta
- */
-GridExt.prototype.render = function (delta) {
-    // render a grid?
-    if (this.enabled) {
-        // I have an idea that can be great here..
-        // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
-        // the following calculations on event:
-        var zoom = this._game.getActiveCamera().zoom;
-        var floorZoom = Math.floor(zoom);
+    }, {
+        key: "setGridSize",
+        value: function setGridSize(value) {
+            this._gridSize = value;
+        }
 
-        //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
-        var gridSize = this._gridSize;
-        for (var i = 0; i < floorZoom - 1; i++) {
-            if (i % this._zoomMultiplier == 0) {
-                gridSize *= 2;
+        /**
+         *
+         */
+
+    }, {
+        key: "getGridSize",
+        value: function getGridSize() {
+            return this._gridSize;
+        }
+
+        /**
+         *
+         * @param color
+         */
+
+    }, {
+        key: "setGridColor",
+        value: function setGridColor(color) {
+            this._gridColor = color;
+        }
+
+        /**
+         *
+         * @param delta
+         */
+
+    }, {
+        key: "render",
+        value: function render(delta) {
+            // render a grid?
+            if (this.enabled) {
+                // I have an idea that can be great here..
+                // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
+                // the following calculations on event:
+                var zoom = this._game.getActiveCamera().zoom;
+                var floorZoom = Math.floor(zoom);
+
+                //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
+                var gridSize = this._gridSize;
+                for (var i = 0; i < floorZoom - 1; i++) {
+                    if (i % this._zoomMultiplier == 0) {
+                        gridSize *= 2;
+                    }
+                }
+
+                var upperGridSize = gridSize * 2;
+                var screenResolution = this._game.getVirtualResolution();
+                var offsetX = this._game.getActiveCamera().x - this._game.getActiveCamera().x % gridSize;
+                var offsetY = this._game.getActiveCamera().y - this._game.getActiveCamera().y % gridSize;
+                var zoomDifX = zoom * screenResolution.width * 2.0;
+                var zoomDifY = zoom * screenResolution.height * 2.0;
+                var howManyX = Math.floor((screenResolution.width + zoomDifX) / gridSize + 2);
+                var howManyY = Math.floor((screenResolution.height + zoomDifY) / gridSize + 2);
+                var alignedX = Math.floor(howManyX / 2.0) % 2 == 0;
+                var alignedY = Math.floor(howManyY / 2.0) % 2 == 0;
+                var left = -(screenResolution.width + zoomDifX) / 2;
+                var right = (screenResolution.width + zoomDifX) / 2;
+                var top = -(screenResolution.height + zoomDifY) / 2;
+                var bottom = (screenResolution.height + zoomDifY) / 2;
+                var dynColor = this._gridColor.clone();
+                var color = null;
+
+                if (zoom > 1) {
+                    dynColor.a = 1 - zoom % this._zoomMultiplier / this._zoomMultiplier;
+                }
+
+                // horizontal shift ||||||||
+                for (var x = 0; x < howManyX; x++) {
+                    color = this._gridColor;
+                    if ((x * gridSize + offsetX + (alignedX ? gridSize : 0)) % upperGridSize) {
+                        color = dynColor;
+                    }
+
+                    this._primitiveRender.drawLine({
+                        x: x * gridSize + left - left % gridSize + offsetX,
+                        y: bottom + gridSize + offsetY
+                    }, {
+                        x: x * gridSize + left - left % gridSize + offsetX,
+                        y: top - gridSize + offsetY
+                    }, 1, color);
+                }
+
+                // vertical shift _ _ _ _ _
+                for (var y = 0; y < howManyY; y++) {
+                    color = this._gridColor;
+                    if ((y * gridSize + offsetY + (alignedY ? gridSize : 0)) % upperGridSize) {
+                        color = dynColor;
+                    }
+
+                    this._primitiveRender.drawLine({
+                        x: right + this._gridSize + offsetX,
+                        y: y * gridSize + top - top % gridSize + offsetY
+                    }, {
+                        x: left - gridSize + offsetX,
+                        y: y * gridSize + top - top % gridSize + offsetY
+                    }, 1, color);
+                }
+
+                // main "lines" (origin)
+                if (this._originLines) {
+                    // vertical
+                    this._primitiveRender.drawRectangle(new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY), this._gridColor);
+
+                    // horizontal
+                    this._primitiveRender.drawRectangle(new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4), this._gridColor);
+                }
             }
         }
 
-        var upperGridSize = gridSize * 2;
-        var screenResolution = this._game.getVirtualResolution();
-        var offsetX = this._game.getActiveCamera().x - this._game.getActiveCamera().x % gridSize;
-        var offsetY = this._game.getActiveCamera().y - this._game.getActiveCamera().y % gridSize;
-        var zoomDifX = zoom * screenResolution.width * 2.0;
-        var zoomDifY = zoom * screenResolution.height * 2.0;
-        var howManyX = Math.floor((screenResolution.width + zoomDifX) / gridSize + 2);
-        var howManyY = Math.floor((screenResolution.height + zoomDifY) / gridSize + 2);
-        var alignedX = Math.floor(howManyX / 2.0) % 2 == 0;
-        var alignedY = Math.floor(howManyY / 2.0) % 2 == 0;
-        var left = -(screenResolution.width + zoomDifX) / 2;
-        var right = (screenResolution.width + zoomDifX) / 2;
-        var top = -(screenResolution.height + zoomDifY) / 2;
-        var bottom = (screenResolution.height + zoomDifY) / 2;
-        var dynColor = this._gridColor.clone();
-        var color = null;
+        //#endregion
 
-        if (zoom > 1) {
-            dynColor.a = 1 - zoom % this._zoomMultiplier / this._zoomMultiplier;
-        }
+    }]);
 
-        // horizontal shift ||||||||
-        for (var x = 0; x < howManyX; x++) {
-            color = this._gridColor;
-            if ((x * gridSize + offsetX + (alignedX ? gridSize : 0)) % upperGridSize) {
-                color = dynColor;
-            }
+    return GridExt;
+}();
 
-            this._primitiveRender.drawLine({
-                x: x * gridSize + left - left % gridSize + offsetX,
-                y: bottom + gridSize + offsetY
-            }, {
-                x: x * gridSize + left - left % gridSize + offsetX,
-                y: top - gridSize + offsetY
-            }, 1, color);
-        }
-
-        // vertical shift _ _ _ _ _
-        for (var y = 0; y < howManyY; y++) {
-            color = this._gridColor;
-            if ((y * gridSize + offsetY + (alignedY ? gridSize : 0)) % upperGridSize) {
-                color = dynColor;
-            }
-
-            this._primitiveRender.drawLine({
-                x: right + this._gridSize + offsetX,
-                y: y * gridSize + top - top % gridSize + offsetY
-            }, {
-                x: left - gridSize + offsetX,
-                y: y * gridSize + top - top % gridSize + offsetY
-            }, 1, color);
-        }
-
-        // main "lines" (origin)
-        if (this._originLines) {
-            // vertical
-            this._primitiveRender.drawRectangle(new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY), this._gridColor);
-
-            // horizontal
-            this._primitiveRender.drawRectangle(new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4), this._gridColor);
-        }
-    }
-};; /*
-    Boundary Class
-    */
+; /*
+  Boundary Class
+  */
 
 var Boundary = function () {
 
@@ -16129,10 +16166,6 @@ var Keyboard = function () {
     return Keyboard;
 }();
 
-// internal key data:
-//Keyboard._keys = [];
-
-
 ; /**
   * Keyboard state Class
   */
@@ -16703,6 +16736,13 @@ var Shader = function () {
         key: "cacheUniformLocations",
         value: function cacheUniformLocations(keys) {
             for (var i = 0; i < keys.length; ++i) {
+                var type = _typeof(this.uniforms[keys[i]]);
+
+                if (type !== "object") {
+                    debug.warn("Shader's uniform " + keys[i] + " is not an object.");
+                    continue;
+                }
+
                 this.uniforms[keys[i]]._location = this._gl.getUniformLocation(this._program, keys[i]);
             }
         }
@@ -17054,7 +17094,7 @@ var PrimitiveShader = function (_Shader4) {
                     uMatrix: { type: 'mat4', value: new Float32Array(16) },
                     uTransform: { type: 'mat4', value: new Float32Array(16) },
                     uColor: [0.0, 0.0, 0.0, 1.0],
-                    uPointSize: 2
+                    uPointSize: { type: '1i', value: 2 }
                 },
                 attributes: {
                     aVertexPosition: 0
