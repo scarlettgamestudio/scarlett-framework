@@ -16017,111 +16017,208 @@ var Transform = function () {
     * Global Keyboard handler
     * @constructor
     */
-function Keyboard() {}
-// stuff..
 
+// TODO: make it a singleton?
+
+var Keyboard = function () {
+    _createClass(Keyboard, null, [{
+        key: "keys",
+
+
+        //#region Static Properties
+
+        get: function get() {
+            if (this._keys == null || !this._keys) {
+                this._keys = [];
+            }
+            return this._keys;
+        },
+        set: function set(keys) {
+            if (keys) {
+                this._keys = keys;
+            }
+        }
+
+        //#endregion
+
+        //#region Constructors
+
+    }]);
+
+    function Keyboard() {
+        _classCallCheck(this, Keyboard);
+
+        Keyboard.keys = [];
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    _createClass(Keyboard, null, [{
+        key: "removeKey",
+        value: function removeKey(key) {
+            var idx = Keyboard.keys.indexOf(key);
+            if (idx >= 0) {
+                Keyboard.keys.splice(idx, 1);
+            }
+        }
+    }, {
+        key: "removeKeys",
+        value: function removeKeys(keys) {
+            keys.forEach(function (key) {
+                Keyboard.removeKey(key);
+            });
+        }
+    }, {
+        key: "addKey",
+        value: function addKey(key) {
+            if (Keyboard.keys.indexOf(key) < 0) {
+                Keyboard.keys.push(key);
+            }
+        }
+    }, {
+        key: "addKeys",
+        value: function addKeys(keys) {
+            keys.forEach(function (key) {
+                Keyboard.addKey(key);
+            });
+        }
+    }, {
+        key: "setKeys",
+        value: function setKeys(keys) {
+            Keyboard.keys = keys;
+        }
+    }, {
+        key: "clearKeys",
+        value: function clearKeys() {
+            Keyboard.keys = [];
+        }
+    }, {
+        key: "getState",
+        value: function getState() {
+            return new KeyboardState(Keyboard.keys);
+        }
+
+        /**
+         * Gets if the given key is currently being pressed
+         * @param key
+         * @returns {boolean}
+         */
+
+    }, {
+        key: "isKeyDown",
+        value: function isKeyDown(key) {
+            return Keyboard.keys.indexOf(key) >= 0;
+        }
+
+        /**
+         * Gets if the given key is not currently being pressed
+         * @param key
+         * @returns {boolean}
+         */
+
+    }, {
+        key: "isKeyUp",
+        value: function isKeyUp(key) {
+            return Keyboard.keys.indexOf(key) < 0;
+        }
+
+        //#endregion
+
+        //#endregion
+
+    }]);
+
+    return Keyboard;
+}();
 
 // internal key data:
-Keyboard._keys = [];
+//Keyboard._keys = [];
 
-Keyboard.removeKey = function (key) {
-    var idx = Keyboard._keys.indexOf(key);
-    if (idx >= 0) {
-        Keyboard._keys.splice(idx, 1);
-    }
-};
-
-Keyboard.removeKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.removeKey(key);
-    });
-};
-
-Keyboard.addKey = function (key) {
-    if (Keyboard._keys.indexOf(key) < 0) {
-        Keyboard._keys.push(key);
-    }
-};
-
-Keyboard.addKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.addKey(key);
-    });
-};
-
-Keyboard.setKeys = function (keys) {
-    Keyboard._keys = keys;
-};
-
-Keyboard.clearKeys = function () {
-    Keyboard._keys = [];
-};
-
-Keyboard.getState = function () {
-    return new KeyboardState(Keyboard._keys);
-};
-
-/**
- * Gets if the given key is currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyDown = function (key) {
-    return Keyboard._keys.indexOf(key) >= 0;
-};
-
-/**
- * Gets if the given key is not currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyUp = function (key) {
-    return Keyboard._keys.indexOf(key) < 0;
-};
 
 ; /**
-  * Keyboard state
-  * @param keys
-  * @constructor
+  * Keyboard state Class
   */
-function KeyboardState(keys) {
-    // now we copy the values to our state array.
-    this._keys = [];
-    keys.forEach(function (key) {
-        this._keys.push(key);
-    }.bind(this));
-}
 
-/**
- * Gets the keys currently being pressed
- * @returns {Array}
- */
-KeyboardState.prototype.getKeys = function () {
-    return this._keys;
-};
+var KeyboardState = function () {
 
-/**
- * Gets if the given key is currently being pressed
- * @param key
- * @returns {boolean}
- */
-KeyboardState.prototype.isKeyDown = function (key) {
-    return this._keys.indexOf(key) >= 0;
-};
+    //#region Constructors
 
-/**
- * Gets if the given key is not currently being pressed
- * @param key
- * @returns {boolean}
- */
-KeyboardState.prototype.isKeyUp = function (key) {
-    return this._keys.indexOf(key) < 0;
-};
+    /**
+     * @param keys
+     */
+    function KeyboardState(keys) {
+        _classCallCheck(this, KeyboardState);
+
+        // now we copy the values to our state array.
+        this._keys = [];
+        keys.forEach(function (key) {
+            this._keys.push(key);
+        }.bind(this));
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    /**
+     * Gets the keys currently being pressed
+     * @returns {Array}
+     */
+
+
+    _createClass(KeyboardState, [{
+        key: "getKeys",
+        value: function getKeys() {
+            return this._keys;
+        }
+
+        /**
+         * Gets if the given key is currently being pressed
+         * @param key
+         * @returns {boolean}
+         */
+
+    }, {
+        key: "isKeyDown",
+        value: function isKeyDown(key) {
+            return this._keys.indexOf(key) >= 0;
+        }
+
+        /**
+         * Gets if the given key is not currently being pressed
+         * @param key
+         * @returns {boolean}
+         */
+
+    }, {
+        key: "isKeyUp",
+        value: function isKeyUp(key) {
+            return this._keys.indexOf(key) < 0;
+        }
+
+        //#endregion
+
+    }]);
+
+    return KeyboardState;
+}();
+
 ; /**
-  *
-  * @constructor
+  *  Keys Class
   */
-function Keys() {}
+
+var Keys = function Keys() {
+    _classCallCheck(this, Keys);
+};
+
+/**
+ *  Static Properties
+ */
+
 
 Keys.Backspace = 8;
 Keys.Tab = 9;

@@ -15623,113 +15623,169 @@ class Transform {
  * Global Keyboard handler
  * @constructor
  */
-function Keyboard() {
-    // stuff..
+
+// TODO: make it a singleton?
+class Keyboard {
+
+    //#region Static Properties
+
+    static get keys() {
+        if (this._keys == null || !this._keys) {
+            this._keys = [];
+        }
+        return this._keys;
+    }
+
+    static set keys(keys) {
+        if (keys) {
+            this._keys = keys;
+        }
+    }
+
+    //#endregion
+
+    //#region Constructors
+
+    constructor() {
+        Keyboard.keys = [];
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static removeKey(key) {
+        let idx = Keyboard.keys.indexOf(key);
+        if (idx >= 0) {
+            Keyboard.keys.splice(idx, 1);
+        }
+    }
+
+    static removeKeys(keys) {
+        keys.forEach(function (key) {
+            Keyboard.removeKey(key);
+        });
+    }
+
+    static addKey(key) {
+        if (Keyboard.keys.indexOf(key) < 0) {
+            Keyboard.keys.push(key);
+        }
+    }
+
+    static addKeys(keys) {
+        keys.forEach(function (key) {
+            Keyboard.addKey(key);
+        })
+    }
+
+    static setKeys(keys) {
+        Keyboard.keys = keys;
+    }
+
+    static clearKeys() {
+        Keyboard.keys = [];
+    }
+
+    static getState() {
+        return new KeyboardState(Keyboard.keys);
+    }
+
+    /**
+     * Gets if the given key is currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    static isKeyDown(key) {
+        return Keyboard.keys.indexOf(key) >= 0;
+    }
+
+    /**
+     * Gets if the given key is not currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    static isKeyUp(key) {
+        return Keyboard.keys.indexOf(key) < 0;
+    }
+
+    //#endregion
+
+    //#endregion
+
 }
 
 // internal key data:
-Keyboard._keys = [];
-
-Keyboard.removeKey = function (key) {
-    var idx = Keyboard._keys.indexOf(key);
-    if (idx >= 0) {
-        Keyboard._keys.splice(idx, 1);
-    }
-};
-
-Keyboard.removeKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.removeKey(key);
-    });
-};
-
-Keyboard.addKey = function (key) {
-    if (Keyboard._keys.indexOf(key) < 0) {
-        Keyboard._keys.push(key);
-    }
-};
-
-Keyboard.addKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.addKey(key);
-    })
-};
-
-Keyboard.setKeys = function (keys) {
-    Keyboard._keys = keys;
-};
-
-Keyboard.clearKeys = function () {
-    Keyboard._keys = [];
-};
-
-Keyboard.getState = function () {
-    return new KeyboardState(Keyboard._keys);
-};
-
-/**
- * Gets if the given key is currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyDown = function (key) {
-    return Keyboard._keys.indexOf(key) >= 0;
-};
-
-/**
- * Gets if the given key is not currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyUp = function (key) {
-    return Keyboard._keys.indexOf(key) < 0;
-};
+//Keyboard._keys = [];
 
 
 ;/**
- * Keyboard state
- * @param keys
- * @constructor
+ * Keyboard state Class
  */
-function KeyboardState(keys) {
-    // now we copy the values to our state array.
-    this._keys = [];
-    keys.forEach((function (key) {
-        this._keys.push(key);
-    }).bind(this));
+
+class KeyboardState {
+
+    //#region Constructors
+
+    /**
+     * @param keys
+     */
+    constructor(keys){
+        // now we copy the values to our state array.
+        this._keys = [];
+        keys.forEach((function (key) {
+            this._keys.push(key);
+        }).bind(this));
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    /**
+     * Gets the keys currently being pressed
+     * @returns {Array}
+     */
+    getKeys() {
+        return this._keys;
+    }
+
+    /**
+     * Gets if the given key is currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyDown(key) {
+        return this._keys.indexOf(key) >= 0;
+    }
+
+    /**
+     * Gets if the given key is not currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyUp(key) {
+        return this._keys.indexOf(key) < 0;
+    }
+
+    //#endregion
+
+}
+
+;/**
+ *  Keys Class
+ */
+class Keys {
+    constructor() {
+
+    }
 }
 
 /**
- * Gets the keys currently being pressed
- * @returns {Array}
+ *  Static Properties
  */
-KeyboardState.prototype.getKeys = function () {
-    return this._keys;
-};
-
-/**
- * Gets if the given key is currently being pressed
- * @param key
- * @returns {boolean}
- */
-KeyboardState.prototype.isKeyDown = function (key) {
-    return this._keys.indexOf(key) >= 0;
-};
-
-/**
- * Gets if the given key is not currently being pressed
- * @param key
- * @returns {boolean}
- */
-KeyboardState.prototype.isKeyUp = function (key) {
-    return this._keys.indexOf(key) < 0;
-};
-;/**
- *
- * @constructor
- */
-function Keys () {}
-
 Keys.Backspace = 8;
 Keys.Tab = 9;
 Keys.Enter = 13;

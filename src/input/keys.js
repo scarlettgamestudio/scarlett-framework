@@ -1,9 +1,15 @@
 /**
- *
- * @constructor
+ *  Keys Class
  */
-function Keys () {}
+class Keys {
+    constructor() {
 
+    }
+}
+
+/**
+ *  Static Properties
+ */
 Keys.Backspace = 8;
 Keys.Tab = 9;
 Keys.Enter = 13;
