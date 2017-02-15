@@ -13833,202 +13833,216 @@ PrimitiveBatch.prototype.drawLine = function (vectorA, vectorB, thickness, color
 };;/**
  * PrimitiveRender class for on demand direct drawing
  */
-function PrimitiveRender(game) {
-    if (!isGame(game)) {
-        throw "Cannot create primitive render, the Game object is missing from the parameters";
+class PrimitiveRender {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param game
+     */
+    constructor(game) {
+        if (!isGame(game)) {
+            throw "Cannot create primitive render, the Game object is missing from the parameters";
+        }
+
+        // private properties:
+        this._game = game;
+        this._gl = game.getRenderContext().getContext();
+        this._primitiveShader = new PrimitiveShader();
+        this._vertexBuffer = this._gl.createBuffer();
+        this._transformMatrix = new Matrix4();
+        this._rectangleData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
+        this._pointData = new Float32Array([
+            0.0, 0.0
+        ]);
     }
 
-    // private properties:
-    this._game = game;
-    this._gl = game.getRenderContext().getContext();
-    this._primitiveShader = new PrimitiveShader();
-    this._vertexBuffer = this._gl.createBuffer();
-    this._transformMatrix = new Matrix4();
-    this._rectangleData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-    this._pointData = new Float32Array([
-        0.0, 0.0
-    ]);
-}
+    //#endregion
 
-PrimitiveRender.prototype.unload = function () {
-    gl.deleteBuffer(this._vertexBuffer);
+    //#region Methods
 
-    this._primitiveShader.unload();
-};
-
-PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
-    // TODO: refactor this method
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._pointData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix:
-    this._transformMatrix.identity();
-    this._transformMatrix.translate([vector.x, vector.y, 0]);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-    gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
-
-    gl.drawArrays(gl.POINTS, 0, 1);
-};
-
-PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, color) {
-    let gl = this._gl;
-    let transformMatrix = this._transformMatrix;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let triangleData = new Float32Array([
-        vectorA.x, vectorA.y,
-        vectorB.x, vectorB.y,
-        vectorC.x, vectorC.y
-    ]);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix (if not provided):
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-};
-
-PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, color) {
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let triangleData = [];
-    for (let i = 0; i < iterations; i++) {
-        triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
-        triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
-    }
-    triangleData = new Float32Array(triangleData);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
-};
-
-PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) {
-    let gl = this._gl;
-    let transformMatrix = this._transformMatrix;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix (if not provided):
-    this._transformMatrix.identity();
-    this._transformMatrix.translate([rectangle.x, rectangle.y, 0]);
-
-    // rotate the rectangle?
-    if (rotation) {
-        this._transformMatrix.translate([rectangle.width / 2, rectangle.height / 2, 0]);
-        this._transformMatrix.rotate([0.0, 0.0, 1.0], rotation);
-        this._transformMatrix.translate([-rectangle.width / 2, -rectangle.height / 2, 0]);
+    unload() {
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._primitiveShader.unload();
     }
 
-    this._transformMatrix.scale([rectangle.width, rectangle.height, 0]);
+    drawPoint(vector, size, color) {
+        // TODO: refactor this method
+        let gl = this._gl;
 
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+        this._game.getShaderManager().useShader(this._primitiveShader);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._pointData, gl.STATIC_DRAW);
 
-PrimitiveRender.prototype.drawRectangleFromMatrix = function (matrix, color) {
-    let gl = this._gl;
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
-    this._game.getShaderManager().useShader(this._primitiveShader);
+        // calculate transformation matrix:
+        this._transformMatrix.identity();
+        this._transformMatrix.translate([vector.x, vector.y, 0]);
 
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+        gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
 
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.POINTS, 0, 1);
+    }
 
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+    drawTriangle(vectorA, vectorB, vectorC, color) {
+        let gl = this._gl;
+        let transformMatrix = this._transformMatrix;
 
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
+        this._game.getShaderManager().useShader(this._primitiveShader);
 
-PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
-    let gl = this._gl;
-    //gl.lineWidth(thickness); // not all implementations support this
+        let triangleData = new Float32Array([
+            vectorA.x, vectorA.y,
+            vectorB.x, vectorB.y,
+            vectorC.x, vectorC.y
+        ]);
 
-    this._game.getShaderManager().useShader(this._primitiveShader);
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
 
-    let pointData = new Float32Array([
-        vectorA.x, vectorA.y,
-        vectorB.x, vectorB.y
-    ]);
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
+        // calculate transformation matrix (if not provided):
+        this._transformMatrix.identity();
 
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
-    this._transformMatrix.identity();
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
 
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+    drawCircle(position, radius, iterations, color) {
+        let gl = this._gl;
 
-    gl.drawArrays(gl.LINES, 0, 2);
-};;/**
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        let triangleData = [];
+        for (let i = 0; i < iterations; i++) {
+            triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
+            triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
+        }
+        triangleData = new Float32Array(triangleData);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
+    }
+
+    drawRectangle(rectangle, color, rotation) {
+        let gl = this._gl;
+        let transformMatrix = this._transformMatrix;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // calculate transformation matrix (if not provided):
+        this._transformMatrix.identity();
+        this._transformMatrix.translate([rectangle.x, rectangle.y, 0]);
+
+        // rotate the rectangle?
+        if (rotation) {
+            this._transformMatrix.translate([rectangle.width / 2, rectangle.height / 2, 0]);
+            this._transformMatrix.rotate([0.0, 0.0, 1.0], rotation);
+            this._transformMatrix.translate([-rectangle.width / 2, -rectangle.height / 2, 0]);
+        }
+
+        this._transformMatrix.scale([rectangle.width, rectangle.height, 0]);
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+    drawRectangleFromMatrix(matrix, color) {
+        let gl = this._gl;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+    drawLine(vectorA, vectorB, thickness, color) {
+        let gl = this._gl;
+        //gl.lineWidth(thickness); // not all implementations support this
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        let pointData = new Float32Array([
+            vectorA.x, vectorA.y,
+            vectorB.x, vectorB.y
+        ]);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.LINES, 0, 2);
+    }
+
+    //#endregion
+};/**
  * Scripts singleton
  * @constructor
  */
@@ -14158,6 +14172,8 @@ class Sound {
             });
         }).bind(this));
     }
+
+    // TODO: static restore
 
     //#endregion
 
