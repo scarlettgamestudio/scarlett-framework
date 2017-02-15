@@ -4,8 +4,10 @@ AttributeDictionary.addRule("transform", "gameObject", {visible: false});
  * Transform class
  */
 class Transform {
+
+    //#region Constructors
+
     /**
-     *
      * @param params
      */
     constructor(params) {
@@ -23,6 +25,27 @@ class Transform {
         this._overrideRotationFunction = null;
         this._overrideScaleFunction = null;
     }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {Transform}
+     */
+    static restore(data) {
+        return new Transform({
+            position: Vector2.restore(data.position),
+            rotation: data.rotation,
+            scale: Vector2.restore(data.scale)
+        });
+    };
+
+    //#endregion
 
     /**
      *
@@ -193,21 +216,11 @@ class Transform {
 
     /**
      *
-     * @param data
-     * @returns {Transform}
-     */
-    static restore(data) {
-        return new Transform({
-            position: Vector2.restore(data.position),
-            rotation: data.rotation,
-            scale: Vector2.restore(data.scale)
-        });
-    };
-
-    /**
-     *
      */
     unload() {
 
     };
+
+    //#endregion
+
 }
