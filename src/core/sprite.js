@@ -1,18 +1,20 @@
-/**
- * Sprite class
- */
 AttributeDictionary.inherit("sprite", "gameobject");
-AttributeDictionary.addRule("sprite", "_source", { displayName: "Source", editor: "filepath" });
-AttributeDictionary.addRule("sprite", "_tint", { displayName: "Tint" });
-AttributeDictionary.addRule("sprite", "_texture", { visible: false });
-AttributeDictionary.addRule("sprite", "_wrapMode", { visible: false }); // temporary while we don't have cb's in editor
+AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor: "filepath"});
+AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
+AttributeDictionary.addRule("sprite", "_texture", {visible: false});
+AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
 AttributeDictionary.addRule("sprite", "_atlasRegion", {
     displayName: "Region", available: function () {
         return isObjectAssigned(this._atlas)
     }
 });
 
+/**
+ * Sprite class
+ */
 class Sprite extends GameObject {
+
+    //#region Constructors
 
     /**
      * Class constructor
@@ -37,13 +39,34 @@ class Sprite extends GameObject {
         this.setTexture(params.texture);
     }
 
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        let sprite = new Sprite({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+
+        sprite.setSource(data.src);
+
+        return sprite;
+    }
+
+    //#endregion
+
     getBaseWidth() {
         return this._textureWidth;
-    };
+    }
 
     getBaseHeight() {
         return this._textureHeight;
-    };
+    }
 
     getMatrix() {
         let x, y, width, height;
@@ -67,31 +90,31 @@ class Sprite extends GameObject {
         this._transformMatrix.scale([width, height, 0]);
 
         return this._transformMatrix.asArray();
-    };
+    }
 
     setWrapMode(wrapMode) {
         this._wrapMode = wrapMode;
-    };
+    }
 
     getWrapMode() {
         return this._wrapMode;
-    };
+    }
 
     setOrigin(origin) {
         this._origin = origin;
-    };
+    }
 
     getOrigin() {
         return this._origin;
-    };
+    }
 
     setTint(color) {
         this._tint = color;
-    };
+    }
 
     getTint() {
         return this._tint;
-    };
+    }
 
     setSource(path) {
         this._source = path;
@@ -129,39 +152,27 @@ class Sprite extends GameObject {
         } else {
             this.setTexture(null);
         }
-    };
-
-    _assignTextureFromPath(path) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
-                this.setTexture(texture);
-
-            }).bind(this), (function (error) {
-                this.setTexture(null);
-            }).bind(this)
-        );
-    };
-
+    }
 
     getAtlasRegion() {
         return this._atlasRegion;
-    };
+    }
 
     setAtlasRegion(value) {
         this._atlasRegion = value;
-    };
+    }
 
     getSource() {
         return this._source;
-    };
+    }
 
     getType() {
         return "Sprite";
-    };
+    }
 
     getTexture() {
         return this._texture;
-    };
+    }
 
     setTexture(texture) {
         // is this a ready texture?
@@ -177,7 +188,7 @@ class Sprite extends GameObject {
         // cache the dimensions
         this._textureWidth = this._texture.getWidth();
         this._textureHeight = this._texture.getHeight();
-    };
+    }
 
     render(delta, spriteBatch) {
         if (!this.enabled) {
@@ -189,7 +200,7 @@ class Sprite extends GameObject {
 
         // parent render function:
         super.render(delta, spriteBatch);
-    };
+    }
 
     // functions:
     objectify() {
@@ -198,23 +209,27 @@ class Sprite extends GameObject {
             src: this._source,
             tint: this._tint.objectify()
         });
-    };
-
-    static restore(data) {
-        let sprite = new Sprite({
-            name: data.name,
-            transform: Transform.restore(data.transform),
-            children: Objectify.restoreArray(data.children),
-            components: Objectify.restoreArray(data.components)
-        });
-
-        sprite.setSource(data.src);
-
-        return sprite;
     }
 
     unload() {
 
-    };
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    _assignTextureFromPath(path) {
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
+        );
+    }
+
+    //#endregion
 
 }

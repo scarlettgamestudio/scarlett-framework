@@ -43,7 +43,7 @@ class Transform {
             rotation: data.rotation,
             scale: Vector2.restore(data.scale)
         });
-    };
+    }
 
     //#endregion
 
@@ -52,21 +52,21 @@ class Transform {
      */
     clearPositionGetter() {
         this._overridePositionFunction = null;
-    };
+    }
 
     /**
      *
      */
     clearRotationGetter() {
         this._overrideRotationFunction = null;
-    };
+    }
 
     /**
      *
      */
     clearScaleGetter() {
         this._overrideScaleFunction = null;
-    };
+    }
 
     /**
      *
@@ -74,7 +74,7 @@ class Transform {
      */
     overridePositionGetter(overrideFunction) {
         this._overridePositionFunction = overrideFunction;
-    };
+    }
 
     /**
      *
@@ -82,7 +82,7 @@ class Transform {
      */
     overrideScaleGetter(overrideFunction) {
         this._overrideScaleFunction = overrideFunction;
-    };
+    }
 
     /**
      *
@@ -90,7 +90,7 @@ class Transform {
      */
     overrideRotationGetter(overrideFunction) {
         this._overrideRotationFunction = overrideFunction;
-    };
+    }
 
     /**
      *
@@ -99,7 +99,7 @@ class Transform {
     lookAt(position) {
         let direction = this.getPosition().subtract(position).normalize();
         this.setRotation(Math.atan2(direction.y, direction.x));
-    };
+    }
 
     /**
      *
@@ -109,7 +109,7 @@ class Transform {
     setPosition(x, y) {
         this._position.set(x, y);
         this.gameObject.propagatePropertyUpdate("Position", this._position);
-    };
+    }
 
     /**
      *
@@ -121,7 +121,7 @@ class Transform {
         }
 
         return this._position;
-    };
+    }
 
     /**
      *
@@ -131,7 +131,7 @@ class Transform {
     translate(x, y) {
         let curPos = this.getPosition();
         this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
-    };
+    }
 
     /**
      *
@@ -139,7 +139,7 @@ class Transform {
      */
     rotate(value) {
         this.setRotation(this.getRotation() + (value || 0));
-    };
+    }
 
     /**
      *
@@ -149,7 +149,7 @@ class Transform {
     scale(x, y) {
         let curScale = this.getScale();
         this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
-    };
+    }
 
     /**
      *
@@ -158,7 +158,7 @@ class Transform {
     setRotation(value) {
         this._rotation = value;
         this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
-    };
+    }
 
     /**
      *
@@ -170,7 +170,7 @@ class Transform {
         }
 
         return this._rotation;
-    };
+    }
 
     /**
      *
@@ -180,7 +180,7 @@ class Transform {
     setScale(x, y) {
         this._scale.set(x, y || x);
         this.gameObject.propagatePropertyUpdate("Scale", this._scale);
-    };
+    }
 
     /**
      *
@@ -192,7 +192,7 @@ class Transform {
         }
 
         return this._scale;
-    };
+    }
 
     /**
      *
@@ -200,7 +200,7 @@ class Transform {
      */
     clone() {
         return Transform.restore(this.objectify());
-    };
+    }
 
     /**
      *
@@ -212,14 +212,14 @@ class Transform {
             rotation: this._rotation,
             scale: this._scale.objectify()
         };
-    };
+    }
 
     /**
      *
      */
     unload() {
 
-    };
+    }
 
     //#endregion
 

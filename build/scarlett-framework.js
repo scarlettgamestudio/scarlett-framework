@@ -14190,21 +14190,23 @@ Sound.prototype.setLoop = function (loop) {
  */
 Sound.prototype.setVolume = function (volume) {
     this._source.volume = volume;
-};;/**
- * Sprite class
- */
-AttributeDictionary.inherit("sprite", "gameobject");
-AttributeDictionary.addRule("sprite", "_source", { displayName: "Source", editor: "filepath" });
-AttributeDictionary.addRule("sprite", "_tint", { displayName: "Tint" });
-AttributeDictionary.addRule("sprite", "_texture", { visible: false });
-AttributeDictionary.addRule("sprite", "_wrapMode", { visible: false }); // temporary while we don't have cb's in editor
+};;AttributeDictionary.inherit("sprite", "gameobject");
+AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor: "filepath"});
+AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
+AttributeDictionary.addRule("sprite", "_texture", {visible: false});
+AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
 AttributeDictionary.addRule("sprite", "_atlasRegion", {
     displayName: "Region", available: function () {
         return isObjectAssigned(this._atlas)
     }
 });
 
+/**
+ * Sprite class
+ */
 class Sprite extends GameObject {
+
+    //#region Constructors
 
     /**
      * Class constructor
@@ -14229,13 +14231,34 @@ class Sprite extends GameObject {
         this.setTexture(params.texture);
     }
 
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        let sprite = new Sprite({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+
+        sprite.setSource(data.src);
+
+        return sprite;
+    }
+
+    //#endregion
+
     getBaseWidth() {
         return this._textureWidth;
-    };
+    }
 
     getBaseHeight() {
         return this._textureHeight;
-    };
+    }
 
     getMatrix() {
         let x, y, width, height;
@@ -14259,31 +14282,31 @@ class Sprite extends GameObject {
         this._transformMatrix.scale([width, height, 0]);
 
         return this._transformMatrix.asArray();
-    };
+    }
 
     setWrapMode(wrapMode) {
         this._wrapMode = wrapMode;
-    };
+    }
 
     getWrapMode() {
         return this._wrapMode;
-    };
+    }
 
     setOrigin(origin) {
         this._origin = origin;
-    };
+    }
 
     getOrigin() {
         return this._origin;
-    };
+    }
 
     setTint(color) {
         this._tint = color;
-    };
+    }
 
     getTint() {
         return this._tint;
-    };
+    }
 
     setSource(path) {
         this._source = path;
@@ -14321,39 +14344,27 @@ class Sprite extends GameObject {
         } else {
             this.setTexture(null);
         }
-    };
-
-    _assignTextureFromPath(path) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
-                this.setTexture(texture);
-
-            }).bind(this), (function (error) {
-                this.setTexture(null);
-            }).bind(this)
-        );
-    };
-
+    }
 
     getAtlasRegion() {
         return this._atlasRegion;
-    };
+    }
 
     setAtlasRegion(value) {
         this._atlasRegion = value;
-    };
+    }
 
     getSource() {
         return this._source;
-    };
+    }
 
     getType() {
         return "Sprite";
-    };
+    }
 
     getTexture() {
         return this._texture;
-    };
+    }
 
     setTexture(texture) {
         // is this a ready texture?
@@ -14369,7 +14380,7 @@ class Sprite extends GameObject {
         // cache the dimensions
         this._textureWidth = this._texture.getWidth();
         this._textureHeight = this._texture.getHeight();
-    };
+    }
 
     render(delta, spriteBatch) {
         if (!this.enabled) {
@@ -14381,7 +14392,7 @@ class Sprite extends GameObject {
 
         // parent render function:
         super.render(delta, spriteBatch);
-    };
+    }
 
     // functions:
     objectify() {
@@ -14390,24 +14401,28 @@ class Sprite extends GameObject {
             src: this._source,
             tint: this._tint.objectify()
         });
-    };
-
-    static restore(data) {
-        let sprite = new Sprite({
-            name: data.name,
-            transform: Transform.restore(data.transform),
-            children: Objectify.restoreArray(data.children),
-            components: Objectify.restoreArray(data.components)
-        });
-
-        sprite.setSource(data.src);
-
-        return sprite;
     }
 
     unload() {
 
-    };
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    _assignTextureFromPath(path) {
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
+        );
+    }
+
+    //#endregion
 
 };/**
  * SpriteBatch class
@@ -15367,7 +15382,7 @@ class Texture2D {
 
             });
         }).bind(this));
-    };
+    }
 
     //#endregion
 
@@ -15377,14 +15392,14 @@ class Texture2D {
      */
     getUID() {
         return this._uid;
-    };
+    }
 
     /**
      *
      */
     bind() {
         this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-    };
+    }
 
     /**
      *
@@ -15392,7 +15407,7 @@ class Texture2D {
      */
     setImageData(imageData) {
         this._source = imageData;
-    };
+    }
 
     /**
      *
@@ -15400,7 +15415,7 @@ class Texture2D {
      */
     getImageData() {
         return this._source;
-    };
+    }
 
     /**
      * Gets the texture width
@@ -15408,7 +15423,7 @@ class Texture2D {
      */
     getWidth() {
         return this._source.width;
-    };
+    }
 
     /**
      * Gets the texture height
@@ -15416,7 +15431,7 @@ class Texture2D {
      */
     getHeight() {
         return this._source.height;
-    };
+    }
 
     /**
      * Gets the Texture
@@ -15424,7 +15439,7 @@ class Texture2D {
      */
     getTexture() {
         return this._texture;
-    };
+    }
 
     /**
      *
@@ -15432,7 +15447,7 @@ class Texture2D {
      */
     isReady() {
         return this._hasLoaded;
-    };
+    }
 
     /**
 
@@ -15488,7 +15503,7 @@ class Transform {
             rotation: data.rotation,
             scale: Vector2.restore(data.scale)
         });
-    };
+    }
 
     //#endregion
 
@@ -15497,21 +15512,21 @@ class Transform {
      */
     clearPositionGetter() {
         this._overridePositionFunction = null;
-    };
+    }
 
     /**
      *
      */
     clearRotationGetter() {
         this._overrideRotationFunction = null;
-    };
+    }
 
     /**
      *
      */
     clearScaleGetter() {
         this._overrideScaleFunction = null;
-    };
+    }
 
     /**
      *
@@ -15519,7 +15534,7 @@ class Transform {
      */
     overridePositionGetter(overrideFunction) {
         this._overridePositionFunction = overrideFunction;
-    };
+    }
 
     /**
      *
@@ -15527,7 +15542,7 @@ class Transform {
      */
     overrideScaleGetter(overrideFunction) {
         this._overrideScaleFunction = overrideFunction;
-    };
+    }
 
     /**
      *
@@ -15535,7 +15550,7 @@ class Transform {
      */
     overrideRotationGetter(overrideFunction) {
         this._overrideRotationFunction = overrideFunction;
-    };
+    }
 
     /**
      *
@@ -15544,7 +15559,7 @@ class Transform {
     lookAt(position) {
         let direction = this.getPosition().subtract(position).normalize();
         this.setRotation(Math.atan2(direction.y, direction.x));
-    };
+    }
 
     /**
      *
@@ -15554,7 +15569,7 @@ class Transform {
     setPosition(x, y) {
         this._position.set(x, y);
         this.gameObject.propagatePropertyUpdate("Position", this._position);
-    };
+    }
 
     /**
      *
@@ -15566,7 +15581,7 @@ class Transform {
         }
 
         return this._position;
-    };
+    }
 
     /**
      *
@@ -15576,7 +15591,7 @@ class Transform {
     translate(x, y) {
         let curPos = this.getPosition();
         this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
-    };
+    }
 
     /**
      *
@@ -15584,7 +15599,7 @@ class Transform {
      */
     rotate(value) {
         this.setRotation(this.getRotation() + (value || 0));
-    };
+    }
 
     /**
      *
@@ -15594,7 +15609,7 @@ class Transform {
     scale(x, y) {
         let curScale = this.getScale();
         this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
-    };
+    }
 
     /**
      *
@@ -15603,7 +15618,7 @@ class Transform {
     setRotation(value) {
         this._rotation = value;
         this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
-    };
+    }
 
     /**
      *
@@ -15615,7 +15630,7 @@ class Transform {
         }
 
         return this._rotation;
-    };
+    }
 
     /**
      *
@@ -15625,7 +15640,7 @@ class Transform {
     setScale(x, y) {
         this._scale.set(x, y || x);
         this.gameObject.propagatePropertyUpdate("Scale", this._scale);
-    };
+    }
 
     /**
      *
@@ -15637,7 +15652,7 @@ class Transform {
         }
 
         return this._scale;
-    };
+    }
 
     /**
      *
@@ -15645,7 +15660,7 @@ class Transform {
      */
     clone() {
         return Transform.restore(this.objectify());
-    };
+    }
 
     /**
      *
@@ -15657,14 +15672,14 @@ class Transform {
             rotation: this._rotation,
             scale: this._scale.objectify()
         };
-    };
+    }
 
     /**
      *
      */
     unload() {
 
-    };
+    }
 
     //#endregion
 

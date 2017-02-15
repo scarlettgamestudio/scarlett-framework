@@ -14416,10 +14416,7 @@ Sound.prototype.setLoop = function (loop) {
  */
 Sound.prototype.setVolume = function (volume) {
     this._source.volume = volume;
-};; /**
-    * Sprite class
-    */
-AttributeDictionary.inherit("sprite", "gameobject");
+};;AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_source", { displayName: "Source", editor: "filepath" });
 AttributeDictionary.addRule("sprite", "_tint", { displayName: "Tint" });
 AttributeDictionary.addRule("sprite", "_texture", { visible: false });
@@ -14430,8 +14427,14 @@ AttributeDictionary.addRule("sprite", "_atlasRegion", {
     }
 });
 
+/**
+ * Sprite class
+ */
+
 var Sprite = function (_GameObject) {
     _inherits(Sprite, _GameObject);
+
+    //#region Constructors
 
     /**
      * Class constructor
@@ -14459,8 +14462,18 @@ var Sprite = function (_GameObject) {
         return _this;
     }
 
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
     _createClass(Sprite, [{
         key: "getBaseWidth",
+
+
+        //#endregion
+
         value: function getBaseWidth() {
             return this._textureWidth;
         }
@@ -14562,15 +14575,6 @@ var Sprite = function (_GameObject) {
             }
         }
     }, {
-        key: "_assignTextureFromPath",
-        value: function _assignTextureFromPath(path) {
-            Texture2D.fromPath(path).then(function (texture) {
-                this.setTexture(texture);
-            }.bind(this), function (error) {
-                this.setTexture(null);
-            }.bind(this));
-        }
-    }, {
         key: "getAtlasRegion",
         value: function getAtlasRegion() {
             return this._atlasRegion;
@@ -14625,11 +14629,11 @@ var Sprite = function (_GameObject) {
             // parent render function:
             _get(Sprite.prototype.__proto__ || Object.getPrototypeOf(Sprite.prototype), "render", this).call(this, delta, spriteBatch);
         }
-    }, {
-        key: "objectify",
-
 
         // functions:
+
+    }, {
+        key: "objectify",
         value: function objectify() {
             var superObjectify = _get(Sprite.prototype.__proto__ || Object.getPrototypeOf(Sprite.prototype), "objectify", this).call(this);
             return Objectify.extend(superObjectify, {
@@ -14640,6 +14644,23 @@ var Sprite = function (_GameObject) {
     }, {
         key: "unload",
         value: function unload() {}
+
+        //#endregion
+
+        //#region Private Methods
+
+    }, {
+        key: "_assignTextureFromPath",
+        value: function _assignTextureFromPath(path) {
+            Texture2D.fromPath(path).then(function (texture) {
+                this.setTexture(texture);
+            }.bind(this), function (error) {
+                this.setTexture(null);
+            }.bind(this));
+        }
+
+        //#endregion
+
     }], [{
         key: "restore",
         value: function restore(data) {
@@ -15705,88 +15726,88 @@ var Texture2D = function () {
         value: function getUID() {
             return this._uid;
         }
-    }, {
-        key: "bind",
-
 
         /**
          *
          */
+
+    }, {
+        key: "bind",
         value: function bind() {
             this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
         }
-    }, {
-        key: "setImageData",
-
 
         /**
          *
          * @param imageData
          */
+
+    }, {
+        key: "setImageData",
         value: function setImageData(imageData) {
             this._source = imageData;
         }
-    }, {
-        key: "getImageData",
-
 
         /**
          *
          * @returns {*}
          */
+
+    }, {
+        key: "getImageData",
         value: function getImageData() {
             return this._source;
         }
-    }, {
-        key: "getWidth",
-
 
         /**
          * Gets the texture width
          * @returns {Number}
          */
+
+    }, {
+        key: "getWidth",
         value: function getWidth() {
             return this._source.width;
         }
-    }, {
-        key: "getHeight",
-
 
         /**
          * Gets the texture height
          * @returns {Number}
          */
+
+    }, {
+        key: "getHeight",
         value: function getHeight() {
             return this._source.height;
         }
-    }, {
-        key: "getTexture",
-
 
         /**
          * Gets the Texture
          * @returns {WebGLTexture|*|null}
          */
+
+    }, {
+        key: "getTexture",
         value: function getTexture() {
             return this._texture;
         }
-    }, {
-        key: "isReady",
-
 
         /**
          *
          * @returns {boolean}
          */
+
+    }, {
+        key: "isReady",
         value: function isReady() {
             return this._hasLoaded;
         }
-    }, {
-        key: "unload",
-
 
         /**
            */
+
+    }, {
+        key: "unload",
         value: function unload() {}
 
         //#endregion
@@ -15863,92 +15884,92 @@ var Transform = function () {
         value: function clearPositionGetter() {
             this._overridePositionFunction = null;
         }
-    }, {
-        key: "clearRotationGetter",
-
 
         /**
          *
          */
+
+    }, {
+        key: "clearRotationGetter",
         value: function clearRotationGetter() {
             this._overrideRotationFunction = null;
         }
-    }, {
-        key: "clearScaleGetter",
-
 
         /**
          *
          */
+
+    }, {
+        key: "clearScaleGetter",
         value: function clearScaleGetter() {
             this._overrideScaleFunction = null;
         }
-    }, {
-        key: "overridePositionGetter",
-
 
         /**
          *
          * @param overrideFunction
          */
+
+    }, {
+        key: "overridePositionGetter",
         value: function overridePositionGetter(overrideFunction) {
             this._overridePositionFunction = overrideFunction;
         }
-    }, {
-        key: "overrideScaleGetter",
-
 
         /**
          *
          * @param overrideFunction
          */
+
+    }, {
+        key: "overrideScaleGetter",
         value: function overrideScaleGetter(overrideFunction) {
             this._overrideScaleFunction = overrideFunction;
         }
-    }, {
-        key: "overrideRotationGetter",
-
 
         /**
          *
          * @param overrideFunction
          */
+
+    }, {
+        key: "overrideRotationGetter",
         value: function overrideRotationGetter(overrideFunction) {
             this._overrideRotationFunction = overrideFunction;
         }
-    }, {
-        key: "lookAt",
-
 
         /**
          *
          * @param position
          */
+
+    }, {
+        key: "lookAt",
         value: function lookAt(position) {
             var direction = this.getPosition().subtract(position).normalize();
             this.setRotation(Math.atan2(direction.y, direction.x));
         }
-    }, {
-        key: "setPosition",
-
 
         /**
          *
          * @param x
          * @param y
          */
+
+    }, {
+        key: "setPosition",
         value: function setPosition(x, y) {
             this._position.set(x, y);
             this.gameObject.propagatePropertyUpdate("Position", this._position);
         }
-    }, {
-        key: "getPosition",
-
 
         /**
          *
          * @returns {*}
          */
+
+    }, {
+        key: "getPosition",
         value: function getPosition() {
             if (isFunction(this._overridePositionFunction)) {
                 return this._overridePositionFunction();
@@ -15956,63 +15977,63 @@ var Transform = function () {
 
             return this._position;
         }
-    }, {
-        key: "translate",
-
 
         /**
          *
          * @param x
          * @param y
          */
+
+    }, {
+        key: "translate",
         value: function translate(x, y) {
             var curPos = this.getPosition();
             this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
         }
-    }, {
-        key: "rotate",
-
 
         /**
          *
          * @param value
          */
+
+    }, {
+        key: "rotate",
         value: function rotate(value) {
             this.setRotation(this.getRotation() + (value || 0));
         }
-    }, {
-        key: "scale",
-
 
         /**
          *
          * @param x
          * @param y
          */
+
+    }, {
+        key: "scale",
         value: function scale(x, y) {
             var curScale = this.getScale();
             this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
         }
-    }, {
-        key: "setRotation",
-
 
         /**
          *
          * @param value
          */
+
+    }, {
+        key: "setRotation",
         value: function setRotation(value) {
             this._rotation = value;
             this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
         }
-    }, {
-        key: "getRotation",
-
 
         /**
          *
          * @returns {*}
          */
+
+    }, {
+        key: "getRotation",
         value: function getRotation() {
             if (isFunction(this._overrideRotationFunction)) {
                 return this._overrideRotationFunction();
@@ -16020,27 +16041,27 @@ var Transform = function () {
 
             return this._rotation;
         }
-    }, {
-        key: "setScale",
-
 
         /**
          *
          * @param x
          * @param y
          */
+
+    }, {
+        key: "setScale",
         value: function setScale(x, y) {
             this._scale.set(x, y || x);
             this.gameObject.propagatePropertyUpdate("Scale", this._scale);
         }
-    }, {
-        key: "getScale",
-
 
         /**
          *
          * @returns {*}
          */
+
+    }, {
+        key: "getScale",
         value: function getScale() {
             if (isFunction(this._overrideScaleFunction)) {
                 return this._overrideScaleFunction();
@@ -16048,25 +16069,25 @@ var Transform = function () {
 
             return this._scale;
         }
-    }, {
-        key: "clone",
-
 
         /**
          *
          * @returns {Transform}
          */
+
+    }, {
+        key: "clone",
         value: function clone() {
             return Transform.restore(this.objectify());
         }
-    }, {
-        key: "objectify",
-
 
         /**
          *
          * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
          */
+
+    }, {
+        key: "objectify",
         value: function objectify() {
             return {
                 position: this._position.objectify(),
@@ -16074,14 +16095,17 @@ var Transform = function () {
                 scale: this._scale.objectify()
             };
         }
-    }, {
-        key: "unload",
-
 
         /**
          *
          */
+
+    }, {
+        key: "unload",
         value: function unload() {}
+
+        //#endregion
+
     }], [{
         key: "restore",
         value: function restore(data) {
