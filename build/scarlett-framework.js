@@ -14119,78 +14119,98 @@ Scripts.generateComponent = function (scriptName) {
 };;/**
  * Sound class
  */
-function Sound(audio) {
-    if (!isObjectAssigned(audio)) {
-        throw new Error("Cannot create Sound without a valid audio source");
+class Sound {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param audio
+     */
+    constructor(audio) {
+        if (!isObjectAssigned(audio)) {
+            throw new Error("Cannot create Sound without a valid audio source");
+        }
+
+        // private properties
+        this._source = audio;
     }
 
-    // private properties
-    this._source = audio;
-}
+    //#endregion
 
-/**
- *
- * @param path
- * @returns {Promise}
- */
-Sound.fromPath = function (path) {
-    return new Promise((function (resolve, reject) {
-        ContentLoader.loadAudio(path).then(function (audio) {
-            resolve(new Sound(audio));
+    //#region Methods
 
-        }, function () {
-            reject();
+    //#region Static Methods
 
-        });
-    }).bind(this));
-};
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
+    static fromPath(path) {
+        return new Promise((function (resolve, reject) {
+            ContentLoader.loadAudio(path).then(function (audio) {
+                resolve(new Sound(audio));
 
-/**
- *
- * @param audio
- */
-Sound.prototype.setAudioSource = function (audio) {
-    this._source = audio;
-};
+            }, function () {
+                reject();
 
-/**
- * plays the current audio source
- */
-Sound.prototype.play = function () {
-    this._source.play();
-};
+            });
+        }).bind(this));
+    }
 
-/**
- * pauses the current audio source
- */
-Sound.prototype.pause = function () {
-    this._source.pause();
-};
+    //#endregion
 
-/**
- * stops the current audio source
- */
-Sound.prototype.stop = function () {
-    this._source.pause();
-    this._source.currentTime = 0;
-};
+    /**
+     *
+     * @param audio
+     */
+    setAudioSource(audio) {
+        this._source = audio;
+    }
 
-/**
- * sets the current audio source loop behavior
- * @param loop
- */
-Sound.prototype.setLoop = function (loop) {
-    this._source.loop = loop;
-};
+    /**
+     * plays the current audio source
+     */
+    play() {
+        this._source.play();
+    }
+
+    /**
+     * pauses the current audio source
+     */
+    pause() {
+        this._source.pause();
+    }
+
+    /**
+     * stops the current audio source
+     */
+    stop() {
+        this._source.pause();
+        this._source.currentTime = 0;
+    }
+
+    /**
+     * sets the current audio source loop behavior
+     * @param loop
+     */
+    setLoop(loop) {
+        this._source.loop = loop;
+    }
 
 
-/**
- * sets the current audio source output volume (0 to 1)
- * @param volume
- */
-Sound.prototype.setVolume = function (volume) {
-    this._source.volume = volume;
-};;AttributeDictionary.inherit("sprite", "gameobject");
+    /**
+     * sets the current audio source output volume (0 to 1)
+     * @param volume
+     */
+    setVolume(volume) {
+        this._source.volume = volume;
+    }
+
+    //#endregion
+
+};AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 AttributeDictionary.addRule("sprite", "_texture", {visible: false});

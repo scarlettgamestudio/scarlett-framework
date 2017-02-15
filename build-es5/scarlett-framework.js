@@ -14348,75 +14348,125 @@ Scripts.generateComponent = function (scriptName) {
 };; /**
     * Sound class
     */
-function Sound(audio) {
-    if (!isObjectAssigned(audio)) {
-        throw new Error("Cannot create Sound without a valid audio source");
+
+var Sound = function () {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param audio
+     */
+    function Sound(audio) {
+        _classCallCheck(this, Sound);
+
+        if (!isObjectAssigned(audio)) {
+            throw new Error("Cannot create Sound without a valid audio source");
+        }
+
+        // private properties
+        this._source = audio;
     }
 
-    // private properties
-    this._source = audio;
-}
+    //#endregion
 
-/**
- *
- * @param path
- * @returns {Promise}
- */
-Sound.fromPath = function (path) {
-    return new Promise(function (resolve, reject) {
-        ContentLoader.loadAudio(path).then(function (audio) {
-            resolve(new Sound(audio));
-        }, function () {
-            reject();
-        });
-    }.bind(this));
-};
+    //#region Methods
 
-/**
- *
- * @param audio
- */
-Sound.prototype.setAudioSource = function (audio) {
-    this._source = audio;
-};
+    //#region Static Methods
 
-/**
- * plays the current audio source
- */
-Sound.prototype.play = function () {
-    this._source.play();
-};
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
 
-/**
- * pauses the current audio source
- */
-Sound.prototype.pause = function () {
-    this._source.pause();
-};
 
-/**
- * stops the current audio source
- */
-Sound.prototype.stop = function () {
-    this._source.pause();
-    this._source.currentTime = 0;
-};
+    _createClass(Sound, [{
+        key: "setAudioSource",
 
-/**
- * sets the current audio source loop behavior
- * @param loop
- */
-Sound.prototype.setLoop = function (loop) {
-    this._source.loop = loop;
-};
 
-/**
- * sets the current audio source output volume (0 to 1)
- * @param volume
- */
-Sound.prototype.setVolume = function (volume) {
-    this._source.volume = volume;
-};;AttributeDictionary.inherit("sprite", "gameobject");
+        //#endregion
+
+        /**
+         *
+         * @param audio
+         */
+        value: function setAudioSource(audio) {
+            this._source = audio;
+        }
+
+        /**
+         * plays the current audio source
+         */
+
+    }, {
+        key: "play",
+        value: function play() {
+            this._source.play();
+        }
+
+        /**
+         * pauses the current audio source
+         */
+
+    }, {
+        key: "pause",
+        value: function pause() {
+            this._source.pause();
+        }
+
+        /**
+         * stops the current audio source
+         */
+
+    }, {
+        key: "stop",
+        value: function stop() {
+            this._source.pause();
+            this._source.currentTime = 0;
+        }
+
+        /**
+         * sets the current audio source loop behavior
+         * @param loop
+         */
+
+    }, {
+        key: "setLoop",
+        value: function setLoop(loop) {
+            this._source.loop = loop;
+        }
+
+        /**
+         * sets the current audio source output volume (0 to 1)
+         * @param volume
+         */
+
+    }, {
+        key: "setVolume",
+        value: function setVolume(volume) {
+            this._source.volume = volume;
+        }
+
+        //#endregion
+
+    }], [{
+        key: "fromPath",
+        value: function fromPath(path) {
+            return new Promise(function (resolve, reject) {
+                ContentLoader.loadAudio(path).then(function (audio) {
+                    resolve(new Sound(audio));
+                }, function () {
+                    reject();
+                });
+            }.bind(this));
+        }
+    }]);
+
+    return Sound;
+}();
+
+;AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_source", { displayName: "Source", editor: "filepath" });
 AttributeDictionary.addRule("sprite", "_tint", { displayName: "Tint" });
 AttributeDictionary.addRule("sprite", "_texture", { visible: false });
