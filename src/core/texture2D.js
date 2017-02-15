@@ -2,8 +2,10 @@
  * Texture2D class
  */
 class Texture2D {
+
+    //#region Constructors
+
     /**
-     *
      * @param image
      */
     constructor(image) {
@@ -37,6 +39,12 @@ class Texture2D {
         this._hasLoaded = true;
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param path
@@ -53,6 +61,8 @@ class Texture2D {
             });
         }).bind(this));
     };
+
+    //#endregion
 
     /**
      *
@@ -123,4 +133,7 @@ class Texture2D {
     unload() {
 
     }
+
+    //#endregion
+
 }
