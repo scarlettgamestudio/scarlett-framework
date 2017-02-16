@@ -12368,6 +12368,9 @@ TextureAtlas.prototype.getType = function () {
     */
 
 var Camera2D = function () {
+
+    //#region Constructors
+
     /**
      *
      * @param x
@@ -12393,14 +12396,29 @@ var Camera2D = function () {
         this._matrix = new Matrix4();
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
-     * @returns {Float32Array}
+     * @param data
+     * @returns {Camera2D}
      */
 
 
     _createClass(Camera2D, [{
         key: "calculateMatrix",
+
+
+        //#endregion
+
+        /**
+         *
+         * @returns {Float32Array}
+         */
         value: function calculateMatrix() {
             // generate orthographic perspective:
             this._matrix.orthographic(this.x + -this.viewWidth * this.zoom / 2.0, this.x + this.viewWidth * this.zoom / 2.0, this.y + this.viewHeight * this.zoom / 2.0, this.y + -this.viewHeight * this.zoom / 2.0, 0.0, 1.0);
@@ -12427,36 +12445,36 @@ var Camera2D = function () {
             // force the camera calculations
             this.calculateMatrix();
         }
-    }, {
-        key: "getViewWidth",
-
 
         /**
          *
          * @returns {*|number}
          */
+
+    }, {
+        key: "getViewWidth",
         value: function getViewWidth() {
             return this.viewWidth;
         }
-    }, {
-        key: "getViewHeight",
-
 
         /**
          *
          * @returns {*|number}
          */
+
+    }, {
+        key: "getViewHeight",
         value: function getViewHeight() {
             return this.viewHeight;
         }
-    }, {
-        key: "getMatrix",
-
 
         /**
          *
          * @returns {Float32Array}
          */
+
+    }, {
+        key: "getMatrix",
         value: function getMatrix() {
             // needs to have a new calculation?
             if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
@@ -12465,15 +12483,15 @@ var Camera2D = function () {
 
             return this._matrix.asArray();
         }
-    }, {
-        key: "screenToWorldCoordinates",
-
 
         /**
          *
          * @param screenX
          * @param screenY
          */
+
+    }, {
+        key: "screenToWorldCoordinates",
         value: function screenToWorldCoordinates(screenX, screenY) {
             // first we normalize the screen position:
             var x = 2.0 * screenX / this.viewWidth - 1.0;
@@ -12482,13 +12500,13 @@ var Camera2D = function () {
             // then we calculate and return the world coordinates:
             return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
         }
-    }, {
-        key: "unload",
-
 
         /**
          *
          */
+
+    }, {
+        key: "unload",
         value: function unload() {}
 
         /**
@@ -12505,15 +12523,11 @@ var Camera2D = function () {
                 zoom: this.zoom
             };
         }
+
+        //#endregion
+
     }], [{
         key: "restore",
-
-
-        /**
-         *
-         * @param data
-         * @returns {Camera2D}
-         */
         value: function restore(data) {
             return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
         }
@@ -12979,6 +12993,7 @@ var Color = function () {
  */
 
 var FontStyle = function () {
+
     //#region Constructors
 
     /**
@@ -13669,7 +13684,6 @@ var GameManager = function () {
     }
 
     //#endregion
-
 
     return GameManager;
 }();

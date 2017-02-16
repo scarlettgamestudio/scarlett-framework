@@ -6,6 +6,7 @@
  * FontStyle Class
  */
 class FontStyle {
+
     //#region Constructors
 
     /**
