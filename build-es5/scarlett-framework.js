@@ -12292,18 +12292,41 @@ RigidBody.prototype.onGameObjectScaleUpdated = function (value) {
 RigidBody.prototype.unload = function () {
     // TODO: do this
 };; /**
-    * Content Object
-    * @param params
-    * @constructor
+    * Content Object Class
     */
-function ContentObject(params) {}; /**
-                                   * Project File class
-                                   */
+
+var ContentObject =
+
+//#region Constructors
+
+/**
+ * @param params
+ * @constructor
+ */
+function ContentObject(params) {
+    _classCallCheck(this, ContentObject);
+}
+
+//#endregion
+
+//#region Methods
+
+//#endregion
+
+;
+
+; /**
+  * Project File class
+  */
 
 var ProjectFile = function () {
+
+    //#region Constructors
+
     /**
      *
      * @param params
+     * @constructor
      */
     function ProjectFile(params) {
         _classCallCheck(this, ProjectFile);
@@ -12319,6 +12342,12 @@ var ProjectFile = function () {
         this.content = params.content || {};
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param data
@@ -12331,41 +12360,78 @@ var ProjectFile = function () {
         value: function restore(data) {
             return new ProjectFile(data);
         }
+
+        //#endregion
+
+        //#endregion
+
     }]);
 
     return ProjectFile;
 }();
 
 ; /**
-  * Content Texture Atlas
-  * @param params
-  * @constructor
+  * Content Texture Atlas Class
   */
-function TextureAtlas(params) {
-    params = params || {};
 
-    // public properties:
-    this.sourcePath = params.sourcePath || ""; // should be a relative path
-    this.mapping = [];
-}
+var TextureAtlas = function () {
 
-TextureAtlas.prototype.objectify = function () {
-    return {
-        sourcePath: this.sourcePath
-    };
-};
+    //#region Constructors
 
-TextureAtlas.restore = function (data) {
-    return new TextureAtlas({
-        sourcePath: data.sourcePath
-    });
-};
+    /**
+     * @param params
+     * @constructor
+     */
+    function TextureAtlas(params) {
+        _classCallCheck(this, TextureAtlas);
 
-TextureAtlas.prototype.getType = function () {
-    return "TextureAtlas";
-};; /**
-    * Camera2D class
-    */
+        params = params || {};
+
+        // public properties:
+        this.sourcePath = params.sourcePath || ""; // should be a relative path
+        this.mapping = [];
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    _createClass(TextureAtlas, [{
+        key: "objectify",
+
+
+        //#endregion
+
+        value: function objectify() {
+            return {
+                sourcePath: this.sourcePath
+            };
+        }
+    }, {
+        key: "getType",
+        value: function getType() {
+            return "TextureAtlas";
+        }
+
+        //#endregion
+
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            return new TextureAtlas({
+                sourcePath: data.sourcePath
+            });
+        }
+    }]);
+
+    return TextureAtlas;
+}();
+
+; /**
+  * Camera2D class
+  */
 
 var Camera2D = function () {
 

@@ -12196,18 +12196,37 @@ RigidBody.prototype.onGameObjectScaleUpdated = function(value) {
 RigidBody.prototype.unload = function() {
 	// TODO: do this
 };;/**
- * Content Object
- * @param params
- * @constructor
+ * Content Object Class
  */
-function ContentObject(params) {
+class ContentObject {
+
+    //#region Constructors
+
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#endregion
+
 };/**
  * Project File class
  */
 class ProjectFile {
+
+    //#region Constructors
+
     /**
      *
      * @param params
+     * @constructor
      */
     constructor(params) {
         params = params || {};
@@ -12221,6 +12240,12 @@ class ProjectFile {
         this.content = params.content || {};
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param data
@@ -12229,34 +12254,57 @@ class ProjectFile {
     static restore(data) {
         return new ProjectFile(data);
     }
+
+    //#endregion
+
+    //#endregion
+
 };/**
- * Content Texture Atlas
- * @param params
- * @constructor
+ * Content Texture Atlas Class
  */
-function TextureAtlas(params) {
-    params = params || {};
+class TextureAtlas {
 
-    // public properties:
-    this.sourcePath = params.sourcePath || ""; // should be a relative path
-    this.mapping = [];
-}
+    //#region Constructors
 
-TextureAtlas.prototype.objectify = function () {
-    return {
-        sourcePath: this.sourcePath
-    };
-};
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+        params = params || {};
 
-TextureAtlas.restore = function (data) {
-    return new TextureAtlas({
-        sourcePath: data.sourcePath
-    });
-};
+        // public properties:
+        this.sourcePath = params.sourcePath || ""; // should be a relative path
+        this.mapping = [];
+    }
 
-TextureAtlas.prototype.getType = function () {
-    return "TextureAtlas";
-};;/**
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new TextureAtlas({
+            sourcePath: data.sourcePath
+        });
+    }
+
+    //#endregion
+
+    objectify() {
+        return {
+            sourcePath: this.sourcePath
+        };
+    }
+
+    getType() {
+        return "TextureAtlas";
+    }
+
+    //#endregion
+
+};/**
  * Camera2D class
  */
 class Camera2D {
