@@ -13313,17 +13313,69 @@ class Game {
 };/**
  * Game Manager static class
  */
-var GameManager = function() {};
+class GameManager {
 
-/**
- * The active render context
- * @type {renderContext}
- */
-GameManager.renderContext = null;
-GameManager.activeScene = null;
-GameManager.activeProject = null;
-GameManager.activeGame = null;
-GameManager.activeProjectPath = null;;AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
+    //#region Static Properties
+
+    /**
+     * The active render context
+     * @type {renderContext}
+     */
+    static get renderContext() {
+        return this._renderContext;
+    }
+
+    /**
+     * The active render context
+     * @type {renderContext}
+     */
+    static set renderContext(value) {
+        this._renderContext = value;
+    }
+
+    static get activeScene() {
+        return this._activeScene;
+    }
+
+    static set activeScene(value) {
+        this._activeScene = value;
+    }
+
+    static get activeProject() {
+        return this._activeProject;
+    }
+
+    static set activeProject(value) {
+        this._activeProject = value;
+    }
+
+    static get activeGame() {
+        return this._activeGame;
+    }
+
+    static set activeGame(value) {
+        this._activeGame = value;
+    }
+
+    static get activeProjectPath() {
+        return this._activeProjectPath;
+    }
+
+    static set activeProjectPath(value) {
+        this._activeProjectPath = value;
+    }
+
+    //#endregion
+
+    //#region Constructors
+
+    constructor() {
+
+    }
+
+    //#endregion
+
+};AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
 AttributeDictionary.addRule("gameobject", "_parent", {visible: false});
 
 /**

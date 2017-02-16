@@ -13601,17 +13601,80 @@ var Game = function () {
 ; /**
   * Game Manager static class
   */
-var GameManager = function GameManager() {};
 
-/**
- * The active render context
- * @type {renderContext}
- */
-GameManager.renderContext = null;
-GameManager.activeScene = null;
-GameManager.activeProject = null;
-GameManager.activeGame = null;
-GameManager.activeProjectPath = null;;AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
+var GameManager = function () {
+    _createClass(GameManager, null, [{
+        key: "renderContext",
+
+
+        //#region Static Properties
+
+        /**
+         * The active render context
+         * @type {renderContext}
+         */
+        get: function get() {
+            return this._renderContext;
+        }
+
+        /**
+         * The active render context
+         * @type {renderContext}
+         */
+        ,
+        set: function set(value) {
+            this._renderContext = value;
+        }
+    }, {
+        key: "activeScene",
+        get: function get() {
+            return this._activeScene;
+        },
+        set: function set(value) {
+            this._activeScene = value;
+        }
+    }, {
+        key: "activeProject",
+        get: function get() {
+            return this._activeProject;
+        },
+        set: function set(value) {
+            this._activeProject = value;
+        }
+    }, {
+        key: "activeGame",
+        get: function get() {
+            return this._activeGame;
+        },
+        set: function set(value) {
+            this._activeGame = value;
+        }
+    }, {
+        key: "activeProjectPath",
+        get: function get() {
+            return this._activeProjectPath;
+        },
+        set: function set(value) {
+            this._activeProjectPath = value;
+        }
+
+        //#endregion
+
+        //#region Constructors
+
+    }]);
+
+    function GameManager() {
+        _classCallCheck(this, GameManager);
+    }
+
+    //#endregion
+
+
+    return GameManager;
+}();
+
+;AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
 AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
 
 /**
