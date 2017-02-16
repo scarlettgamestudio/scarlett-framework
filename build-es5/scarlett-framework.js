@@ -9160,18 +9160,40 @@ AttributeDictionary.inherit = function (context, parent) {
 
     AttributeDictionary._inheritance[context].push(parent);
 };; /**
-    * CallbackResponse class
+    * CallbackResponse Class
     */
-function CallbackResponse(params) {
-    params = params || {};
 
-    this.success = params.success;
-    this.data = params.data || {};
-}
+var CallbackResponse = function () {
 
-CallbackResponse.prototype.isSuccessful = function () {
-    return this.success;
-};; // alias for scarlett constants:
+    //#region Constructors
+
+    function CallbackResponse(params) {
+        _classCallCheck(this, CallbackResponse);
+
+        params = params || {};
+
+        this.success = params.success;
+        this.data = params.data || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    _createClass(CallbackResponse, [{
+        key: "isSuccessful",
+        value: function isSuccessful() {
+            return this.success;
+        }
+
+        //#endregion
+
+    }]);
+
+    return CallbackResponse;
+}();
+
+; // alias for scarlett constants:
 var SC = {
     WEBGL: "webgl",
     EXECUTION_PHASES: {

@@ -1,15 +1,25 @@
 /**
- * CallbackResponse class
+ * CallbackResponse Class
  */
-function CallbackResponse(params) {
-    params = params || {};
+class CallbackResponse {
 
-    this.success = params.success;
-    this.data = params.data || {};
+    //#region Constructors
 
-   
+    constructor(params) {
+        params = params || {};
+
+        this.success = params.success;
+        this.data = params.data || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    isSuccessful() {
+        return this.success;
+    }
+
+    //#endregion
+
 }
-
-CallbackResponse.prototype.isSuccessful = function() {
-    return this.success;
-};

@@ -9359,20 +9359,30 @@ AttributeDictionary.inherit = function (context, parent) {
 
     AttributeDictionary._inheritance[context].push(parent);
 };;/**
- * CallbackResponse class
+ * CallbackResponse Class
  */
-function CallbackResponse(params) {
-    params = params || {};
+class CallbackResponse {
 
-    this.success = params.success;
-    this.data = params.data || {};
+    //#region Constructors
 
-   
-}
+    constructor(params) {
+        params = params || {};
 
-CallbackResponse.prototype.isSuccessful = function() {
-    return this.success;
-};;// alias for scarlett constants:
+        this.success = params.success;
+        this.data = params.data || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    isSuccessful() {
+        return this.success;
+    }
+
+    //#endregion
+
+};// alias for scarlett constants:
 var SC = {
 	WEBGL: "webgl",
 	EXECUTION_PHASES: {
