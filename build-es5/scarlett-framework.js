@@ -13853,147 +13853,201 @@ AttributeDictionary.addRule("gameScene", "_spriteBatch", { visible: false });
 /**
  * GameScene class
  */
-function GameScene(params) {
-    params = params || {};
 
-    if (!params.game) {
-        throw "cannot create a game scene without the game parameter";
-    }
+var GameScene = function () {
 
-    // public properties:
+    //#region Constructors
 
-    this.name = params.name || "GameScene";
+    /**
+     *
+     * @param params
+     */
+    function GameScene(params) {
+        _classCallCheck(this, GameScene);
 
-    // private properties:
-    this._uid = generateUID();
-    this._game = params.game || null;
-    this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
-    this._gameObjects = params.gameObjects || [];
-    this._camera = params.camera || new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
-    this._spriteBatch = new SpriteBatch(params.game);
-}
+        params = params || {};
 
-GameScene.prototype.getUID = function () {
-    return this._uid;
-};
-
-GameScene.prototype.getPhysicsWorld = function () {
-    return this._game.getPhysicsEngine().world;
-};
-
-GameScene.prototype.getCamera = function () {
-    return this._camera;
-};
-
-GameScene.prototype.setGame = function (game) {
-    this._game = game;
-};
-
-GameScene.prototype.getGame = function () {
-    return this._game;
-};
-
-GameScene.prototype.setBackgroundColor = function (color) {
-    this._backgroundColor = color;
-};
-
-GameScene.prototype.getBackgroundColor = function () {
-    return this._backgroundColor;
-};
-
-GameScene.prototype.addGameObject = function (gameObject, index) {
-    // let's be safe, make sure to remove parent if any
-    gameObject.removeParent();
-
-    if (isObjectAssigned(index)) {
-        this._gameObjects.insert(index, gameObject);
-    } else {
-        this._gameObjects.push(gameObject);
-    }
-};
-
-GameScene.prototype.getGameObjects = function () {
-    return this._gameObjects;
-};
-
-GameScene.prototype.removeGameObject = function (gameObject) {
-    for (var i = this._gameObjects.length - 1; i >= 0; i--) {
-        if (this._gameObjects[i].getUID() == gameObject.getUID()) {
-            return this._gameObjects.splice(i, 1);
+        if (!params.game) {
+            throw "cannot create a game scene without the game parameter";
         }
+
+        // public properties:
+
+        this.name = params.name || "GameScene";
+
+        // private properties:
+        this._uid = generateUID();
+        this._game = params.game || null;
+        this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
+        this._gameObjects = params.gameObjects || [];
+        // the default scene camera
+        this._camera = params.camera || new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height);
+        this._spriteBatch = new SpriteBatch(params.game);
     }
-};
 
-/**
- * Returns an array with all the game objects of this scene. All child game objects are included.
- */
-GameScene.prototype.getAllGameObjects = function () {
-    var result = [];
+    //#endregion
 
-    function recursive(gameObjects) {
-        gameObjects.forEach(function (elem) {
-            result.push(elem);
-            recursive(elem.getChildren());
-        });
-    }
+    //#region Methods
 
-    recursive(this._gameObjects);
+    //#region Static Methods
 
-    return result;
-};
+    _createClass(GameScene, [{
+        key: "getUID",
 
-GameScene.prototype.prepareRender = function () {
-    var gl = this._game.getRenderContext().getContext();
 
-    // set clear color and clear the screen:
-    gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-};
+        //#endregion
 
-GameScene.prototype.sceneLateUpdate = function (delta) {
-    Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
-};
+        value: function getUID() {
+            return this._uid;
+        }
+    }, {
+        key: "getPhysicsWorld",
+        value: function getPhysicsWorld() {
+            return this._game.getPhysicsEngine().world;
+        }
+    }, {
+        key: "getCamera",
+        value: function getCamera() {
+            return this._camera;
+        }
+    }, {
+        key: "setGame",
+        value: function setGame(game) {
+            this._game = game;
+        }
+    }, {
+        key: "getGame",
+        value: function getGame() {
+            return this._game;
+        }
+    }, {
+        key: "setBackgroundColor",
+        value: function setBackgroundColor(color) {
+            this._backgroundColor = color;
+        }
+    }, {
+        key: "getBackgroundColor",
+        value: function getBackgroundColor() {
+            return this._backgroundColor;
+        }
+    }, {
+        key: "addGameObject",
+        value: function addGameObject(gameObject, index) {
+            // let's be safe, make sure to remove parent if any
+            gameObject.removeParent();
 
-GameScene.prototype.sceneUpdate = function (delta) {
-    // let's render all game objects on scene:
-    for (var i = 0; i < this._gameObjects.length; i++) {
-        this._gameObjects[i].update(delta);
-    }
-};
+            if (isObjectAssigned(index)) {
+                this._gameObjects.insert(index, gameObject);
+            } else {
+                this._gameObjects.push(gameObject);
+            }
+        }
+    }, {
+        key: "getGameObjects",
+        value: function getGameObjects() {
+            return this._gameObjects;
+        }
+    }, {
+        key: "removeGameObject",
+        value: function removeGameObject(gameObject) {
+            for (var i = this._gameObjects.length - 1; i >= 0; i--) {
+                if (this._gameObjects[i].getUID() == gameObject.getUID()) {
+                    return this._gameObjects.splice(i, 1);
+                }
+            }
+        }
 
-GameScene.prototype.sceneRender = function (delta) {
-    // let's render all game objects on scene:
-    for (var i = 0; i < this._gameObjects.length; i++) {
-        this._gameObjects[i].render(delta, this._spriteBatch);
-    }
-};
+        /**
+         * Returns an array with all the game objects of this scene. All child game objects are included.
+         */
 
-GameScene.prototype.flushRender = function () {
-    // all draw data was stored, now let's actually render stuff into the screen!
-    this._spriteBatch.flush();
-};
+    }, {
+        key: "getAllGameObjects",
+        value: function getAllGameObjects() {
+            var result = [];
 
-GameScene.prototype.objectify = function () {
-    return {
-        name: this.name,
-        camera: this._camera.objectify(),
-        backgroundColor: this._backgroundColor.objectify(),
-        gameObjects: Objectify.array(this._gameObjects)
-    };
-};
+            // TODO: make it a private function
+            function recursive(gameObjects) {
+                gameObjects.forEach(function (elem) {
+                    result.push(elem);
+                    recursive(elem.getChildren());
+                });
+            }
 
-GameScene.restore = function (data) {
-    return new GameScene({
-        game: GameManager.activeGame,
-        backgroundColor: Color.restore(data.backgroundColor),
-        camera: Camera2D.restore(data.camera),
-        gameObjects: Objectify.restoreArray(data.gameObjects)
-    });
-};
+            recursive(this._gameObjects);
 
-GameScene.prototype.unload = function () {};; /**
-                                              * PrimitiveBatch class for on demand direct drawing
-                                              */
+            return result;
+        }
+    }, {
+        key: "prepareRender",
+        value: function prepareRender() {
+            var gl = this._game.getRenderContext().getContext();
+
+            // set clear color and clear the screen:
+            gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+        }
+    }, {
+        key: "sceneLateUpdate",
+        value: function sceneLateUpdate(delta) {
+            Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
+        }
+    }, {
+        key: "sceneUpdate",
+        value: function sceneUpdate(delta) {
+            // let's render all game objects on scene:
+            for (var i = 0; i < this._gameObjects.length; i++) {
+                this._gameObjects[i].update(delta);
+            }
+        }
+    }, {
+        key: "sceneRender",
+        value: function sceneRender(delta) {
+            // let's render all game objects on scene:
+            for (var i = 0; i < this._gameObjects.length; i++) {
+                this._gameObjects[i].render(delta, this._spriteBatch);
+            }
+        }
+    }, {
+        key: "flushRender",
+        value: function flushRender() {
+            // all draw data was stored, now let's actually render stuff into the screen!
+            this._spriteBatch.flush();
+        }
+    }, {
+        key: "objectify",
+        value: function objectify() {
+            return {
+                name: this.name,
+                camera: this._camera.objectify(),
+                backgroundColor: this._backgroundColor.objectify(),
+                gameObjects: Objectify.array(this._gameObjects)
+            };
+        }
+    }, {
+        key: "unload",
+        value: function unload() {}
+
+        //#endregion
+
+    }], [{
+        key: "restore",
+        value: function restore(data) {
+            return new GameScene({
+                game: GameManager.activeGame,
+                backgroundColor: Color.restore(data.backgroundColor),
+                camera: Camera2D.restore(data.camera),
+                gameObjects: Objectify.restoreArray(data.gameObjects)
+            });
+        }
+    }]);
+
+    return GameScene;
+}();
+
+; /**
+  * PrimitiveBatch class for on demand direct drawing
+  */
 
 var PrimitiveBatch = function () {
 
