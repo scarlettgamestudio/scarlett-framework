@@ -9595,27 +9595,53 @@ Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
         if (isEqual(this[i], search)) return i;
     }
     return -1;
-};;function Logger(params) {
-    params = params || {};
+};; /**
+    *  Logger Class
+    */
 
-    // private properties:
-    this._context = params.context || "Default";
-}
+var Logger = function () {
 
-// functions
-Logger.prototype.log = function (message) {
-    console.log(this._context + " | " + message);
-};
+    //#region Constructors
 
-Logger.prototype.warn = function (message) {
-    console.warn(this._context + " | " + message);
-};
+    function Logger(params) {
+        _classCallCheck(this, Logger);
 
-Logger.prototype.error = function (message) {
-    console.error(this._context + " | " + message);
-};
+        params = params || {};
+
+        // private properties:
+        this._context = params.context || "Default";
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    _createClass(Logger, [{
+        key: "log",
+        value: function log(message) {
+            console.log(this._context + " | " + message);
+        }
+    }, {
+        key: "warn",
+        value: function warn(message) {
+            console.warn(this._context + " | " + message);
+        }
+    }, {
+        key: "error",
+        value: function error(message) {
+            console.error(this._context + " | " + message);
+        }
+
+        //#endregion
+
+    }]);
+
+    return Logger;
+}();
 
 // General Debug Logger
+
+
 var debug = new Logger("Debug");; /**
                                   * Attribute dictionary for property definitions
                                   * @constructor
