@@ -13532,6 +13532,8 @@ AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
 
 var GameObject = function () {
 
+    //#region Constructors
+
     /**
      * @param {Object} params
      */
@@ -13558,8 +13560,18 @@ var GameObject = function () {
         this._transformMatrix = new Matrix4();
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     _createClass(GameObject, [{
         key: "equals",
+
+
+        //#endregion
+
         value: function equals(other) {
             if (other.getUID) {
                 return this._uid === other.getUID();
@@ -13596,14 +13608,14 @@ var GameObject = function () {
                 }
             }
         }
-    }, {
-        key: "getMatrix",
-
 
         /**
          * Resolves the GameObject transformation Matrix4
-         * @returns {Float32Array} 
+         * @returns {Float32Array}
          */
+
+    }, {
+        key: "getMatrix",
         value: function getMatrix() {
             this._transformMatrix.identity();
             this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
@@ -13698,15 +13710,15 @@ var GameObject = function () {
 
             // this way takes away more resources:
             /*for (var i = 0; i < this._children.length; ++i) {
-                if (this._children[i].equals(gameObject)) {
-                    return true;
-                } else {
-                    if (this._children[i].isChild(gameObject)) {
-                        return true;
-                    }
-                }
-            }
-            return false;*/
+             if (this._children[i].equals(gameObject)) {
+             return true;
+             } else {
+             if (this._children[i].isChild(gameObject)) {
+             return true;
+             }
+             }
+             }
+             return false;*/
         }
     }, {
         key: "addComponent",
@@ -13830,6 +13842,9 @@ var GameObject = function () {
                 }
             }
         }
+
+        //#endregion
+
     }], [{
         key: "restore",
         value: function restore(data) {
