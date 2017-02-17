@@ -9215,279 +9215,356 @@ var SC = {
 
 // function "quickies" holder
 var sc = {};
-; /**
-  * Content Loader static class
-  */
-var ContentLoader = function ContentLoader() {};
+; // unique key
+var _contentLoaderSingleton = Symbol('contentLoaderSingleton');
 
 /**
- * Cached files
- * @type {{}}
- * @private
+ * Content Loader Singleton Class
  */
-ContentLoader._fileLoaded = {};
-ContentLoader._fileAlias = {};
 
-/**
- * Cached images
- * @type {{}}
- * @private
- */
-ContentLoader._imgLoaded = {};
-ContentLoader._imgAlias = {};
+var ContentLoaderSingleton = function () {
 
-/**
- * Cached audio
- * @type {{}}
- * @private
- */
-ContentLoader._audioLoaded = {};
-ContentLoader._audioAlias = {};
+    //#region Constructors
 
-/**
- *
- * @param path
- * @returns {*}
- * @private
- */
-ContentLoader._enrichRelativePath = function (path) {
-    // is this a relative path?
-    if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
-        path = GameManager.activeProjectPath + path;
-    }
+    function ContentLoaderSingleton(contentLoaderSingletonToken) {
+        _classCallCheck(this, ContentLoaderSingleton);
 
-    return path;
-};
-
-/**
- * Clears all loaded assets from the content loader
- */
-ContentLoader.clear = function () {
-    ContentLoader._imgLoaded = {};
-    ContentLoader._imgAlias = {};
-    ContentLoader._audioLoaded = {};
-    ContentLoader._audioAlias = {};
-    ContentLoader._fileLoaded = {};
-    ContentLoader._fileAlias = {};
-};
-
-/**
- * Loads several assets per category (audio, images, ..) and resolves after all are loaded
- * @param assets
- */
-ContentLoader.load = function (assets) {
-    return new Promise(function (resolve, reject) {
-        // result holder
-        var result = {
-            success: [],
-            fail: []
-        };
-
-        // counters
-        var toLoad = 0; // number of expected loaded assets
-        var loaded = 0; // number of loaded assets
-
-        function assetLoaded(asset, success) {
-            loaded += 1;
-
-            if (success) {
-                result.success.push(asset);
-            } else {
-                result.fail.push(asset);
-            }
-
-            if (loaded >= toLoad) {
-                resolve(result);
-            }
+        if (_contentLoaderSingleton !== contentLoaderSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
         }
 
-        // load all images:
-        assets.images = assets.images || [];
-        assets.images.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
+        // Cached files
+        this._fileLoaded = {};
+        this._fileAlias = {};
 
-            toLoad++; // count only supposedly valid assets
+        // Cached images
+        this._imgLoaded = {};
+        this._imgAlias = {};
 
-            ContentLoader.loadImage(asset.path, asset.alias).then(function () {
-                assetLoaded(asset, true);
-            }, function () {
-                assetLoaded(asset, false);
-            });
-        });
-
-        // load all images:
-        assets.audio = assets.audio || [];
-        assets.audio.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadAudio(asset.path, asset.alias).then(function () {
-                assetLoaded(asset, true);
-            }, function () {
-                assetLoaded(asset, false);
-            });
-        });
-
-        // load all images:
-        assets.files = assets.files || [];
-        assets.files.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadFile(asset.path, asset.alias).then(function () {
-                assetLoaded(asset, true);
-            }, function () {
-                assetLoaded(asset, false);
-            });
-        });
-    });
-};
-
-/**
- * Returns an image loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getImage = function (alias) {
-    if (ContentLoader._imgAlias.hasOwnProperty(alias)) {
-        return ContentLoader._imgLoaded[ContentLoader._imgAlias[alias]];
+        // Cached audio
+        this._audioLoaded = {};
+        this._audioAlias = {};
     }
-};
 
-/**
- * loads an image file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadImage = function (path, alias) {
-    return new Promise(function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
+    //#endregion
 
-        // is the image on cache?
-        if (ContentLoader._imgLoaded.hasOwnProperty(path)) {
-            // the image is already cached. let's use it!
-            resolve(ContentLoader._imgLoaded[path]);
-        } else {
-            // the image is not in cache, we must load it:
-            var image = new Image();
-            image.src = path;
-            image.onload = function () {
-                // cache the loaded image:
-                ContentLoader._imgLoaded[path] = image;
+    //#region Public Methods
 
-                if (alias) {
-                    ContentLoader._imgAlias[alias] = path;
-                }
+    //#region Static Methods
 
-                resolve(image);
-            };
-            image.onerror = function () {
-                // TODO: log this
-                reject();
-            };
+    _createClass(ContentLoaderSingleton, [{
+        key: "clear",
+
+
+        //#endregion
+
+        /**
+         * Clears all loaded assets from the content loader
+         */
+        value: function clear() {
+            this._imgLoaded = {};
+            this._imgAlias = {};
+            this._audioLoaded = {};
+            this._audioAlias = {};
+            this._fileLoaded = {};
+            this._fileAlias = {};
         }
-    }.bind(this));
-};
 
-/**
- * Returns an audio loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getAudio = function (alias) {
-    if (ContentLoader._audioAlias.hasOwnProperty(alias)) {
-        return ContentLoader._audioLoaded[ContentLoader._audioAlias[alias]];
-    }
-};
+        /**
+         * Loads several assets per category (audio, images, ..) and resolves after all are loaded
+         * @param assets
+         */
 
-/**
- * loads an audio file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadAudio = function (path, alias) {
-    return new Promise(function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
+    }, {
+        key: "load",
+        value: function load(assets) {
+            return new Promise(function (resolve, reject) {
+                // result holder
+                var result = {
+                    success: [],
+                    fail: []
+                };
 
-        // is the audio on cache?
-        if (ContentLoader._audioLoaded.hasOwnProperty(path)) {
-            // the audio is already cached. let's use it!
-            resolve(ContentLoader._audioLoaded[path]);
-        } else {
-            var audio = new Audio();
-            audio.src = path;
-            audio.oncanplaythrough = function () {
-                // cache the loaded image:
-                ContentLoader._audioLoaded[path] = audio;
+                // counters
+                var toLoad = 0; // number of expected loaded assets
+                var loaded = 0; // number of loaded assets
 
-                if (alias) {
-                    ContentLoader._audioAlias[alias] = path;
-                }
+                function assetLoaded(asset, success) {
+                    loaded += 1;
 
-                resolve(audio);
-            };
-            audio.onerror = function () {
-                // TODO: log this
-                reject();
-            };
-        }
-    }.bind(this));
-};
-
-/**
- * Returns a file loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getFile = function (alias) {
-    if (ContentLoader._fileAlias.hasOwnProperty(alias)) {
-        return ContentLoader._fileLoaded[ContentLoader._fileAlias[alias]];
-    }
-};
-
-/**
- * loads a file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadFile = function (path, alias) {
-    return new Promise(function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the image on cache?
-        if (ContentLoader._fileLoaded.hasOwnProperty(path)) {
-            // the image is already cached. let's use it!
-            resolve(ContentLoader._fileLoaded[path]);
-        } else {
-            var rawFile = new XMLHttpRequest();
-            //rawFile.overrideMimeType("application/json");
-            rawFile.open("GET", path, true);
-            rawFile.onreadystatechange = function () {
-                if (rawFile.readyState === 4 && rawFile.status == "200") {
-                    // cache the loaded image:
-                    ContentLoader._fileLoaded[path] = rawFile.responseText;
-
-                    if (alias) {
-                        ContentLoader._fileAlias[alias] = path;
+                    if (success) {
+                        result.success.push(asset);
+                    } else {
+                        result.fail.push(asset);
                     }
 
-                    resolve(rawFile.responseText);
-                } else if (rawFile.readyState === 4 && rawFile.status != "200") {
-                    reject();
+                    if (loaded >= toLoad) {
+                        resolve(result);
+                    }
                 }
-            };
-            rawFile.send(null);
+
+                // load all images:
+                assets.images = assets.images || [];
+                assets.images.forEach(function (asset) {
+                    if (!asset.path) {
+                        return;
+                    }
+
+                    toLoad++; // count only supposedly valid assets
+
+                    this.loadImage(asset.path, asset.alias).then(function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    });
+                }.bind(this));
+
+                // load all images:
+                assets.audio = assets.audio || [];
+                assets.audio.forEach(function (asset) {
+                    if (!asset.path) {
+                        return;
+                    }
+
+                    toLoad++; // count only supposedly valid assets
+
+                    this.loadAudio(asset.path, asset.alias).then(function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    });
+                }.bind(this));
+
+                // load all images:
+                assets.files = assets.files || [];
+                assets.files.forEach(function (asset) {
+                    if (!asset.path) {
+                        return;
+                    }
+
+                    toLoad++; // count only supposedly valid assets
+
+                    this.loadFile(asset.path, asset.alias).then(function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    });
+                }.bind(this));
+            }.bind(this));
         }
-    }.bind(this));
-};; // unique key
+
+        /**
+         * Returns an image loaded by the given alias (if exists)
+         * @param alias
+         */
+
+    }, {
+        key: "getImage",
+        value: function getImage(alias) {
+            if (this._imgAlias.hasOwnProperty(alias)) {
+                return this._imgLoaded[this._imgAlias[alias]];
+            }
+        }
+
+        /**
+         * loads an image file from a specified path into memory
+         * @param path
+         * @param alias
+         * @returns {*}
+         */
+
+    }, {
+        key: "loadImage",
+        value: function loadImage(path, alias) {
+            return new Promise(function (resolve, reject) {
+                var _this = this;
+
+                path = this._enrichRelativePath(path);
+
+                // is the image on cache?
+                if (this._imgLoaded.hasOwnProperty(path)) {
+                    // the image is already cached. let's use it!
+                    resolve(this._imgLoaded[path]);
+                } else {
+                    (function () {
+                        // the image is not in cache, we must load it:
+                        var image = new Image();
+                        image.src = path;
+                        image.onload = function () {
+                            // cache the loaded image:
+                            this._imgLoaded[path] = image;
+
+                            if (alias) {
+                                this._imgAlias[alias] = path;
+                            }
+
+                            resolve(image);
+                        }.bind(_this);
+                        image.onerror = function () {
+                            // TODO: log this
+                            reject();
+                        };
+                    })();
+                }
+            }.bind(this));
+        }
+
+        /**
+         * Returns an audio loaded by the given alias (if exists)
+         * @param alias
+         */
+
+    }, {
+        key: "getAudio",
+        value: function getAudio(alias) {
+            if (this._audioAlias.hasOwnProperty(alias)) {
+                return this._audioLoaded[this._audioAlias[alias]];
+            }
+        }
+
+        /**
+         * loads an audio file from a specified path into memory
+         * @param path
+         * @param alias
+         * @returns {*}
+         */
+
+    }, {
+        key: "loadAudio",
+        value: function loadAudio(path, alias) {
+            return new Promise(function (resolve, reject) {
+                var _this2 = this;
+
+                path = this._enrichRelativePath(path);
+
+                // is the audio on cache?
+                if (this._audioLoaded.hasOwnProperty(path)) {
+                    // the audio is already cached. let's use it!
+                    resolve(this._audioLoaded[path]);
+                } else {
+                    (function () {
+                        var audio = new Audio();
+                        audio.src = path;
+                        audio.oncanplaythrough = function () {
+                            // cache the loaded image:
+                            this._audioLoaded[path] = audio;
+
+                            if (alias) {
+                                this._audioAlias[alias] = path;
+                            }
+
+                            resolve(audio);
+                        }.bind(_this2);
+                        audio.onerror = function () {
+                            // TODO: log this
+                            reject();
+                        };
+                    })();
+                }
+            }.bind(this));
+        }
+
+        /**
+         * Returns a file loaded by the given alias (if exists)
+         * @param alias
+         */
+
+    }, {
+        key: "getFile",
+        value: function getFile(alias) {
+            if (this._fileAlias.hasOwnProperty(alias)) {
+                return this._fileLoaded[this._fileAlias[alias]];
+            }
+        }
+
+        /**
+         * loads a file from a specified path into memory
+         * @param path
+         * @param alias
+         * @returns {*}
+         */
+
+    }, {
+        key: "loadFile",
+        value: function loadFile(path, alias) {
+            return new Promise(function (resolve, reject) {
+                var _this3 = this;
+
+                path = this._enrichRelativePath(path);
+
+                // is the image on cache?
+                if (this._fileLoaded.hasOwnProperty(path)) {
+                    // the image is already cached. let's use it!
+                    resolve(this._fileLoaded[path]);
+                } else {
+                    (function () {
+                        var rawFile = new XMLHttpRequest();
+                        //rawFile.overrideMimeType("application/json");
+                        rawFile.open("GET", path, true);
+                        rawFile.onreadystatechange = function () {
+                            if (rawFile.readyState === 4 && rawFile.status == "200") {
+                                // cache the loaded image:
+                                this._fileLoaded[path] = rawFile.responseText;
+
+                                if (alias) {
+                                    this._fileAlias[alias] = path;
+                                }
+
+                                resolve(rawFile.responseText);
+                            } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                                reject();
+                            }
+                        }.bind(_this3);
+                        rawFile.send(null);
+                    })();
+                }
+            }.bind(this));
+        }
+
+        //#endregion
+
+        //#region Private Methods
+
+        /**
+         *
+         * @param path
+         * @returns {*}
+         * @private
+         */
+
+    }, {
+        key: "_enrichRelativePath",
+        value: function _enrichRelativePath(path) {
+            // is this a relative path?
+            if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
+                path = GameManager.activeProjectPath + path;
+            }
+
+            return path;
+        }
+
+        //#endregion
+
+    }], [{
+        key: "instance",
+        get: function get() {
+            if (!this[_contentLoaderSingleton]) {
+                this[_contentLoaderSingleton] = new ContentLoaderSingleton(_contentLoaderSingleton);
+            }
+
+            return this[_contentLoaderSingleton];
+        }
+    }]);
+
+    return ContentLoaderSingleton;
+}();
+
+/**
+ * Content Loader alias to Content Loader Singleton instance
+ */
+
+
+var ContentLoader = ContentLoaderSingleton.instance;; // unique key
 var _eventManagerSingleton = Symbol('eventManagerSingleton');
 
 /**
@@ -9715,43 +9792,90 @@ var Logger = function () {
 // General Debug Logger
 
 
-var debug = new Logger("Debug");; /**
-                                  * Attribute dictionary for property definitions
-                                  * @constructor
-                                  */
-var SetterDictionary = function SetterDictionary() {};
-SetterDictionary._rules = {};
+var debug = new Logger("Debug");; // unique key
+var _setterDictionarySingleton = Symbol('setterDictionarySingleton');
 
 /**
- *
- * @param context
- * @param rule
- * @returns {boolean}
+ * SetterDictionary Singleton Class
+ * Attribute dictionary for property definitions
  */
-SetterDictionary.addRule = function (context, rule) {
-    if (isObjectAssigned(context)) {
-        context = context.toLowerCase();
-        SetterDictionary._rules[context] = rule;
-        return true;
+
+var SetterDictionarySingleton = function () {
+
+    //#region Constructors
+
+    function SetterDictionarySingleton(setterDictionarySingletonToken) {
+        _classCallCheck(this, SetterDictionarySingleton);
+
+        if (_setterDictionarySingleton !== setterDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._rules = {};
     }
 
-    return false;
-};
+    //#endregion
 
-/**
- *
- * @param typeName
- * @returns {*}
+    //#region Methods
+
+    //#region Static Methods
+
+    _createClass(SetterDictionarySingleton, [{
+        key: "addRule",
+
+
+        //#endregion
+
+        /**
+         *
+         * @param context
+         * @param rule
+         * @returns {boolean}
+         */
+        value: function addRule(context, rule) {
+            if (isObjectAssigned(context)) {
+                context = context.toLowerCase();
+                this._rules[context] = rule;
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+         *
+         * @param typeName
+         * @returns {*}
+         */
+
+    }, {
+        key: "getRule",
+        value: function getRule(typeName) {
+            typeName = typeName.toLowerCase();
+            if (this._rules[typeName]) {
+                return this._rules[typeName];
+            }
+        }
+    }], [{
+        key: "instance",
+        get: function get() {
+            if (!this[_setterDictionarySingleton]) {
+                this[_setterDictionarySingleton] = new SetterDictionarySingleton(_setterDictionarySingleton);
+            }
+
+            return this[_setterDictionarySingleton];
+        }
+    }]);
+
+    return SetterDictionarySingleton;
+}();
+
+/*
+ Attribute dictionary for property definitions
  */
-SetterDictionary.getRule = function (typeName) {
-    typeName = typeName.toLowerCase();
-    if (SetterDictionary._rules[typeName]) {
-        return SetterDictionary._rules[typeName];
-    }
-};; /**
-    * Scarlett @ DevTeam
-    * This javascript file will include global utility functions that can be called from any context
-    */
+var SetterDictionary = SetterDictionarySingleton.instance;; /**
+                                                            * Scarlett @ DevTeam
+                                                            * This javascript file will include global utility functions that can be called from any context
+                                                            */
 
 /**
  * This function will return true if there is something assigned to the given object and false if it isn't
@@ -15007,19 +15131,19 @@ var Sprite = function (_GameObject) {
         params.name = params.name || "Sprite";
 
         // private properties:
-        var _this = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, params));
+        var _this4 = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, params));
 
-        _this._source = "";
-        _this._atlasRegion = "";
-        _this._tint = params.tint || Color.fromRGB(255, 255, 255);
-        _this._textureWidth = 0;
-        _this._textureHeight = 0;
-        _this._origin = new Vector2(0.5, 0.5);
-        _this._wrapMode = WrapMode.CLAMP;
-        _this._atlas = null;
+        _this4._source = "";
+        _this4._atlasRegion = "";
+        _this4._tint = params.tint || Color.fromRGB(255, 255, 255);
+        _this4._textureWidth = 0;
+        _this4._textureHeight = 0;
+        _this4._origin = new Vector2(0.5, 0.5);
+        _this4._wrapMode = WrapMode.CLAMP;
+        _this4._atlas = null;
 
-        _this.setTexture(params.texture);
-        return _this;
+        _this4.setTexture(params.texture);
+        return _this4;
     }
 
     //#endregion
@@ -15542,47 +15666,47 @@ var Text = function (_GameObject2) {
         params = params || {};
         params.name = params.name || "Text";
 
-        var _this2 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
+        var _this5 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
 
-        _this2._fontStyle = new FontStyle(params.font || {});
+        _this5._fontStyle = new FontStyle(params.font || {});
 
-        _this2._fontStyle.setFontSize(params.fontSize || 70.0);
-        _this2._fontStyle.setLetterSpacing(params.letterSpacing || 0);
+        _this5._fontStyle.setFontSize(params.fontSize || 70.0);
+        _this5._fontStyle.setLetterSpacing(params.letterSpacing || 0);
 
-        _this2._wordWrap = true;
-        _this2._characterWrap = true;
-        _this2._alignType = Text.AlignType.LEFT;
+        _this5._wordWrap = true;
+        _this5._characterWrap = true;
+        _this5._alignType = Text.AlignType.LEFT;
 
-        _this2._textureSrc = "";
-        _this2._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
-        _this2._text = params.text || "";
+        _this5._textureSrc = "";
+        _this5._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
+        _this5._text = params.text || "";
 
-        _this2._gamma = params.gamma || 2.0;
+        _this5._gamma = params.gamma || 2.0;
 
         // TODO: normalize inside the setters?
         // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
-        _this2._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
+        _this5._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
-        _this2._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
+        _this5._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
 
         // x and y values have to be between spread (defined in Hiero) / texture size
         // e.g., 4 / 512
         // need to normalize between those values
-        _this2._dropShadowOffset = new Vector2(0, 0);
+        _this5._dropShadowOffset = new Vector2(0, 0);
 
         // either 0 or 1
-        _this2._debug = 0;
+        _this5._debug = 0;
 
-        _this2._gl = GameManager.renderContext.getContext();
+        _this5._gl = GameManager.renderContext.getContext();
 
-        _this2._vertexBuffer = _this2._gl.createBuffer();
-        _this2._textureBuffer = _this2._gl.createBuffer();
-        _this2._vertexIndicesBuffer = _this2._gl.createBuffer();
-        _this2._textShader = new TextShader();
+        _this5._vertexBuffer = _this5._gl.createBuffer();
+        _this5._textureBuffer = _this5._gl.createBuffer();
+        _this5._vertexIndicesBuffer = _this5._gl.createBuffer();
+        _this5._textShader = new TextShader();
 
         // set text texture if defined
-        _this2.setTexture(params.texture);
-        return _this2;
+        _this5.setTexture(params.texture);
+        return _this5;
     }
 
     //#endregion
