@@ -56,7 +56,7 @@ gameScene.lateUpdate = function (delta) {
 
     lastBurst += delta;
     if (lastBurst >= ENEMY_BURST_DELAY) {
-        //this.dispatchEnemies();
+        this.dispatchEnemies();
         lastBurst = 0;
     }
 

@@ -14951,95 +14951,160 @@ var PrimitiveRender = function () {
     return PrimitiveRender;
 }();
 
-; /**
-  * Scripts singleton
-  * @constructor
-  */
-function Scripts() {}
-
-Scripts._store = {};
+; // unique key
+var _scriptsSingleton = Symbol('scriptsSingleton');
 
 /**
- * Setup a script adding event handlers and such
- * @private
+ * Scripts Singleton Class
  */
-Scripts._setupScript = function (script) {
-    script.properties = {
-        _store: {},
-        _target: script,
-        add: function add(name, attr) {
-            // save on the target's properties store the attributes:
-            this._store[name] = attr;
-        },
-        get: function get(name) {
-            return this._store[name];
-        },
-        getAll: function getAll() {
-            return this._store;
+
+var ScriptsSingleton = function () {
+
+    //#region Constructors
+
+    function ScriptsSingleton(scriptsSingletonToken) {
+        _classCallCheck(this, ScriptsSingleton);
+
+        if (_scriptsSingleton !== scriptsSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
         }
-    };
-};
 
-/**
- * Clear all the stored scripts
- */
-Scripts.clear = function () {
-    Scripts._store = {};
-};
-
-/**
- * Creates and stores a script code
- * @returns {ObjectComponent}
- */
-Scripts.addScript = function (name) {
-    var script = function instance() {};
-    Scripts._store[name] = script;
-    Scripts._setupScript(script);
-    return script;
-};
-// alias:
-sc.addScript = Scripts.addScript;
-
-/**
- * Generates and assigns a component to the given game object. The component is returned in the function call
- * @param scriptName
- * @param gameObject
- */
-Scripts.assign = function (scriptName, gameObject) {
-    var component = Scripts.generateComponent(scriptName);
-    gameObject.addComponent(component);
-    return component;
-};
-// alias:
-sc.assignScript = Scripts.assign;
-
-/**
- * Generates a component from one stored script
- * @param scriptName
- */
-Scripts.generateComponent = function (scriptName) {
-    if (!Scripts._store[scriptName]) {
-        return null;
+        this._store = {};
     }
 
-    var component = Object.create(Scripts._store[scriptName].prototype);
-    component._name = scriptName;
+    //#endregion
 
-    // now we need to assign all the instance properties defined:
-    var properties = Scripts._store[scriptName].properties.getAll();
-    var propertyNames = Object.keys(properties);
+    //#region Public Methods
 
-    if (propertyNames && propertyNames.length > 0) {
-        propertyNames.forEach(function (propName) {
-            // assign the default value if exists:
-            component[propName] = properties[propName].default;
-        });
-    }
+    //#region Static Methods
 
-    return component;
-};; /**
-    * Sound class
-    */
+    _createClass(ScriptsSingleton, [{
+        key: "clear",
+
+
+        //#endregion
+
+        /**
+         * Clear all the stored scripts
+         */
+        value: function clear() {
+            this._store = {};
+        }
+
+        /**
+         * Creates and stores a script code
+         * @returns {ObjectComponent}
+         */
+
+    }, {
+        key: "addScript",
+        value: function addScript(name) {
+            var script = function instance() {};
+            this._store[name] = script;
+            this._setupScript(script);
+            return script;
+        }
+
+        /**
+         * Generates and assigns a component to the given game object. The component is returned in the function call
+         * @param scriptName
+         * @param gameObject
+         */
+
+    }, {
+        key: "assign",
+        value: function assign(scriptName, gameObject) {
+            var component = this.generateComponent(scriptName);
+            gameObject.addComponent(component);
+            return component;
+        }
+
+        /**
+         * Generates a component from one stored script
+         * @param scriptName
+         */
+
+    }, {
+        key: "generateComponent",
+        value: function generateComponent(scriptName) {
+            if (!this._store[scriptName]) {
+                return null;
+            }
+
+            var component = Object.create(this._store[scriptName].prototype);
+            component._name = scriptName;
+
+            // now we need to assign all the instance properties defined:
+            var properties = this._store[scriptName].properties.getAll();
+            var propertyNames = Object.keys(properties);
+
+            if (propertyNames && propertyNames.length > 0) {
+                propertyNames.forEach(function (propName) {
+                    // assign the default value if exists:
+                    component[propName] = properties[propName].default;
+                });
+            }
+
+            return component;
+        }
+
+        //#endregion
+
+        //#region Private Methods
+
+        /**
+         * Setup a script adding event handlers and such
+         * @private
+         */
+
+    }, {
+        key: "_setupScript",
+        value: function _setupScript(script) {
+            script.properties = {
+                _store: {},
+                _target: script,
+                add: function add(name, attr) {
+                    // save on the target's properties store the attributes:
+                    this._store[name] = attr;
+                },
+                get: function get(name) {
+                    return this._store[name];
+                },
+                getAll: function getAll() {
+                    return this._store;
+                }
+            };
+        }
+
+        //#endregion
+
+    }], [{
+        key: "instance",
+        get: function get() {
+            if (!this[_scriptsSingleton]) {
+                this[_scriptsSingleton] = new ScriptsSingleton(_scriptsSingleton);
+            }
+
+            return this[_scriptsSingleton];
+        }
+    }]);
+
+    return ScriptsSingleton;
+}();
+
+/**
+ *  Scripts alias to Scripts Singleton instance
+ */
+
+
+var Scripts = ScriptsSingleton.instance;
+
+// aliases
+// there is the need to do a binding because otherwise the reference to the original object would be lost
+sc.addScript = Scripts.addScript.bind(Scripts);
+sc.assignScript = Scripts.assign.bind(Scripts);; /**
+                                                 * Sound class
+                                                 */
 
 var Sound = function () {
 
