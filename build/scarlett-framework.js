@@ -9284,96 +9284,143 @@ var Common = require('../core/Common');
 })();
 
 },{"../body/Composite":2,"../core/Common":14}]},{},[28])(28)
-});;/**
- * Attribute dictionary for property definitions
- * @constructor
- */
-var AttributeDictionary = function () {
-};
-AttributeDictionary._rules = {};
-AttributeDictionary._inheritance = {};
+});;// unique key
+let _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
 
 /**
- *
- * @param context
- * @param propertyName
- * @param rule
- * @returns {boolean}
+ * Attribute Dictionary Singleton Class
+ * Attribute dictionary for property definitions
  */
-AttributeDictionary.addRule = function (context, propertyName, rule) {
-    if (isObjectAssigned(context)) {
+class AttributeDictionarySingleton {
+
+    //#region Constructors
+
+    constructor(attributeDictionarySingletonToken) {
+        if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+
+        this._rules = {};
+        this._inheritance = {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_attributeDictionarySingleton]) {
+            this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
+        }
+
+        return this[_attributeDictionarySingleton];
+    }
+
+    //#endregion
+
+    /**
+     *
+     * @param context
+     * @param propertyName
+     * @param rule
+     * @returns {boolean}
+     */
+    addRule(context, propertyName, rule) {
+        if (isObjectAssigned(context)) {
+            context = context.toLowerCase();
+
+            if (!isObjectAssigned(this._rules[context])) {
+                this._rules[context] = {}
+            }
+
+            this._rules[context][propertyName] = rule;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param context
+     * @param propertyName
+     * @returns {*}
+     */
+    getRule(context, propertyName) {
         context = context.toLowerCase();
 
-        if (!isObjectAssigned(AttributeDictionary._rules[context])) {
-            AttributeDictionary._rules[context] = {}
+        // first check the first order rules:
+        if (this._rules[context] && this._rules[context][propertyName]) {
+            return this._rules[context][propertyName];
         }
 
-        AttributeDictionary._rules[context][propertyName] = rule;
-
-        return true;
-    }
-
-    return false;
-};
-
-/**
- *
- * @param context
- * @param propertyName
- * @returns {*}
- */
-AttributeDictionary.getRule = function (context, propertyName) {
-    context = context.toLowerCase();
-
-    // first check the first order rules:
-    if (AttributeDictionary._rules[context] && AttributeDictionary._rules[context][propertyName]) {
-        return AttributeDictionary._rules[context][propertyName];
-    }
-
-    // maybe the parents have this rule?
-    if (AttributeDictionary._inheritance[context]) {
-        // recursively try to get the rule from the parents:
-        for (var i = 0; i < AttributeDictionary._inheritance[context].length; ++i) {
-            var result = AttributeDictionary.getRule(AttributeDictionary._inheritance[context][i], propertyName);
-            if (result != null) {
-                return result;
+        // maybe the parents have this rule?
+        if (this._inheritance[context]) {
+            // recursively try to get the rule from the parents:
+            for (let i = 0; i < this._inheritance[context].length; ++i) {
+                let result = this.getRule(this._inheritance[context][i], propertyName);
+                if (result != null) {
+                    return result;
+                }
             }
         }
+
+        return null;
     }
 
-    return null;
-};
+    /**
+     *
+     * @param typeName
+     * @param parent
+     */
+    inherit(context, parent) {
+        context = context.toLowerCase();
+        parent = parent.toLowerCase();
 
-/**
- *
- * @param typeName
- * @param parent
- */
-AttributeDictionary.inherit = function (context, parent) {
-    context = context.toLowerCase();
-    parent = parent.toLowerCase();
+        if (!isObjectAssigned(this._inheritance[context])) {
+            this._inheritance[context] = [];
+        }
 
-    if (!isObjectAssigned(AttributeDictionary._inheritance[context])) {
-        AttributeDictionary._inheritance[context] = [];
+        this._inheritance[context].push(parent);
     }
 
-    AttributeDictionary._inheritance[context].push(parent);
-};;/**
- * CallbackResponse class
- */
-function CallbackResponse(params) {
-    params = params || {};
+    //#endregion
 
-    this.success = params.success;
-    this.data = params.data || {};
-
-   
 }
 
-CallbackResponse.prototype.isSuccessful = function() {
-    return this.success;
-};;// alias for scarlett constants:
-var SC = {
+/**
+ * Attribute Dictionary alias to Attribute Dictionary Singleton instance
+ * Attribute dictionary for property definitions
+ */
+let AttributeDictionary = AttributeDictionarySingleton.instance;;/**
+ * CallbackResponse Class
+ */
+class CallbackResponse {
+
+    //#region Constructors
+
+    constructor(params) {
+        params = params || {};
+
+        this.success = params.success;
+        this.data = params.data || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    isSuccessful() {
+        return this.success;
+    }
+
+    //#endregion
+
+};// alias for scarlett constants:
+let SC = {
 	WEBGL: "webgl",
 	EXECUTION_PHASES: {
 		WAITING: 0,
@@ -9393,378 +9440,436 @@ var SC = {
 };
 
 // function "quickies" holder
-var sc = {};
-;/**
- * Content Loader static class
- */
-var ContentLoader = function () {
-};
+let sc = {};
+;// unique key
+let _contentLoaderSingleton = Symbol('contentLoaderSingleton');
 
 /**
- * Cached files
- * @type {{}}
- * @private
+ * Content Loader Singleton Class
  */
-ContentLoader._fileLoaded = {};
-ContentLoader._fileAlias = {};
+class ContentLoaderSingleton {
 
-/**
- * Cached images
- * @type {{}}
- * @private
- */
-ContentLoader._imgLoaded = {};
-ContentLoader._imgAlias = {};
+    //#region Constructors
 
-/**
- * Cached audio
- * @type {{}}
- * @private
- */
-ContentLoader._audioLoaded = {};
-ContentLoader._audioAlias = {};
+    constructor(contentLoaderSingletonToken) {
+        if (_contentLoaderSingleton !== contentLoaderSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
 
-/**
- *
- * @param path
- * @returns {*}
- * @private
- */
-ContentLoader._enrichRelativePath = function (path) {
-    // is this a relative path?
-    if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
-        path = GameManager.activeProjectPath + path;
+        // Cached files
+        this._fileLoaded = {};
+        this._fileAlias = {};
+
+
+        // Cached images
+        this._imgLoaded = {};
+        this._imgAlias = {};
+
+
+        // Cached audio
+        this._audioLoaded = {};
+        this._audioAlias = {};
     }
 
-    return path;
-};
+    //#endregion
 
-/**
- * Clears all loaded assets from the content loader
- */
-ContentLoader.clear = function () {
-    ContentLoader._imgLoaded = {};
-    ContentLoader._imgAlias = {};
-    ContentLoader._audioLoaded = {};
-    ContentLoader._audioAlias = {};
-    ContentLoader._fileLoaded = {};
-    ContentLoader._fileAlias = {};
-};
+    //#region Public Methods
 
-/**
- * Loads several assets per category (audio, images, ..) and resolves after all are loaded
- * @param assets
- */
-ContentLoader.load = function (assets) {
-    return new Promise(function (resolve, reject) {
-        // result holder
-        var result = {
-            success: [],
-            fail: []
-        };
+    //#region Static Methods
 
-        // counters
-        var toLoad = 0; // number of expected loaded assets
-        var loaded = 0; // number of loaded assets
+    static get instance() {
+        if (!this[_contentLoaderSingleton]) {
+            this[_contentLoaderSingleton] = new ContentLoaderSingleton(_contentLoaderSingleton);
+        }
 
-        function assetLoaded(asset, success) {
-            loaded += 1;
+        return this[_contentLoaderSingleton];
+    }
 
-            if (success) {
-                result.success.push(asset);
+    //#endregion
+
+    /**
+     * Clears all loaded assets from the content loader
+     */
+    clear() {
+        this._imgLoaded = {};
+        this._imgAlias = {};
+        this._audioLoaded = {};
+        this._audioAlias = {};
+        this._fileLoaded = {};
+        this._fileAlias = {};
+    }
+
+    /**
+     * Loads several assets per category (audio, images, ..) and resolves after all are loaded
+     * @param assets
+     */
+    load(assets) {
+        return new Promise((function (resolve, reject) {
+            // result holder
+            let result = {
+                success: [],
+                fail: []
+            };
+
+            // counters
+            let toLoad = 0; // number of expected loaded assets
+            let loaded = 0; // number of loaded assets
+
+            function assetLoaded(asset, success) {
+                loaded += 1;
+
+                if (success) {
+                    result.success.push(asset);
+                } else {
+                    result.fail.push(asset);
+                }
+
+                if (loaded >= toLoad) {
+                    resolve(result);
+                }
+            }
+
+            // load all images:
+            assets.images = assets.images || [];
+            assets.images.forEach((function (asset) {
+                if (!asset.path) {
+                    return;
+                }
+
+                toLoad++; // count only supposedly valid assets
+
+                this.loadImage(asset.path, asset.alias).then(
+                    function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    }
+                )
+            }).bind(this));
+
+            // load all images:
+            assets.audio = assets.audio || [];
+            assets.audio.forEach((function (asset) {
+                if (!asset.path) {
+                    return;
+                }
+
+                toLoad++; // count only supposedly valid assets
+
+                this.loadAudio(asset.path, asset.alias).then(
+                    function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    }
+                )
+            }).bind(this));
+
+            // load all images:
+            assets.files = assets.files || [];
+            assets.files.forEach((function (asset) {
+                if (!asset.path) {
+                    return;
+                }
+
+                toLoad++; // count only supposedly valid assets
+
+                this.loadFile(asset.path, asset.alias).then(
+                    function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    }
+                )
+            }).bind(this));
+        }).bind(this));
+    }
+
+    /**
+     * Returns an image loaded by the given alias (if exists)
+     * @param alias
+     */
+    getImage(alias) {
+        if (this._imgAlias.hasOwnProperty(alias)) {
+            return this._imgLoaded[this._imgAlias[alias]]
+        }
+    }
+
+    /**
+     * loads an image file from a specified path into memory
+     * @param path
+     * @param alias
+     * @returns {*}
+     */
+    loadImage(path, alias) {
+        return new Promise((function (resolve, reject) {
+            path = this._enrichRelativePath(path);
+
+            // is the image on cache?
+            if (this._imgLoaded.hasOwnProperty(path)) {
+                // the image is already cached. let's use it!
+                resolve(this._imgLoaded[path]);
+
             } else {
-                result.fail.push(asset);
-            }
-
-            if (loaded >= toLoad) {
-                resolve(result);
-            }
-        }
-
-        // load all images:
-        assets.images = assets.images || [];
-        assets.images.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadImage(asset.path, asset.alias).then(
-                function () {
-                    assetLoaded(asset, true);
-                }, function () {
-                    assetLoaded(asset, false);
-                }
-            )
-        });
-
-        // load all images:
-        assets.audio = assets.audio || [];
-        assets.audio.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadAudio(asset.path, asset.alias).then(
-                function () {
-                    assetLoaded(asset, true);
-                }, function () {
-                    assetLoaded(asset, false);
-                }
-            )
-        });
-
-        // load all images:
-        assets.files = assets.files || [];
-        assets.files.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadFile(asset.path, asset.alias).then(
-                function () {
-                    assetLoaded(asset, true);
-                }, function () {
-                    assetLoaded(asset, false);
-                }
-            )
-        });
-    });
-};
-
-/**
- * Returns an image loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getImage = function (alias) {
-    if (ContentLoader._imgAlias.hasOwnProperty(alias)) {
-        return ContentLoader._imgLoaded[ContentLoader._imgAlias[alias]]
-    }
-};
-
-/**
- * loads an image file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadImage = function (path, alias) {
-    return new Promise((function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the image on cache?
-        if (ContentLoader._imgLoaded.hasOwnProperty(path)) {
-            // the image is already cached. let's use it!
-            resolve(ContentLoader._imgLoaded[path]);
-
-        } else {
-            // the image is not in cache, we must load it:
-            var image = new Image();
-            image.src = path;
-            image.onload = function () {
-                // cache the loaded image:
-                ContentLoader._imgLoaded[path] = image;
-
-                if (alias) {
-                    ContentLoader._imgAlias[alias] = path;
-                }
-
-                resolve(image);
-            };
-            image.onerror = function () {
-                // TODO: log this
-                reject();
-            };
-        }
-    }).bind(this));
-};
-
-/**
- * Returns an audio loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getAudio = function (alias) {
-    if (ContentLoader._audioAlias.hasOwnProperty(alias)) {
-        return ContentLoader._audioLoaded[ContentLoader._audioAlias[alias]]
-    }
-};
-
-/**
- * loads an audio file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadAudio = function (path, alias) {
-    return new Promise((function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the audio on cache?
-        if (ContentLoader._audioLoaded.hasOwnProperty(path)) {
-            // the audio is already cached. let's use it!
-            resolve(ContentLoader._audioLoaded[path]);
-
-        } else {
-            var audio = new Audio();
-            audio.src = path;
-            audio.oncanplaythrough = function () {
-                // cache the loaded image:
-                ContentLoader._audioLoaded[path] = audio;
-
-                if (alias) {
-                    ContentLoader._audioAlias[alias] = path;
-                }
-
-                resolve(audio);
-            };
-            audio.onerror = function () {
-                // TODO: log this
-                reject();
-            };
-        }
-
-    }).bind(this));
-};
-
-/**
- * Returns a file loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getFile = function (alias) {
-    if (ContentLoader._fileAlias.hasOwnProperty(alias)) {
-        return ContentLoader._fileLoaded[ContentLoader._fileAlias[alias]]
-    }
-};
-
-/**
- * loads a file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadFile = function (path, alias) {
-    return new Promise((function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the image on cache?
-        if (ContentLoader._fileLoaded.hasOwnProperty(path)) {
-            // the image is already cached. let's use it!
-            resolve(ContentLoader._fileLoaded[path]);
-
-        } else {
-            var rawFile = new XMLHttpRequest();
-            //rawFile.overrideMimeType("application/json");
-            rawFile.open("GET", path, true);
-            rawFile.onreadystatechange = function() {
-                if (rawFile.readyState === 4 && rawFile.status == "200") {
+                // the image is not in cache, we must load it:
+                let image = new Image();
+                image.src = path;
+                image.onload = (function () {
                     // cache the loaded image:
-                    ContentLoader._fileLoaded[path] = rawFile.responseText;
+                    this._imgLoaded[path] = image;
 
                     if (alias) {
-                        ContentLoader._fileAlias[alias] = path;
+                        this._imgAlias[alias] = path;
                     }
 
-                    resolve(rawFile.responseText);
-
-                } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                    resolve(image);
+                }.bind(this));
+                image.onerror = function () {
+                    // TODO: log this
                     reject();
-                }
-            };
-            rawFile.send(null);
-        }
-    }).bind(this));
-};;/**
- * Event Manager
- * @constructor
- */
-var EventManager = function () {
-};
-
-/**
- *
- * @type {{}}
- * @private
- */
-EventManager._handlers = {};
-
-/**
- *
- * @param topic
- * @param callback
- * @param context (optional)
- */
-EventManager.subscribe = function (topic, callback, context) {
-    if (!EventManager._handlers.hasOwnProperty(topic)) {
-        EventManager._handlers[topic] = [];
+                };
+            }
+        }).bind(this));
     }
 
-    EventManager._handlers[topic].push({
-        callback: callback,
-        context: context
-    });
-};
-
-/**
- * Removes the subscription of a topic
- * @param topic
- * @param callback (for reference)
- */
-EventManager.removeSubscription = function (topic, callback) {
-    if (!EventManager._handlers[topic]) {
-        return;
-    }
-
-    for (var i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
-        if (EventManager._handlers[topic][i].callback == callback) {
-            EventManager._handlers[topic].splice(i, 1);
+    /**
+     * Returns an audio loaded by the given alias (if exists)
+     * @param alias
+     */
+    getAudio(alias) {
+        if (this._audioAlias.hasOwnProperty(alias)) {
+            return this._audioLoaded[this._audioAlias[alias]]
         }
     }
 
-    // no more subscriptions for this topic?
-    if (EventManager._handlers[topic].length == 0) {
-        // nope... let's remove the topic then:
-        delete EventManager._handlers[topic];
-    }
-};
+    /**
+     * loads an audio file from a specified path into memory
+     * @param path
+     * @param alias
+     * @returns {*}
+     */
+    loadAudio(path, alias) {
+        return new Promise((function (resolve, reject) {
+            path = this._enrichRelativePath(path);
 
-/**
- *
- * @param topic
- */
-EventManager.emit = function (topic) {
-    // get the remaining arguments (if exist)
-    var args = [], i;
-    if (arguments.length > 1) {
-        for (i = 1; i < arguments.length; i++) {
-            args.push(arguments[i]);
+            // is the audio on cache?
+            if (this._audioLoaded.hasOwnProperty(path)) {
+                // the audio is already cached. let's use it!
+                resolve(this._audioLoaded[path]);
+
+            } else {
+                let audio = new Audio();
+                audio.src = path;
+                audio.oncanplaythrough = (function () {
+                    // cache the loaded image:
+                    this._audioLoaded[path] = audio;
+
+                    if (alias) {
+                        this._audioAlias[alias] = path;
+                    }
+
+                    resolve(audio);
+                }.bind(this));
+                audio.onerror = function () {
+                    // TODO: log this
+                    reject();
+                };
+            }
+
+        }).bind(this));
+    }
+
+    /**
+     * Returns a file loaded by the given alias (if exists)
+     * @param alias
+     */
+    getFile(alias) {
+        if (this._fileAlias.hasOwnProperty(alias)) {
+            return this._fileLoaded[this._fileAlias[alias]]
         }
     }
 
-    if (EventManager._handlers.hasOwnProperty(topic)) {
-        for (i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
-            if (EventManager._handlers[topic][i].callback) {
-                EventManager._handlers[topic][i].callback.apply(EventManager._handlers[topic][i].context, args);
+    /**
+     * loads a file from a specified path into memory
+     * @param path
+     * @param alias
+     * @returns {*}
+     */
+    loadFile(path, alias) {
+        return new Promise((function (resolve, reject) {
+            path = this._enrichRelativePath(path);
+
+            // is the image on cache?
+            if (this._fileLoaded.hasOwnProperty(path)) {
+                // the image is already cached. let's use it!
+                resolve(this._fileLoaded[path]);
+
+            } else {
+                let rawFile = new XMLHttpRequest();
+                //rawFile.overrideMimeType("application/json");
+                rawFile.open("GET", path, true);
+                rawFile.onreadystatechange = (function () {
+                    if (rawFile.readyState === 4 && rawFile.status == "200") {
+                        // cache the loaded image:
+                        this._fileLoaded[path] = rawFile.responseText;
+
+                        if (alias) {
+                            this._fileAlias[alias] = path;
+                        }
+
+                        resolve(rawFile.responseText);
+
+                    } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                        reject();
+                    }
+                }.bind(this));
+                rawFile.send(null);
+            }
+        }).bind(this));
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     *
+     * @param path
+     * @returns {*}
+     * @private
+     */
+    _enrichRelativePath(path) {
+        // is this a relative path?
+        if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
+            path = GameManager.activeProjectPath + path;
+        }
+
+        return path;
+    }
+
+    //#endregion
+}
+
+/**
+ * Content Loader alias to Content Loader Singleton instance
+ */
+let ContentLoader = ContentLoaderSingleton.instance;;// unique key
+let _eventManagerSingleton = Symbol('eventManagerSingleton');
+
+/**
+ * Event Manager Singleton Class
+ */
+class EventManagerSingleton {
+
+    //#region Constructors
+
+    constructor(eventManagerSingletonToken) {
+        if (_eventManagerSingleton !== eventManagerSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._handlers = {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_eventManagerSingleton]) {
+            this[_eventManagerSingleton] = new EventManagerSingleton(_eventManagerSingleton);
+        }
+
+        return this[_eventManagerSingleton];
+    }
+
+    //#endregion
+
+    /**
+     *
+     * @param topic
+     * @param callback
+     * @param context (optional)
+     */
+    subscribe(topic, callback, context) {
+        if (!this._handlers.hasOwnProperty(topic)) {
+            this._handlers[topic] = [];
+        }
+
+        this._handlers[topic].push({
+            callback: callback,
+            context: context
+        });
+    }
+
+    /**
+     * Removes the subscription of a topic
+     * @param topic
+     * @param callback (for reference)
+     */
+    removeSubscription(topic, callback) {
+        if (!this._handlers[topic]) {
+            return;
+        }
+
+        for (let i = this._handlers[topic].length - 1; i >= 0; i--) {
+            if (this._handlers[topic][i].callback == callback) {
+                this._handlers[topic].splice(i, 1);
+            }
+        }
+
+        // no more subscriptions for this topic?
+        if (this._handlers[topic].length == 0) {
+            // nope... let's remove the topic then:
+            delete this._handlers[topic];
+        }
+    }
+
+    /**
+     *
+     * @param topic
+     */
+    emit(topic) {
+        // get the remaining arguments (if exist)
+        let args = [], i;
+        if (arguments.length > 1) {
+            for (i = 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+        }
+
+        if (!this._handlers.hasOwnProperty(topic)) {
+            return;
+        }
+
+        for (i = this._handlers[topic].length - 1; i >= 0; i--) {
+            if (this._handlers[topic][i].callback) {
+                this._handlers[topic][i].callback.apply(this._handlers[topic][i].context, args);
 
             } else {
                 // this doesn't seem to exist anymore, let's remove it from the subscribers:
-                EventManager._handlers[topic].splice(i, 1);
+                this._handlers[topic].splice(i, 1);
 
             }
         }
     }
-};
+
+    /**
+     * Clears all subscriptions
+     */
+    clear() {
+        this._handlers = {};
+    }
+
+    //#endregion
+
+}
 
 /**
- * Clears all subscriptions
+ * Event Manager alias to Event Manager Singleton instance
  */
-EventManager.clear = function () {
-    EventManager._handlers = {};
-};;/**
+let EventManager = EventManagerSingleton.instance;;/**
  * Inserts an element at a desirable position
  * @param index
  * @param item
@@ -9810,61 +9915,111 @@ Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
 		if (isEqual(this[i], search)) return i;
 	}
 	return -1;
-};;function Logger(params) {
-    params = params || {};
+};;/**
+ *  Logger Class
+ */
+class Logger {
 
-    // private properties:
-    this._context = params.context || "Default";
+    //#region Constructors
+
+    constructor(params) {
+        params = params || {};
+
+        // private properties:
+        this._context = params.context || "Default";
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    log(message) {
+        console.log(this._context + " | " + message);
+    }
+
+    warn(message) {
+        console.warn(this._context + " | " + message);
+    }
+
+    error(message) {
+        console.error(this._context + " | " + message);
+    }
+
+    //#endregion
+
 }
 
-// functions
-Logger.prototype.log = function(message) {
-    console.log(this._context + " | " + message);
-};
-
-Logger.prototype.warn = function(message) {
-    console.warn(this._context + " | " + message);
-};
-
-Logger.prototype.error = function(message) {
-    console.error(this._context + " | " + message);
-};
-
 // General Debug Logger
-var debug = new Logger("Debug");;/**
+let debug = new Logger("Debug");;// unique key
+let _setterDictionarySingleton = Symbol('setterDictionarySingleton');
+
+/**
+ * SetterDictionary Singleton Class
  * Attribute dictionary for property definitions
- * @constructor
  */
-var SetterDictionary  = function () {};
-SetterDictionary._rules = {};
+class SetterDictionarySingleton {
+
+    //#region Constructors
+
+    constructor(setterDictionarySingletonToken) {
+        if (_setterDictionarySingleton !== setterDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._rules = {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_setterDictionarySingleton]) {
+            this[_setterDictionarySingleton] = new SetterDictionarySingleton(_setterDictionarySingleton);
+        }
+
+        return this[_setterDictionarySingleton];
+    }
+
+    //#endregion
+
+    /**
+     *
+     * @param context
+     * @param rule
+     * @returns {boolean}
+     */
+    addRule(context, rule) {
+        if (isObjectAssigned(context)) {
+            context = context.toLowerCase();
+            this._rules[context] = rule;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param typeName
+     * @returns {*}
+     */
+    getRule(typeName) {
+        typeName = typeName.toLowerCase();
+        if (this._rules[typeName]) {
+            return this._rules[typeName];
+        }
+    };
+
+    //#endregion
+}
 
 /**
- *
- * @param context
- * @param rule
- * @returns {boolean}
+ * Setter Dictionary alias to Setter Dictionary Singleton instance
+ * Attribute dictionary for property definitions
  */
-SetterDictionary.addRule = function (context, rule) {
-	if(isObjectAssigned(context)) {
-		context = context.toLowerCase();
-		SetterDictionary._rules[context] = rule;
-		return true;
-	}
-
-	return false;
-};
-
-/**
- *
- * @param typeName
- * @returns {*}
- */
-SetterDictionary.getRule = function (typeName) {
-	typeName = typeName.toLowerCase();
-	if (SetterDictionary._rules[typeName]) {
-		return SetterDictionary._rules[typeName];
-	}
-};;/**
+let SetterDictionary = SetterDictionarySingleton.instance;;/**
  * Scarlett @ DevTeam
  * This javascript file will include global utility functions that can be called from any context
  */
@@ -10009,214 +10164,256 @@ function isEqual(a, b) {
 ;/**
  * Objectify utility class
  */
-var Objectify = function () {
-};
-Objectify._logger = new Logger("Objectify");
+class Objectify {
 
-/**
- * Objectify an array:
- * @param array
- */
-Objectify.array = function (array) {
-    var result = [];
-    array.forEach(function (elem) {
-        // this element has objectify implemented?
-        if (isFunction(elem.objectify)) {
-            try {
-                var obj = Objectify.create(elem);
-                if (obj) {
-                    result.push(obj);
+    //#region Static Properties
+
+    //#endregion
+
+    //#region Constructors
+
+    constructor() {
+
+    }
+
+    //#endregion
+
+    //#region Static Methods
+
+    /**
+     * Objectify an array:
+     * @param array
+     */
+    array(array) {
+        let result = [];
+        array.forEach(function (elem) {
+            // this element has objectify implemented?
+            if (isFunction(elem.objectify)) {
+                try {
+                    let obj = Objectify.create(elem);
+                    if (obj) {
+                        result.push(obj);
+                    }
+
+                } catch (ex) {
+                    Objectify._logger.error("Failed to objectify element: " + ex);
                 }
-
-            } catch (ex) {
-                Objectify._logger.error("Failed to objectify element: " + ex);
             }
-        }
-    });
+        });
 
-    return result;
-};
-
-/**
- * Restores to the original state an array of objectified data
- * @param array
- */
-Objectify.restoreArray = function (array) {
-    var result = [];
-    array.forEach(function (elem) {
-        if (elem._otype) {
-            result.push(Objectify.restore(elem, elem._otype));
-        }
-    });
-
-    return result;
-};
-
-/**
- * Creates a valid JSON "stringify" data object
- * @param object
- */
-Objectify.createDataString = function (object, beautify) {
-    if (beautify) {
-        return JSON.stringify(Objectify.create(object), null, 4);
+        return result;
     }
 
-    return JSON.stringify(Objectify.create(object));
-};
+    /**
+     * Restores to the original state an array of objectified data
+     * @param array
+     */
+    static restoreArray(array) {
+        let result = [];
+        array.forEach(function (elem) {
+            if (elem._otype) {
+                result.push(Objectify.restore(elem, elem._otype));
+            }
+        });
 
-/**
- * Checks if a given object contains the objectify method
- * @param object
- */
-Objectify.hasObjectify = function (object) {
-    return isObjectAssigned(object) && isFunction(object.objectify);
-};
-
-/**
- * Creates an objectify valid data object
- * @param object
- */
-Objectify.create = function (object) {
-    var type = getType(object);
-    var result;
-
-    // this object has objectify?
-    if (Objectify.hasObjectify(object)) {
-        result = object.objectify();
-
-    } else {
-        // nope, we can force to get the public properties then:
-        result = JSON.parse(JSON.stringify(object));
+        return result;
     }
 
-    result._otype = type;
-
-    return result;
-};
-
-/**
- * Restores an object of a given type
- * @param data (the data to restore)
- * @param typeName (the name of the type to restore - optional if _otype is defined in data)
- */
-Objectify.restore = function (data, typeName) {
-    try {
-        var type = isObjectAssigned(typeName) ? typeName : data._otype;
-        type = eval(type);
-        if (type && type.restore) {
-            return type.restore(data);
+    /**
+     * Creates a valid JSON "stringify" data object
+     * @param object
+     * @param beautify
+     */
+    static createDataString(object, beautify) {
+        if (beautify) {
+            return JSON.stringify(Objectify.create(object), null, 4);
         }
-    } catch (ex) {
-        Objectify._logger.error("Failed to restore element: " + ex);
+
+        return JSON.stringify(Objectify.create(object));
     }
-};
 
-/**
- * Restores an object from a string
- * @param jsonString
- * @param typeName
- */
-Objectify.restoreFromString = function (jsonString, typeName) {
-    return Objectify.restore(JSON.parse(jsonString), typeName);
-};
+    /**
+     * Checks if a given object contains the objectify method
+     * @param object
+     */
+    static hasObjectify(object) {
+        return isObjectAssigned(object) && isFunction(object.objectify);
+    }
 
-/**
- * Extends the properties of the objA with the properties of objB
- * @param objA
- * @param objB
- * @returns {*}
- */
-Objectify.extend = function (objA, objB) {
-    Object.keys(objB).forEach(function (prop) {
-        objA[prop] = objB[prop];
-    });
+    /**
+     * Creates an objectify valid data object
+     * @param object
+     */
+    static create(object) {
+        let type = getType(object);
+        let result;
 
-    return objA
-};;/**
+        // this object has objectify?
+        if (Objectify.hasObjectify(object)) {
+            result = object.objectify();
+
+        } else {
+            // nope, we can force to get the public properties then:
+            result = JSON.parse(JSON.stringify(object));
+        }
+
+        result._otype = type;
+
+        return result;
+    }
+
+    /**
+     * Restores an object of a given type
+     * @param data (the data to restore)
+     * @param typeName (the name of the type to restore - optional if _otype is defined in data)
+     */
+    static restore(data, typeName) {
+        try {
+            let type = isObjectAssigned(typeName) ? typeName : data._otype;
+            type = eval(type);
+            if (type && type.restore) {
+                return type.restore(data);
+            }
+        } catch (ex) {
+            Objectify._logger.error("Failed to restore element: " + ex);
+        }
+    }
+
+    /**
+     * Restores an object from a string
+     * @param jsonString
+     * @param typeName
+     */
+    static restoreFromString(jsonString, typeName) {
+        return Objectify.restore(JSON.parse(jsonString), typeName);
+    }
+
+    /**
+     * Extends the properties of the objA with the properties of objB
+     * @param objA
+     * @param objB
+     * @returns {*}
+     */
+    static extend(objA, objB) {
+        Object.keys(objB).forEach(function (prop) {
+            objA[prop] = objB[prop];
+        });
+
+        return objA
+    }
+
+    //#endregion
+
+}
+
+//  TODO: place in constructor and add a static get for it? test in editor...
+Objectify._logger = new Logger("Objectify");;/**
  * IO Path utility class
  */
-var Path = function () {
-};
+class Path {
 
-/**
- *
- * @type {boolean}
- * @private
- */
-Path._IS_WIN = navigator.platform.toLowerCase().indexOf('win') > -1;
+    //#region Static Properties
 
-/**
- * The appropriate system trailing slash
- * @type {string}
- */
-Path.TRAILING_SLASH = Path._IS_WIN ? "\\" : "/";
-
-/**
- * Ensures this is a valid string directory (eg. ends with slash)
- * @param path
- * @returns {string}
- */
-Path.wrapDirectoryPath = function (path) {
-    return path + (path.endsWith('/') || path.endsWith('\\') ? '' : Path.TRAILING_SLASH);
-};
-
-/**
- * Strips only the directory path (excludes file names)
- * @param path
- */
-Path.getDirectory = function (path) {
-    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-    return path.substring(0, (index >= 0 ? index : path.length));
-};
-
-/**
- * Returns the directory name from a given path
- * @param path
- * @returns {string}
- */
-Path.getDirectoryName = function (path) {
-    if (path.endsWith("/") || path.endsWith("\\")) {
-        path = path.substring(0, path.length - 1);
+    /**
+     *
+     * @type {boolean}
+     * @private
+     */
+    static get _IS_WIN() {
+        return navigator.platform.toLowerCase().indexOf('win') > -1;
     }
 
-    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-    return path.substring(index + 1, path.length);
-};
+    /**
+     * The appropriate system trailing slash
+     * @type {string}
+     * @public
+     */
+    static get TRAILING_SLASH() {
+        return Path._IS_WIN ? "\\" : "/";
+    }
 
-/**
- * Gets a filename from a given path
- * @param path
- */
-Path.getFilename = function (path) {
-    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-    return path.substring((index >= 0 && index < path.length - 1 ? index + 1 : 0), path.length);
-};
+    //#endregion
 
-/**
- * Gets a file extension from a given path
- * @param path
- */
-Path.getFileExtension = function (path) {
-    return path.substring(path.lastIndexOf('.'), path.length);
-};
+    //#region Constructors
 
-/**
- * Checks if pathA can be contained inside pathB
- * @param pathA
- * @param pathB
- */
-Path.relativeTo = function (pathA, pathB) {
-    return Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0;
-};
+    constructor() {
 
-/**
- * Makes the full path relative to the base path
- * @param basePath
- * @param fullPath
- */
-Path.makeRelative = function (basePath, fullPath) {
-    return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
-};;/**
+    }
+
+    //#endregion
+
+    //#region Static Methods
+
+    /**
+     * Ensures this is a valid string directory (eg. ends with slash)
+     * @param path
+     * @returns {string}
+     */
+    static wrapDirectoryPath(path) {
+        return path + (path.endsWith('/') || path.endsWith('\\') ? '' : Path.TRAILING_SLASH);
+    }
+
+    /**
+     * Strips only the directory path (excludes file names)
+     * @param path
+     */
+    static getDirectory(path) {
+        let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+        return path.substring(0, (index >= 0 ? index : path.length));
+    }
+
+    /**
+     * Returns the directory name from a given path
+     * @param path
+     * @returns {string}
+     */
+    static getDirectoryName(path) {
+        if (path.endsWith("/") || path.endsWith("\\")) {
+            path = path.substring(0, path.length - 1);
+        }
+
+        let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+        return path.substring(index + 1, path.length);
+    }
+
+    /**
+     * Gets a filename from a given path
+     * @param path
+     */
+    static getFilename(path) {
+        let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+        return path.substring((index >= 0 && index < path.length - 1 ? index + 1 : 0), path.length);
+    }
+
+    /**
+     * Gets a file extension from a given path
+     * @param path
+     */
+    static getFileExtension(path) {
+        return path.substring(path.lastIndexOf('.'), path.length);
+    }
+
+    /**
+     * Checks if pathA can be contained inside pathB
+     * @param pathA
+     * @param pathB
+     */
+    static relativeTo(pathA, pathB) {
+        return Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0;
+    }
+
+    /**
+     * Makes the full path relative to the base path
+     * @param basePath
+     * @param fullPath
+     */
+    static makeRelative(basePath, fullPath) {
+        return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
+    }
+
+    //#endregion
+
+};/**
  * Created by Luis on 08/02/2017.
  */
 
@@ -10236,7 +10433,7 @@ String.prototype.insert = function (index, string) {
 /**
  * TextUtils Class
  */
-class TextUtils{
+class TextUtils {
 
     //#region Static Methods
 
@@ -10247,7 +10444,7 @@ class TextUtils{
      * @returns {number} the character width if valid and 0 if invalid
      * @public
      */
-    static measureCharacterWidth(fontStyle, char){
+    static measureCharacterWidth(fontStyle, char) {
         // don't go further if parameters are invalid
         if (!fontStyle || !char) {
             return 0;
@@ -10256,7 +10453,7 @@ class TextUtils{
         let scale = fontStyle.getScale();
 
         // if scale is invalid (0 or null)
-        if (!scale){
+        if (!scale) {
             return 0;
         }
 
@@ -10264,7 +10461,7 @@ class TextUtils{
         let charID = fontStyle.findCharID(char);
 
         // don't go further if char id is invalid
-        if (charID === null){
+        if (charID === null) {
             return 0;
         }
 
@@ -10282,9 +10479,9 @@ class TextUtils{
      * @returns {number} the given text string width if valid and 0 if invalid
      * @public
      */
-    static measureTextWidth(fontStyle, textStr){
+    static measureTextWidth(fontStyle, textStr) {
         // don't go further if parameters or scale are invalid
-        if (!fontStyle || !textStr || !fontStyle.getScale()){
+        if (!fontStyle || !textStr || !fontStyle.getScale()) {
             return 0;
         }
 
@@ -10296,12 +10493,12 @@ class TextUtils{
         let revertedToOriginalValue = false;
 
         // iterate through every character
-        for (let c = 0; c < textStr.length; c++){
+        for (let c = 0; c < textStr.length; c++) {
             // retrieve character at position c
             let char = textStr[c];
 
             // if there is already one or more valid characters, then we can use the actual letter spacing value
-            if (!revertedToOriginalValue && width > 0){
+            if (!revertedToOriginalValue && width > 0) {
                 // revert to original value
                 currentLetterSpacing = fontStyle.getLetterSpacing();
                 // make sure we only enter this condition once
@@ -10312,7 +10509,7 @@ class TextUtils{
             let tempWidth = TextUtils.measureCharacterWidth(fontStyle, char);
 
             // if valid
-            if (tempWidth > 0){
+            if (tempWidth > 0) {
                 // add its width
                 // if tempWidth was 0, adding letter spacing wouldn't make much sense.
                 width += tempWidth + currentLetterSpacing;
@@ -10323,10 +10520,10 @@ class TextUtils{
         return width;
     }
 
-    static wrapWordsShortVersion(fontStyle, textStr, maxLineWidth){
+    static wrapWordsShortVersion(fontStyle, textStr, maxLineWidth) {
         let result = [];
 
-        if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0) {
             return result;
         }
 
@@ -10334,7 +10531,7 @@ class TextUtils{
         let words = textStr.split(' ');
 
         // no need to go further if there is only 1 word
-        if (words.length == 1){
+        if (words.length == 1) {
             return words;
         }
 
@@ -10343,7 +10540,7 @@ class TextUtils{
         let currentLine = words.shift();
 
         // iterate through the words
-        for (let w = 0; w < words.length; w++){
+        for (let w = 0; w < words.length; w++) {
             // retrieve word
             let word = words[w];
 
@@ -10352,7 +10549,7 @@ class TextUtils{
 
             let tempWidth = TextUtils.measureTextWidth(fontStyle, tempLine);
 
-            if (tempWidth > maxLineWidth){
+            if (tempWidth > maxLineWidth) {
                 result.push(currentLine);
                 currentLine = word;
             }
@@ -10376,10 +10573,10 @@ class TextUtils{
      * @returns {Array} wrapped text in lines
      * @public
      */
-    static wrapWordsLongVersion(fontStyle, textStr, maxLineWidth, characterWrap){
+    static wrapWordsLongVersion(fontStyle, textStr, maxLineWidth, characterWrap) {
         let result = [];
 
-        if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0) {
             return result;
         }
 
@@ -10397,13 +10594,13 @@ class TextUtils{
         let revertedToOriginalValue = false;
 
         // iterate through the words
-        for (let w = 0; w < words.length; w++){
+        for (let w = 0; w < words.length; w++) {
             // retrieve word
             let word = words[w];
 
             // just a way to not consider whitespace and its width (along with a possible letter spacing value)
             // if there aren't any characters or words already in the current line.
-            if (!revertedToOriginalValue && currentLineWordWidth > 0){
+            if (!revertedToOriginalValue && currentLineWordWidth > 0) {
                 whitespace = " ";
                 // letter spacing also affects the whitespace width when there is at least 1 word
                 whitespaceWidth = TextUtils.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
@@ -10415,7 +10612,7 @@ class TextUtils{
             let wordWidth = TextUtils.measureTextWidth(fontStyle, word);
 
             // TODO: think of a cleaner way of doing this? maybe wrapTextByCharacter shouldn't return line objects?
-            if (characterWrap && wordWidth > maxLineWidth){
+            if (characterWrap && wordWidth > maxLineWidth) {
                 let tempLine = currentLine + whitespace + word;
 
                 let characterWrappedLines = TextUtils.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
@@ -10430,7 +10627,7 @@ class TextUtils{
                 revertedToOriginalValue = false;
 
                 // push the others
-                for (let cline = 0; cline < characterWrappedLines.length; cline++){
+                for (let cline = 0; cline < characterWrappedLines.length; cline++) {
                     let characterLine = characterWrappedLines[cline].chars.join("");
                     result.push(characterLine);
                 }
@@ -10441,7 +10638,7 @@ class TextUtils{
             // simulate line width with the current word, a whitespace in between and also extra line spacing if any
             let tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
 
-            if (tempWidth > maxLineWidth){
+            if (tempWidth > maxLineWidth) {
                 result.push(currentLine);
                 currentLine = word;
                 currentLineWordWidth = wordWidth;
@@ -10471,13 +10668,13 @@ class TextUtils{
      * @returns {Array} wrapped text in lines
      * @public
      */
-    static wrapTextByCharacter(fontStyle, textStr, maxLineWidth){
+    static wrapTextByCharacter(fontStyle, textStr, maxLineWidth) {
         // create empty array
         let lines = [];
 
         // TODO: trim?
         // if parameters are invalid, no need to go further
-        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0){
+        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0) {
             return lines;
         }
 
@@ -10493,7 +10690,7 @@ class TextUtils{
         let revertedToOriginalValue = false;
 
         // iterate through text characters
-        for (let c = 0; c < textStr.length; c++){
+        for (let c = 0; c < textStr.length; c++) {
             // retrieve text character
             let char = textStr[c];
 
@@ -10501,7 +10698,7 @@ class TextUtils{
             let currentLine = lines.length - 1;
 
             // after the first (valid) character of current line, get the actual value of letter spacing
-            if (!revertedToOriginalValue && lines[currentLine].width > 0){
+            if (!revertedToOriginalValue && lines[currentLine].width > 0) {
                 // revert to original value
                 currentLetterSpacing = fontStyle.getLetterSpacing();
                 // make sure we only enter this condition once (per line, thus the resets down below)
@@ -10515,7 +10712,7 @@ class TextUtils{
             let tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
 
             // if current line width + the current character width is > than the max width
-            if(tempWidth > maxLineWidth){
+            if (tempWidth > maxLineWidth) {
                 // create a new and empty line
                 lines.push({
                     chars: [],
@@ -10530,7 +10727,7 @@ class TextUtils{
                 revertedToOriginalValue = false;
 
                 // skip if the character is a whitespace
-                if (char === " "){
+                if (char === " ") {
                     continue;
                 }
             }
@@ -10550,7 +10747,7 @@ class TextUtils{
      * @returns {{chars: Array, width: number}}
      * @public
      */
-    static convertTextStringToLineFormat(fontStyle, textStr){
+    static convertTextStringToLineFormat(fontStyle, textStr) {
         // define empty line
         let line = {
             chars: Array(),
@@ -10558,7 +10755,7 @@ class TextUtils{
         };
 
         // return empty if any of the values or scale is invalid
-        if (!fontStyle || !textStr || !fontStyle.getScale()){
+        if (!fontStyle || !textStr || !fontStyle.getScale()) {
             return line;
         }
 
@@ -10584,7 +10781,7 @@ class TextUtils{
         let resultLines = [];
 
         // if parameters or scale are invalid, there is no need to go further
-        if (!fontStyle || !textStr || !maxLineWidth || !fontStyle.getScale()){
+        if (!fontStyle || !textStr || !maxLineWidth || !fontStyle.getScale()) {
             return resultLines;
         }
 
@@ -10601,14 +10798,14 @@ class TextUtils{
         let userDefinedLines = [];
 
         // word wrap by inserting \n in the original text
-        if (wordWrap){
+        if (wordWrap) {
             // initialize resulting text
             let wrappedText = "";
             // split text into lines defined by the user
             userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 
             // iterate through lines
-            for (let l = 0; l < userDefinedLines.length; l++){
+            for (let l = 0; l < userDefinedLines.length; l++) {
                 // wrap line
                 let wrappedLine = TextUtils.wrapWordsLongVersion(fontStyle, userDefinedLines[l],
                     maxLineWidth, characterWrap).join('\n');
@@ -10626,7 +10823,7 @@ class TextUtils{
         userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 
         // iterate through user defined lines (with special characters)
-        for (let l = 0; l < userDefinedLines.length; l++){
+        for (let l = 0; l < userDefinedLines.length; l++) {
 
             let userDefinedLine = userDefinedLines[l];
 
@@ -10652,221 +10849,206 @@ class TextUtils{
 };/**
  * General utility class
  */
-var Utility = function () {
+class Utility {
 
-};
-;/**
- * GridExt class
- */
-function GridExt(params) {
-    params = params || {};
+    constructor() {
 
-    if (!params.game) {
-        throw "cannot create debug extension without game parameter";
     }
 
-    // public properties:
-    this.enabled = true;
-
-    // private properties:
-    this._game = params.game || null;
-    this._gridSize = params.gridSize || 32;
-    this._gridColor = params.gridColor || Color.Red;
-    this._originLines = true;
-    this._zoomMultiplier = 2;
-    this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
-}
-
-/**
- *
- * @param enable
+};/**
+ * Grid Extension Class
  */
-GridExt.prototype.setOriginLines = function (enable) {
-    this._originLines = enable;
-};
+class GridExt {
 
-/**
- *
- * @param value
- */
-GridExt.prototype.setGridSize = function (value) {
-    this._gridSize = value;
-};
+    //#region Constructors
 
-/**
- *
- */
-GridExt.prototype.getGridSize = function () {
-    return this._gridSize;
-};
+    constructor(params) {
+        params = params || {};
 
-/**
- *
- * @param color
- */
-GridExt.prototype.setGridColor = function (color) {
-    this._gridColor = color;
-};
-
-/**
- *
- * @param delta
- */
-GridExt.prototype.render = function (delta) {
-    // render a grid?
-    if (this.enabled) {
-        // I have an idea that can be great here..
-        // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
-        // the following calculations on event:
-        var zoom = this._game.getActiveCamera().zoom;
-        var floorZoom = Math.floor(zoom);
-
-        //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
-        var gridSize = this._gridSize;
-        for (var i = 0; i < floorZoom - 1; i++) {
-            if (i % this._zoomMultiplier == 0) {
-                gridSize *= 2;
-            }
+        if (!params.game) {
+            throw "cannot create debug extension without game parameter";
         }
 
-        var upperGridSize = gridSize * 2;
-        var screenResolution = this._game.getVirtualResolution();
-        var offsetX = this._game.getActiveCamera().x - (this._game.getActiveCamera().x % gridSize);
-        var offsetY = this._game.getActiveCamera().y - (this._game.getActiveCamera().y % gridSize);
-        var zoomDifX = (zoom * screenResolution.width) * 2.0;
-        var zoomDifY = (zoom * screenResolution.height) * 2.0;
-        var howManyX = Math.floor((screenResolution.width + zoomDifX) / gridSize + 2);
-        var howManyY = Math.floor((screenResolution.height + zoomDifY) / gridSize + 2);
-        var alignedX = Math.floor(howManyX / 2.0) % 2 == 0;
-        var alignedY = Math.floor(howManyY / 2.0) % 2 == 0;
-        var left = -(screenResolution.width + zoomDifX) / 2;
-        var right = (screenResolution.width + zoomDifX) / 2;
-        var top = -(screenResolution.height + zoomDifY) / 2;
-        var bottom = (screenResolution.height + zoomDifY) / 2;
-        var dynColor = this._gridColor.clone();
-        var color = null;
+        // public properties:
+        this.enabled = true;
 
-        if (zoom > 1) {
-            dynColor.a = 1 - ((zoom % this._zoomMultiplier) / this._zoomMultiplier);
-        }
+        // private properties:
+        this._game = params.game || null;
+        this._gridSize = params.gridSize || 32;
+        this._gridColor = params.gridColor || Color.Red;
+        this._originLines = true;
+        this._zoomMultiplier = 2;
+        // TODO: maybe get a batch here?
+        this._primitiveRender = new PrimitiveRender(params.game);
+    }
 
-        // horizontal shift ||||||||
-        for (var x = 0; x < howManyX; x++) {
-            color = this._gridColor;
-            if (((x * gridSize) + offsetX + (alignedX ? gridSize : 0)) % upperGridSize) {
-                color = dynColor;
+    //#endregion
+
+    //#region Methods
+
+    /**
+     *
+     * @param enable
+     */
+    setOriginLines(enable) {
+        this._originLines = enable;
+    }
+
+    /**
+     *
+     * @param value
+     */
+    setGridSize(value) {
+        this._gridSize = value;
+    }
+
+    /**
+     *
+     */
+    getGridSize() {
+        return this._gridSize;
+    }
+
+    /**
+     *
+     * @param color
+     */
+    setGridColor(color) {
+        this._gridColor = color;
+    }
+
+    /**
+     *
+     * @param delta
+     */
+    render(delta) {
+        // render a grid?
+        if (this.enabled) {
+            // I have an idea that can be great here..
+            // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
+            // the following calculations on event:
+            let zoom = this._game.getActiveCamera().zoom;
+            let floorZoom = Math.floor(zoom);
+
+            //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
+            let gridSize = this._gridSize;
+            for (let i = 0; i < floorZoom - 1; i++) {
+                if (i % this._zoomMultiplier == 0) {
+                    gridSize *= 2;
+                }
             }
 
-            this._primitiveRender.drawLine(
-                {
-                    x: x * gridSize + left - (left % gridSize) + offsetX,
-                    y: bottom + gridSize + offsetY
-                },
-                {
-                    x: x * gridSize + left - (left % gridSize) + offsetX,
-                    y: top - gridSize + offsetY
-                },
-                1, color);
-        }
+            let upperGridSize = gridSize * 2;
+            let screenResolution = this._game.getVirtualResolution();
+            let offsetX = this._game.getActiveCamera().x - (this._game.getActiveCamera().x % gridSize);
+            let offsetY = this._game.getActiveCamera().y - (this._game.getActiveCamera().y % gridSize);
+            let zoomDifX = (zoom * screenResolution.width) * 2.0;
+            let zoomDifY = (zoom * screenResolution.height) * 2.0;
+            let howManyX = Math.floor((screenResolution.width + zoomDifX) / gridSize + 2);
+            let howManyY = Math.floor((screenResolution.height + zoomDifY) / gridSize + 2);
+            let alignedX = Math.floor(howManyX / 2.0) % 2 == 0;
+            let alignedY = Math.floor(howManyY / 2.0) % 2 == 0;
+            let left = -(screenResolution.width + zoomDifX) / 2;
+            let right = (screenResolution.width + zoomDifX) / 2;
+            let top = -(screenResolution.height + zoomDifY) / 2;
+            let bottom = (screenResolution.height + zoomDifY) / 2;
+            let dynColor = this._gridColor.clone();
+            let color = null;
 
-        // vertical shift _ _ _ _ _
-        for (var y = 0; y < howManyY; y++) {
-            color = this._gridColor;
-            if (((y * gridSize) + offsetY + (alignedY ? gridSize : 0)) % upperGridSize) {
-                color = dynColor;
+            if (zoom > 1) {
+                dynColor.a = 1 - ((zoom % this._zoomMultiplier) / this._zoomMultiplier);
             }
 
-            this._primitiveRender.drawLine(
-                {
-                    x: right + this._gridSize + offsetX,
-                    y: y * gridSize + top - (top % gridSize) + offsetY
-                },
-                {
-                    x: left - gridSize + offsetX,
-                    y: y * gridSize + top - (top % gridSize) + offsetY
-                },
-                1, color);
-        }
+            // horizontal shift ||||||||
+            for (let x = 0; x < howManyX; x++) {
+                color = this._gridColor;
+                if (((x * gridSize) + offsetX + (alignedX ? gridSize : 0)) % upperGridSize) {
+                    color = dynColor;
+                }
 
-        // main "lines" (origin)
-        if (this._originLines ) {
-            // vertical
-            this._primitiveRender.drawRectangle(
-                new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
-                this._gridColor);
+                this._primitiveRender.drawLine(
+                    {
+                        x: x * gridSize + left - (left % gridSize) + offsetX,
+                        y: bottom + gridSize + offsetY
+                    },
+                    {
+                        x: x * gridSize + left - (left % gridSize) + offsetX,
+                        y: top - gridSize + offsetY
+                    },
+                    1, color);
+            }
 
-            // horizontal
-            this._primitiveRender.drawRectangle(
-                new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
-                this._gridColor);
+            // vertical shift _ _ _ _ _
+            for (let y = 0; y < howManyY; y++) {
+                color = this._gridColor;
+                if (((y * gridSize) + offsetY + (alignedY ? gridSize : 0)) % upperGridSize) {
+                    color = dynColor;
+                }
+
+                this._primitiveRender.drawLine(
+                    {
+                        x: right + this._gridSize + offsetX,
+                        y: y * gridSize + top - (top % gridSize) + offsetY
+                    },
+                    {
+                        x: left - gridSize + offsetX,
+                        y: y * gridSize + top - (top % gridSize) + offsetY
+                    },
+                    1, color);
+            }
+
+            // main "lines" (origin)
+            if (this._originLines) {
+                // vertical
+                this._primitiveRender.drawRectangle(
+                    new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
+                    this._gridColor
+                );
+
+                // horizontal
+                this._primitiveRender.drawRectangle(
+                    new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
+                    this._gridColor
+                );
+            }
         }
     }
-};;/**
- * Boundary structure
- * @param topLeft
- * @param topRight
- * @param bottomRight
- * @param bottomLeft
- * @constructor
- */
-function Boundary(topLeft, topRight, bottomRight, bottomLeft) {
-    // public properties:
-    this.topLeft = topLeft || new Vector2();
-    this.topRight = topRight || new Vector2();
-    this.bottomRight = bottomRight || new Vector2();
-    this.bottomLeft = bottomLeft || new Vector2();
-}
 
-/**
- * Returns all vertices in an array (topLeft, topRight, bottomRight, bottomLeft)
+    //#endregion
+};/*
+ Boundary Class
  */
-Boundary.prototype.getVertices = function () {
-    return [
-        this.topLeft,
-        this.topRight,
-        this.bottomRight,
-        this.bottomLeft
-    ];
-};
+class Boundary {
 
-/**
- * Calculate the normals of each boundary side and returns a object mapped with the values of each side
- */
-Boundary.prototype.getNormals = function () {
-    return {
-        top: new Vector2(this.topRight.x - this.topLeft.x, this.topRight.y - this.topLeft.y).normalLeft(),
-        right: new Vector2(this.bottomRight.x - this.topRight.x, this.bottomRight.y - this.topRight.y).normalLeft(),
-        bottom: new Vector2(this.bottomLeft.x - this.bottomRight.x, this.bottomLeft.y - this.bottomRight.y).normalLeft(),
-        left: new Vector2(this.topLeft.x - this.bottomLeft.x, this.topLeft.y - this.bottomLeft.y).normalLeft()
+    //#region Constructors
+
+    /**
+     * Boundary structure
+     * @param {Vector2} topLeft
+     * @param {Vector2} topRight
+     * @param {Vector2} bottomRight
+     * @param {Vector2} bottomLeft
+     * @constructor
+     */
+    constructor(topLeft, topRight, bottomRight, bottomLeft) {
+        // public properties:
+        this.topLeft = topLeft || new Vector2();
+        this.topRight = topRight || new Vector2();
+        this.bottomRight = bottomRight || new Vector2();
+        this.bottomLeft = bottomLeft || new Vector2();
     }
-};
 
-/**
- * Tests if the boundary is overlapping another
- * @param other
- * @returns {boolean}
- */
-Boundary.prototype.overlapsWith = function (other) {
-    return Boundary.overlap(this, other);
-};
+    //#endregion
 
-/**
- * Tests if two boundaries are overlapping each other
- * @param boundaryA
- * @param boundaryB
- * @returns {boolean}
- */
-Boundary.overlap = function (boundaryA, boundaryB) {
-    // the following collision detection is based on the separating axis theorem:
-    // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
-    var normA = boundaryA.getNormals();
-    var normB = boundaryB.getNormals();
+    //#region Methods
 
-    function getMinMax(boundary, norm) {
-        var probeA = boundary.topRight.dot(norm);
-        var probeB = boundary.bottomRight.dot(norm);
-        var probeC = boundary.bottomLeft.dot(norm);
-        var probeD = boundary.topLeft.dot(norm);
+    //#region Static Methods
+
+    static getMinMax(boundary, norm) {
+        let probeA = boundary.topRight.dot(norm);
+        let probeB = boundary.bottomRight.dot(norm);
+        let probeC = boundary.bottomLeft.dot(norm);
+        let probeD = boundary.topLeft.dot(norm);
 
         return {
             max: Math.max(probeA, probeB, probeC, probeD),
@@ -10874,95 +11056,183 @@ Boundary.overlap = function (boundaryA, boundaryB) {
         }
     }
 
-    var p1, p2, normNode, norm;
-    for (var i = 0; i < 4; i++) {
-        normNode = i >= 2 ? normB : normA;
-        norm = i % 2 == 0 ? normNode.bottom : normNode.right;
-        p1 = getMinMax(boundaryA, norm);
-        p2 = getMinMax(boundaryB, norm);
+    /**
+     * Tests if two boundaries are overlapping each other
+     * @param {Boundary} boundaryA
+     * @param {Boundary} boundaryB
+     * @returns {boolean} whether the boundaries overlap
+     */
+    static overlap(boundaryA, boundaryB) {
+        // the following collision detection is based on the separating axis theorem:
+        // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+        let normA = boundaryA.getNormals();
+        let normB = boundaryB.getNormals();
 
-        if (p1.max < p2.min || p2.max < p1.min) {
-            return false;
+        let p1, p2, normNode, norm;
+        for (let i = 0; i < 4; i++) {
+            normNode = i >= 2 ? normB : normA;
+            norm = i % 2 == 0 ? normNode.bottom : normNode.right;
+            p1 = Boundary.getMinMax(boundaryA, norm);
+            p2 = Boundary.getMinMax(boundaryB, norm);
+
+            if (p1.max < p2.min || p2.max < p1.min) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates a boundary object based on the given vector and adds the specified bulk dimension
+     * @param {Vector2} vec
+     * @param bulk
+     * @returns {Boundary} a boundary based on the given vector and bulk
+     */
+    static fromVector2(vec, bulk) {
+        let halfBulk = bulk / 2.0;
+        return new Boundary(
+            new Vector2(vec.x - halfBulk, vec.y - halfBulk),
+            new Vector2(vec.x + halfBulk, vec.y - halfBulk),
+            new Vector2(vec.x + halfBulk, vec.y + halfBulk),
+            new Vector2(vec.x - halfBulk, vec.y + halfBulk)
+        )
+    }
+
+    //#endregion
+
+    /**
+     * Returns all vertices in an array
+     * @returns {Array.<{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}>}
+     */
+    getVertices() {
+        return [
+            this.topLeft,
+            this.topRight,
+            this.bottomRight,
+            this.bottomLeft
+        ];
+    }
+
+    /**
+     * Calculate the normals of each boundary side and returns a object mapped with the values of each side
+     * @returns {{top: Vector2, right: Vector2, bottom: Vector2, left: Vector2}}
+     */
+    getNormals() {
+        return {
+            top: new Vector2(this.topRight.x - this.topLeft.x, this.topRight.y - this.topLeft.y).normalLeft(),
+            right: new Vector2(this.bottomRight.x - this.topRight.x, this.bottomRight.y - this.topRight.y).normalLeft(),
+            bottom: new Vector2(this.bottomLeft.x - this.bottomRight.x, this.bottomLeft.y - this.bottomRight.y).normalLeft(),
+            left: new Vector2(this.topLeft.x - this.bottomLeft.x, this.topLeft.y - this.bottomLeft.y).normalLeft()
         }
     }
 
-    return true;
-};
+    /**
+     * Tests if the boundary is overlapping another
+     * @param other
+     * @returns {boolean}
+     */
+    overlapsWith(other) {
+        return Boundary.overlap(this, other);
+    }
 
-/**
- * Creates a boundary object based on a given vector and adds the specified bulk dimension
- * @param vec
- * @param bulk
- */
-Boundary.fromVector2 = function (vec, bulk) {
-    var halfBulk = bulk / 2.0;
-    return new Boundary(
-        new Vector2(vec.x - halfBulk, vec.y - halfBulk),
-        new Vector2(vec.x + halfBulk, vec.y - halfBulk),
-        new Vector2(vec.x + halfBulk, vec.y + halfBulk),
-        new Vector2(vec.x - halfBulk, vec.y + halfBulk)
-    )
-};;/**
- * Math helper utility class
- * @constructor
- */
-var MathHelper = function () {};
+    //#endregion
 
-/**
- * PI value
- * @type {number}
+};/**
+ * Math Helper utility Class
  */
-MathHelper.PI = Math.PI;
+class MathHelper {
 
-/**
- * PI multiplied by two
- * @type {number}
- */
-MathHelper.PI2 = MathHelper.PI * 2.0;
+    //#region Static Properties
 
-/**
- * PI multiplied by four
- * @type {number}
- */
-MathHelper.PI4 = MathHelper.PI * 4.0;
+    /**
+     * PI value
+     * @type {number}
+     */
+    static get PI() {
+        return Math.PI;
+    }
 
-/**
- * PI divided by two
- * @type {number}
- */
-MathHelper.PIo2 = MathHelper.PI / 2.0;
+    /**
+     * PI multiplied by two
+     * @type {number}
+     */
+    static get PI2() {
+        return MathHelper.PI * 2.0;
+    }
 
-/**
- * PI divided by four
- * @type {number}
- */
-MathHelper.PIo4 = MathHelper.PI / 4.0;
+    /**
+     * PI multiplied by four
+     * @type {number}
+     */
+    static get PI4() {
+        return MathHelper.PI * 4.0;
+    }
 
-/**
- * Clamp a value between a min and max value
- * @param value
- * @param min
- * @param max
- */
-MathHelper.clamp = function (value, min, max) {
-    return (value < min ? min : value > max ? max : value);
-};
+    /**
+     * PI divided by two
+     * @type {number}
+     */
+    static get PIo2() {
+        return MathHelper.PI / 2.0;
+    }
 
-/**
- * Converts degree to radians
- * @param degrees
- */
-MathHelper.degToRad = function (degrees) {
-    return degrees * 0.0174532925;
-};
+    /**
+     * PI divided by four
+     * @type {number}
+     */
+    static get PIo4() {
+        return MathHelper.PI / 4.0;
+    }
 
-/**
- * Converts radians to degrees
- * @param radians
- */
-MathHelper.radToDeg = function(radians) {
-    return radians * 57.295779513;
-};;/**
+    //#endregion
+
+    //#region Constructors
+
+    /**
+     * @constructor
+     */
+    constructor() {
+
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     * Clamp a value between a min and max value
+     * @param value
+     * @param min
+     * @param max
+     */
+    static clamp(value, min, max) {
+        return (value < min ? min : value > max ? max : value);
+    }
+
+    /**
+     * Converts degree to radians
+     * @param degrees
+     */
+    static degToRad(degrees) {
+        return degrees * 0.0174532925;
+    }
+
+    /**
+     * Converts radians to degrees
+     * @param radians
+     */
+    static radToDeg(radians) {
+        return radians * 57.295779513;
+    }
+
+    //#endregion
+
+    //#endregion
+
+};/**
  * Matrix3 class @ based on Tdl.Math
  * https://github.com/greggman/tdl/blob/master/tdl/math.js
  */
@@ -11457,577 +11727,687 @@ class Matrix4 {
         return this._matrix;
     }
 }
-;/**
+;SetterDictionary.addRule("ray", ["origin", "direction"]);
+
+/**
+ * Ray Class (TODO: this class is not yet working!)
+ */
+class Ray {
+
+    //#region Constructors
+
+    constructor(origin, direction) {
+        this.origin = 0;
+        this.direction = 0;
+
+        this.set(origin, direction);
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new Ray(data.origin, data.direction);
+    }
+
+    //#endregion
+
+    set(origin, direction) {
+        this.origin = origin || 0;
+        this.direction = direction || 0;
+    }
+
+    objectify() {
+        return {
+            origin: this.origin,
+            direction: this.direction
+        };
+    }
+
+    equals(obj) {
+        return (obj.origin === this.origin && obj.direction === this.direction);
+    }
+
+    unload() {
+
+    }
+
+    //#endregion
+
+};SetterDictionary.addRule("rectangle", ["x", "y", "width", "height"]);
+
+/**
  * Rectangle class
  */
-/**
- * @constructor
- */
-SetterDictionary.addRule("ray", ["origin", "direction"]);
+class Rectangle {
 
-function Ray(origin, direction) {
-    // public properties:
-    this.origin = origin || 0;
-    this.direction = direction || 0;
+    //#region Constructors
 
-    // private properties:
+    constructor(x, y, width, height) {
+        this.x = 0;
+        this.y = 0;
+        this.width = 0;
+        this.height = 0;
 
-}
-
-Ray.prototype.set = function(origin, direction) {
-    this.origin = origin;
-    this.direction = direction;
-};
-
-Ray.prototype.objectify = function() {
-    return {
-        origin: this.origin,
-        direction: this.direction
-    };
-};
-
-Ray.restore = function(data) {
-    return new Ray(data.origin, data.direction);
-};
-
-Ray.prototype.equals = function(obj) {
-    return (obj.origin === this.origin && obj.direction === this.direction);
-};
-
-Ray.prototype.unload = function () {
-
-};;/**
- * Rectangle class
- */
-/**
- * @constructor
- */
-SetterDictionary.addRule("rectangle", ["x", "y", "width", "height"]);
-
-function Rectangle(x, y, width, height) {
-    // public properties:
-    this.x = x || 0;
-    this.y = y || 0;
-    this.width = width || 10;
-    this.height = height || 10;
-
-    // private properties:
-
-}
-
-// static methods
-
-Rectangle.fromVectors = function (va, vb) {
-    var x, y, width, height;
-
-    if (va.x > vb.x) {
-        x = vb.x;
-        width = Math.abs(va.x - vb.x);
-    } else {
-        x = va.x;
-        width = Math.abs(vb.x - va.x);
+        this.set(x, y, width, height);
     }
 
-    if (va.y > vb.y) {
-        y = vb.y;
-        height = Math.abs(va.y - vb.y);
-    } else {
-        y = va.y;
-        height = Math.abs(vb.y - va.y);
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new Rectangle(data.x, data.y, data.width, data.height);
     }
 
-    return new Rectangle(x, y, width, height);
-};
+    static fromVectors(vectorA, vectorB) {
+        let x, y, width, height;
 
-// instance methods
+        if (vectorA.x > vectorB.x) {
+            x = vectorB.x;
+            width = Math.abs(vectorA.x - vectorB.x);
+        } else {
+            x = vectorA.x;
+            width = Math.abs(vectorB.x - vectorA.x);
+        }
 
-/**
- * Get the rectangle vertices based on the position and width/height
- * @returns {{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
- */
-Rectangle.prototype.getVertices = function () {
-    return {
-        topLeft: new Vector2(this.x, this.y),
-        topRight: new Vector2(this.x + this.width, this.y),
-        bottomRight: new Vector2(this.x + this.width, this.y + this.height),
-        bottomLeft: new Vector2(this.x, this.y + this.height)
+        if (vectorA.y > vectorB.y) {
+            y = vectorB.y;
+            height = Math.abs(vectorA.y - vectorB.y);
+        } else {
+            y = vectorA.y;
+            height = Math.abs(vectorB.y - vectorA.y);
+        }
+
+        return new Rectangle(x, y, width, height);
     }
-};
+
+    //#endregion
+
+    set(x, y, width, height) {
+        this.x = x || 0;
+        this.y = y || 0;
+        this.width = width || 10;
+        this.height = height || 10;
+    }
+
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height
+        };
+    }
+
+    equals(obj) {
+        return (obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height);
+    }
+
+    unload() {
+
+    }
+
+    /**
+     * Get the rectangle vertices based on the position and width/height
+     * @returns {{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
+     */
+    getVertices() {
+        return {
+            topLeft: new Vector2(this.x, this.y),
+            topRight: new Vector2(this.x + this.width, this.y),
+            bottomRight: new Vector2(this.x + this.width, this.y + this.height),
+            bottomLeft: new Vector2(this.x, this.y + this.height)
+        }
+    }
+
+    /**
+     * Checks if the rectangle is intersecting the given rectangle
+     * @param {Rectangle} rectangle
+     * @returns {boolean}
+     */
+    intersects(rectangle) {
+        return (
+            rectangle.x <= this.x + this.width && this.x <= rectangle.x + rectangle.width &&
+            rectangle.y <= this.y + this.height && this.y <= rectangle.y + rectangle.height
+        );
+    }
+
+    /**
+     * Checks if the given rectangle is contained by the instance
+     * @param {Rectangle} rectangle
+     */
+    contains(rectangle) {
+        return (
+            rectangle.x >= this.x && rectangle.x + rectangle.width <= this.x + this.width &&
+            rectangle.y >= this.y && rectangle.y + rectangle.height <= this.y + this.height
+        );
+    }
+
+    //#endregion
+
+};SetterDictionary.addRule("vector2", ["x", "y"]);
 
 /**
- * Checks if the rectangle is intersecting another given rectangle
- * @param rectangle
- * @returns {boolean}
+ * Vector2 Class for bi dimensional point references
  */
-Rectangle.prototype.intersects = function (rectangle) {
-    return (rectangle.x <= this.x + this.width && this.x <= rectangle.x + rectangle.width &&
-    rectangle.y <= this.y + this.height && this.y <= rectangle.y + rectangle.height);
-};
+class Vector2 {
 
-/**
- * Checks if the given rectangle is contained by the instance
- * @param rectangle
- */
-Rectangle.prototype.contains = function (rectangle) {
-    return (rectangle.x >= this.x && rectangle.x + rectangle.width <= this.x + this.width &&
-    rectangle.y >= this.y && rectangle.y + rectangle.height <= this.y + this.height);
-};
+    //#region Constructors
 
-Rectangle.prototype.set = function (x, y, width, height) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-};
+    constructor(x, y) {
+        this.x = 0;
+        this.y = 0;
 
-Rectangle.prototype.objectify = function () {
-    return {
-        x: this.x,
-        y: this.y,
-        width: this.width,
-        height: this.height
-    };
-};
+        this.set(x, y);
+    }
 
-Rectangle.restore = function (data) {
-    return new Rectangle(data.x, data.y, data.width, data.height);
-};
+    //#endregion
 
-Rectangle.prototype.equals = function (obj) {
-    return (obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height);
-};
+    //#region Methods
 
-Rectangle.prototype.unload = function () {
+    //#region Static Methods
 
-};;/**
- * Vector2 class for bi dimensional point references
- */
-/**
- * @constructor
- */
-SetterDictionary.addRule("vector2", ["x", "y"]);
+    static restore(data) {
+        return new Vector2(data.x, data.y);
+    }
 
-function Vector2(x, y) {
-    // public properties:
-    this.x = x || 0;
-    this.y = y || 0;
+    static add(vectorA, vectorB) {
+        return new Vector2(vectorA.x + vectorB.x, vectorA.y + vectorB.y);
+    }
+
+    static subtract(vectorA, vectorB) {
+        return new Vector2(vectorA.x - vectorB.x, vectorA.y - vectorB.y);
+    }
+
+    static multiply(vectorA, vectorB) {
+        return new Vector2(vectorA.x * vectorB.x, vectorA.y * vectorB.y);
+    }
+
+    /**
+     * Normalizes the given vector, returning it
+     * @param {Vector2} vector
+     * @returns {Vector2} the same vector, normalized
+     */
+    static normalize(vector) {
+        let val = 1.0 / vector.magnitude();
+        vector.x *= val;
+        vector.y *= val;
+
+        return vector;
+    }
+
+    /**
+     * The distance between the points represented by VectorA and VectorB
+     * @param {Vector2} vectorA
+     * @param {Vector2} vectorB
+     * @returns {number} the distance
+     */
+    static distance(vectorA, vectorB) {
+        return Math.sqrt(Vector2.sqrDistance(vectorA, vectorB));
+    }
+
+    /**
+     * The squared distance between the points represented by VectorA and VectorB
+     * @param {Vector2} vectorA
+     * @param {Vector2} vectorB
+     * @returns {number} the squared distance
+     */
+    static sqrDistance(vectorA, vectorB) {
+        let v1 = vectorA.x - vectorB.x;
+        let v2 = vectorA.y - vectorB.y;
+        return (v1 * v1) + (v2 * v2);
+    }
+
+    static transformMat4(vec2, mat) {
+        return new Vector2(
+            (mat[0] * vec2.x) + (mat[4] * vec2.y) + mat[12],
+            (mat[1] * vec2.x) + (mat[5] * vec2.y) + mat[13]
+        );
+    }
+
+    static transformMat3(vec2, mat) {
+        return new Vector2(
+            mat[0] * vec2.x + mat[3] * vec2.y + mat[6],
+            mat[1] * vec2.x + mat[4] * vec2.y + mat[7]
+        );
+    }
+
+    //#endregion
+
+    set(x, y) {
+        this.x = x || 0;
+        this.y = y || 0;
+    }
+
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y
+        };
+    }
+
+    equals(obj) {
+        return (obj.x === this.x && obj.y === this.y);
+    }
+
+    unload() {
+
+    }
+
+    /**
+     * The magnitude, or length, of this vector.
+     * The magnitude is the L2 norm, or Euclidean distance between the origin and
+     * the point represented by the (x, y) components of this Vector object.
+     * @returns {number} the magnitude
+     */
+    magnitude() {
+        return Math.sqrt(this.sqrMagnitude());
+    }
+
+    /**
+     * The square of the magnitude, or length, of this vector.
+     * See http://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+     * @returns {number} the squared magnitude
+     */
+    sqrMagnitude() {
+        return this.x * this.x + this.y * this.y;
+    }
+
+    normalLeft() {
+        return new Vector2(this.y, -1 * this.x);
+    }
+
+    normalRight() {
+        return new Vector2(-1 * this.y, this.x);
+    }
+
+    normalize() {
+        return Vector2.normalize(this);
+    }
+
+    /**
+     * The dot product of this vector with another vector.
+     * @param vector
+     * @returns {number}
+     */
+    dot(vector) {
+        return this.x * vector.x + this.y * vector.y;
+    }
+
+    /**
+     * Calculates the magnitude of the vector that would result from a regular 3D cross product of the input vectors,
+     * taking their Z values implicitly as 0 (i.e., treating the 2D space as a plane in the 3D space).
+     * The 3D cross product will be perpendicular to that plane, and thus have 0 X & Y components
+     * (thus the scalar returned is the Z value of the 3D cross product vector).
+     * @param vector
+     */
+    cross(vector) {
+        return this.x * vector.y - this.y * vector.x;
+    }
+
+    /**
+     * The distance between the point represented by this Vector
+     * object and a point represented by the given Vector object.
+     * @param {Vector2} vector
+     * @returns {number}
+     */
+    distanceTo(vector) {
+        return Vector2.distance(this, vector);
+    }
+
+    multiply(vector) {
+        return Vector2.multiply(this, vector);
+    }
+
+    subtract(vector) {
+        return Vector2.subtract(this, vector);
+    }
+
+    add(vector) {
+        return Vector2.add(this, vector);
+    }
+
+    //#endregion
+
 }
-
-// instance functions:
-
-Vector2.prototype.set = function (x, y) {
-    this.x = x;
-    this.y = y;
-};
-
-Vector2.prototype.objectify = function () {
-    return {
-        x: this.x,
-        y: this.y
-    };
-};
+;SetterDictionary.addRule("vector3", ["x", "y", "z"]);
 
 /**
- * The magnitude, or length, of this vector.
- * The magnitude is the L2 norm, or Euclidean distance between the origin and
- * the point represented by the (x, y) components of this Vector object.
- * @returns {number}
+ * Vector3 Class for tri dimensional point references
  */
-Vector2.prototype.magnitude = function() {
-  return Math.sqrt(this.x * this.x + this.y * this.y);
-};
+class Vector3 {
+
+    //#region Constructors
+
+    constructor(x, y, z) {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+
+        this.set(x, y, z);
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new Vector3(data.x, data.y, data.z);
+    }
+
+    //#endregion
+
+    set(x, y, z) {
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
+    }
+
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y,
+            z: this.z
+        };
+    }
+
+    equals(obj) {
+        return (obj.x === this.x && obj.y === this.y && obj.z === this.z);
+    }
+
+    unload() {
+
+    }
+
+    /**
+     * The magnitude, or length, of this vector.
+     * The magnitude is the L2 norm, or Euclidean distance between the origin and
+     * the point represented by the (x, y, z) components of this Vector object.
+     * @returns {number}
+     */
+    magnitude() {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+    }
+
+    /**
+     * The square of the magnitude, or length, of this vector.
+     * See http://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+     * @returns {number}
+     */
+    sqrMagnitude() {
+        return this.x * this.x + this.y * this.y + this.z * this.z;
+    }
+
+    /**
+     * The distance between the point represented by this Vector
+     * object and a point represented by the given Vector object.
+     * @param {Vector3} vector
+     * @returns {number}
+     */
+    distanceTo(vector) {
+        return Math.sqrt(
+            (this.x - vector.x) * (this.x - vector.x) +
+            (this.y - vector.y) * (this.y - vector.y) +
+            (this.z - vector.z) * (this.z - vector.z)
+        );
+    }
+
+    /**
+     * The dot product of this vector with another vector.
+     * @param {Vector3} vector
+     * @returns {number}
+     */
+    dot(vector) {
+        return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
+    }
+
+    /**
+     * The cross product of this vector and the given vector.
+     *
+     * The cross product is a vector orthogonal to both original vectors.
+     * It has a magnitude equal to the area of a parallelogram having the
+     * two vectors as sides. The direction of the returned vector is
+     * determined by the right-hand rule.
+     * @param {Vector3} vector
+     */
+    cross(vector) {
+        return new Vector3(
+            (this.y * vector.z) - (this.z * vector.y),
+            (this.z * vector.x) - (this.x * vector.z),
+            (this.x * vector.y) - (this.y * vector.x)
+        );
+    }
+
+    //#endregion
+
+};SetterDictionary.addRule("vector4", ["x", "y", "z", "w"]);
 
 /**
- * The square of the magnitude, or length, of this vector.
- * See http://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
- * @returns {number}
+ * Vector4 Class for tri dimensional point references
  */
-Vector2.prototype.sqrMagnitude = function () {
-  return this.x * this.x + this.y * this.y;
-};
+class Vector4 {
 
-Vector2.prototype.normalLeft = function () {
-    return new Vector2(this.y, -1 * this.x);
-};
+    //#region Constructors
 
-Vector2.prototype.normalRight = function () {
-    return new Vector2(-1 * this.y, this.x);
-};
+    constructor(x, y, z, w) {
+        // just because they 'should' be declared here
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.w = 0;
 
-Vector2.prototype.normalize = function() {
-    return Vector2.normalize(this);
-};
+        this.set(x, y, z, w);
+    }
 
-Vector2.normalize = function (vector) {
-    var val = 1.0 / Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
-    vector.x *= val;
-    vector.y *= val;
 
-    return vector;
-};
+    //#endregion
 
-/**
- * The dot product of this vector with another vector.
- * @param vector
- * @returns {number}
- */
-Vector2.prototype.dot = function (vector) {
-    return this.x * vector.x + this.y * vector.y;
-};
+    //#region Methods
 
-/**
- * Calculates the magnitude of the vector that would result from a regular 3D cross product of the input vectors,
- * taking their Z values implicitly as 0 (i.e., treating the 2D space as a plane in the 3D space).
- * The 3D cross product will be perpendicular to that plane, and thus have 0 X & Y components
- * (thus the scalar returned is the Z value of the 3D cross product vector).
- * @param vector
- */
-Vector2.prototype.cross = function (vector) {
-    return this.x * vector.y - this.y * vector.x;
-};
+    //#region Static Methods
 
-/**
- * The distance between the point represented by this Vector
- * object and a point represented by the given Vector object.
- * @param vector
- * @returns {number}
- */
-Vector2.prototype.distanceTo = function (vector) {
-    return Math.sqrt((this.x - vector.x)*(this.x - vector.x) +
-                     (this.y - vector.y) * (this.y - vector.y));
-};
+    static restore(data) {
+        return new Vector4(data.x, data.y, data.z, data.w);
+    }
 
-Vector2.prototype.multiply = function (vector) {
-    this.x *= vector.x;
-    this.y *= vector.y;
-};
+    //#endregion
 
-Vector2.prototype.equals = function (obj) {
-    return (obj.x === this.x && obj.y === this.y);
-};
+    set(x, y, z, w) {
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
+        this.w = w || 0;
+    }
 
-Vector2.prototype.unload = function () {
+    objectify() {
+        return {
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            w: this.w
+        };
+    }
 
-};
+    equals(obj) {
+        return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
+    }
 
-Vector2.prototype.subtract = function(vector) {
-    return Vector2.subtract(this, vector);
-};
+    unload() {
 
-Vector2.prototype.add = function(vector) {
-    return Vector2.add(this, vector);
-};
+    }
 
-Vector2.subtract = function(vectorA, vectorB) {
-    return new Vector2(vectorA.x - vectorB.x, vectorA.y - vectorB.y);
-};
+    //#endregion
 
-Vector2.add = function(vectorA, vectorB) {
-    return new Vector2(vectorA.x + vectorB.x, vectorA.y + vectorB.y);
-};
-
-Vector2.multiply = function (vectorA, vectorB) {
-    return new Vector2(vectorA.x * vectorB.x, vectorA.y * vectorB.y);
-};
-
-Vector2.restore = function (data) {
-    return new Vector2(data.x, data.y);
-};
-
-/**
- * The distance between the points represented by VectorA and VectorB
- * @param vectorA
- * @param vectorB
- * @returns {number}
- */
-Vector2.distance = function (vectorA, vectorB) {
-    var v1 = vectorA.x - vectorB.x;
-    var v2 = vectorA.y - vectorB.y;
-    return Math.sqrt((v1 * v1) + (v2 * v2));
-};
-
-/**
- * The squared distance between the points represented by VectorA and VectorB
- * @param vectorA
- * @param vectorB
- * @returns {number}
- */
-Vector2.sqrDistance = function (vectorA, vectorB) {
-    var v1 = vectorA.x - vectorB.x;
-    var v2 = vectorA.y - vectorB.y;
-    return (v1 * v1) + (v2 * v2);
-};
-
-// static functions:
-
-Vector2.transformMat4 = function (vec2, mat) {
-    return new Vector2(
-        (mat[0] * vec2.x) + (mat[4] * vec2.y) + mat[12],
-        (mat[1] * vec2.x) + (mat[5] * vec2.y) + mat[13]);
-};
-
-Vector2.transformMat3 = function (vec2, mat) {
-    return new Vector2(
-        mat[0] * vec2.x + mat[3] * vec2.y + mat[6],
-        mat[1] * vec2.x + mat[4] * vec2.y + mat[7]);
-};
+}
 ;/**
- * Vector3 class for tri dimensional point references
+ *    RigidBody Class
  */
-SetterDictionary.addRule("vector3", ["x", "y", "z"]);
+class RigidBody {
 
-function Vector3(x, y, z) {
-	// public properties:
-	this.x = x || 0;
-	this.y = y || 0;
-	this.z = z || 0;
+    //#region Constructors
 
-	// private properties:
+    /**
+     *
+     * @param params
+     */
+    constructor(params) {
+        params = params || {};
 
-}
+        // public properties
+        this.gameObject = null;
 
-Vector3.prototype.set = function(x, y, z) {
-	this.x = x;
-	this.y = y;
-	this.z = z;
-};
+        // private properties
+        this._isStatic = params.static || false;
+        this._mass = params.mass || null;
+        this._friction = params.friction || null;
+        this._body = null;
+    }
 
-Vector3.prototype.objectify = function() {
-	return {
-		x: this.x,
-		y: this.y,
-		z: this.z
-	};
-};
+    //#endregion
 
-Vector3.restore = function(data) {
-	return new Vector3(data.x, data.y, data.z);
-};
+    //#region Public Methods
 
-Vector3.prototype.equals = function(obj) {
-	return (obj.x === this.x && obj.y === this.y && obj.z === this.z);
-};
+    //#region Static Methods
 
-Vector3.prototype.unload = function () {
+    //#endregion
 
-};
+    setMass(mass) {
+        this._mass = mass;
+        Matter.Body.setMass(this._body, this._mass);
+    }
 
-/**
- * The magnitude, or length, of this vector.
- * The magnitude is the L2 norm, or Euclidean distance between the origin and
- * the point represented by the (x, y, z) components of this Vector object.
- * @returns {number}
+    getMass() {
+        return this.mass;
+    }
+
+    setGameObject(gameObject) {
+        this._sync();
+    }
+
+    onGameObjectDetach() {
+        this.gameObject.transform.clearPositionGetter();
+        this.gameObject.transform.clearScaleGetter();
+        this.gameObject.transform.clearRotationGetter();
+    }
+
+    onGameObjectPositionUpdated(value) {
+        if (isObjectAssigned(this._body)) {
+            Matter.Body.setPosition(this._body, value);
+        }
+    }
+
+    onGameObjectRotationUpdated(value) {
+        if (isObjectAssigned(this._body)) {
+            Matter.Body.setAngle(this._body, value);
+        }
+    }
+
+    onGameObjectScaleUpdated(value) {
+        if (isObjectAssigned(this._body)) {
+            Matter.Body.scale(this._body, value.x, value.y);
+        }
+    }
+
+    unload() {
+        // TODO: do this
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    _sync() {
+        let self = this;
+
+        if (!isObjectAssigned(this.gameObject)) {
+            return;
+        }
+
+        if (!isObjectAssigned(this._body)) {
+            let pos = this.gameObject.transform.getPosition();
+
+            // TODO assign the body based on the object
+            let width = 1;
+            let height = 1;
+
+            if (isSprite(this.gameObject)) {
+                width = this.gameObject.getTexture().getWidth();
+                height = this.gameObject.getTexture().getHeight();
+            }
+
+            this._body = Matter.Bodies.rectangle(pos.x, pos.y, width, height,
+                {
+                    isStatic: this._isStatic
+                });
+
+            Matter.World.add(GameManager.activeScene.getPhysicsWorld(), [this._body]);
+
+            let objScale = this.gameObject.transform.getScale();
+            Matter.Body.scale(this._body, objScale.x, objScale.y);
+
+            this.gameObject.transform.overridePositionGetter(function () {
+                return {
+                    x: self._body.position.x,
+                    y: self._body.position.y
+                }
+            });
+
+            this.gameObject.transform.overrideRotationGetter(function () {
+                return self._body.angle;
+            });
+        }
+
+        if (isObjectAssigned(this._mass)) {
+            Matter.Body.setMass(this._body, this._mass);
+        }
+
+        if (isObjectAssigned(this._friction)) {
+            this._body.friction = this._friction;
+        }
+    }
+
+    //#endregion
+
+};/**
+ * Content Object Class
  */
-Vector3.prototype.magnitude = function() {
-	return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-};
+class ContentObject {
 
-/**
- * The square of the magnitude, or length, of this vector.
- * See http://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
- * @returns {number}
- */
-Vector3.prototype.sqrMagnitude = function () {
-	return this.x * this.x + this.y * this.y + this.z * this.z;
-};
+    //#region Constructors
 
-/**
- * The distance between the point represented by this Vector
- * object and a point represented by the given Vector object.
- * @param vector
- * @returns {number}
- */
-Vector3.prototype.distanceTo = function (vector) {
-	return Math.sqrt((this.x - vector.x)*(this.x - vector.x) +
-		(this.y - vector.y) * (this.y - vector.y) +
-		(this.z - vector.z) * (this.z - vector.z));
-};
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
 
-/**
- * The dot product of this vector with another vector.
- * @param vector
- * @returns {number}
- */
-Vector3.prototype.dot = function (vector) {
-	return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
-};
+    }
 
-/**
- * The cross product of this vector and the given vector.
- *
- * The cross product is a vector orthogonal to both original vectors.
- * It has a magnitude equal to the area of a parallelogram having the
- * two vectors as sides. The direction of the returned vector is
- * determined by the right-hand rule.
- * @param vector
- */
-Vector3.prototype.cross = function (vector) {
-	return new Vector3((this.y * vector.z) - (this.z * vector.y),
-		(this.z * vector.x) - (this.x * vector.z),
-		(this.x * vector.y) - (this.y * vector.x));
-};;/**
- * Vector4 class for tri dimensional point references
- */
-SetterDictionary.addRule("vector4", ["x", "y", "z", "w"]);
+    //#endregion
 
-function Vector4(x, y, z, w) {
-	// public properties:
-	this.x = x || 0;
-	this.y = y || 0;
-	this.z = z || 0;
-	this.w = w || 0;
+    //#region Methods
 
-	// private properties:
+    //#endregion
 
-}
-
-// instance functions
-
-Vector4.prototype.set = function(x, y, z, w) {
-	this.x = x;
-	this.y = y;
-	this.z = z;
-	this.w = w;
-};
-
-Vector4.prototype.objectify = function() {
-	return {
-		x: this.x,
-		y: this.y,
-		z: this.z,
-		w: this.w
-	};
-};
-
-Vector4.restore = function(data) {
-	return new Vector4(data.x, data.y, data.z, data.w);
-};
-
-Vector4.prototype.equals = function(obj) {
-	return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
-};
-
-Vector4.prototype.unload = function () {
-	
-};
-
-// static functions
-;function RigidBody (params) {
-	params = params || {};
-
-	// public properties
-	this.gameObject = null;
-
-	// private properties
-	this._isStatic = params.static || false;
-	this._mass = params.mass || null;
-	this._friction = params.friction || null;
-	this._body = null;
-
-}
-
-RigidBody.prototype._sync = function() {
-	var self = this;
-
-	if(!isObjectAssigned(this.gameObject)) {
-		return;
-	}
-
-	if(!isObjectAssigned(this._body)) {
-		var pos = this.gameObject.transform.getPosition();
-
-		// TODO assign the body based on the object
-		var width = 1,
-			height = 1;
-		
-		if(isSprite(this.gameObject)) {
-			width = this.gameObject.getTexture().getWidth();
-			height = this.gameObject.getTexture().getHeight();
-		}
-
-		this._body = Matter.Bodies.rectangle(pos.x, pos.y, width, height,
-			{
-				isStatic: this._isStatic
-			});
-
-		Matter.World.add(GameManager.activeScene.getPhysicsWorld(), [this._body]);
-
-		var objScale = this.gameObject.transform.getScale();
-		Matter.Body.scale(this._body, objScale.x, objScale.y);
-
-		this.gameObject.transform.overridePositionGetter(function() {
-			return {
-				x: self._body.position.x,
-				y: self._body.position.y
-			}
-		});
-
-		this.gameObject.transform.overrideRotationGetter(function() {
-			return self._body.angle;
-		});
-	}
-
-	if(isObjectAssigned(this._mass)) {
-		Matter.Body.setMass(this._body, this._mass);
-	}
-
-	if(isObjectAssigned(this._friction)) {
-		this._body.friction = this._friction;
-	}
-};
-
-RigidBody.prototype.setMass = function(mass) {
-	this._mass = mass;
-	Matter.Body.setMass(this._body, this._mass);
-};
-
-RigidBody.prototype.getMass = function() {
-	return this.mass;
-};
-
-RigidBody.prototype.setGameObject = function(gameObject) {
-	this._sync();
-};
-
-RigidBody.prototype.onGameObjectDetach = function() {
-	this.gameObject.transform.clearPositionGetter();
-	this.gameObject.transform.clearScaleGetter();
-	this.gameObject.transform.clearRotationGetter();
-};
-
-RigidBody.prototype.onGameObjectPositionUpdated = function(value) {
-	if(isObjectAssigned(this._body)) {
-		Matter.Body.setPosition(this._body, value);
-	}
-};
-
-RigidBody.prototype.onGameObjectRotationUpdated = function(value) {
-	if(isObjectAssigned(this._body)) {
-		Matter.Body.setAngle(this._body, value);
-	}
-};
-
-RigidBody.prototype.onGameObjectScaleUpdated = function(value) {
-	if(isObjectAssigned(this._body)) {
-		Matter.Body.scale(this._body, value.x, value.y);
-	}
-};
-
-RigidBody.prototype.unload = function() {
-	// TODO: do this
-};;/**
- * Content Object
- * @param params
- * @constructor
- */
-function ContentObject(params) {
 };/**
  * Project File class
  */
 class ProjectFile {
+
+    //#region Constructors
+
     /**
      *
      * @param params
+     * @constructor
      */
     constructor(params) {
         params = params || {};
@@ -12041,6 +12421,12 @@ class ProjectFile {
         this.content = params.content || {};
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param data
@@ -12049,37 +12435,63 @@ class ProjectFile {
     static restore(data) {
         return new ProjectFile(data);
     }
+
+    //#endregion
+
+    //#endregion
+
 };/**
- * Content Texture Atlas
- * @param params
- * @constructor
+ * Content Texture Atlas Class
  */
-function TextureAtlas(params) {
-    params = params || {};
+class TextureAtlas {
 
-    // public properties:
-    this.sourcePath = params.sourcePath || ""; // should be a relative path
-    this.mapping = [];
-}
+    //#region Constructors
 
-TextureAtlas.prototype.objectify = function () {
-    return {
-        sourcePath: this.sourcePath
-    };
-};
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+        params = params || {};
 
-TextureAtlas.restore = function (data) {
-    return new TextureAtlas({
-        sourcePath: data.sourcePath
-    });
-};
+        // public properties:
+        this.sourcePath = params.sourcePath || ""; // should be a relative path
+        this.mapping = [];
+    }
 
-TextureAtlas.prototype.getType = function () {
-    return "TextureAtlas";
-};;/**
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new TextureAtlas({
+            sourcePath: data.sourcePath
+        });
+    }
+
+    //#endregion
+
+    objectify() {
+        return {
+            sourcePath: this.sourcePath
+        };
+    }
+
+    getType() {
+        return "TextureAtlas";
+    }
+
+    //#endregion
+
+};/**
  * Camera2D class
  */
 class Camera2D {
+
+    //#region Constructors
+
     /**
      *
      * @param x
@@ -12102,6 +12514,23 @@ class Camera2D {
         this._lastZoom = null;
         this._matrix = new Matrix4();
     }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {Camera2D}
+     */
+    static restore(data) {
+        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
+    }
+
+    //#endregion
 
     /**
      *
@@ -12135,7 +12564,7 @@ class Camera2D {
 
         // force the camera calculations
         this.calculateMatrix();
-    };
+    }
 
     /**
      *
@@ -12143,7 +12572,7 @@ class Camera2D {
      */
     getViewWidth() {
         return this.viewWidth;
-    };
+    }
 
     /**
      *
@@ -12151,7 +12580,7 @@ class Camera2D {
      */
     getViewHeight() {
         return this.viewHeight;
-    };
+    }
 
     /**
      *
@@ -12164,7 +12593,7 @@ class Camera2D {
         }
 
         return this._matrix.asArray();
-    };
+    }
 
     /**
      *
@@ -12178,7 +12607,7 @@ class Camera2D {
 
         // then we calculate and return the world coordinates:
         return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
-    };
+    }
 
     /**
      *
@@ -12197,86 +12626,80 @@ class Camera2D {
             y: this.y,
             zoom: this.zoom
         }
-    };
+    }
 
-    /**
-     *
-     * @param data
-     * @returns {Camera2D}
-     */
-    static restore(data) {
-        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
-    };
+    //#endregion
+
 };SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
 /**
  * Color Class
  */
-class Color{
+class Color {
 
     //#region Static Properties
 
-    static get CornflowerBlue(){
+    static get CornflowerBlue() {
         return Color.fromRGB(100.0, 149.0, 237.0);
     }
 
-    static get Scarlet(){
+    static get Scarlet() {
         return Color.fromRGB(255.0, 36.0, 0.0);
     }
 
-    static get Red(){
+    static get Red() {
         return Color.fromRGB(255.0, 0.0, 0.0);
     }
 
-    static get Green(){
+    static get Green() {
         return Color.fromRGB(0.0, 255.0, 0.0);
     }
 
-    static get Blue(){
+    static get Blue() {
         return Color.fromRGB(0.0, 0.0, 255.0);
     }
 
-    static get White(){
+    static get White() {
         return Color.fromRGB(255.0, 255.0, 255.0);
     }
 
-    static get Black(){
+    static get Black() {
         return Color.fromRGB(0.0, 0.0, 0.0);
     }
 
-    static get Gray(){
+    static get Gray() {
         return Color.fromRGB(80.0, 80.0, 80.0);
     }
 
-    static get Nephritis(){
+    static get Nephritis() {
         return Color.fromRGB(39.0, 174.0, 96.0);
     }
 
-    static get Wisteria(){
+    static get Wisteria() {
         return Color.fromRGB(142.0, 68.0, 173.0);
     }
 
-    static get Amethyst(){
+    static get Amethyst() {
         return Color.fromRGB(155.0, 89.0, 182.0);
     }
 
-    static get Carrot(){
+    static get Carrot() {
         return Color.fromRGB(230, 126, 34);
     }
 
-    static get Pumpkin(){
+    static get Pumpkin() {
         return Color.fromRGB(211, 84, 0);
     }
 
-    static get Orange(){
+    static get Orange() {
         return Color.fromRGB(243, 156, 18);
     }
 
-    static get SunFlower(){
+    static get SunFlower() {
         return Color.fromRGB(241, 196, 15);
     }
 
-    static get Alizarin(){
+    static get Alizarin() {
         return Color.fromRGB(231, 76, 60);
     }
 
@@ -12330,7 +12753,7 @@ class Color{
     static fromRGBA(red, green, blue, alpha) {
 
         // no need to go further if arguments are invalid
-        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)){
+        if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)) {
             return null;
         }
 
@@ -12345,14 +12768,14 @@ class Color{
     static fromHex(hex) {
 
         // no need to go further if argument is invalid
-        if (!isString(hex)){
+        if (!isString(hex)) {
             return null;
         }
 
         // convert to RGBA
         let rgba = Color.hexToRGBA(hex);
 
-        if (!rgba){
+        if (!rgba) {
             return null;
         }
 
@@ -12381,7 +12804,7 @@ class Color{
      */
     static rgbToHex(r, g, b) {
 
-        if (!isNumber(r) || !isNumber(g) || !isNumber(b)){
+        if (!isNumber(r) || !isNumber(g) || !isNumber(b)) {
             return "";
         }
 
@@ -12400,7 +12823,7 @@ class Color{
     static hexToRGBA(hex) {
         // Expand shorthand form (e.g. "03F", "03F8" to full form (e.g. "0033FF", "0033FF88")
         let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d]?)$/i;
-        hex = hex.replace(shorthandRegex, function(m, r, g, b, a) {
+        hex = hex.replace(shorthandRegex, function (m, r, g, b, a) {
             return r + r + g + g + b + b + a + a;
         });
 
@@ -12442,7 +12865,7 @@ class Color{
         let maxRange = 1.0;
 
         // change current color and max range if chosen format is set to RGBA
-        if (asRGBA === true){
+        if (asRGBA === true) {
             currentColor = this.toRGBA();
             maxRange = 255.0;
         }
@@ -12490,7 +12913,7 @@ class Color{
     equalsIgnoreAlpha(obj) {
 
         // validate argument before testing
-        if (!isNumber(obj.r) || !isNumber(obj.g) || !isNumber(obj.b)){
+        if (!isNumber(obj.r) || !isNumber(obj.g) || !isNumber(obj.b)) {
             return null;
         }
 
@@ -12505,7 +12928,7 @@ class Color{
     equals(obj) {
 
         // validate argument before testing
-        if (!isNumber(obj.a)){
+        if (!isNumber(obj.a)) {
             return null;
         }
 
@@ -12585,13 +13008,14 @@ class Color{
  * FontStyle Class
  */
 class FontStyle {
+
     //#region Constructors
 
     /**
      * @param fontDescription
      * @constructor
      */
-    constructor(fontDescription){
+    constructor(fontDescription) {
         this._fontDescription = fontDescription;
         this._fontSize = 70;
         this._letterSpacing = 0;
@@ -12603,7 +13027,7 @@ class FontStyle {
 
     //#region Static Methods
 
-    static restore(data){
+    static restore(data) {
         // TODO:
         return {};
     }
@@ -12612,11 +13036,11 @@ class FontStyle {
 
     //#region Public Methods
 
-    getFontDescription(){
+    getFontDescription() {
         return this._fontDescription;
     }
 
-    setFontDescription(fontInfo){
+    setFontDescription(fontInfo) {
 
         // don't go further if fontInfo is invalid
         if (!isObjectAssigned(fontInfo)) {
@@ -12628,11 +13052,11 @@ class FontStyle {
         return this._fontDescription = fontInfo;
     }
 
-    getFontSize(){
+    getFontSize() {
         return this._fontSize;
     }
 
-    setFontSize(size){
+    setFontSize(size) {
         this._fontSize = size;
     }
 
@@ -12640,30 +13064,30 @@ class FontStyle {
      * Retrieves font style scale based on font size and font's description info size
      * @returns {number|null} font style scale or null if invalid
      */
-    getScale(){
+    getScale() {
 
         let metricsSize = this.getFontDescription().info.size;
 
         // TODO: possibly validated in setFontInfo instead?
-        if (!metricsSize){
+        if (!metricsSize) {
             return null;
         }
 
         // calculate scale between generated font's size and the desired (font) size of the text
         let scale = this.getFontSize() / metricsSize;
 
-        if (!scale || scale <= 0){
+        if (!scale || scale <= 0) {
             return null;
         }
 
         return scale;
     }
 
-    getLetterSpacing(){
+    getLetterSpacing() {
         return this._letterSpacing;
     }
 
-    setLetterSpacing(spacing){
+    setLetterSpacing(spacing) {
         this._letterSpacing = spacing;
     }
 
@@ -12673,34 +13097,34 @@ class FontStyle {
      * @returns {number|null} font's character's ID or null if invalid
      * @public
      */
-    findCharID(char){
+    findCharID(char) {
 
         let fontDescriptionChars = this.getFontDescription().chars;
 
         // make sure the parameter is valid
-        if (!char || !fontDescriptionChars || fontDescriptionChars.length == 0){
+        if (!char || !fontDescriptionChars || fontDescriptionChars.length == 0) {
             return null;
         }
         // retrieve character's ascii code
         let charCode = char.charCodeAt(0);
 
         // if code is invalid, no need to go further
-        if (!charCode){
+        if (!charCode) {
             return null;
         }
 
         // go through every character
-        for (let i = 0; i < fontDescriptionChars.length; i++){
+        for (let i = 0; i < fontDescriptionChars.length; i++) {
             // store glyphID (Ascii Code)
             let glyphID = fontDescriptionChars[i].id;
 
             // skip if invalid
-            if (!glyphID){
+            if (!glyphID) {
                 continue;
             }
 
             // if that's the code we are looking for
-            if (glyphID === charCode){
+            if (glyphID === charCode) {
                 // return the iteration number (the position of that character inside the array of characters)
                 return i;
             }
@@ -12719,8 +13143,7 @@ class FontStyle {
 
         let fontDescriptionKernings = this.getFontDescription().kernings;
 
-        if (!firstCharCode || !secondCharCode ||
-            !fontDescriptionKernings|| !fontDescriptionKernings.length || fontDescriptionKernings.length === 0) {
+        if (!firstCharCode || !secondCharCode || !fontDescriptionKernings || !fontDescriptionKernings.length || fontDescriptionKernings.length === 0) {
             return 0;
         }
 
@@ -12729,7 +13152,7 @@ class FontStyle {
             let kern = fontDescriptionKernings[i];
 
             // skip if table is invalid
-            if (!kern || !kern.first || !kern.second){
+            if (!kern || !kern.first || !kern.second) {
                 continue;
             }
 
@@ -12751,371 +13174,460 @@ class FontStyle {
 
 
 ;/**
- * GameScene class
+ * GameScene Class
  */
-function Game(params) {
-    params = params || {};
+class Game {
 
-    var DEFAULT_VIRTUAL_WIDTH = 800,
-        DEFAULT_VIRTUAL_HEIGHT = 640;
+    //#region Constructors
 
-    // public properties:
+    constructor(params) {
+        params = params || {};
+
+        let DEFAULT_VIRTUAL_WIDTH = 800;
+        let DEFAULT_VIRTUAL_HEIGHT = 640;
+
+        // public properties:
 
 
-    // private properties:
-    this._renderContext = null;
-    this._logger = new Logger("Game");
-    this._initialized = false;
-    this._gameScene = params.scene;
-    this._totalElapsedTime = null;
-    this._virtualResolution = null;
-    this._shaderManager = null;
-    this._executionPhase = SC.EXECUTION_PHASES.WAITING;
-    this._physicsEngine = Matter.Engine.create();
-    this._physicsEngine.enableSleeping = true;
-    this._renderExtensions = {};
-    this._paused = false;
-    this._swapScene = null; // used to contain a temporary scene before swapping
-    this._swappingScenes = false;
-    this._inputHandlersBinded = false;
-
-    Matter.Engine.run(this._physicsEngine);
-
-    // set the default virtual resolution
-    this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
-
-    // the target container is defined?
-    if (isString(params.target)) {
-        this.setTarget(params.target);
-    }
-}
-
-/**
- *
- * @param name
- * @param extension
- */
-Game.prototype.addRenderExtension = function (name, extension) {
-    this._renderExtensions[name] = extension;
-};
-
-/**
- *
- * @param name
- */
-Game.prototype.removeRenderExtension = function (name) {
-    delete this._renderExtensions[name];
-};
-
-/**
- *
- */
-Game.prototype.clearRenderExtensions = function () {
-    this._renderExtensions = [];
-};
-
-/**
- *
- * @returns {engine|*}
- */
-Game.prototype.getPhysicsEngine = function () {
-    return this._physicsEngine;
-};
-
-Game.prototype._bindInputHandlers = function () {
-    window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
-    window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
-    this._inputHandlersBinded = true;
-};
-
-Game.prototype._unbindInputHandlers = function () {
-    window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
-    window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
-    this._inputHandlersBinded = false;
-};
-
-Game.prototype._keyUpListener = function (e) {
-    var keys = [e.keyCode];
-
-    if (e.ctrlKey) {
-        keys.push(Keys.Ctrl);
-    }
-
-    if (e.shiftKey) {
-        keys.push(Keys.Shift);
-    }
-
-    // update the keyboard data:
-    Keyboard.removeKeys(keys);
-};
-
-Game.prototype._keyDownListener = function (e) {
-    var keys = [e.keyCode];
-
-    if (e.ctrlKey) {
-        keys.push(Keys.Ctrl);
-    }
-
-    if (e.shiftKey) {
-        keys.push(Keys.Shift);
-    }
-
-    // update the keyboard data:
-    Keyboard.addKeys(keys);
-};
-
-/**
- *
- * @param timestamp
- */
-Game.prototype._onAnimationFrame = function (timestamp) {
-    // is this the first run?
-    if (this._totalElapsedTime === null) {
-        this._totalElapsedTime = timestamp;
-    }
-
-    // any scene waiting to be swapped?
-    if (this._swapScene && !this._swappingScenes) {
-        this.changeScene(this._swapScene);
-        this._swapScene = null;
-    }
-
-    // calculate the current delta time value:
-    var delta = (timestamp - this._totalElapsedTime) / 1000;
-    var self = this;
-    this._totalElapsedTime = timestamp;
-
-    if (!this._paused && isGameScene(this._gameScene) && !this._swappingScenes) {
-        // handle the active game scene interactions here:
-
-        // TODO: before release, add the try here..
-        //try {
-        // the user defined the game scene update function?
-        if (isFunction(this._gameScene.update)) {
-            // call user defined update function:
-            this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
-            this._gameScene.update(delta);
-        }
-
-        this._gameScene.sceneUpdate(delta);
-
-        if (isFunction(this._gameScene.lateUpdate)) {
-            // call user defined update function:
-            this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
-            this._gameScene.lateUpdate(delta);
-        }
-
-        this._gameScene.sceneLateUpdate(delta);
-
-        // prepare the webgl context for rendering:
-        this._gameScene.prepareRender();
-
-        // render extensions?
-        var renderExtensions = Object.keys(this._renderExtensions);
-        renderExtensions.forEach(function (name) {
-            self._renderExtensions[name].render(delta);
-        });
-
-        // the user defined the game scene early-render function?
-        if (isFunction(this._gameScene.render)) {
-            this._executionPhase = SC.EXECUTION_PHASES.RENDER;
-            this._gameScene.render(delta);
-        }
-
-        // call internal scene render function:
-        this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
-        this._gameScene.sceneRender(delta);
-
-        this._gameScene.flushRender();
-
-        // the user defined the game scene pre-render function?
-        if (isFunction(this._gameScene.lateRender)) {
-            this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
-            this._gameScene.lateRender(delta);
-            this._gameScene.flushRender();
-        }
-
-        //} catch (ex) {
-        //    this._logger.error(ex);
-        //}
-
+        // private properties:
+        this._renderContext = null;
+        this._logger = new Logger("Game");
+        this._initialized = false;
+        this._gameScene = params.scene;
+        this._totalElapsedTime = null;
+        this._virtualResolution = null;
+        this._shaderManager = null;
         this._executionPhase = SC.EXECUTION_PHASES.WAITING;
-    }
-
-    // request a new animation frame:
-    if (!this._paused) {
-        requestAnimationFrame(this._onAnimationFrame.bind(this));
-
-    } else {
-        // when the game is paused it's a good idea to wait a few ms before requesting a new animation frame to
-        // save some machine resources...
-        setTimeout(function() {
-            requestAnimationFrame(self._onAnimationFrame.bind(self));
-        }, 100);
-    }
-};
-
-Game.prototype.pauseGame = function () {
-    this._paused = true;
-};
-
-Game.prototype.resumeGame = function () {
-    this._paused = false;
-};
-
-Game.prototype.getShaderManager = function () {
-    return this._shaderManager;
-};
-
-Game.prototype.getActiveCamera = function () {
-    return this._gameScene ? this._gameScene.getCamera() : null;
-};
-
-Game.prototype.getExecutionPhase = function () {
-    return this._executionPhase;
-};
-
-Game.prototype.init = function (params) {
-    params = params || {};
-
-    // context initialization
-    if (!isObjectAssigned(this._canvas)) {
-        this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
-        return;
-    }
-
-    // request to begin the animation frame handling
-    this._onAnimationFrame(0);
-
-    // set this as the active game:
-    GameManager.activeGame = this;
-
-    if (!params.ignoreInputHandler) {
-        this._bindInputHandlers();
-    }
-
-    this._initalized = true;
-};
-
-/**
- * Set this as the active game
- */
-Game.prototype.setActive = function () {
-    GameManager.activeGame = this;
-};
-
-Game.prototype.setVirtualResolution = function (width, height) {
-    this._virtualResolution = {
-        width: width,
-        height: height
-    };
-
-    if (isObjectAssigned(this._renderContext)) {
-        this._renderContext.setVirtualResolution(width, height);
-
-        // update camera view size:
-        this.getActiveCamera().setViewSize(width, height);
-    }
-};
-
-Game.prototype.refreshVirtualResolution = function () {
-    this._renderContext.setVirtualResolution(this._virtualResolution.width, this._virtualResolution.height);
-
-    var camera = this.getActiveCamera();
-    if (camera) {
-        camera.setViewSize(this._virtualResolution.width, this._virtualResolution.height);
-    }
-};
-
-Game.prototype.getVirtualResolution = function () {
-    return this._virtualResolution;
-};
-
-Game.prototype.getRenderContext = function () {
-    return this._renderContext;
-};
-
-Game.prototype.setTarget = function (target) {
-    this._canvas = isString(target) ? document.getElementById(target) : null;
-
-    if (isObjectAssigned(this._canvas)) {
-        // OPTIONAL: for now there is only WebGL Context, add more if needed:
-        // assign the render context..
-        this._renderContext = new WebGLContext({
-            renderContainer: this._canvas
-        });
-
-        // setting the global active render as the one selected for this game:
-        GameManager.renderContext = this._renderContext;
-        this._shaderManager = new ShaderManager(this);
-
-        this.refreshVirtualResolution();
-    }
-};
-
-Game.prototype.changeScene = function (scene) {
-    if (!isGameScene(scene)) {
-        return;
-    }
-
-    // is it safe to swap scenes now?
-    if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
-        // flag the swapping state
-        this._swappingScenes = true;
-
-        if (this._gameScene) {
-            // unload the active scene:
-            this._gameScene.unload();
-        }
-
-        this._gameScene = scene;
-        this._gameScene.setGame(this);
-
-        GameManager.activeScene = scene;
-        this.refreshVirtualResolution();
-
-        // the user defined the game scene initialize function?
-        if (isFunction(this._gameScene.initialize)) {
-            // call user defined update function:
-            this._gameScene.initialize();
-        }
-
+        this._physicsEngine = Matter.Engine.create();
+        this._physicsEngine.enableSleeping = true;
+        this._renderExtensions = {};
+        this._paused = false;
+        this._swapScene = null; // used to contain a temporary scene before swapping
         this._swappingScenes = false;
+        this._inputHandlersBinded = false;
 
-    } else {
-        // nope, store this scene to change in the next animation frame start
-        this._swapScene = scene;
+        Matter.Engine.run(this._physicsEngine);
+
+        // set the default virtual resolution
+        this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
+
+        // the target container is defined?
+        if (isString(params.target)) {
+            this.setTarget(params.target);
+        }
     }
-};
 
-Game.prototype.getTotalElapsedTime = function () {
-    return this._totalElapsedTime;
-};
+    //#endregion
 
-Game.prototype.unload = function () {
-    if (this._inputHandlersBinded) {
-        this._unbindInputHandlers();
+    //#region Public Methods
+
+    /**
+     *
+     * @param name
+     * @param extension
+     */
+    addRenderExtension(name, extension) {
+        this._renderExtensions[name] = extension;
     }
-};;/**
+
+    /**
+     *
+     * @param name
+     */
+    removeRenderExtension(name) {
+        delete this._renderExtensions[name];
+    }
+
+    /**
+     *
+     */
+    clearRenderExtensions() {
+        this._renderExtensions = [];
+    }
+
+    /**
+     *
+     * @returns {engine|*}
+     */
+    getPhysicsEngine() {
+        return this._physicsEngine;
+    }
+
+    pauseGame() {
+        this._paused = true;
+    }
+
+    resumeGame() {
+        this._paused = false;
+    }
+
+    getShaderManager() {
+        return this._shaderManager;
+    }
+
+    getActiveCamera() {
+        return this._gameScene ? this._gameScene.getCamera() : null;
+    }
+
+    getExecutionPhase() {
+        return this._executionPhase;
+    }
+
+    init(params) {
+        params = params || {};
+
+        // context initialization
+        if (!isObjectAssigned(this._canvas)) {
+            this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
+            return;
+        }
+
+        // request to begin the animation frame handling
+        this._onAnimationFrame(0);
+
+        // set this as the active game:
+        GameManager.activeGame = this;
+
+        if (!params.ignoreInputHandler) {
+            this._bindInputHandlers();
+        }
+
+        this._initalized = true;
+    }
+
+    /**
+     * Set this as the active game
+     */
+    setActive() {
+        GameManager.activeGame = this;
+    }
+
+    setVirtualResolution(width, height) {
+        this._virtualResolution = {
+            width: width,
+            height: height
+        };
+
+        if (isObjectAssigned(this._renderContext)) {
+            this._renderContext.setVirtualResolution(width, height);
+
+            // update camera view size:
+            this.getActiveCamera().setViewSize(width, height);
+        }
+    }
+
+    refreshVirtualResolution() {
+        this._renderContext.setVirtualResolution(this._virtualResolution.width, this._virtualResolution.height);
+
+        let camera = this.getActiveCamera();
+        if (camera) {
+            camera.setViewSize(this._virtualResolution.width, this._virtualResolution.height);
+        }
+    }
+
+    getVirtualResolution() {
+        return this._virtualResolution;
+    }
+
+    getRenderContext() {
+        return this._renderContext;
+    }
+
+    setTarget(target) {
+        this._canvas = isString(target) ? document.getElementById(target) : null;
+
+        if (isObjectAssigned(this._canvas)) {
+            // OPTIONAL: for now there is only WebGL Context, add more if needed:
+            // assign the render context..
+            this._renderContext = new WebGLContext({
+                renderContainer: this._canvas
+            });
+
+            // setting the global active render as the one selected for this game:
+            GameManager.renderContext = this._renderContext;
+            this._shaderManager = new ShaderManager(this);
+
+            this.refreshVirtualResolution();
+        }
+    }
+
+    changeScene(scene) {
+        if (!isGameScene(scene)) {
+            return;
+        }
+
+        // is it safe to swap scenes now?
+        if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
+            // flag the swapping state
+            this._swappingScenes = true;
+
+            if (this._gameScene) {
+                // unload the active scene:
+                this._gameScene.unload();
+            }
+
+            this._gameScene = scene;
+            this._gameScene.setGame(this);
+
+            GameManager.activeScene = scene;
+            this.refreshVirtualResolution();
+
+            // the user defined the game scene initialize function?
+            if (isFunction(this._gameScene.initialize)) {
+                // call user defined update function:
+                this._gameScene.initialize();
+            }
+
+            this._swappingScenes = false;
+
+        } else {
+            // nope, store this scene to change in the next animation frame start
+            this._swapScene = scene;
+        }
+    }
+
+    getTotalElapsedTime() {
+        return this._totalElapsedTime;
+    }
+
+    unload() {
+        if (this._inputHandlersBinded) {
+            this._unbindInputHandlers();
+        }
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     *
+     * @private
+     */
+    _bindInputHandlers() {
+        window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
+        window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
+        this._inputHandlersBinded = true;
+    }
+
+    /**
+     *
+     * @private
+     */
+    _unbindInputHandlers() {
+        window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
+        window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
+        this._inputHandlersBinded = false;
+    }
+
+    /**
+     *
+     * @param e
+     * @private
+     */
+    _keyUpListener(e) {
+        let keys = [e.keyCode];
+
+        if (e.ctrlKey) {
+            keys.push(Keys.Ctrl);
+        }
+
+        if (e.shiftKey) {
+            keys.push(Keys.Shift);
+        }
+
+        // update the keyboard data:
+        Keyboard.instance.removeKeys(keys);
+    }
+
+    /**
+     *
+     * @param e
+     * @private
+     */
+    _keyDownListener(e) {
+        let keys = [e.keyCode];
+
+        if (e.ctrlKey) {
+            keys.push(Keys.Ctrl);
+        }
+
+        if (e.shiftKey) {
+            keys.push(Keys.Shift);
+        }
+
+        // update the keyboard data:
+        Keyboard.instance.addKeys(keys);
+    }
+
+    /**
+     *
+     * @param timestamp
+     * @private
+     */
+    _onAnimationFrame(timestamp) {
+        // is this the first run?
+        if (this._totalElapsedTime === null) {
+            this._totalElapsedTime = timestamp;
+        }
+
+        // any scene waiting to be swapped?
+        if (this._swapScene && !this._swappingScenes) {
+            this.changeScene(this._swapScene);
+            this._swapScene = null;
+        }
+
+        // calculate the current delta time value:
+        let delta = (timestamp - this._totalElapsedTime) / 1000;
+        let self = this;
+        this._totalElapsedTime = timestamp;
+
+        if (!this._paused && isGameScene(this._gameScene) && !this._swappingScenes) {
+            // handle the active game scene interactions here:
+
+            // TODO: before release, add the try here..
+            //try {
+            // the user defined the game scene update function?
+            if (isFunction(this._gameScene.update)) {
+                // call user defined update function:
+                this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
+                this._gameScene.update(delta);
+            }
+
+            this._gameScene.sceneUpdate(delta);
+
+            if (isFunction(this._gameScene.lateUpdate)) {
+                // call user defined update function:
+                this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
+                this._gameScene.lateUpdate(delta);
+            }
+
+            this._gameScene.sceneLateUpdate(delta);
+
+            // prepare the webgl context for rendering:
+            this._gameScene.prepareRender();
+
+            // render extensions?
+            let renderExtensions = Object.keys(this._renderExtensions);
+            renderExtensions.forEach(function (name) {
+                self._renderExtensions[name].render(delta);
+            });
+
+            // the user defined the game scene early-render function?
+            if (isFunction(this._gameScene.render)) {
+                this._executionPhase = SC.EXECUTION_PHASES.RENDER;
+                this._gameScene.render(delta);
+            }
+
+            // call internal scene render function:
+            this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
+            this._gameScene.sceneRender(delta);
+
+            this._gameScene.flushRender();
+
+            // the user defined the game scene pre-render function?
+            if (isFunction(this._gameScene.lateRender)) {
+                this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
+                this._gameScene.lateRender(delta);
+                this._gameScene.flushRender();
+            }
+
+            //} catch (ex) {
+            //    this._logger.error(ex);
+            //}
+
+            this._executionPhase = SC.EXECUTION_PHASES.WAITING;
+        }
+
+        // request a new animation frame:
+        if (!this._paused) {
+            requestAnimationFrame(this._onAnimationFrame.bind(this));
+
+        } else {
+            // when the game is paused it's a good idea to wait a few ms before requesting a new animation frame to
+            // save some machine resources...
+            setTimeout(function () {
+                requestAnimationFrame(self._onAnimationFrame.bind(self));
+            }, 100);
+        }
+    }
+
+    //#endregion
+
+};/**
  * Game Manager static class
  */
-var GameManager = function() {};
+class GameManager {
 
-/**
- * The active render context
- * @type {renderContext}
- */
-GameManager.renderContext = null;
-GameManager.activeScene = null;
-GameManager.activeProject = null;
-GameManager.activeGame = null;
-GameManager.activeProjectPath = null;;AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
-AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
+    //#region Static Properties
+
+    /**
+     * The active render context
+     * @type {renderContext}
+     */
+    static get renderContext() {
+        return this._renderContext;
+    }
+
+    /**
+     * The active render context
+     * @type {renderContext}
+     */
+    static set renderContext(value) {
+        this._renderContext = value;
+    }
+
+    static get activeScene() {
+        return this._activeScene;
+    }
+
+    static set activeScene(value) {
+        this._activeScene = value;
+    }
+
+    static get activeProject() {
+        return this._activeProject;
+    }
+
+    static set activeProject(value) {
+        this._activeProject = value;
+    }
+
+    static get activeGame() {
+        return this._activeGame;
+    }
+
+    static set activeGame(value) {
+        this._activeGame = value;
+    }
+
+    static get activeProjectPath() {
+        return this._activeProjectPath;
+    }
+
+    static set activeProjectPath(value) {
+        this._activeProjectPath = value;
+    }
+
+    //#endregion
+
+    //#region Constructors
+
+    constructor() {
+
+    }
+
+    //#endregion
+
+};AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
+AttributeDictionary.addRule("gameobject", "_parent", {visible: false});
 
 /**
  * GameObject class
  */
 class GameObject {
+
+    //#region Constructors
 
     /**
      * @param {Object} params
@@ -13131,7 +13643,7 @@ class GameObject {
             params.transform.gameObject = this;
         }
 
-        this.transform = params.transform || new Transform({ gameObject: this });
+        this.transform = params.transform || new Transform({gameObject: this});
 
         // private properties:
         this._uid = generateUID();
@@ -13141,52 +13653,69 @@ class GameObject {
         this._transformMatrix = new Matrix4();
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new GameObject({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+    }
+
+    //#endregion
+
     equals(other) {
         if (other.getUID) {
             return this._uid === other.getUID();
         }
 
         return this === other;
-    };
+    }
 
     getBaseWidth() {
         return 1;
-    };
+    }
 
     getBaseHeight() {
         return 1;
-    };
+    }
 
     getType() {
         return "GameObject";
-    };
+    }
 
     getUID() {
         return this._uid;
-    };
+    }
 
     propagatePropertyUpdate(property, value) {
-        for (var i = 0; i < this._components.length; ++i) {
+        for (let i = 0; i < this._components.length; ++i) {
             if (this._components[i]["onGameObject" + property + "Updated"]) {
                 this._components[i]["onGameObject" + property + "Updated"](value);
             }
         }
-    };
+    }
 
     /**
      * Resolves the GameObject transformation Matrix4
-     * @returns {Float32Array} 
+     * @returns {Float32Array}
      */
     getMatrix() {
         this._transformMatrix.identity();
         this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
 
         return this._transformMatrix.asArray();
-    };
+    }
 
     getParent() {
         return this._parent;
-    };
+    }
 
     removeParent() {
         if (this._parent) {
@@ -13196,7 +13725,7 @@ class GameObject {
         }
 
         this._parent = null;
-    };
+    }
 
     setParent(gameObject) {
         if (!gameObject) {
@@ -13220,7 +13749,7 @@ class GameObject {
 
             gameObject.addChild(this);
         }
-    };
+    }
 
     removeChild(gameObject) {
         for (let i = this._children.length - 1; i >= 0; i--) {
@@ -13228,11 +13757,11 @@ class GameObject {
                 return this._children.splice(i, 1);
             }
         }
-    };
+    }
 
     getChildren() {
         return this._children;
-    };
+    }
 
     addChild(gameObject, index) {
         // let's be safe, make sure to remove parent if any
@@ -13247,14 +13776,14 @@ class GameObject {
         } else {
             this._children.push(gameObject);
         }
-    };
+    }
 
     getHierarchyHash() {
         if (this._parent) {
             return this._parent.getHierarchyHash() + "." + this._uid;
         }
         return this._uid + "";
-    };
+    }
 
     isChild(gameObject) {
         // check if is a child simply by getting the hierarchy hash:
@@ -13264,16 +13793,16 @@ class GameObject {
 
         // this way takes away more resources:
         /*for (var i = 0; i < this._children.length; ++i) {
-            if (this._children[i].equals(gameObject)) {
-                return true;
-            } else {
-                if (this._children[i].isChild(gameObject)) {
-                    return true;
-                }
-            }
-        }
-        return false;*/
-    };
+         if (this._children[i].equals(gameObject)) {
+         return true;
+         } else {
+         if (this._children[i].isChild(gameObject)) {
+         return true;
+         }
+         }
+         }
+         return false;*/
+    }
 
     addComponent(component) {
         if (isFunction(component.setGameObject)) {
@@ -13284,7 +13813,7 @@ class GameObject {
         component.gameObject = this;
 
         this._components.push(component);
-    };
+    }
 
     update(delta) {
         if (!this.enabled) {
@@ -13303,7 +13832,7 @@ class GameObject {
                 component.update(delta);
             }
         });
-    };
+    }
 
     render(delta, spriteBatch) {
         if (!this.enabled) {
@@ -13322,11 +13851,11 @@ class GameObject {
                 component.render(delta, spriteBatch);
             }
         });
-    };
+    }
 
     getComponents() {
         return this._components;
-    };
+    }
 
     getBoundary(bulk) {
         let mat = this.getMatrix();
@@ -13349,7 +13878,7 @@ class GameObject {
         }
 
         return boundary;
-    };
+    }
 
     getRectangleBoundary(bulk) {
         let vertices = this.getBoundary(bulk);
@@ -13362,11 +13891,11 @@ class GameObject {
 
         // return the generated rectangle:
         return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-    };
+    }
 
     collidesWith(gameObject, bulk, bulkOther) {
         return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
-    };
+    }
 
     collidesWithPoint(point, bulk) {
         let boundaryA = this.getBoundary(bulk);
@@ -13377,7 +13906,7 @@ class GameObject {
             new Vector2(point.x, point.y + 1));
 
         return Boundary.overlap(boundaryA, boundaryB);
-    };
+    }
 
     objectify() {
         return {
@@ -13386,17 +13915,7 @@ class GameObject {
             children: Objectify.array(this._children),
             components: Objectify.array(this._components)
         };
-    };
-
-    static restore(data) {
-        return new GameObject({
-            name: data.name,
-            transform: Transform.restore(data.transform),
-            children: Objectify.restoreArray(data.children),
-            components: Objectify.restoreArray(data.components)
-        });
-    };
-
+    }
 
     unload() {
         for (let i = 0; i < this._components.length; ++i) {
@@ -13404,7 +13923,9 @@ class GameObject {
                 this._components[i].unload();
             }
         }
-    };
+    }
+
+    //#endregion
 };AttributeDictionary.addRule("gameScene", "_game", {visible: false});
 AttributeDictionary.addRule("gameScene", "_gameObjects", {visible: false});
 AttributeDictionary.addRule("gameScene", "_camera", {visible: false});
@@ -13413,206 +13934,451 @@ AttributeDictionary.addRule("gameScene", "_spriteBatch", {visible: false});
 /**
  * GameScene class
  */
-function GameScene(params) {
-    params = params || {};
+class GameScene {
 
-    if (!params.game) {
-        throw "cannot create a game scene without the game parameter";
-    }
+    //#region Constructors
 
-    // public properties:
+    /**
+     *
+     * @param params
+     */
+    constructor(params) {
+        params = params || {};
 
-    this.name = params.name || "GameScene";
-
-    // private properties:
-    this._uid = generateUID();
-    this._game = params.game || null;
-    this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
-    this._gameObjects = params.gameObjects || [];
-    this._camera = params.camera || new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
-    this._spriteBatch = new SpriteBatch(params.game);
-}
-
-GameScene.prototype.getUID = function () {
-    return this._uid;
-};
-
-GameScene.prototype.getPhysicsWorld = function () {
-    return this._game.getPhysicsEngine().world;
-};
-
-GameScene.prototype.getCamera = function () {
-    return this._camera
-};
-
-GameScene.prototype.setGame = function (game) {
-    this._game = game;
-};
-
-GameScene.prototype.getGame = function () {
-    return this._game;
-};
-
-GameScene.prototype.setBackgroundColor = function (color) {
-    this._backgroundColor = color;
-};
-
-GameScene.prototype.getBackgroundColor = function () {
-    return this._backgroundColor;
-};
-
-GameScene.prototype.addGameObject = function (gameObject, index) {
-    // let's be safe, make sure to remove parent if any
-    gameObject.removeParent();
-
-    if (isObjectAssigned(index)) {
-        this._gameObjects.insert(index, gameObject);
-    } else {
-        this._gameObjects.push(gameObject);
-    }
-};
-
-GameScene.prototype.getGameObjects = function () {
-    return this._gameObjects;
-};
-
-GameScene.prototype.removeGameObject = function (gameObject) {
-    for (var i = this._gameObjects.length - 1; i >= 0; i--) {
-        if (this._gameObjects[i].getUID() == gameObject.getUID()) {
-            return this._gameObjects.splice(i, 1);
+        if (!params.game) {
+            throw "cannot create a game scene without the game parameter";
         }
+
+        // public properties:
+
+        this.name = params.name || "GameScene";
+
+        // private properties:
+        this._uid = generateUID();
+        this._game = params.game || null;
+        this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
+        this._gameObjects = params.gameObjects || [];
+        // the default scene camera
+        this._camera = params.camera || new Camera2D(0, 0,
+                this._game.getVirtualResolution().width, this._game.getVirtualResolution().height);
+        this._spriteBatch = new SpriteBatch(params.game);
     }
-};
 
-/**
- * Returns an array with all the game objects of this scene. All child game objects are included.
- */
-GameScene.prototype.getAllGameObjects = function () {
-    var result = [];
+    //#endregion
 
-    function recursive(gameObjects) {
-        gameObjects.forEach(function (elem) {
-            result.push(elem);
-            recursive(elem.getChildren());
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new GameScene({
+            game: GameManager.activeGame,
+            backgroundColor: Color.restore(data.backgroundColor),
+            camera: Camera2D.restore(data.camera),
+            gameObjects: Objectify.restoreArray(data.gameObjects)
         });
     }
 
-    recursive(this._gameObjects);
+    //#endregion
 
-    return result;
-};
-
-GameScene.prototype.prepareRender = function () {
-    var gl = this._game.getRenderContext().getContext();
-
-    // set clear color and clear the screen:
-    gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-};
-
-GameScene.prototype.sceneLateUpdate = function (delta) {
-    Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
-};
-
-GameScene.prototype.sceneUpdate = function (delta) {
-    // let's render all game objects on scene:
-    for (var i = 0; i < this._gameObjects.length; i++) {
-        this._gameObjects[i].update(delta);
+    getUID() {
+        return this._uid;
     }
-};
 
-GameScene.prototype.sceneRender = function (delta) {
-    // let's render all game objects on scene:
-    for (var i = 0; i < this._gameObjects.length; i++) {
-        this._gameObjects[i].render(delta, this._spriteBatch);
+    getPhysicsWorld() {
+        return this._game.getPhysicsEngine().world;
     }
-};
 
-GameScene.prototype.flushRender = function() {
-    // all draw data was stored, now let's actually render stuff into the screen!
-    this._spriteBatch.flush();
-};
+    getCamera() {
+        return this._camera
+    }
 
-GameScene.prototype.objectify = function () {
-    return {
-        name: this.name,
-        camera: this._camera.objectify(),
-        backgroundColor: this._backgroundColor.objectify(),
-        gameObjects: Objectify.array(this._gameObjects)
-    };
-};
+    setGame(game) {
+        this._game = game;
+    }
 
-GameScene.restore = function (data) {
-    return new GameScene({
-        game: GameManager.activeGame,
-        backgroundColor: Color.restore(data.backgroundColor),
-        camera: Camera2D.restore(data.camera),
-        gameObjects: Objectify.restoreArray(data.gameObjects)
-    });
-};
+    getGame() {
+        return this._game;
+    }
 
-GameScene.prototype.unload = function () {
+    setBackgroundColor(color) {
+        this._backgroundColor = color;
+    }
 
-};;/**
+    getBackgroundColor() {
+        return this._backgroundColor;
+    }
+
+    addGameObject(gameObject, index) {
+        // let's be safe, make sure to remove parent if any
+        gameObject.removeParent();
+
+        if (isObjectAssigned(index)) {
+            this._gameObjects.insert(index, gameObject);
+        } else {
+            this._gameObjects.push(gameObject);
+        }
+    }
+
+    getGameObjects() {
+        return this._gameObjects;
+    }
+
+    removeGameObject(gameObject) {
+        for (let i = this._gameObjects.length - 1; i >= 0; i--) {
+            if (this._gameObjects[i].getUID() == gameObject.getUID()) {
+                return this._gameObjects.splice(i, 1);
+            }
+        }
+    }
+
+    /**
+     * Returns an array with all the game objects of this scene. All child game objects are included.
+     */
+    getAllGameObjects() {
+        let result = [];
+
+        // TODO: make it a private function
+        function recursive(gameObjects) {
+            gameObjects.forEach(function (elem) {
+                result.push(elem);
+                recursive(elem.getChildren());
+            });
+        }
+
+        recursive(this._gameObjects);
+
+        return result;
+    }
+
+    prepareRender() {
+        let gl = this._game.getRenderContext().getContext();
+
+        // set clear color and clear the screen:
+        gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
+    sceneLateUpdate(delta) {
+        Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
+    }
+
+    sceneUpdate(delta) {
+        // let's render all game objects on scene:
+        for (let i = 0; i < this._gameObjects.length; i++) {
+            this._gameObjects[i].update(delta);
+        }
+    }
+
+    sceneRender(delta) {
+        // let's render all game objects on scene:
+        for (let i = 0; i < this._gameObjects.length; i++) {
+            this._gameObjects[i].render(delta, this._spriteBatch);
+        }
+    }
+
+    flushRender() {
+        // all draw data was stored, now let's actually render stuff into the screen!
+        this._spriteBatch.flush();
+    }
+
+    objectify() {
+        return {
+            name: this.name,
+            camera: this._camera.objectify(),
+            backgroundColor: this._backgroundColor.objectify(),
+            gameObjects: Objectify.array(this._gameObjects)
+        };
+    }
+
+    unload() {
+
+    }
+
+    //#endregion
+
+};/**
  * PrimitiveBatch class for on demand direct drawing
  */
-function PrimitiveBatch(game) {
-    if (!isGame(game)) {
-        throw error("Cannot create primitive render, the Game object is missing from the parameters");
+class PrimitiveBatch {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param game
+     */
+    constructor(game) {
+        if (!isGame(game)) {
+            throw error("Cannot create primitive render, the Game object is missing from the parameters");
+        }
+
+        // public properties:
+
+
+        // private properties:
+        this._game = game;
+        this._gl = game.getRenderContext().getContext();
+        this._primitiveShader = new PrimitiveShader();
+        this._vertexBuffer = this._gl.createBuffer();
+        this._colorBuffer = this._gl.createBuffer();
+
+        this._rectangleVertexData = [];
+        this._rectangleColorData = [];
+        this._rectangleCount = 0;
+
+        this._transformMatrix = new Matrix4();
+        this._rectangleData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
     }
 
-    // public properties:
+    //#endregion
 
+    //#region Methods
 
-    // private properties:
-    this._game = game;
-    this._gl = game.getRenderContext().getContext();
-    this._primitiveShader = new PrimitiveShader();
-    this._vertexBuffer = this._gl.createBuffer();
-    this._colorBuffer = this._gl.createBuffer();
+    unload() {
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._gl.deleteBuffer(this._colorBuffer);
 
-    this._rectangleVertexData = [];
-    this._rectangleColorData = [];
-    this._rectangleCount = 0;
+        this._primitiveShader.unload();
+    }
 
-    this._transformMatrix = new Matrix4();
-    this._rectangleData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-}
+    begin() {
+        //let gl = this._gl;
+        // bind buffers
+        //gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    }
 
-PrimitiveBatch.prototype.unload = function () {
-    gl.deleteBuffer(this._vertexBuffer);
-    gl.deleteBuffer(this._colorBuffer);
+    clear() {
+        this._rectangleVertexData = [];
+        this._rectangleColorData = [];
+        this._rectangleCount = 0;
+    }
 
-    this._primitiveShader.unload();
-};
+    flush() {
+        let gl = this._gl;
+        let cameraMatrix = this._game.getActiveCamera().getMatrix();
 
-PrimitiveBatch.prototype.begin = function () {
-    //let gl = this._gl;
-    // bind buffers
-    //gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-};
+        this._game.getShaderManager().useShader(this._primitiveShader);
 
-PrimitiveBatch.prototype.clear = function () {
-    this._rectangleVertexData = [];
-    this._rectangleColorData = [];
-    this._rectangleCount = 0;
-};
+        // draw rectangles?
+        if (this._rectangleCount > 0) {
+            // position buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
-PrimitiveBatch.prototype.flush = function () {
-    let gl = this._gl;
-    let cameraMatrix = this._game.getActiveCamera().getMatrix();
+            gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+            gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-    this._game.getShaderManager().useShader(this._primitiveShader);
+            // set uniforms
+            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-    // draw rectangles?
-    if (this._rectangleCount > 0) {
+            for (let i = 0; i < this._rectangleCount; i++) {
+                this._transformMatrix.identity();
+                this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
+                this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0])
+
+                gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+                gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
+                    this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            }
+        }
+
+        this.clear();
+    }
+
+    drawPoint(vector, size, color) {
+
+    }
+
+    storeRectangle(rectangle, color) {
+        this._rectangleColorData.push(color);
+        this._rectangleVertexData.push(rectangle);
+        this._rectangleCount++;
+    }
+
+    drawLine(vectorA, vectorB, thickness, color) {
+
+    }
+
+    //#endregion
+
+};/**
+ * PrimitiveRender class for on demand direct drawing
+ */
+class PrimitiveRender {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param game
+     */
+    constructor(game) {
+        if (!isGame(game)) {
+            throw "Cannot create primitive render, the Game object is missing from the parameters";
+        }
+
+        // private properties:
+        this._game = game;
+        this._gl = game.getRenderContext().getContext();
+        this._primitiveShader = new PrimitiveShader();
+        this._vertexBuffer = this._gl.createBuffer();
+        this._transformMatrix = new Matrix4();
+        this._rectangleData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
+        this._pointData = new Float32Array([
+            0.0, 0.0
+        ]);
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    unload() {
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._primitiveShader.unload();
+    }
+
+    drawPoint(vector, size, color) {
+        // TODO: refactor this method
+        let gl = this._gl;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._pointData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+
+        // calculate transformation matrix:
+        this._transformMatrix.identity();
+        this._transformMatrix.translate([vector.x, vector.y, 0]);
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+        gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
+
+        gl.drawArrays(gl.POINTS, 0, 1);
+    }
+
+    drawTriangle(vectorA, vectorB, vectorC, color) {
+        let gl = this._gl;
+        let transformMatrix = this._transformMatrix;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        let triangleData = new Float32Array([
+            vectorA.x, vectorA.y,
+            vectorB.x, vectorB.y,
+            vectorC.x, vectorC.y
+        ]);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // calculate transformation matrix (if not provided):
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+
+    drawCircle(position, radius, iterations, color) {
+        let gl = this._gl;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        let triangleData = [];
+        for (let i = 0; i < iterations; i++) {
+            triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
+            triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
+        }
+        triangleData = new Float32Array(triangleData);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
+    }
+
+    drawRectangle(rectangle, color, rotation) {
+        let gl = this._gl;
+        let transformMatrix = this._transformMatrix;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // calculate transformation matrix (if not provided):
+        this._transformMatrix.identity();
+        this._transformMatrix.translate([rectangle.x, rectangle.y, 0]);
+
+        // rotate the rectangle?
+        if (rotation) {
+            this._transformMatrix.translate([rectangle.width / 2, rectangle.height / 2, 0]);
+            this._transformMatrix.rotate([0.0, 0.0, 1.0], rotation);
+            this._transformMatrix.translate([-rectangle.width / 2, -rectangle.height / 2, 0]);
+        }
+
+        this._transformMatrix.scale([rectangle.width, rectangle.height, 0]);
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+    drawRectangleFromMatrix(matrix, color) {
+        let gl = this._gl;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
         // position buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
@@ -13621,411 +14387,282 @@ PrimitiveBatch.prototype.flush = function () {
         gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
         // set uniforms
-        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
-        for (let i = 0; i < this._rectangleCount; i++) {
-            this._transformMatrix.identity();
-            this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
-            this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0])
-
-            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-            gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
-                this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
-
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
-        }
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
-    this.clear();
-};
+    drawLine(vectorA, vectorB, thickness, color) {
+        let gl = this._gl;
+        //gl.lineWidth(thickness); // not all implementations support this
 
-PrimitiveBatch.prototype.drawPoint = function (vector, size, color) {
+        this._game.getShaderManager().useShader(this._primitiveShader);
 
-};
+        let pointData = new Float32Array([
+            vectorA.x, vectorA.y,
+            vectorB.x, vectorB.y
+        ]);
 
-PrimitiveBatch.prototype.storeRectangle = function (rectangle, color) {
-    this._rectangleColorData.push(color);
-    this._rectangleVertexData.push(rectangle);
-    this._rectangleCount++;
-};
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
 
-PrimitiveBatch.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
-};;/**
- * PrimitiveRender class for on demand direct drawing
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.LINES, 0, 2);
+    }
+
+    //#endregion
+};// unique key
+let _scriptsSingleton = Symbol('scriptsSingleton');
+
+/**
+ * Scripts Singleton Class
  */
-function PrimitiveRender(game) {
-    if (!isGame(game)) {
-        throw "Cannot create primitive render, the Game object is missing from the parameters";
+class ScriptsSingleton {
+
+    //#region Constructors
+
+    constructor(scriptsSingletonToken) {
+        if (_scriptsSingleton !== scriptsSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+
+        this._store = {};
     }
 
-    // private properties:
-    this._game = game;
-    this._gl = game.getRenderContext().getContext();
-    this._primitiveShader = new PrimitiveShader();
-    this._vertexBuffer = this._gl.createBuffer();
-    this._transformMatrix = new Matrix4();
-    this._rectangleData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-    this._pointData = new Float32Array([
-        0.0, 0.0
-    ]);
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_scriptsSingleton]) {
+            this[_scriptsSingleton] = new ScriptsSingleton(_scriptsSingleton);
+        }
+
+        return this[_scriptsSingleton];
+    }
+
+    //#endregion
+
+    /**
+     * Clear all the stored scripts
+     */
+    clear() {
+        this._store = {};
+    }
+
+    /**
+     * Creates and stores a script code
+     * @returns {ObjectComponent}
+     */
+    addScript(name) {
+        let script = function instance() {
+        };
+        this._store[name] = script;
+        this._setupScript(script);
+        return script;
+    }
+
+    /**
+     * Generates and assigns a component to the given game object. The component is returned in the function call
+     * @param scriptName
+     * @param gameObject
+     */
+    assign(scriptName, gameObject) {
+        let component = this.generateComponent(scriptName);
+        gameObject.addComponent(component);
+        return component;
+    }
+
+    /**
+     * Generates a component from one stored script
+     * @param scriptName
+     */
+    generateComponent(scriptName) {
+        if (!this._store[scriptName]) {
+            return null;
+        }
+
+        let component = Object.create(this._store[scriptName].prototype);
+        component._name = scriptName;
+
+        // now we need to assign all the instance properties defined:
+        let properties = this._store[scriptName].properties.getAll();
+        let propertyNames = Object.keys(properties);
+
+        if (propertyNames && propertyNames.length > 0) {
+            propertyNames.forEach(function (propName) {
+                // assign the default value if exists:
+                component[propName] = properties[propName].default;
+            });
+        }
+
+        return component;
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     * Setup a script adding event handlers and such
+     * @private
+     */
+    _setupScript(script) {
+        script.properties = {
+            _store: {},
+            _target: script,
+            add: function (name, attr) {
+                // save on the target's properties store the attributes:
+                this._store[name] = attr;
+            },
+            get: function (name) {
+                return this._store[name];
+            },
+            getAll: function () {
+                return this._store;
+            }
+        };
+    }
+
+    //#endregion
+
 }
 
-PrimitiveRender.prototype.unload = function () {
-    gl.deleteBuffer(this._vertexBuffer);
-
-    this._primitiveShader.unload();
-};
-
-PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
-    // TODO: refactor this method
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._pointData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix:
-    this._transformMatrix.identity();
-    this._transformMatrix.translate([vector.x, vector.y, 0]);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-    gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
-
-    gl.drawArrays(gl.POINTS, 0, 1);
-};
-
-PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, color) {
-    let gl = this._gl;
-    let transformMatrix = this._transformMatrix;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let triangleData = new Float32Array([
-        vectorA.x, vectorA.y,
-        vectorB.x, vectorB.y,
-        vectorC.x, vectorC.y
-    ]);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix (if not provided):
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-};
-
-PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, color) {
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let triangleData = [];
-    for (let i = 0; i < iterations; i++) {
-        triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
-        triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
-    }
-    triangleData = new Float32Array(triangleData);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
-};
-
-PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) {
-    let gl = this._gl;
-    let transformMatrix = this._transformMatrix;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix (if not provided):
-    this._transformMatrix.identity();
-    this._transformMatrix.translate([rectangle.x, rectangle.y, 0]);
-
-    // rotate the rectangle?
-    if (rotation) {
-        this._transformMatrix.translate([rectangle.width / 2, rectangle.height / 2, 0]);
-        this._transformMatrix.rotate([0.0, 0.0, 1.0], rotation);
-        this._transformMatrix.translate([-rectangle.width / 2, -rectangle.height / 2, 0]);
-    }
-
-    this._transformMatrix.scale([rectangle.width, rectangle.height, 0]);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
-
-PrimitiveRender.prototype.drawRectangleFromMatrix = function (matrix, color) {
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
-
-PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
-    let gl = this._gl;
-    //gl.lineWidth(thickness); // not all implementations support this
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let pointData = new Float32Array([
-        vectorA.x, vectorA.y,
-        vectorB.x, vectorB.y
-    ]);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.LINES, 0, 2);
-};;/**
- * Scripts singleton
- * @constructor
- */
-function Scripts() {
-}
-
-Scripts._store = {};
-
 /**
- * Setup a script adding event handlers and such
- * @private
+ *  Scripts alias to Scripts Singleton instance
  */
-Scripts._setupScript = function (script) {
-    script.properties = {
-        _store: {},
-        _target: script,
-        add: function (name, attr) {
-            // save on the target's properties store the attributes:
-            this._store[name] = attr;
-        },
-        get: function (name) {
-            return this._store[name];
-        },
-        getAll: function () {
-            return this._store;
-        }
-    };
-};
+let Scripts = ScriptsSingleton.instance;
 
-/**
- * Clear all the stored scripts
- */
-Scripts.clear = function () {
-    Scripts._store = {};
-};
-
-/**
- * Creates and stores a script code
- * @returns {ObjectComponent}
- */
-Scripts.addScript = function (name) {
-    var script = function instance() {
-    };
-    Scripts._store[name] = script;
-    Scripts._setupScript(script);
-    return script;
-};
-// alias:
-sc.addScript = Scripts.addScript;
-
-/**
- * Generates and assigns a component to the given game object. The component is returned in the function call
- * @param scriptName
- * @param gameObject
- */
-Scripts.assign = function (scriptName, gameObject) {
-    var component = Scripts.generateComponent(scriptName);
-    gameObject.addComponent(component);
-    return component;
-};
-// alias:
-sc.assignScript = Scripts.assign;
-
-/**
- * Generates a component from one stored script
- * @param scriptName
- */
-Scripts.generateComponent = function (scriptName) {
-    if (!Scripts._store[scriptName]) {
-        return null;
-    }
-
-    var component = Object.create(Scripts._store[scriptName].prototype);
-    component._name = scriptName;
-
-    // now we need to assign all the instance properties defined:
-    var properties = Scripts._store[scriptName].properties.getAll();
-    var propertyNames = Object.keys(properties);
-
-    if (propertyNames && propertyNames.length > 0) {
-        propertyNames.forEach(function (propName) {
-            // assign the default value if exists:
-            component[propName] = properties[propName].default;
-        });
-    }
-
-    return component;
-};;/**
+// aliases
+// there is the need to do a binding because otherwise the reference to the original object would be lost
+sc.addScript = Scripts.addScript.bind(Scripts);
+sc.assignScript = Scripts.assign.bind(Scripts);;/**
  * Sound class
  */
-function Sound(audio) {
-    if (!isObjectAssigned(audio)) {
-        throw new Error("Cannot create Sound without a valid audio source");
+class Sound {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param audio
+     */
+    constructor(audio) {
+        if (!isObjectAssigned(audio)) {
+            throw new Error("Cannot create Sound without a valid audio source");
+        }
+
+        // private properties
+        this._source = audio;
     }
 
-    // private properties
-    this._source = audio;
-}
+    //#endregion
 
-/**
- *
- * @param path
- * @returns {Promise}
- */
-Sound.fromPath = function (path) {
-    return new Promise((function (resolve, reject) {
-        ContentLoader.loadAudio(path).then(function (audio) {
-            resolve(new Sound(audio));
+    //#region Methods
 
-        }, function () {
-            reject();
+    //#region Static Methods
 
-        });
-    }).bind(this));
-};
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
+    static fromPath(path) {
+        return new Promise((function (resolve, reject) {
+            ContentLoader.loadAudio(path).then(function (audio) {
+                resolve(new Sound(audio));
 
-/**
- *
- * @param audio
- */
-Sound.prototype.setAudioSource = function (audio) {
-    this._source = audio;
-};
+            }, function () {
+                reject();
 
-/**
- * plays the current audio source
- */
-Sound.prototype.play = function () {
-    this._source.play();
-};
+            });
+        }).bind(this));
+    }
 
-/**
- * pauses the current audio source
- */
-Sound.prototype.pause = function () {
-    this._source.pause();
-};
+    // TODO: static restore
 
-/**
- * stops the current audio source
- */
-Sound.prototype.stop = function () {
-    this._source.pause();
-    this._source.currentTime = 0;
-};
+    //#endregion
 
-/**
- * sets the current audio source loop behavior
- * @param loop
- */
-Sound.prototype.setLoop = function (loop) {
-    this._source.loop = loop;
-};
+    /**
+     *
+     * @param audio
+     */
+    setAudioSource(audio) {
+        this._source = audio;
+    }
+
+    /**
+     * plays the current audio source
+     */
+    play() {
+        this._source.play();
+    }
+
+    /**
+     * pauses the current audio source
+     */
+    pause() {
+        this._source.pause();
+    }
+
+    /**
+     * stops the current audio source
+     */
+    stop() {
+        this._source.pause();
+        this._source.currentTime = 0;
+    }
+
+    /**
+     * sets the current audio source loop behavior
+     * @param loop
+     */
+    setLoop(loop) {
+        this._source.loop = loop;
+    }
 
 
-/**
- * sets the current audio source output volume (0 to 1)
- * @param volume
- */
-Sound.prototype.setVolume = function (volume) {
-    this._source.volume = volume;
-};;/**
- * Sprite class
- */
-AttributeDictionary.inherit("sprite", "gameobject");
-AttributeDictionary.addRule("sprite", "_source", { displayName: "Source", editor: "filepath" });
-AttributeDictionary.addRule("sprite", "_tint", { displayName: "Tint" });
-AttributeDictionary.addRule("sprite", "_texture", { visible: false });
-AttributeDictionary.addRule("sprite", "_wrapMode", { visible: false }); // temporary while we don't have cb's in editor
+    /**
+     * sets the current audio source output volume (0 to 1)
+     * @param volume
+     */
+    setVolume(volume) {
+        this._source.volume = volume;
+    }
+
+    //#endregion
+
+};AttributeDictionary.inherit("sprite", "gameobject");
+AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor: "filepath"});
+AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
+AttributeDictionary.addRule("sprite", "_texture", {visible: false});
+AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
 AttributeDictionary.addRule("sprite", "_atlasRegion", {
     displayName: "Region", available: function () {
         return isObjectAssigned(this._atlas)
     }
 });
 
+/**
+ * Sprite class
+ */
 class Sprite extends GameObject {
+
+    //#region Constructors
 
     /**
      * Class constructor
@@ -14050,13 +14687,34 @@ class Sprite extends GameObject {
         this.setTexture(params.texture);
     }
 
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        let sprite = new Sprite({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+
+        sprite.setSource(data.src);
+
+        return sprite;
+    }
+
+    //#endregion
+
     getBaseWidth() {
         return this._textureWidth;
-    };
+    }
 
     getBaseHeight() {
         return this._textureHeight;
-    };
+    }
 
     getMatrix() {
         let x, y, width, height;
@@ -14080,31 +14738,31 @@ class Sprite extends GameObject {
         this._transformMatrix.scale([width, height, 0]);
 
         return this._transformMatrix.asArray();
-    };
+    }
 
     setWrapMode(wrapMode) {
         this._wrapMode = wrapMode;
-    };
+    }
 
     getWrapMode() {
         return this._wrapMode;
-    };
+    }
 
     setOrigin(origin) {
         this._origin = origin;
-    };
+    }
 
     getOrigin() {
         return this._origin;
-    };
+    }
 
     setTint(color) {
         this._tint = color;
-    };
+    }
 
     getTint() {
         return this._tint;
-    };
+    }
 
     setSource(path) {
         this._source = path;
@@ -14142,39 +14800,27 @@ class Sprite extends GameObject {
         } else {
             this.setTexture(null);
         }
-    };
-
-    _assignTextureFromPath(path) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
-                this.setTexture(texture);
-
-            }).bind(this), (function (error) {
-                this.setTexture(null);
-            }).bind(this)
-        );
-    };
-
+    }
 
     getAtlasRegion() {
         return this._atlasRegion;
-    };
+    }
 
     setAtlasRegion(value) {
         this._atlasRegion = value;
-    };
+    }
 
     getSource() {
         return this._source;
-    };
+    }
 
     getType() {
         return "Sprite";
-    };
+    }
 
     getTexture() {
         return this._texture;
-    };
+    }
 
     setTexture(texture) {
         // is this a ready texture?
@@ -14190,7 +14836,7 @@ class Sprite extends GameObject {
         // cache the dimensions
         this._textureWidth = this._texture.getWidth();
         this._textureHeight = this._texture.getHeight();
-    };
+    }
 
     render(delta, spriteBatch) {
         if (!this.enabled) {
@@ -14202,7 +14848,7 @@ class Sprite extends GameObject {
 
         // parent render function:
         super.render(delta, spriteBatch);
-    };
+    }
 
     // functions:
     objectify() {
@@ -14211,157 +14857,173 @@ class Sprite extends GameObject {
             src: this._source,
             tint: this._tint.objectify()
         });
-    };
-
-    static restore(data) {
-        let sprite = new Sprite({
-            name: data.name,
-            transform: Transform.restore(data.transform),
-            children: Objectify.restoreArray(data.children),
-            components: Objectify.restoreArray(data.components)
-        });
-
-        sprite.setSource(data.src);
-
-        return sprite;
     }
 
     unload() {
 
-    };
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    _assignTextureFromPath(path) {
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
+        );
+    }
+
+    //#endregion
 
 };/**
  * SpriteBatch class
  */
-function SpriteBatch(game) {
-    if (!isGame(game)) {
-        throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
+class SpriteBatch {
+
+    //#region Constructors
+
+    constructor(game) {
+        if (!isGame(game)) {
+            throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
+        }
+
+        // private properties:
+        this._game = game;
+        this._gl = game.getRenderContext().getContext();
+        this._vertexBuffer = this._gl.createBuffer();
+        this._texBuffer = this._gl.createBuffer();
+        this._textureShader = new TextureShader();
+        this._lastTexUID = -1;
+        this._sprites = [];
+        this._rectangleData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
+        /*
+
+         Texture coordinates in WebGL goes like this:
+
+         0,1----1,1
+         #--------#
+         #--------#
+         #--------#
+         0,0----1,0
+
+         */
+        this._textureData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
     }
 
-    // private properties:
-    this._game = game;
-    this._gl = game.getRenderContext().getContext();
-    this._vertexBuffer = this._gl.createBuffer();
-    this._texBuffer = this._gl.createBuffer();
-    this._textureShader = new TextureShader();
-    this._lastTexUID = -1;
-    this._sprites = [];
-    this._rectangleData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-     /*
+    //#endregion
 
-        Texture coordinates in WebGL goes like this:
+    //#region Methods
 
-        0,1----1,1
-        #--------#
-        #--------#
-        #--------#
-        0,0----1,0
-
-     */
-    this._textureData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-}
-
-SpriteBatch.prototype.clear = function () {
-    this._sprites = [];
-};
-
-SpriteBatch.prototype.storeSprite = function (sprite) {
-    this._sprites.push(sprite);
-};
-
-SpriteBatch.prototype.flush = function () {
-    if (this._sprites.length == 0) {
-        return;
+    clear() {
+        this._sprites = [];
     }
 
-    var gl = this._gl;
-    var cameraMatrix = this._game.getActiveCamera().getMatrix();
+    storeSprite(sprite) {
+        this._sprites.push(sprite);
+    }
 
-    this._game.getShaderManager().useShader(this._textureShader);
+    flush() {
+        if (this._sprites.length == 0) {
+            return;
+        }
 
-    // position buffer attribute
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+        let gl = this._gl;
+        let cameraMatrix = this._game.getActiveCamera().getMatrix();
 
-    gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+        this._game.getShaderManager().useShader(this._textureShader);
 
-    // texture attribute
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
-    gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+        // position buffer attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
-    // set uniforms
-    gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
+        gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-    var texture, tint;
-    for (var i = 0; i < this._sprites.length; i++) {
-        texture = this._sprites[i].getTexture();
+        // texture attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
+        gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
-        if (texture && texture.isReady()) {
-            tint = this._sprites[i].getTint();
+        // set uniforms
+        gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-            // for performance sake, consider if the texture is the same so we don't need to bind again
-            // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
-            // TODO: correct this when using textures outside spritebatch...
-            //if (this._lastTexUID != texture.getUID()) {
+        let texture, tint;
+        for (let i = 0; i < this._sprites.length; i++) {
+            texture = this._sprites[i].getTexture();
+
+            if (texture && texture.isReady()) {
+                tint = this._sprites[i].getTint();
+
+                // for performance sake, consider if the texture is the same so we don't need to bind again
+                // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
+                // TODO: correct this when using textures outside spritebatch...
+                //if (this._lastTexUID != texture.getUID()) {
                 texture.bind();
                 this._lastTexUID = texture.getUID();
-            //}
+                //}
 
-            switch (this._sprites[i].getWrapMode()) {
-                case WrapMode.REPEAT:
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-                    break;
+                switch (this._sprites[i].getWrapMode()) {
+                    case WrapMode.REPEAT:
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+                        break;
 
-                case WrapMode.CLAMP:
-                default:
-                    break;
+                    case WrapMode.CLAMP:
+                    default:
+                        break;
+                }
+
+                gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._sprites[i].getMatrix());
+
+                if (tint) {
+                    gl.uniform4f(this._textureShader.uniforms.uColor._location, tint.r, tint.g, tint.b, tint.a);
+                }
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
-
-            gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._sprites[i].getMatrix());
-
-            if (tint) {
-                gl.uniform4f(this._textureShader.uniforms.uColor._location, tint.r, tint.g, tint.b, tint.a);
-            }
-
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
         }
+
+        this.clear();
     }
 
-    this.clear();
-};
+    unload() {
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._gl.deleteBuffer(this._texBuffer);
 
-SpriteBatch.prototype.unload = function () {
-    gl.deleteBuffer(this._vertexBuffer);
-    gl.deleteBuffer(this._texBuffer);
+        this._textureShader.unload();
+    }
 
-    this._textureShader.unload();
-};;/**
+    //#endregion
+
+};/**
  * Created by Luis on 23/12/2016.
  */
 
 /**
  * Stroke Class
  */
-class Stroke{
+class Stroke {
 
     //#region Constructors
 
@@ -14371,7 +15033,7 @@ class Stroke{
      * @param {number=} size size of the stroke
      * @constructor
      */
-    constructor(color, size){
+    constructor(color, size) {
         // stroke color
         this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
         // stroke size
@@ -14395,7 +15057,7 @@ class Stroke{
 
     //#region Public Methods
 
-    getColor(){
+    getColor() {
         return this._color;
     }
 
@@ -14403,23 +15065,23 @@ class Stroke{
      * Sets stroke's color
      * @param {Color} color
      */
-    setColor(color){
+    setColor(color) {
 
-        if (color instanceof Color){
+        if (color instanceof Color) {
             this._color = color.clone();
             return;
         }
 
-        if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)){
+        if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)) {
             throw new Error("The given stroke color is invalid");
         }
 
         this._color.set(color.r, color.g, color.b, color.a);
     }
 
-    setOpacity(alpha){
+    setOpacity(alpha) {
 
-        if (!isNumber(alpha)){
+        if (!isNumber(alpha)) {
             throw new Error("The given alpha is invalid");
         }
 
@@ -14428,17 +15090,17 @@ class Stroke{
         this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
     }
 
-    getOpacity(){
+    getOpacity() {
         return this.getColor().a;
     }
 
-    getSize(){
+    getSize() {
         return this._size;
     }
 
-    setSize(size){
+    setSize(size) {
 
-        if (!isNumber(size)){
+        if (!isNumber(size)) {
             throw new Error("The given size is invalid");
         }
 
@@ -14487,7 +15149,7 @@ class Text extends GameObject {
 
     //#region Constructors
 
-    constructor(params){
+    constructor(params) {
         params = params || {};
         params.name = params.name || "Text";
 
@@ -14503,14 +15165,14 @@ class Text extends GameObject {
         this._alignType = Text.AlignType.LEFT;
 
         this._textureSrc = "";
-        this._color = params.color || Color.fromRGBA(164,56,32, 1.0);
+        this._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
         this._text = params.text || "";
 
         this._gamma = params.gamma || 2.0;
 
         // TODO: normalize inside the setters?
         // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
-        this._stroke = new Stroke(Color.fromRGBA(186,85,54, 0.5), 0.0);
+        this._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
         this._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
 
@@ -14539,11 +15201,9 @@ class Text extends GameObject {
 
     //#region Static Methods
 
-    static restore(data){
+    static restore(data) {
         // TODO:
-        return {
-
-        };
+        return {};
     }
 
     //#endregion
@@ -14633,7 +15293,7 @@ class Text extends GameObject {
         super.render(delta, spriteBatch);
     }
 
-    unload(){
+    unload() {
         this._gl.deleteBuffer(this._vertexBuffer);
         this._gl.deleteBuffer(this._textureBuffer);
         this._gl.deleteBuffer(this._vertexIndicesBuffer);
@@ -14646,7 +15306,7 @@ class Text extends GameObject {
     }
 
     // TODO: rotate, scale... probably similar to sprite... think carefully about scaling?
-    getMatrix(){
+    getMatrix() {
         let x, y;
 
         x = this.transform.getPosition().x;
@@ -14665,7 +15325,7 @@ class Text extends GameObject {
 
     //#endregion
 
-    getType(){
+    getType() {
         // TODO: is it even needed? we could replace this method in gameobject by this.name
         return "Text";
     }
@@ -14765,11 +15425,11 @@ class Text extends GameObject {
         return this.getFontStyle().getFontSize();
     }
 
-    getLetterSpacing(){
+    getLetterSpacing() {
         return this.getFontStyle().getLetterSpacing();
     }
 
-    setLetterSpacing(value){
+    setLetterSpacing(value) {
         this.getFontStyle().setLetterSpacing(value);
     }
 
@@ -14853,14 +15513,14 @@ class Text extends GameObject {
     _drawText() {
         let fontStyle = this.getFontStyle();
 
-        if (!fontStyle){
+        if (!fontStyle) {
             return;
         }
 
         let fontDescription = fontStyle.getFontDescription();
 
         // don't go further if font description isn't valid either
-        if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight){
+        if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight) {
             return;
         }
 
@@ -14871,7 +15531,7 @@ class Text extends GameObject {
         let scale = fontStyle.getScale();
 
         // don't go further if scale is invalid
-        if (!scale){
+        if (!scale) {
             return;
         }
 
@@ -14894,7 +15554,7 @@ class Text extends GameObject {
         let x;
 
         // change beginning of the line depending on the chosen alignment
-        switch(this.getAlign()) {
+        switch (this.getAlign()) {
             case Text.AlignType.LEFT:
                 x = this.transform.getPosition().x;
                 break;
@@ -14921,11 +15581,11 @@ class Text extends GameObject {
      * * @param {number} lineHeight how much Y should increase to switch line
      * @private
      */
-    _drawLines(lines, scale, lineHeight){
+    _drawLines(lines, scale, lineHeight) {
 
         // TODO: maybe throw new Error when simply returning? so errors can be seen in the console?
         // if parameters are invalid, no need to go further
-        if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0){
+        if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0) {
             return;
         }
 
@@ -14982,12 +15642,12 @@ class Text extends GameObject {
      * @param {Array} vertexIndices array to store the vertices indices
      * @private
      */
-    _prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices){
+    _prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices) {
 
         let lastGlyphCode = 0;
 
         // iterate through line characters
-        for (let i = 0; i < line.length; i++){
+        for (let i = 0; i < line.length; i++) {
 
             // retrieve line char
             let char = line[i];
@@ -15015,16 +15675,14 @@ class Text extends GameObject {
 
         let fontStyle = this.getFontStyle();
 
-        if (!fontStyle){
+        if (!fontStyle) {
             return 0;
         }
 
         let fontDescription = fontStyle.getFontDescription();
 
         // if font's description or any of the parameters is missing, no need to go further
-        if (!fontDescription || !fontDescription.chars ||
-            !char || !scale || scale <= 0 || !pen || lastGlyphCode == null ||
-            !outVertexElements || !outTextureElements || !outVertexIndices){
+        if (!fontDescription || !fontDescription.chars || !char || !scale || scale <= 0 || !pen || lastGlyphCode == null || !outVertexElements || !outTextureElements || !outVertexIndices) {
             return 0;
         }
 
@@ -15032,7 +15690,7 @@ class Text extends GameObject {
         let charID = fontStyle.findCharID(char);
 
         // return if null
-        if (charID === null){
+        if (charID === null) {
             return 0;
         }
 
@@ -15055,7 +15713,7 @@ class Text extends GameObject {
         // only prepare character to be drawn if width and height are valid
         if (width > 0 && height > 0) {
             // if a glyph was created before
-            if (lastGlyphCode){
+            if (lastGlyphCode) {
                 // retrieve kerning value between last character and current character
                 kern = fontStyle.getKerning(lastGlyphCode, asciiCode);
             }
@@ -15122,8 +15780,10 @@ class Text extends GameObject {
  * Texture2D class
  */
 class Texture2D {
+
+    //#region Constructors
+
     /**
-     *
      * @param image
      */
     constructor(image) {
@@ -15157,6 +15817,12 @@ class Texture2D {
         this._hasLoaded = true;
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param path
@@ -15172,7 +15838,9 @@ class Texture2D {
 
             });
         }).bind(this));
-    };
+    }
+
+    //#endregion
 
     /**
      *
@@ -15180,14 +15848,14 @@ class Texture2D {
      */
     getUID() {
         return this._uid;
-    };
+    }
 
     /**
      *
      */
     bind() {
         this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-    };
+    }
 
     /**
      *
@@ -15195,7 +15863,7 @@ class Texture2D {
      */
     setImageData(imageData) {
         this._source = imageData;
-    };
+    }
 
     /**
      *
@@ -15203,7 +15871,7 @@ class Texture2D {
      */
     getImageData() {
         return this._source;
-    };
+    }
 
     /**
      * Gets the texture width
@@ -15211,7 +15879,7 @@ class Texture2D {
      */
     getWidth() {
         return this._source.width;
-    };
+    }
 
     /**
      * Gets the texture height
@@ -15219,7 +15887,7 @@ class Texture2D {
      */
     getHeight() {
         return this._source.height;
-    };
+    }
 
     /**
      * Gets the Texture
@@ -15227,7 +15895,7 @@ class Texture2D {
      */
     getTexture() {
         return this._texture;
-    };
+    }
 
     /**
      *
@@ -15235,7 +15903,7 @@ class Texture2D {
      */
     isReady() {
         return this._hasLoaded;
-    };
+    }
 
     /**
 
@@ -15243,14 +15911,19 @@ class Texture2D {
     unload() {
 
     }
+
+    //#endregion
+
 };AttributeDictionary.addRule("transform", "gameObject", {visible: false});
 
 /**
  * Transform class
  */
 class Transform {
+
+    //#region Constructors
+
     /**
-     *
      * @param params
      */
     constructor(params) {
@@ -15269,172 +15942,11 @@ class Transform {
         this._overrideScaleFunction = null;
     }
 
-    /**
-     *
-     */
-    clearPositionGetter() {
-        this._overridePositionFunction = null;
-    };
+    //#endregion
 
-    /**
-     *
-     */
-    clearRotationGetter() {
-        this._overrideRotationFunction = null;
-    };
+    //#region Methods
 
-    /**
-     *
-     */
-    clearScaleGetter() {
-        this._overrideScaleFunction = null;
-    };
-
-    /**
-     *
-     * @param overrideFunction
-     */
-    overridePositionGetter(overrideFunction) {
-        this._overridePositionFunction = overrideFunction;
-    };
-
-    /**
-     *
-     * @param overrideFunction
-     */
-    overrideScaleGetter(overrideFunction) {
-        this._overrideScaleFunction = overrideFunction;
-    };
-
-    /**
-     *
-     * @param overrideFunction
-     */
-    overrideRotationGetter(overrideFunction) {
-        this._overrideRotationFunction = overrideFunction;
-    };
-
-    /**
-     *
-     * @param position
-     */
-    lookAt(position) {
-        let direction = this.getPosition().subtract(position).normalize();
-        this.setRotation(Math.atan2(direction.y, direction.x));
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    setPosition(x, y) {
-        this._position.set(x, y);
-        this.gameObject.propagatePropertyUpdate("Position", this._position);
-    };
-
-    /**
-     *
-     * @returns {*}
-     */
-    getPosition() {
-        if (isFunction(this._overridePositionFunction)) {
-            return this._overridePositionFunction();
-        }
-
-        return this._position;
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    translate(x, y) {
-        let curPos = this.getPosition();
-        this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
-    };
-
-    /**
-     *
-     * @param value
-     */
-    rotate(value) {
-        this.setRotation(this.getRotation() + (value || 0));
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    scale(x, y) {
-        let curScale = this.getScale();
-        this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
-    };
-
-    /**
-     *
-     * @param value
-     */
-    setRotation(value) {
-        this._rotation = value;
-        this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
-    };
-
-    /**
-     *
-     * @returns {*}
-     */
-    getRotation() {
-        if (isFunction(this._overrideRotationFunction)) {
-            return this._overrideRotationFunction();
-        }
-
-        return this._rotation;
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    setScale(x, y) {
-        this._scale.set(x, y || x);
-        this.gameObject.propagatePropertyUpdate("Scale", this._scale);
-    };
-
-    /**
-     *
-     * @returns {*}
-     */
-    getScale() {
-        if (isFunction(this._overrideScaleFunction)) {
-            return this._overrideScaleFunction();
-        }
-
-        return this._scale;
-    };
-
-    /**
-     *
-     * @returns {Transform}
-     */
-    clone() {
-        return Transform.restore(this.objectify());
-    };
-
-    /**
-     *
-     * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
-     */
-    objectify() {
-        return {
-            position: this._position.objectify(),
-            rotation: this._rotation,
-            scale: this._scale.objectify()
-        };
-    };
+    //#region Static Methods
 
     /**
      *
@@ -15447,128 +15959,348 @@ class Transform {
             rotation: data.rotation,
             scale: Vector2.restore(data.scale)
         });
-    };
+    }
+
+    //#endregion
+
+    /**
+     *
+     */
+    clearPositionGetter() {
+        this._overridePositionFunction = null;
+    }
+
+    /**
+     *
+     */
+    clearRotationGetter() {
+        this._overrideRotationFunction = null;
+    }
+
+    /**
+     *
+     */
+    clearScaleGetter() {
+        this._overrideScaleFunction = null;
+    }
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overridePositionGetter(overrideFunction) {
+        this._overridePositionFunction = overrideFunction;
+    }
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideScaleGetter(overrideFunction) {
+        this._overrideScaleFunction = overrideFunction;
+    }
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideRotationGetter(overrideFunction) {
+        this._overrideRotationFunction = overrideFunction;
+    }
+
+    /**
+     *
+     * @param position
+     */
+    lookAt(position) {
+        let direction = this.getPosition().subtract(position).normalize();
+        this.setRotation(Math.atan2(direction.y, direction.x));
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setPosition(x, y) {
+        this._position.set(x, y);
+        this.gameObject.propagatePropertyUpdate("Position", this._position);
+    }
+
+    /**
+     *
+     * @returns {*}
+     */
+    getPosition() {
+        if (isFunction(this._overridePositionFunction)) {
+            return this._overridePositionFunction();
+        }
+
+        return this._position;
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    translate(x, y) {
+        let curPos = this.getPosition();
+        this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+    }
+
+    /**
+     *
+     * @param value
+     */
+    rotate(value) {
+        this.setRotation(this.getRotation() + (value || 0));
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    scale(x, y) {
+        let curScale = this.getScale();
+        this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+    }
+
+    /**
+     *
+     * @param value
+     */
+    setRotation(value) {
+        this._rotation = value;
+        this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
+    }
+
+    /**
+     *
+     * @returns {*}
+     */
+    getRotation() {
+        if (isFunction(this._overrideRotationFunction)) {
+            return this._overrideRotationFunction();
+        }
+
+        return this._rotation;
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setScale(x, y) {
+        this._scale.set(x, y || x);
+        this.gameObject.propagatePropertyUpdate("Scale", this._scale);
+    }
+
+    /**
+     *
+     * @returns {*}
+     */
+    getScale() {
+        if (isFunction(this._overrideScaleFunction)) {
+            return this._overrideScaleFunction();
+        }
+
+        return this._scale;
+    }
+
+    /**
+     *
+     * @returns {Transform}
+     */
+    clone() {
+        return Transform.restore(this.objectify());
+    }
+
+    /**
+     *
+     * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
+     */
+    objectify() {
+        return {
+            position: this._position.objectify(),
+            rotation: this._rotation,
+            scale: this._scale.objectify()
+        };
+    }
 
     /**
      *
      */
     unload() {
 
-    };
-};var WrapMode = {
+    }
+
+    //#endregion
+
+};let WrapMode = {
     CLAMP: 0,
     REPEAT: 1
-};;/**
+};;// unique key
+let _keyboardSingleton = Symbol('keyboardSingleton');
+
+/**
  * Global Keyboard handler
- * @constructor
  */
-function Keyboard() {
-    // stuff..
+class Keyboard {
+
+    //#region Constructors
+
+    constructor(keyboardSingletonToken) {
+        if (_keyboardSingleton !== keyboardSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._keys = [];
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_keyboardSingleton]) {
+            this[_keyboardSingleton] = new Keyboard(_keyboardSingleton);
+        }
+
+        return this[_keyboardSingleton];
+    }
+
+    //#endregion
+
+
+    removeKey(key) {
+        let idx = this._keys.indexOf(key);
+        if (idx >= 0) {
+            this._keys.splice(idx, 1);
+        }
+    }
+
+    removeKeys(keys) {
+        keys.forEach((function (key) {
+            this.removeKey(key);
+        }).bind(this));
+    }
+
+    addKey(key) {
+        if (this._keys.indexOf(key) < 0) {
+            this._keys.push(key);
+        }
+    }
+
+    addKeys(keys) {
+        keys.forEach((function (key) {
+            this.addKey(key);
+        }).bind(this));
+    }
+
+    setKeys(keys) {
+        this._keys = keys;
+    }
+
+    clearKeys() {
+        this._keys = [];
+    }
+
+    getState() {
+        return new KeyboardState(this._keys);
+    }
+
+    /**
+     * Gets if the given key is currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyDown(key) {
+        return this._keys.indexOf(key) >= 0;
+    }
+
+    /**
+     * Gets if the given key is not currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyUp(key) {
+        return this._keys.indexOf(key) < 0;
+    }
+
+    //#endregion
+
 }
-
-// internal key data:
-Keyboard._keys = [];
-
-Keyboard.removeKey = function (key) {
-    var idx = Keyboard._keys.indexOf(key);
-    if (idx >= 0) {
-        Keyboard._keys.splice(idx, 1);
-    }
-};
-
-Keyboard.removeKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.removeKey(key);
-    });
-};
-
-Keyboard.addKey = function (key) {
-    if (Keyboard._keys.indexOf(key) < 0) {
-        Keyboard._keys.push(key);
-    }
-};
-
-Keyboard.addKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.addKey(key);
-    })
-};
-
-Keyboard.setKeys = function (keys) {
-    Keyboard._keys = keys;
-};
-
-Keyboard.clearKeys = function () {
-    Keyboard._keys = [];
-};
-
-Keyboard.getState = function () {
-    return new KeyboardState(Keyboard._keys);
-};
-
-/**
- * Gets if the given key is currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyDown = function (key) {
-    return Keyboard._keys.indexOf(key) >= 0;
-};
-
-/**
- * Gets if the given key is not currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyUp = function (key) {
-    return Keyboard._keys.indexOf(key) < 0;
-};
 
 
 ;/**
- * Keyboard state
- * @param keys
- * @constructor
+ * Keyboard state Class
  */
-function KeyboardState(keys) {
-    // now we copy the values to our state array.
-    this._keys = [];
-    keys.forEach((function (key) {
-        this._keys.push(key);
-    }).bind(this));
+
+class KeyboardState {
+
+    //#region Constructors
+
+    /**
+     * @param keys
+     */
+    constructor(keys){
+        // now we copy the values to our state array.
+        this._keys = [];
+        keys.forEach((function (key) {
+            this._keys.push(key);
+        }).bind(this));
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    /**
+     * Gets the keys currently being pressed
+     * @returns {Array}
+     */
+    getKeys() {
+        return this._keys;
+    }
+
+    /**
+     * Gets if the given key is currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyDown(key) {
+        return this._keys.indexOf(key) >= 0;
+    }
+
+    /**
+     * Gets if the given key is not currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyUp(key) {
+        return this._keys.indexOf(key) < 0;
+    }
+
+    //#endregion
+
+}
+
+;/**
+ *  Keys Class
+ */
+class Keys {
+    constructor() {
+
+    }
 }
 
 /**
- * Gets the keys currently being pressed
- * @returns {Array}
+ *  Static Properties
  */
-KeyboardState.prototype.getKeys = function () {
-    return this._keys;
-};
-
-/**
- * Gets if the given key is currently being pressed
- * @param key
- * @returns {boolean}
- */
-KeyboardState.prototype.isKeyDown = function (key) {
-    return this._keys.indexOf(key) >= 0;
-};
-
-/**
- * Gets if the given key is not currently being pressed
- * @param key
- * @returns {boolean}
- */
-KeyboardState.prototype.isKeyUp = function (key) {
-    return this._keys.indexOf(key) < 0;
-};
-;/**
- *
- * @constructor
- */
-function Keys () {}
-
 Keys.Backspace = 8;
 Keys.Tab = 9;
 Keys.Enter = 13;
@@ -15670,676 +16402,765 @@ Keys.BackSlash = 220;
 Keys.CloseBraket = 221;
 Keys.SingleQuote = 222;
 ;/**
- * WebGL Context class
+ * WebGLContext Class
  */
-function WebGLContext(params) {
-    params = params || {};
+class WebGLContext {
 
-    // public properties:
+    //#region Constructors
 
+    constructor(params) {
 
-    // private properties:
-    this._logger = new Logger("WebGLContext");
-    this._canvas = null;
-    this._gl = null;
+        params = params || {};
 
-    if (isObjectAssigned(params.renderContainer)) {
-        this.assignContextFromContainer(params.renderContainer);
-    }
-}
+        // public properties:
 
-WebGLContext.prototype.setVirtualResolution = function (width, height) {
-    if (isObjectAssigned(this._gl)) {
-        this._canvas.width = width;
-        this._canvas.height = height;
+        // private properties:
+        this._logger = new Logger("WebGLContext");
+        this._canvas = null;
+        this._gl = null;
 
-        this._gl.viewport(0, 0, width, height);
-    }
-};
+        if (isObjectAssigned(params.renderContainer)) {
+            this.assignContextFromContainer(params.renderContainer);
+        }
 
-WebGLContext.prototype.assignContextFromContainer = function (canvas) {
-    // let's try to get the webgl context from the given container:
-    // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
-    // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
-    var gl = this._gl = canvas.getContext("experimental-webgl", {alpha: false}) ||
-        canvas.getContext("webgl", {alpha: false}) ||
-        canvas.getContext("webkit-3d", {alpha: false}) || canvas.getContext("moz-webgl", {alpha: false});
-
-    if (!isObjectAssigned(this._gl)) {
-        this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
-        return;
     }
 
-    this._canvas = canvas;
+    //#endregion
 
-    // disable gl functions:
-    gl.disable(gl.CULL_FACE);
-    gl.disable(gl.DEPTH_TEST);
+    //#region Methods
 
-    gl.blendFuncSeparate(
-        gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA,
-        gl.ONE, gl.ONE);
+    setVirtualResolution(width, height) {
+        if (isObjectAssigned(this._gl)) {
+            this._canvas.width = width;
+            this._canvas.height = height;
 
-    // enable gl functions:
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-};
+            this._gl.viewport(0, 0, width, height);
+        }
+    }
 
-WebGLContext.prototype.getName = function () {
-    return SC.WEBGL;
-};
+    assignContextFromContainer(canvas) {
+        // let's try to get the webgl context from the given container:
+        // alpha is set to false to avoid webgl picking up the canvas color and place it on the alpha channel
+        // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
+        let gl = this._gl = canvas.getContext("experimental-webgl", {alpha: false}) ||
+            canvas.getContext("webgl", {alpha: false}) ||
+            canvas.getContext("webkit-3d", {alpha: false}) || canvas.getContext("moz-webgl", {alpha: false});
 
-WebGLContext.prototype.getContext = function () {
-    return this._gl;
-};
+        if (!isObjectAssigned(this._gl)) {
+            this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
+            return;
+        }
 
-WebGLContext.prototype.unload = function () {
+        this._canvas = canvas;
 
-};;/**
+        // disable gl functions:
+        gl.disable(gl.CULL_FACE);
+        gl.disable(gl.DEPTH_TEST);
+
+        gl.blendFuncSeparate(
+            gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA,
+            gl.ONE, gl.ONE);
+
+        // enable gl functions:
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    }
+
+    getName() {
+        return SC.WEBGL;
+    }
+
+    getContext() {
+        return this._gl;
+    }
+
+    unload() {
+
+    }
+
+    //#endregion
+
+};/**
  * WebGL Utils class
  *
  * Some boilerplate code fetched from Gregg Tavares webgl utilities
  * http://webglfundamentals.org/webgl/resources/webgl-utils.js
  */
-function WebGLUtils() {
-    // private fields
-    this._logger = new Logger("WebGLUtils");
-}
+class WebGLUtils {
 
-/**
- * Compiles a shader
- * @param gl
- * @param shaderSource
- * @param shaderType
- */
-WebGLUtils.prototype._compileShader = function(gl, shaderSource, shaderType) {
-    // Create the shader object
-    var shader = gl.createShader(shaderType);
+    //#region Constructors
 
-    // Load the shader source
-    gl.shaderSource(shader, shaderSource);
-
-    // Compile the shader
-    gl.compileShader(shader);
-
-    // Check the compile status
-    var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    if (!compiled) {
-        // Something went wrong during compilation; get the error
-        var lastError = gl.getShaderInfoLog(shader);
-
-        this._logger.error("Error compiling shader '" + shader + "':" + lastError);
-
-        gl.deleteShader(shader);
-
-        return null;
+    constructor() {
+        // private fields
+        this._logger = new Logger("WebGLUtils");
     }
 
-    return shader;
-}
+    //#endregion
 
-/**
- * Creates a program from 2 shaders.
- * @param gl
- * @param vertexShader
- * @param fragmentShader
- * @returns {WebGLProgram}
- */
-WebGLUtils.prototype.createProgram = function (gl, vertexShader, fragmentShader) {
-    // create a program.
-    var program = gl.createProgram();
+    //#region Methods
 
-    // attach the shaders.
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    /**
+     * Compiles a shader
+     * @param gl
+     * @param shaderSource
+     * @param shaderType
+     */
+    _compileShader(gl, shaderSource, shaderType) {
+        // Create the shader object
+        let shader = gl.createShader(shaderType);
 
-    // link the program.
-    gl.linkProgram(program);
+        // Load the shader source
+        gl.shaderSource(shader, shaderSource);
 
-    // Check if it linked.
-    var success = gl.getProgramParameter(program, gl.LINK_STATUS);
-    if (!success) {
-        // something went wrong with the link
-        this._logger.error("Program filed to link:" + gl.getProgramInfoLog(program));
-        // TEST: gl.getError() has more info?
-    }
+        // Compile the shader
+        gl.compileShader(shader);
 
-    return program;
-};
+        // Check the compile status
+        let compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+        if (!compiled) {
+            // Something went wrong during compilation; get the error
+            let lastError = gl.getShaderInfoLog(shader);
 
-/**
- * Creates a shader from the script string
- * @param gl
- * @param script
- * @param shaderType
- * @returns {null}
- */
-WebGLUtils.prototype.createShader = function (gl, script, shaderType) {
-    // If we didn't pass in a type, use the 'type' from
-    // the script tag.
-    var glShaderType;
-    if (shaderType === "vertex") {
-        glShaderType = gl.VERTEX_SHADER;
-    } else if (shaderType === "fragment") {
-        glShaderType = gl.FRAGMENT_SHADER;
-    } else if (!shaderType) {
-        this._logger.warn("Shader type not set, discarding..");
-        return null;
-    }
+            this._logger.error("Error compiling shader '" + shader + "':" + lastError);
 
-    return this._compileShader(gl, script, glShaderType);
-};
+            gl.deleteShader(shader);
 
-/**
- * Creates a shader from the content of a script tag
- * @param gl
- * @param scriptId
- * @param shaderType
- */
-WebGLUtils.prototype.createShaderFromScript = function (gl, scriptId, shaderType) {
-    // look up the script tag by id.
-    var shaderScriptElem = document.getElementById(scriptId);
-    if (!shaderScriptElem) {
-        this._logger.warn("Unknown script target element, discarding..");
-        return null;
-    }
-
-    // extract the contents of the script tag.
-    this.createShader(gl, shaderScriptElem.text, shaderType);
-};
-
-/**
- * Creates a program based on both vertex and fragment given scripts
- * @param gl
- * @param vertexScript
- * @param fragmentScript
- */
-WebGLUtils.prototype.createProgramFromScripts = function(gl, vertexScript, fragmentScript) {
-    var vshader = this.createShader(gl, vertexScript, "vertex");
-    var fshader = this.createShader(gl, fragmentScript, "fragment");
-
-    if(isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
-        return this.createProgram(gl, vshader, fshader);
-    } else {
-        this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
-    }
-
-    // clean up shaders
-    gl.deleteShader(vshader);
-    gl.deleteShader(fshader);
-
-    return null;
-};
-
-/**
- * Creates a program based on both vertex and fragment given elements
- * @param gl
- * @param vertexScriptId
- * @param fragmentScriptId
- */
-WebGLUtils.prototype.createProgramFromScriptElements = function(gl, vertexScriptId, fragmentScriptId) {
-    var vshader = this.createShaderFromScript(gl, vertexScriptId, "vertex");
-    var fshader = this.createShaderFromScript(gl, fragmentScriptId, "fragment");
-
-    if(isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
-        return this.createProgram(gl, vshader, fshader);
-    } else {
-        this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
-    }
-
-    // clean up shaders
-    gl.deleteShader(vshader);
-    gl.deleteShader(fshader);
-
-    return null;
-};
-
-/* for simplicity sake, add a global instance of the webgl utils */
-var glu = new WebGLUtils();
-
-;/**
- * Shader class
- * Some cool code ideas were applied from Pixi.JS Shader class
- */
-function Shader(vertexScript, fragmentScript, uniforms, attributes) {
-    if (!isObjectAssigned(vertexScript) || !isObjectAssigned(fragmentScript)) {
-        throw new Error("Vertex and Fragment scripts are required to create a shader, discarding..");
-    }
-
-    if (!isObjectAssigned(GameManager.renderContext)) {
-        throw new Error("The WebGL render context is not yet set, can't create shader.");
-    }
-
-    // public properties:
-    this.uniforms = uniforms || {};
-    this.attributes = attributes || {};
-
-    // private properties:
-    this._gl = GameManager.renderContext.getContext();
-    this._program = null;
-    this._vertexScript = vertexScript;
-    this._fragmentScript = fragmentScript;
-    this._textureCount = 1;
-    this._uid = generateUID();
-
-    this.setup();
-}
-
-/**
- * Setup shader logic
- */
-Shader.prototype.setup = function () {
-    if (this.compile()) {
-        var shaderManager = GameManager.activeGame.getShaderManager();
-        if (shaderManager) {
-            shaderManager.useShader(this);
-        } else {
-            this._gl.useProgram(this._program);
+            return null;
         }
 
-        // cache some script locations:
-        this.cacheUniformLocations(Object.keys(this.uniforms));
-        this.cacheAttributeLocations(Object.keys(this.attributes));
-
-    } else {
-        debug.error("Shader setup failed");
-    }
-};
-
-/**
- * Compiles the shader and generates the shader program
- * @returns {boolean}
- */
-Shader.prototype.compile = function () {
-    var program = glu.createProgramFromScripts(this._gl, this._vertexScript, this._fragmentScript);
-
-    if (isObjectAssigned(program)) {
-        this._program = program;
-
-        return true;
-    } else {
-        program = null;
+        return shader;
     }
 
-    return false;
-};
+    /**
+     * Creates a program from 2 shaders.
+     * @param gl
+     * @param vertexShader
+     * @param fragmentShader
+     * @returns {WebGLProgram}
+     */
+    createProgram(gl, vertexShader, fragmentShader) {
+        // create a program.
+        let program = gl.createProgram();
 
-/**
- * Gets the unique id of this shader instance
- */
-Shader.prototype.getUID = function () {
-    return this._uid;
-};
+        // attach the shaders.
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
 
-/**
- * Cache the uniform locations for faster re-utilization
- * @param keys
- */
-Shader.prototype.cacheUniformLocations = function (keys) {
-    for (var i = 0; i < keys.length; ++i) {
-        this.uniforms[keys[i]]._location = this._gl.getUniformLocation(this._program, keys[i]);
-    }
-};
+        // link the program.
+        gl.linkProgram(program);
 
-/**
- * Cache the attribute locations for faster re-utilization
- * @param keys
- */
-Shader.prototype.cacheAttributeLocations = function (keys) {
-    for (var i = 0; i < keys.length; ++i) {
-        this.attributes[keys[i]] = this._gl.getAttribLocation(this._program, keys[i]);
-    }
-};
+        // Check if it linked.
+        let success = gl.getProgramParameter(program, gl.LINK_STATUS);
+        if (!success) {
+            // something went wrong with the link
+            this._logger.error("Program filed to link:" + gl.getProgramInfoLog(program));
+            // TEST: gl.getError() has more info?
+        }
 
-/**
- * Syncs all the uniforms attached to this shader
- */
-Shader.prototype.syncUniforms = function () {
-    this._textureCount = 1;
-
-    for (var key in this.uniforms) {
-        this.syncUniform(this.uniforms[key]);
-    }
-};
-
-/**
- * Synchronizes/updates the values for the given uniform
- * @param uniform
- */
-Shader.prototype.syncUniform = function (uniform) {
-    var location = uniform._location,
-        value = uniform.value,
-        gl = this._gl;
-
-    // depending on the uniform type, WebGL has different ways of synchronizing values
-    // the values can either be a Float32Array or JS Array object
-    switch (uniform.type) {
-        case 'b':
-        case 'bool':
-            gl.uniform1i(location, value ? 1 : 0);
-            break;
-        case 'i':
-        case '1i':
-            gl.uniform1i(location, value);
-            break;
-        case '2i':
-            gl.uniform2i(location, value[0], value[1]);
-            break;
-        case '3i':
-            gl.uniform3i(location, value[0], value[1], value[2]);
-            break;
-        case '4i':
-            gl.uniform4i(location, value[0], value[1], value[2], value[3]);
-            break;
-        case 'f':
-        case '1f':
-            gl.uniform1f(location, value);
-            break;
-        case '2f':
-            gl.uniform2f(location, value[0], value[1]);
-            break;
-        case '3f':
-            gl.uniform3f(location, value[0], value[1], value[2]);
-            break;
-        case '4f':
-            gl.uniform4f(location, value[0], value[1], value[2], value[3]);
-            break;
-        case 'm2':
-        case 'mat2':
-            gl.uniformMatrix2fv(location, uniform.transpose, value);
-            break;
-        case 'm3':
-        case 'mat3':
-            gl.uniformMatrix3fv(location, uniform.transpose, value);
-            break;
-        case 'm4':
-        case 'mat4':
-            gl.uniformMatrix4fv(location, uniform.transpose, value);
-            break;
-        case 'tex':
-            if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-                debug.warn("Could not assign texture uniform because the texture isn't ready.");
-                break;
-            }
-
-            gl.activeTexture(gl["TEXTURE" + this._textureCount]);
-
-            var texture = uniform.value.getImageData()._glTextures[gl.id];
-
-            // the texture was already sampled?
-            if (!isObjectAssigned(texture)) {
-                // TODO: do stuff here? :D
-            }
-
-            break;
-        default:
-            debug.warn("Unknown uniform type: " + uniform.type);
-            break;
-    }
-};
-
-Shader.prototype.getProgram = function () {
-    return this._program;
-};
-
-Shader.prototype.initSampler2D = function (uniform) {
-    if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-        debug.warn("Could not initialize sampler2D because the texture isn't ready.");
-        return;
+        return program;
     }
 
-    var imgData = uniform.value.getImageData();
-    var texture = imgData.baseTexture;
-};
+    /**
+     * Creates a shader from the script string
+     * @param gl
+     * @param script
+     * @param shaderType
+     * @returns {null}
+     */
+    createShader(gl, script, shaderType) {
+        // If we didn't pass in a type, use the 'type' from
+        // the script tag.
+        let glShaderType;
+        if (shaderType === "vertex") {
+            glShaderType = gl.VERTEX_SHADER;
+        } else if (shaderType === "fragment") {
+            glShaderType = gl.FRAGMENT_SHADER;
+        } else if (!shaderType) {
+            this._logger.warn("Shader type not set, discarding..");
+            return null;
+        }
 
-Shader.prototype.unload = function () {
-    // clean up program using WebGL flow
-    this._gl.deleteProgram(this._program);
-};;/**
- * ShaderManager class
- */
-/**
- * @constructor
- */
-function ShaderManager(game) {
-	// private variables
-	this._game = game;
-	this._gl = this._game.getRenderContext().getContext();
-	this._activeShader = null;
+        return this._compileShader(gl, script, glShaderType);
+    }
+
+    /**
+     * Creates a shader from the content of a script tag
+     * @param gl
+     * @param scriptId
+     * @param shaderType
+     */
+    createShaderFromScript(gl, scriptId, shaderType) {
+        // look up the script tag by id.
+        let shaderScriptElem = document.getElementById(scriptId);
+        if (!shaderScriptElem) {
+            this._logger.warn("Unknown script target element, discarding..");
+            return null;
+        }
+
+        // extract the contents of the script tag.
+        this.createShader(gl, shaderScriptElem.text, shaderType);
+    }
+
+    /**
+     * Creates a program based on both vertex and fragment given scripts
+     * @param gl
+     * @param vertexScript
+     * @param fragmentScript
+     */
+    createProgramFromScripts(gl, vertexScript, fragmentScript) {
+        let vshader = this.createShader(gl, vertexScript, "vertex");
+        let fshader = this.createShader(gl, fragmentScript, "fragment");
+
+        if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
+            return this.createProgram(gl, vshader, fshader);
+        } else {
+            this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
+        }
+
+        // clean up shaders
+        gl.deleteShader(vshader);
+        gl.deleteShader(fshader);
+
+        return null;
+    }
+
+    /**
+     * Creates a program based on both vertex and fragment given elements
+     * @param gl
+     * @param vertexScriptId
+     * @param fragmentScriptId
+     */
+    createProgramFromScriptElements(gl, vertexScriptId, fragmentScriptId) {
+        let vshader = this.createShaderFromScript(gl, vertexScriptId, "vertex");
+        let fshader = this.createShaderFromScript(gl, fragmentScriptId, "fragment");
+
+        if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
+            return this.createProgram(gl, vshader, fshader);
+        } else {
+            this._logger.warn("Could not create program because scripts could not be compiled, discarding..");
+        }
+
+        // clean up shaders
+        gl.deleteShader(vshader);
+        gl.deleteShader(fshader);
+
+        return null;
+    }
+
+    //#endregion
+
 }
 
-ShaderManager.prototype.unload = function () {
+/* for simplicity sake, add a global instance of the webgl utils */
+let glu = new WebGLUtils();
 
-};
+;/**
+ * Shader Class
+ * Some cool code ideas were applied from Pixi.JS Shader class
+ */
+class Shader {
 
-ShaderManager.prototype.useShader = function(shader) {
-	// is this the same shader that is being used?
-	if(!isObjectAssigned(this._activeShader) || this._activeShader.getUID() !== shader.getUID()) {
-		this._activeShader = shader;
-		this._gl.useProgram(shader.getProgram());
-	}
-};
+    //#region Constructors
+
+    constructor(vertexScript, fragmentScript, uniforms, attributes) {
+        if (!isObjectAssigned(vertexScript) || !isObjectAssigned(fragmentScript)) {
+            throw new Error("Vertex and Fragment scripts are required to create a shader, discarding..");
+        }
+
+        if (!isObjectAssigned(GameManager.renderContext)) {
+            throw new Error("The WebGL render context is not yet set, can't create shader.");
+        }
+
+        // public properties:
+        this.uniforms = uniforms || {};
+        this.attributes = attributes || {};
+
+        // private properties:
+        this._gl = GameManager.renderContext.getContext();
+        this._program = null;
+        this._vertexScript = vertexScript;
+        this._fragmentScript = fragmentScript;
+        this._textureCount = 1;
+        this._uid = generateUID();
+
+        this.setup();
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    /**
+     * Setup shader logic
+     */
+    setup() {
+        if (this.compile()) {
+            let shaderManager = GameManager.activeGame.getShaderManager();
+            if (shaderManager) {
+                shaderManager.useShader(this);
+            } else {
+                this._gl.useProgram(this._program);
+            }
+
+            // cache some script locations:
+            this.cacheUniformLocations(Object.keys(this.uniforms));
+            this.cacheAttributeLocations(Object.keys(this.attributes));
+
+        } else {
+            debug.error("Shader setup failed");
+        }
+    }
+
+    /**
+     * Compiles the shader and generates the shader program
+     * @returns {boolean}
+     */
+    compile() {
+        let program = glu.createProgramFromScripts(this._gl, this._vertexScript, this._fragmentScript);
+
+        if (isObjectAssigned(program)) {
+            this._program = program;
+
+            return true;
+        } else {
+            program = null;
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets the unique id of this shader instance
+     */
+    getUID() {
+        return this._uid;
+    }
+
+    /**
+     * Cache the uniform locations for faster re-utilization
+     * @param keys
+     */
+    cacheUniformLocations(keys) {
+        for (let i = 0; i < keys.length; ++i) {
+            let type = typeof(this.uniforms[keys[i]]);
+
+            if (type !== "object"){
+                debug.warn("Shader's uniform " + keys[i] + " is not an object.");
+                continue;
+            }
+
+            this.uniforms[keys[i]]._location = this._gl.getUniformLocation(this._program, keys[i]);
+        }
+    }
+
+    /**
+     * Cache the attribute locations for faster re-utilization
+     * @param keys
+     */
+    cacheAttributeLocations(keys) {
+        for (let i = 0; i < keys.length; ++i) {
+            this.attributes[keys[i]] = this._gl.getAttribLocation(this._program, keys[i]);
+        }
+    }
+
+    /**
+     * Syncs all the uniforms attached to this shader
+     */
+    syncUniforms() {
+        this._textureCount = 1;
+
+        for (let key in this.uniforms) {
+            this.syncUniform(this.uniforms[key]);
+        }
+    }
+
+    /**
+     * Synchronizes/updates the values for the given uniform
+     * @param uniform
+     */
+    syncUniform(uniform) {
+        let location = uniform._location;
+        let value = uniform.value;
+        let gl = this._gl;
+
+        // depending on the uniform type, WebGL has different ways of synchronizing values
+        // the values can either be a Float32Array or JS Array object
+        switch (uniform.type) {
+            case 'b':
+            case 'bool':
+                gl.uniform1i(location, value ? 1 : 0);
+                break;
+            case 'i':
+            case '1i':
+                gl.uniform1i(location, value);
+                break;
+            case '2i':
+                gl.uniform2i(location, value[0], value[1]);
+                break;
+            case '3i':
+                gl.uniform3i(location, value[0], value[1], value[2]);
+                break;
+            case '4i':
+                gl.uniform4i(location, value[0], value[1], value[2], value[3]);
+                break;
+            case 'f':
+            case '1f':
+                gl.uniform1f(location, value);
+                break;
+            case '2f':
+                gl.uniform2f(location, value[0], value[1]);
+                break;
+            case '3f':
+                gl.uniform3f(location, value[0], value[1], value[2]);
+                break;
+            case '4f':
+                gl.uniform4f(location, value[0], value[1], value[2], value[3]);
+                break;
+            case 'm2':
+            case 'mat2':
+                // TODO: implement matrix2 transpose
+                gl.uniformMatrix2fv(location, uniform.transpose, value);
+                break;
+            case 'm3':
+            case 'mat3':
+                // TODO: implement matrix3 transpose
+                gl.uniformMatrix3fv(location, uniform.transpose, value);
+                break;
+            case 'm4':
+            case 'mat4':
+                // TODO: implement matrix4 transpose
+                gl.uniformMatrix4fv(location, uniform.transpose, value);
+                break;
+            case 'tex':
+                if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
+                    debug.warn("Could not assign texture uniform because the texture isn't ready.");
+                    break;
+                }
+
+                gl.activeTexture(gl["TEXTURE" + this._textureCount]);
+
+                let texture = uniform.value.getImageData()._glTextures[gl.id];
+
+                // the texture was already sampled?
+                if (!isObjectAssigned(texture)) {
+                    // TODO: do stuff here? :D
+                }
+
+                break;
+            default:
+                debug.warn("Unknown uniform type: " + uniform.type);
+                break;
+        }
+    }
+
+    getProgram() {
+        return this._program;
+    }
+
+    initSampler2D(uniform) {
+        if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
+            debug.warn("Could not initialize sampler2D because the texture isn't ready.");
+            return;
+        }
+
+        let imgData = uniform.value.getImageData();
+        let texture = imgData.baseTexture;
+    }
+
+    unload() {
+        // clean up program using WebGL flow
+        this._gl.deleteProgram(this._program);
+    }
+
+    //#endregion
+
+};/**
+ * ShaderManager class
+ */
+class ShaderManager {
+
+    //#region Constructors
+
+    /**
+     * @param game
+     * @constructor
+     */
+    constructor(game) {
+        // private variables
+        this._game = game;
+        this._gl = this._game.getRenderContext().getContext();
+        this._activeShader = null;
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    unload() {
+
+    }
+
+    useShader(shader) {
+        // is this the same shader that is being used?
+        if (!isObjectAssigned(this._activeShader) || this._activeShader.getUID() !== shader.getUID()) {
+            this._activeShader = shader;
+            this._gl.useProgram(shader.getProgram());
+        }
+    }
+
+    //#endregion
+
+}
+
 ;/**
  * Created by Luis on 16/12/2016.
  */
-function TestShader() {
-    Shader.call(this,
-        // inline-vertex shader:
-        [
-            // an attribute will receive data from a buffer
-            'attribute vec4 a_position;',
 
-            // all shaders have a main function
-            'void main() {',
-                // gl_Position is a special variable a vertex shader
-                // is responsible for setting
-                'gl_Position = a_position;',
-            '}'
-        ].join('\n'),
-        // inline-fragment shader
-        [
-            // fragment shaders don't have a default precision so we need
-            // to pick one. mediump is a good default
-            'precision mediump float;',
+/**
+ * TestShader Class
+ */
+class TestShader extends Shader {
 
-            'void main() {',
-                // gl_FragColor is a special variable a fragment shader
-                // is responsible for setting
-                'gl_FragColor = vec4(1, 0, 0.5, 1);',
-            '}'
-        ].join('\n'),
-        // uniforms:
-        {
+    static get shaderContent() {
+        return {
+            vertex: [
+                // an attribute will receive data from a buffer
+                'attribute vec4 a_position;',
 
-        },
-        // attributes:
-        {
-            a_position:    0
-        });
-}
+                // all shaders have a main function
+                'void main() {',
+                    // gl_Position is a special variable a vertex shader
+                    // is responsible for setting
+                    'gl_Position = a_position;',
+                '}'
+            ].join('\n'),
+            fragment: [
+                // fragment shaders don't have a default precision so we need
+                // to pick one. mediump is a good default
+                'precision mediump float;',
 
-inheritsFrom(TestShader, Shader);;/**
+                'void main() {',
+                    // gl_FragColor is a special variable a fragment shader
+                    // is responsible for setting
+                    'gl_FragColor = vec4(1, 0, 0.5, 1);',
+                '}'
+            ].join('\n'),
+            uniforms: {},
+            attributes: {
+                a_position: 0
+            }
+        };
+    }
+
+    constructor() {
+
+        let content = TestShader.shaderContent;
+
+        super(content.vertex, content.fragment, content.uniforms, content.attributes);
+    }
+
+};/**
  * Created by Luis on 16/12/2016.
  */
-function TextShader() {
-    Shader.call(this,
-        // inline-vertex shader:
-        [
-            'attribute vec2 aPos;',
-            'attribute vec2 aTexCoord;',
 
-            'uniform mat4 uMatrix;',
-            'uniform mat4 uTransform;',
-            'uniform vec2 uTexSize;',
-
-            'varying vec2 vTexCoord;',
-
-            'void main() {',
-                'gl_Position = uMatrix * uTransform * vec4(aPos, 0, 1);',
-                'vTexCoord = aTexCoord / uTexSize;',
-            '}'
-        ].join('\n'),
-        // inline-fragment shader
-        [
-            '#ifdef GL_ES',
-            '   precision mediump float;',
-            '#endif',
-
-            'uniform sampler2D uTexture;',
-            'uniform vec4 uColor;',
-            'uniform float uGamma;',
-            'uniform float uOutlineDistance;',
-            'uniform vec4 uOutlineColor;',
-
-            'uniform vec4 uDropShadowColor;',
-            'uniform float uDropShadowSmoothing;',
-            'uniform vec2 uDropShadowOffset;',
-
-            'uniform float uDebug;',
-
-            'varying vec2 vTexCoord;',
-
-            'void main() {',
-            '  float distance = texture2D(uTexture, vTexCoord).a;',
-            '  vec4 finalColor = uColor;',
-            '  if (uDebug > 0.0) {',
-            '     gl_FragColor = vec4(distance, distance, distance, 1);',
-            '  } else {',
-            // outline effect
-            '       if (uOutlineDistance <= 0.5) {',
-            '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-            '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
-            '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
-            '           finalColor = vec4(color.rgb, color.a * alpha);',
-            '       } else {',
-            '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-            '           finalColor = vec4(uColor.rgb, uColor.a * alpha);',
-            '       }',
-            // drop shadow effect
-            //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-            //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
-
-            '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;',
-            '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);',
-            '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
-            // inner effect is the other way around... text, shadow
-            '       gl_FragColor = mix(shadow, finalColor, finalColor.a);',
-            '  }',
-            '}'
-        ].join('\n'),
-        // uniforms:
-        {
-            uMatrix: {type: 'mat4', value: new Float32Array(16)},
-            uTransform: {type: 'mat4', value: new Float32Array(16)},
-            uTexture: {type: 'tex', value: 0},
-            uTexSize: {type: '1i', value: 24},
-            uColor: [1.0, 0.0, 0.0, 1.0],
-            uOutlineColor: [1.0, 1.0, 1.0, 1.0],
-            uDropShadowColor: [0.0, 0.0, 0.0, 1.0],
-            uDropShadowSmoothing: {type: '1i', value: 0},
-            uDropShadowOffset: [0.0, 0.0],
-            uOutlineDistance: {type: '1i', value: 0},
-            uGamma: {type: '1i', value: 0},
-            uDebug: {type: '1i', value: 1}
-        },
-        // attributes:
-        {
-            aPos: 0,
-            aTexCoord: 0
-        });
-}
-
-inheritsFrom(TextShader, Shader);;/**
- * TextureShader class
- * @depends shader.js
+/**
+ * TextShader Class
  */
-function TextureShader() {
-    Shader.call(this,
-        // inline-vertex shader:
-        [
-            'precision mediump float;',
+class TextShader extends Shader {
 
-            'attribute vec2 aVertexPosition;',
-            'attribute vec2 aTextureCoord;',
+    static get shaderContent() {
+        return {
+            vertex: [
+                'attribute vec2 aPos;',
+                'attribute vec2 aTexCoord;',
 
-            'uniform mat4 uMatrix;',
-            'uniform mat4 uTransform;',
+                'uniform mat4 uMatrix;',
+                'uniform mat4 uTransform;',
+                'uniform vec2 uTexSize;',
 
-            'varying vec2 vTextureCoord;',
+                'varying vec2 vTexCoord;',
 
-            'void main(void){',
-            '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
-            '   vTextureCoord = aTextureCoord;',
-            '}'
-        ].join('\n'),
-        // inline-fragment shader
-        [
-            'precision mediump float;',
+                'void main() {',
+                '   gl_Position = uMatrix * uTransform * vec4(aPos, 0, 1);',
+                '   vTexCoord = aTexCoord / uTexSize;',
+                '}'
+            ].join('\n'),
+            fragment: [
+                '#ifdef GL_ES',
+                '   precision mediump float;',
+                '#endif',
 
-            'varying vec2 vTextureCoord;',
-            'varying vec4 vColor;',
+                'uniform sampler2D uTexture;',
+                'uniform vec4 uColor;',
+                'uniform float uGamma;',
+                'uniform float uOutlineDistance;',
+                'uniform vec4 uOutlineColor;',
 
-            'uniform sampler2D uSampler;',
-            'uniform vec4 uColor;',
+                'uniform vec4 uDropShadowColor;',
+                'uniform float uDropShadowSmoothing;',
+                'uniform vec2 uDropShadowOffset;',
 
-            'void main(void){',
-            '   gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;',
-            '}'
-        ].join('\n'),
-        // uniforms:
-        {
-            uSampler: {type: 'tex', value: 0},
-            uMatrix: {type: 'mat4', value: new Float32Array(16)},
-            uTransform: {type: 'mat4', value: new Float32Array(16)},
-            uColor: [1.0, 1.0, 1.0, 1.0]
-        },
-        // attributes:
-        {
-            aVertexPosition:    0,
-            aTextureCoord:      0
-        });
-}
+                'uniform float uDebug;',
 
-inheritsFrom(TextureShader, Shader);;/**
- * PrimitiveShader class
- * @depends shader.js
+                'varying vec2 vTexCoord;',
+
+                'void main() {',
+                '   float distance = texture2D(uTexture, vTexCoord).a;',
+                '   vec4 finalColor = uColor;',
+                '   if (uDebug > 0.0) {',
+                '       gl_FragColor = vec4(distance, distance, distance, 1);',
+                '   } else {',
+                // outline effect
+                '       if (uOutlineDistance <= 0.5) {',
+                '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
+                '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
+                '           finalColor = vec4(color.rgb, color.a * alpha);',
+                '       } else {',
+                '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                '           finalColor = vec4(uColor.rgb, uColor.a * alpha);',
+                '       }',
+                // drop shadow effect
+                //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
+
+                '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;',
+                '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);',
+                '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
+                // inner effect is the other way around... text, shadow
+                '       gl_FragColor = mix(shadow, finalColor, finalColor.a);',
+                '  }',
+                '}'
+            ].join('\n'),
+            uniforms: {
+                uMatrix: {type: 'mat4', value: new Float32Array(16)},
+                uTransform: {type: 'mat4', value: new Float32Array(16)},
+                uTexture: {type: 'tex', value: 0},
+                uTexSize: {type: '1i', value: 24},
+                uColor: [1.0, 0.0, 0.0, 1.0],
+                uOutlineColor: [1.0, 1.0, 1.0, 1.0],
+                uDropShadowColor: [0.0, 0.0, 0.0, 1.0],
+                uDropShadowSmoothing: {type: '1i', value: 0},
+                uDropShadowOffset: [0.0, 0.0],
+                uOutlineDistance: {type: '1i', value: 0},
+                uGamma: {type: '1i', value: 0},
+                uDebug: {type: '1i', value: 1}
+            },
+            attributes: {
+                aPos: 0,
+                aTexCoord: 0
+            }
+        };
+    }
+
+    constructor() {
+
+        let content = TextShader.shaderContent;
+
+        super(content.vertex, content.fragment, content.uniforms, content.attributes);
+    }
+
+};/**
+ * TextureShader Class
  */
-function PrimitiveShader() {
-    Shader.call(this,
-        // inline-vertex shader:
-        [
-            'attribute vec2 aVertexPosition;',
+class TextureShader extends Shader {
 
-            'uniform mat4 uMatrix;',
-            'uniform mat4 uTransform;',
-            'uniform float uPointSize;',
+    static get shaderContent() {
+        return {
+            vertex: [
+                'precision mediump float;',
 
-            'void main(void) {',
-            '   gl_PointSize = uPointSize;',
-            '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
-            '}'
-        ].join('\n'),
-        // inline-fragment shader
-        [
-            'precision mediump float;',
+                'attribute vec2 aVertexPosition;',
+                'attribute vec2 aTextureCoord;',
 
-            'uniform vec4 uColor;',
+                'uniform mat4 uMatrix;',
+                'uniform mat4 uTransform;',
 
-            'void main(void) {',
-            '   gl_FragColor = uColor;',
-            '}'
-        ].join('\n'),
-        // uniforms:
-        {
-            uMatrix: {type: 'mat4', value: new Float32Array(16)},
-            uTransform: {type: 'mat4', value: new Float32Array(16)},
-            uColor: [0.0, 0.0, 0.0, 1.0],
-            uPointSize: 2
-        },
-        // attributes:
-        {
-            aVertexPosition: 0
-        });
+                'varying vec2 vTextureCoord;',
+
+                'void main(void){',
+                '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
+                '   vTextureCoord = aTextureCoord;',
+                '}'
+            ].join('\n'),
+            fragment: [
+                'precision mediump float;',
+
+                'varying vec2 vTextureCoord;',
+                'varying vec4 vColor;',
+
+                'uniform sampler2D uSampler;',
+                'uniform vec4 uColor;',
+
+                'void main(void){',
+                '   gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;',
+                '}'
+            ].join('\n'),
+            uniforms: {
+                uSampler: {type: 'tex', value: 0},
+                uMatrix: {type: 'mat4', value: new Float32Array(16)},
+                uTransform: {type: 'mat4', value: new Float32Array(16)},
+                uColor: [1.0, 1.0, 1.0, 1.0]
+            },
+            attributes: {
+                aVertexPosition: 0,
+                aTextureCoord: 0
+            }
+        };
+    }
+
+    constructor() {
+
+        let content = TextureShader.shaderContent;
+
+        super(content.vertex, content.fragment, content.uniforms, content.attributes);
+    }
+
+};/**
+ * PrimitiveShader Class
+ */
+class PrimitiveShader extends Shader {
+
+    static get shaderContent() {
+        return {
+            vertex: [
+                'attribute vec2 aVertexPosition;',
+
+                'uniform mat4 uMatrix;',
+                'uniform mat4 uTransform;',
+                'uniform float uPointSize;',
+
+                'void main(void) {',
+                '   gl_PointSize = uPointSize;',
+                '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
+                '}'
+            ].join('\n'),
+            fragment: [
+                'precision mediump float;',
+
+                'uniform vec4 uColor;',
+
+                'void main(void) {',
+                '   gl_FragColor = uColor;',
+                '}'
+            ].join('\n'),
+            uniforms: {
+                uMatrix: {type: 'mat4', value: new Float32Array(16)},
+                uTransform: {type: 'mat4', value: new Float32Array(16)},
+                uColor: [0.0, 0.0, 0.0, 1.0],
+                uPointSize: {type: '1i', value: 2}
+            },
+            attributes: {
+                aVertexPosition: 0
+            }
+        };
+    }
+
+    constructor() {
+
+        let content = PrimitiveShader.shaderContent;
+
+        super(content.vertex, content.fragment, content.uniforms, content.attributes);
+    }
+
 }
-
-inheritsFrom(PrimitiveShader, Shader);

@@ -2,9 +2,13 @@
  * Project File class
  */
 class ProjectFile {
+
+    //#region Constructors
+
     /**
      *
      * @param params
+     * @constructor
      */
     constructor(params) {
         params = params || {};
@@ -18,6 +22,12 @@ class ProjectFile {
         this.content = params.content || {};
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param data
@@ -26,4 +36,9 @@ class ProjectFile {
     static restore(data) {
         return new ProjectFile(data);
     }
+
+    //#endregion
+
+    //#endregion
+
 }

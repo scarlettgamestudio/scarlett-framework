@@ -148,9 +148,9 @@ gameScene.lateUpdate = function (delta) {
         enemies[i].update(delta);
     }
 
-    if (Keyboard.isKeyDown(Keys.Add)){
+    if (Keyboard.instance.isKeyDown(Keys.Add)){
         this._camera.zoom -= 0.01;
-    } else if (Keyboard.isKeyDown(Keys.Subtract)){
+    } else if (Keyboard.instance.isKeyDown(Keys.Subtract)){
         this._camera.zoom += 0.01;
     }
 

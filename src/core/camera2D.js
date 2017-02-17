@@ -2,6 +2,9 @@
  * Camera2D class
  */
 class Camera2D {
+
+    //#region Constructors
+
     /**
      *
      * @param x
@@ -24,6 +27,23 @@ class Camera2D {
         this._lastZoom = null;
         this._matrix = new Matrix4();
     }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {Camera2D}
+     */
+    static restore(data) {
+        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
+    }
+
+    //#endregion
 
     /**
      *
@@ -57,7 +77,7 @@ class Camera2D {
 
         // force the camera calculations
         this.calculateMatrix();
-    };
+    }
 
     /**
      *
@@ -65,7 +85,7 @@ class Camera2D {
      */
     getViewWidth() {
         return this.viewWidth;
-    };
+    }
 
     /**
      *
@@ -73,7 +93,7 @@ class Camera2D {
      */
     getViewHeight() {
         return this.viewHeight;
-    };
+    }
 
     /**
      *
@@ -86,7 +106,7 @@ class Camera2D {
         }
 
         return this._matrix.asArray();
-    };
+    }
 
     /**
      *
@@ -100,7 +120,7 @@ class Camera2D {
 
         // then we calculate and return the world coordinates:
         return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
-    };
+    }
 
     /**
      *
@@ -119,14 +139,8 @@ class Camera2D {
             y: this.y,
             zoom: this.zoom
         }
-    };
+    }
 
-    /**
-     *
-     * @param data
-     * @returns {Camera2D}
-     */
-    static restore(data) {
-        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
-    };
+    //#endregion
+
 }

@@ -18,7 +18,7 @@ String.prototype.insert = function (index, string) {
 /**
  * TextUtils Class
  */
-class TextUtils{
+class TextUtils {
 
     //#region Static Methods
 
@@ -29,7 +29,7 @@ class TextUtils{
      * @returns {number} the character width if valid and 0 if invalid
      * @public
      */
-    static measureCharacterWidth(fontStyle, char){
+    static measureCharacterWidth(fontStyle, char) {
         // don't go further if parameters are invalid
         if (!fontStyle || !char) {
             return 0;
@@ -38,7 +38,7 @@ class TextUtils{
         let scale = fontStyle.getScale();
 
         // if scale is invalid (0 or null)
-        if (!scale){
+        if (!scale) {
             return 0;
         }
 
@@ -46,7 +46,7 @@ class TextUtils{
         let charID = fontStyle.findCharID(char);
 
         // don't go further if char id is invalid
-        if (charID === null){
+        if (charID === null) {
             return 0;
         }
 
@@ -64,9 +64,9 @@ class TextUtils{
      * @returns {number} the given text string width if valid and 0 if invalid
      * @public
      */
-    static measureTextWidth(fontStyle, textStr){
+    static measureTextWidth(fontStyle, textStr) {
         // don't go further if parameters or scale are invalid
-        if (!fontStyle || !textStr || !fontStyle.getScale()){
+        if (!fontStyle || !textStr || !fontStyle.getScale()) {
             return 0;
         }
 
@@ -78,12 +78,12 @@ class TextUtils{
         let revertedToOriginalValue = false;
 
         // iterate through every character
-        for (let c = 0; c < textStr.length; c++){
+        for (let c = 0; c < textStr.length; c++) {
             // retrieve character at position c
             let char = textStr[c];
 
             // if there is already one or more valid characters, then we can use the actual letter spacing value
-            if (!revertedToOriginalValue && width > 0){
+            if (!revertedToOriginalValue && width > 0) {
                 // revert to original value
                 currentLetterSpacing = fontStyle.getLetterSpacing();
                 // make sure we only enter this condition once
@@ -94,7 +94,7 @@ class TextUtils{
             let tempWidth = TextUtils.measureCharacterWidth(fontStyle, char);
 
             // if valid
-            if (tempWidth > 0){
+            if (tempWidth > 0) {
                 // add its width
                 // if tempWidth was 0, adding letter spacing wouldn't make much sense.
                 width += tempWidth + currentLetterSpacing;
@@ -105,10 +105,10 @@ class TextUtils{
         return width;
     }
 
-    static wrapWordsShortVersion(fontStyle, textStr, maxLineWidth){
+    static wrapWordsShortVersion(fontStyle, textStr, maxLineWidth) {
         let result = [];
 
-        if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0) {
             return result;
         }
 
@@ -116,7 +116,7 @@ class TextUtils{
         let words = textStr.split(' ');
 
         // no need to go further if there is only 1 word
-        if (words.length == 1){
+        if (words.length == 1) {
             return words;
         }
 
@@ -125,7 +125,7 @@ class TextUtils{
         let currentLine = words.shift();
 
         // iterate through the words
-        for (let w = 0; w < words.length; w++){
+        for (let w = 0; w < words.length; w++) {
             // retrieve word
             let word = words[w];
 
@@ -134,7 +134,7 @@ class TextUtils{
 
             let tempWidth = TextUtils.measureTextWidth(fontStyle, tempLine);
 
-            if (tempWidth > maxLineWidth){
+            if (tempWidth > maxLineWidth) {
                 result.push(currentLine);
                 currentLine = word;
             }
@@ -158,10 +158,10 @@ class TextUtils{
      * @returns {Array} wrapped text in lines
      * @public
      */
-    static wrapWordsLongVersion(fontStyle, textStr, maxLineWidth, characterWrap){
+    static wrapWordsLongVersion(fontStyle, textStr, maxLineWidth, characterWrap) {
         let result = [];
 
-        if(!fontStyle || !textStr || !maxLineWidth  || maxLineWidth <= 0){
+        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0) {
             return result;
         }
 
@@ -179,13 +179,13 @@ class TextUtils{
         let revertedToOriginalValue = false;
 
         // iterate through the words
-        for (let w = 0; w < words.length; w++){
+        for (let w = 0; w < words.length; w++) {
             // retrieve word
             let word = words[w];
 
             // just a way to not consider whitespace and its width (along with a possible letter spacing value)
             // if there aren't any characters or words already in the current line.
-            if (!revertedToOriginalValue && currentLineWordWidth > 0){
+            if (!revertedToOriginalValue && currentLineWordWidth > 0) {
                 whitespace = " ";
                 // letter spacing also affects the whitespace width when there is at least 1 word
                 whitespaceWidth = TextUtils.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
@@ -197,7 +197,7 @@ class TextUtils{
             let wordWidth = TextUtils.measureTextWidth(fontStyle, word);
 
             // TODO: think of a cleaner way of doing this? maybe wrapTextByCharacter shouldn't return line objects?
-            if (characterWrap && wordWidth > maxLineWidth){
+            if (characterWrap && wordWidth > maxLineWidth) {
                 let tempLine = currentLine + whitespace + word;
 
                 let characterWrappedLines = TextUtils.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
@@ -212,7 +212,7 @@ class TextUtils{
                 revertedToOriginalValue = false;
 
                 // push the others
-                for (let cline = 0; cline < characterWrappedLines.length; cline++){
+                for (let cline = 0; cline < characterWrappedLines.length; cline++) {
                     let characterLine = characterWrappedLines[cline].chars.join("");
                     result.push(characterLine);
                 }
@@ -223,7 +223,7 @@ class TextUtils{
             // simulate line width with the current word, a whitespace in between and also extra line spacing if any
             let tempWidth = currentLineWordWidth + wordWidth + whitespaceWidth;
 
-            if (tempWidth > maxLineWidth){
+            if (tempWidth > maxLineWidth) {
                 result.push(currentLine);
                 currentLine = word;
                 currentLineWordWidth = wordWidth;
@@ -253,13 +253,13 @@ class TextUtils{
      * @returns {Array} wrapped text in lines
      * @public
      */
-    static wrapTextByCharacter(fontStyle, textStr, maxLineWidth){
+    static wrapTextByCharacter(fontStyle, textStr, maxLineWidth) {
         // create empty array
         let lines = [];
 
         // TODO: trim?
         // if parameters are invalid, no need to go further
-        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0){
+        if (!fontStyle || !textStr || !maxLineWidth || maxLineWidth <= 0) {
             return lines;
         }
 
@@ -275,7 +275,7 @@ class TextUtils{
         let revertedToOriginalValue = false;
 
         // iterate through text characters
-        for (let c = 0; c < textStr.length; c++){
+        for (let c = 0; c < textStr.length; c++) {
             // retrieve text character
             let char = textStr[c];
 
@@ -283,7 +283,7 @@ class TextUtils{
             let currentLine = lines.length - 1;
 
             // after the first (valid) character of current line, get the actual value of letter spacing
-            if (!revertedToOriginalValue && lines[currentLine].width > 0){
+            if (!revertedToOriginalValue && lines[currentLine].width > 0) {
                 // revert to original value
                 currentLetterSpacing = fontStyle.getLetterSpacing();
                 // make sure we only enter this condition once (per line, thus the resets down below)
@@ -297,7 +297,7 @@ class TextUtils{
             let tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
 
             // if current line width + the current character width is > than the max width
-            if(tempWidth > maxLineWidth){
+            if (tempWidth > maxLineWidth) {
                 // create a new and empty line
                 lines.push({
                     chars: [],
@@ -312,7 +312,7 @@ class TextUtils{
                 revertedToOriginalValue = false;
 
                 // skip if the character is a whitespace
-                if (char === " "){
+                if (char === " ") {
                     continue;
                 }
             }
@@ -332,7 +332,7 @@ class TextUtils{
      * @returns {{chars: Array, width: number}}
      * @public
      */
-    static convertTextStringToLineFormat(fontStyle, textStr){
+    static convertTextStringToLineFormat(fontStyle, textStr) {
         // define empty line
         let line = {
             chars: Array(),
@@ -340,7 +340,7 @@ class TextUtils{
         };
 
         // return empty if any of the values or scale is invalid
-        if (!fontStyle || !textStr || !fontStyle.getScale()){
+        if (!fontStyle || !textStr || !fontStyle.getScale()) {
             return line;
         }
 
@@ -366,7 +366,7 @@ class TextUtils{
         let resultLines = [];
 
         // if parameters or scale are invalid, there is no need to go further
-        if (!fontStyle || !textStr || !maxLineWidth || !fontStyle.getScale()){
+        if (!fontStyle || !textStr || !maxLineWidth || !fontStyle.getScale()) {
             return resultLines;
         }
 
@@ -383,14 +383,14 @@ class TextUtils{
         let userDefinedLines = [];
 
         // word wrap by inserting \n in the original text
-        if (wordWrap){
+        if (wordWrap) {
             // initialize resulting text
             let wrappedText = "";
             // split text into lines defined by the user
             userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 
             // iterate through lines
-            for (let l = 0; l < userDefinedLines.length; l++){
+            for (let l = 0; l < userDefinedLines.length; l++) {
                 // wrap line
                 let wrappedLine = TextUtils.wrapWordsLongVersion(fontStyle, userDefinedLines[l],
                     maxLineWidth, characterWrap).join('\n');
@@ -408,7 +408,7 @@ class TextUtils{
         userDefinedLines = useText.split(/(?:\r\n|\r|\n)/);
 
         // iterate through user defined lines (with special characters)
-        for (let l = 0; l < userDefinedLines.length; l++){
+        for (let l = 0; l < userDefinedLines.length; l++) {
 
             let userDefinedLine = userDefinedLines[l];
 

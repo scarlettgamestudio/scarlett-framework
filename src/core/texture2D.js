@@ -2,8 +2,10 @@
  * Texture2D class
  */
 class Texture2D {
+
+    //#region Constructors
+
     /**
-     *
      * @param image
      */
     constructor(image) {
@@ -37,6 +39,12 @@ class Texture2D {
         this._hasLoaded = true;
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param path
@@ -52,7 +60,9 @@ class Texture2D {
 
             });
         }).bind(this));
-    };
+    }
+
+    //#endregion
 
     /**
      *
@@ -60,14 +70,14 @@ class Texture2D {
      */
     getUID() {
         return this._uid;
-    };
+    }
 
     /**
      *
      */
     bind() {
         this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-    };
+    }
 
     /**
      *
@@ -75,7 +85,7 @@ class Texture2D {
      */
     setImageData(imageData) {
         this._source = imageData;
-    };
+    }
 
     /**
      *
@@ -83,7 +93,7 @@ class Texture2D {
      */
     getImageData() {
         return this._source;
-    };
+    }
 
     /**
      * Gets the texture width
@@ -91,7 +101,7 @@ class Texture2D {
      */
     getWidth() {
         return this._source.width;
-    };
+    }
 
     /**
      * Gets the texture height
@@ -99,7 +109,7 @@ class Texture2D {
      */
     getHeight() {
         return this._source.height;
-    };
+    }
 
     /**
      * Gets the Texture
@@ -107,7 +117,7 @@ class Texture2D {
      */
     getTexture() {
         return this._texture;
-    };
+    }
 
     /**
      *
@@ -115,7 +125,7 @@ class Texture2D {
      */
     isReady() {
         return this._hasLoaded;
-    };
+    }
 
     /**
 
@@ -123,4 +133,7 @@ class Texture2D {
     unload() {
 
     }
+
+    //#endregion
+
 }

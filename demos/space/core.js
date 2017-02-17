@@ -52,9 +52,11 @@ gameScene.lateUpdate = function (delta) {
     // show fps UI "tick"
     meter.tick();
 
+    var keyboard = Keyboard.instance;
+
     lastBurst += delta;
     if (lastBurst >= ENEMY_BURST_DELAY) {
-        //this.dispatchEnemies();
+        this.dispatchEnemies();
         lastBurst = 0;
     }
 
@@ -62,9 +64,9 @@ gameScene.lateUpdate = function (delta) {
         enemies[i].update(delta);
     }
 
-    if (Keyboard.isKeyDown(Keys.Add)){
+    if (keyboard.isKeyDown(Keys.Add)){
         this._camera.zoom -= 0.01;
-    } else if (Keyboard.isKeyDown(Keys.Subtract)){
+    } else if (keyboard.isKeyDown(Keys.Subtract)){
         this._camera.zoom += 0.01;
     }
 

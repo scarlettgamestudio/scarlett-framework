@@ -1,10 +1,12 @@
-AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
-AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
+AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
+AttributeDictionary.addRule("gameobject", "_parent", {visible: false});
 
 /**
  * GameObject class
  */
 class GameObject {
+
+    //#region Constructors
 
     /**
      * @param {Object} params
@@ -20,7 +22,7 @@ class GameObject {
             params.transform.gameObject = this;
         }
 
-        this.transform = params.transform || new Transform({ gameObject: this });
+        this.transform = params.transform || new Transform({gameObject: this});
 
         // private properties:
         this._uid = generateUID();
@@ -30,52 +32,69 @@ class GameObject {
         this._transformMatrix = new Matrix4();
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new GameObject({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+    }
+
+    //#endregion
+
     equals(other) {
         if (other.getUID) {
             return this._uid === other.getUID();
         }
 
         return this === other;
-    };
+    }
 
     getBaseWidth() {
         return 1;
-    };
+    }
 
     getBaseHeight() {
         return 1;
-    };
+    }
 
     getType() {
         return "GameObject";
-    };
+    }
 
     getUID() {
         return this._uid;
-    };
+    }
 
     propagatePropertyUpdate(property, value) {
-        for (var i = 0; i < this._components.length; ++i) {
+        for (let i = 0; i < this._components.length; ++i) {
             if (this._components[i]["onGameObject" + property + "Updated"]) {
                 this._components[i]["onGameObject" + property + "Updated"](value);
             }
         }
-    };
+    }
 
     /**
      * Resolves the GameObject transformation Matrix4
-     * @returns {Float32Array} 
+     * @returns {Float32Array}
      */
     getMatrix() {
         this._transformMatrix.identity();
         this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
 
         return this._transformMatrix.asArray();
-    };
+    }
 
     getParent() {
         return this._parent;
-    };
+    }
 
     removeParent() {
         if (this._parent) {
@@ -85,7 +104,7 @@ class GameObject {
         }
 
         this._parent = null;
-    };
+    }
 
     setParent(gameObject) {
         if (!gameObject) {
@@ -109,7 +128,7 @@ class GameObject {
 
             gameObject.addChild(this);
         }
-    };
+    }
 
     removeChild(gameObject) {
         for (let i = this._children.length - 1; i >= 0; i--) {
@@ -117,11 +136,11 @@ class GameObject {
                 return this._children.splice(i, 1);
             }
         }
-    };
+    }
 
     getChildren() {
         return this._children;
-    };
+    }
 
     addChild(gameObject, index) {
         // let's be safe, make sure to remove parent if any
@@ -136,14 +155,14 @@ class GameObject {
         } else {
             this._children.push(gameObject);
         }
-    };
+    }
 
     getHierarchyHash() {
         if (this._parent) {
             return this._parent.getHierarchyHash() + "." + this._uid;
         }
         return this._uid + "";
-    };
+    }
 
     isChild(gameObject) {
         // check if is a child simply by getting the hierarchy hash:
@@ -153,16 +172,16 @@ class GameObject {
 
         // this way takes away more resources:
         /*for (var i = 0; i < this._children.length; ++i) {
-            if (this._children[i].equals(gameObject)) {
-                return true;
-            } else {
-                if (this._children[i].isChild(gameObject)) {
-                    return true;
-                }
-            }
-        }
-        return false;*/
-    };
+         if (this._children[i].equals(gameObject)) {
+         return true;
+         } else {
+         if (this._children[i].isChild(gameObject)) {
+         return true;
+         }
+         }
+         }
+         return false;*/
+    }
 
     addComponent(component) {
         if (isFunction(component.setGameObject)) {
@@ -173,7 +192,7 @@ class GameObject {
         component.gameObject = this;
 
         this._components.push(component);
-    };
+    }
 
     update(delta) {
         if (!this.enabled) {
@@ -192,7 +211,7 @@ class GameObject {
                 component.update(delta);
             }
         });
-    };
+    }
 
     render(delta, spriteBatch) {
         if (!this.enabled) {
@@ -211,11 +230,11 @@ class GameObject {
                 component.render(delta, spriteBatch);
             }
         });
-    };
+    }
 
     getComponents() {
         return this._components;
-    };
+    }
 
     getBoundary(bulk) {
         let mat = this.getMatrix();
@@ -238,7 +257,7 @@ class GameObject {
         }
 
         return boundary;
-    };
+    }
 
     getRectangleBoundary(bulk) {
         let vertices = this.getBoundary(bulk);
@@ -251,11 +270,11 @@ class GameObject {
 
         // return the generated rectangle:
         return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-    };
+    }
 
     collidesWith(gameObject, bulk, bulkOther) {
         return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
-    };
+    }
 
     collidesWithPoint(point, bulk) {
         let boundaryA = this.getBoundary(bulk);
@@ -266,7 +285,7 @@ class GameObject {
             new Vector2(point.x, point.y + 1));
 
         return Boundary.overlap(boundaryA, boundaryB);
-    };
+    }
 
     objectify() {
         return {
@@ -275,17 +294,7 @@ class GameObject {
             children: Objectify.array(this._children),
             components: Objectify.array(this._components)
         };
-    };
-
-    static restore(data) {
-        return new GameObject({
-            name: data.name,
-            transform: Transform.restore(data.transform),
-            children: Objectify.restoreArray(data.children),
-            components: Objectify.restoreArray(data.components)
-        });
-    };
-
+    }
 
     unload() {
         for (let i = 0; i < this._components.length; ++i) {
@@ -293,5 +302,7 @@ class GameObject {
                 this._components[i].unload();
             }
         }
-    };
+    }
+
+    //#endregion
 }

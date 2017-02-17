@@ -1,28 +1,46 @@
 /**
- * Content Texture Atlas
- * @param params
- * @constructor
+ * Content Texture Atlas Class
  */
-function TextureAtlas(params) {
-    params = params || {};
+class TextureAtlas {
 
-    // public properties:
-    this.sourcePath = params.sourcePath || ""; // should be a relative path
-    this.mapping = [];
+    //#region Constructors
+
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+        params = params || {};
+
+        // public properties:
+        this.sourcePath = params.sourcePath || ""; // should be a relative path
+        this.mapping = [];
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new TextureAtlas({
+            sourcePath: data.sourcePath
+        });
+    }
+
+    //#endregion
+
+    objectify() {
+        return {
+            sourcePath: this.sourcePath
+        };
+    }
+
+    getType() {
+        return "TextureAtlas";
+    }
+
+    //#endregion
+
 }
-
-TextureAtlas.prototype.objectify = function () {
-    return {
-        sourcePath: this.sourcePath
-    };
-};
-
-TextureAtlas.restore = function (data) {
-    return new TextureAtlas({
-        sourcePath: data.sourcePath
-    });
-};
-
-TextureAtlas.prototype.getType = function () {
-    return "TextureAtlas";
-};

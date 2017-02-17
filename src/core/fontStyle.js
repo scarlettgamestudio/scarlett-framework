@@ -6,13 +6,14 @@
  * FontStyle Class
  */
 class FontStyle {
+
     //#region Constructors
 
     /**
      * @param fontDescription
      * @constructor
      */
-    constructor(fontDescription){
+    constructor(fontDescription) {
         this._fontDescription = fontDescription;
         this._fontSize = 70;
         this._letterSpacing = 0;
@@ -24,7 +25,7 @@ class FontStyle {
 
     //#region Static Methods
 
-    static restore(data){
+    static restore(data) {
         // TODO:
         return {};
     }
@@ -33,11 +34,11 @@ class FontStyle {
 
     //#region Public Methods
 
-    getFontDescription(){
+    getFontDescription() {
         return this._fontDescription;
     }
 
-    setFontDescription(fontInfo){
+    setFontDescription(fontInfo) {
 
         // don't go further if fontInfo is invalid
         if (!isObjectAssigned(fontInfo)) {
@@ -49,11 +50,11 @@ class FontStyle {
         return this._fontDescription = fontInfo;
     }
 
-    getFontSize(){
+    getFontSize() {
         return this._fontSize;
     }
 
-    setFontSize(size){
+    setFontSize(size) {
         this._fontSize = size;
     }
 
@@ -61,30 +62,30 @@ class FontStyle {
      * Retrieves font style scale based on font size and font's description info size
      * @returns {number|null} font style scale or null if invalid
      */
-    getScale(){
+    getScale() {
 
         let metricsSize = this.getFontDescription().info.size;
 
         // TODO: possibly validated in setFontInfo instead?
-        if (!metricsSize){
+        if (!metricsSize) {
             return null;
         }
 
         // calculate scale between generated font's size and the desired (font) size of the text
         let scale = this.getFontSize() / metricsSize;
 
-        if (!scale || scale <= 0){
+        if (!scale || scale <= 0) {
             return null;
         }
 
         return scale;
     }
 
-    getLetterSpacing(){
+    getLetterSpacing() {
         return this._letterSpacing;
     }
 
-    setLetterSpacing(spacing){
+    setLetterSpacing(spacing) {
         this._letterSpacing = spacing;
     }
 
@@ -94,34 +95,34 @@ class FontStyle {
      * @returns {number|null} font's character's ID or null if invalid
      * @public
      */
-    findCharID(char){
+    findCharID(char) {
 
         let fontDescriptionChars = this.getFontDescription().chars;
 
         // make sure the parameter is valid
-        if (!char || !fontDescriptionChars || fontDescriptionChars.length == 0){
+        if (!char || !fontDescriptionChars || fontDescriptionChars.length == 0) {
             return null;
         }
         // retrieve character's ascii code
         let charCode = char.charCodeAt(0);
 
         // if code is invalid, no need to go further
-        if (!charCode){
+        if (!charCode) {
             return null;
         }
 
         // go through every character
-        for (let i = 0; i < fontDescriptionChars.length; i++){
+        for (let i = 0; i < fontDescriptionChars.length; i++) {
             // store glyphID (Ascii Code)
             let glyphID = fontDescriptionChars[i].id;
 
             // skip if invalid
-            if (!glyphID){
+            if (!glyphID) {
                 continue;
             }
 
             // if that's the code we are looking for
-            if (glyphID === charCode){
+            if (glyphID === charCode) {
                 // return the iteration number (the position of that character inside the array of characters)
                 return i;
             }
@@ -140,8 +141,7 @@ class FontStyle {
 
         let fontDescriptionKernings = this.getFontDescription().kernings;
 
-        if (!firstCharCode || !secondCharCode ||
-            !fontDescriptionKernings|| !fontDescriptionKernings.length || fontDescriptionKernings.length === 0) {
+        if (!firstCharCode || !secondCharCode || !fontDescriptionKernings || !fontDescriptionKernings.length || fontDescriptionKernings.length === 0) {
             return 0;
         }
 
@@ -150,7 +150,7 @@ class FontStyle {
             let kern = fontDescriptionKernings[i];
 
             // skip if table is invalid
-            if (!kern || !kern.first || !kern.second){
+            if (!kern || !kern.first || !kern.second) {
                 continue;
             }
 

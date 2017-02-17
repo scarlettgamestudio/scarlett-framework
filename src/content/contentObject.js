@@ -1,7 +1,22 @@
 /**
- * Content Object
- * @param params
- * @constructor
+ * Content Object Class
  */
-function ContentObject(params) {
+class ContentObject {
+
+    //#region Constructors
+
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#endregion
+
 }

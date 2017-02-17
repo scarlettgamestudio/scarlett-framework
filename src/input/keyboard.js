@@ -1,67 +1,94 @@
+// unique key
+let _keyboardSingleton = Symbol('keyboardSingleton');
+
 /**
  * Global Keyboard handler
- * @constructor
  */
-function Keyboard() {
-    // stuff..
+class Keyboard {
+
+    //#region Constructors
+
+    constructor(keyboardSingletonToken) {
+        if (_keyboardSingleton !== keyboardSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._keys = [];
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_keyboardSingleton]) {
+            this[_keyboardSingleton] = new Keyboard(_keyboardSingleton);
+        }
+
+        return this[_keyboardSingleton];
+    }
+
+    //#endregion
+
+
+    removeKey(key) {
+        let idx = this._keys.indexOf(key);
+        if (idx >= 0) {
+            this._keys.splice(idx, 1);
+        }
+    }
+
+    removeKeys(keys) {
+        keys.forEach((function (key) {
+            this.removeKey(key);
+        }).bind(this));
+    }
+
+    addKey(key) {
+        if (this._keys.indexOf(key) < 0) {
+            this._keys.push(key);
+        }
+    }
+
+    addKeys(keys) {
+        keys.forEach((function (key) {
+            this.addKey(key);
+        }).bind(this));
+    }
+
+    setKeys(keys) {
+        this._keys = keys;
+    }
+
+    clearKeys() {
+        this._keys = [];
+    }
+
+    getState() {
+        return new KeyboardState(this._keys);
+    }
+
+    /**
+     * Gets if the given key is currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyDown(key) {
+        return this._keys.indexOf(key) >= 0;
+    }
+
+    /**
+     * Gets if the given key is not currently being pressed
+     * @param key
+     * @returns {boolean}
+     */
+    isKeyUp(key) {
+        return this._keys.indexOf(key) < 0;
+    }
+
+    //#endregion
+
 }
-
-// internal key data:
-Keyboard._keys = [];
-
-Keyboard.removeKey = function (key) {
-    var idx = Keyboard._keys.indexOf(key);
-    if (idx >= 0) {
-        Keyboard._keys.splice(idx, 1);
-    }
-};
-
-Keyboard.removeKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.removeKey(key);
-    });
-};
-
-Keyboard.addKey = function (key) {
-    if (Keyboard._keys.indexOf(key) < 0) {
-        Keyboard._keys.push(key);
-    }
-};
-
-Keyboard.addKeys = function (keys) {
-    keys.forEach(function (key) {
-        Keyboard.addKey(key);
-    })
-};
-
-Keyboard.setKeys = function (keys) {
-    Keyboard._keys = keys;
-};
-
-Keyboard.clearKeys = function () {
-    Keyboard._keys = [];
-};
-
-Keyboard.getState = function () {
-    return new KeyboardState(Keyboard._keys);
-};
-
-/**
- * Gets if the given key is currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyDown = function (key) {
-    return Keyboard._keys.indexOf(key) >= 0;
-};
-
-/**
- * Gets if the given key is not currently being pressed
- * @param key
- * @returns {boolean}
- */
-Keyboard.isKeyUp = function (key) {
-    return Keyboard._keys.indexOf(key) < 0;
-};
 
 
