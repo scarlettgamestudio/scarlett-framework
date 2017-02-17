@@ -9086,82 +9086,139 @@ More Information @ https://scarlett.anlagehub.com | https://github.com/scarlettg
                 };
             })();
         }, { "../body/Composite": 2, "../core/Common": 14 }] }, {}, [28])(28);
-});; /**
-     * Attribute dictionary for property definitions
-     * @constructor
-     */
-var AttributeDictionary = function AttributeDictionary() {};
-AttributeDictionary._rules = {};
-AttributeDictionary._inheritance = {};
+});; // unique key
+var _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
 
 /**
- *
- * @param context
- * @param propertyName
- * @param rule
- * @returns {boolean}
+ * Attribute Dictionary Singleton Class
+ * Attribute dictionary for property definitions
  */
-AttributeDictionary.addRule = function (context, propertyName, rule) {
-    if (isObjectAssigned(context)) {
-        context = context.toLowerCase();
 
-        if (!isObjectAssigned(AttributeDictionary._rules[context])) {
-            AttributeDictionary._rules[context] = {};
+var AttributeDictionarySingleton = function () {
+
+    //#region Constructors
+
+    function AttributeDictionarySingleton(attributeDictionarySingletonToken) {
+        _classCallCheck(this, AttributeDictionarySingleton);
+
+        if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
         }
 
-        AttributeDictionary._rules[context][propertyName] = rule;
-
-        return true;
+        this._rules = {};
+        this._inheritance = {};
     }
 
-    return false;
-};
+    //#endregion
 
-/**
- *
- * @param context
- * @param propertyName
- * @returns {*}
- */
-AttributeDictionary.getRule = function (context, propertyName) {
-    context = context.toLowerCase();
+    //#region Methods
 
-    // first check the first order rules:
-    if (AttributeDictionary._rules[context] && AttributeDictionary._rules[context][propertyName]) {
-        return AttributeDictionary._rules[context][propertyName];
-    }
+    //#region Static Methods
 
-    // maybe the parents have this rule?
-    if (AttributeDictionary._inheritance[context]) {
-        // recursively try to get the rule from the parents:
-        for (var i = 0; i < AttributeDictionary._inheritance[context].length; ++i) {
-            var result = AttributeDictionary.getRule(AttributeDictionary._inheritance[context][i], propertyName);
-            if (result != null) {
-                return result;
+    _createClass(AttributeDictionarySingleton, [{
+        key: "addRule",
+
+
+        //#endregion
+
+        /**
+         *
+         * @param context
+         * @param propertyName
+         * @param rule
+         * @returns {boolean}
+         */
+        value: function addRule(context, propertyName, rule) {
+            if (isObjectAssigned(context)) {
+                context = context.toLowerCase();
+
+                if (!isObjectAssigned(this._rules[context])) {
+                    this._rules[context] = {};
+                }
+
+                this._rules[context][propertyName] = rule;
+
+                return true;
             }
-        }
-    }
 
-    return null;
-};
+            return false;
+        }
+
+        /**
+         *
+         * @param context
+         * @param propertyName
+         * @returns {*}
+         */
+
+    }, {
+        key: "getRule",
+        value: function getRule(context, propertyName) {
+            context = context.toLowerCase();
+
+            // first check the first order rules:
+            if (this._rules[context] && this._rules[context][propertyName]) {
+                return this._rules[context][propertyName];
+            }
+
+            // maybe the parents have this rule?
+            if (this._inheritance[context]) {
+                // recursively try to get the rule from the parents:
+                for (var i = 0; i < this._inheritance[context].length; ++i) {
+                    var result = this.getRule(this._inheritance[context][i], propertyName);
+                    if (result != null) {
+                        return result;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         *
+         * @param typeName
+         * @param parent
+         */
+
+    }, {
+        key: "inherit",
+        value: function inherit(context, parent) {
+            context = context.toLowerCase();
+            parent = parent.toLowerCase();
+
+            if (!isObjectAssigned(this._inheritance[context])) {
+                this._inheritance[context] = [];
+            }
+
+            this._inheritance[context].push(parent);
+        }
+
+        //#endregion
+
+    }], [{
+        key: "instance",
+        get: function get() {
+            if (!this[_attributeDictionarySingleton]) {
+                this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
+            }
+
+            return this[_attributeDictionarySingleton];
+        }
+    }]);
+
+    return AttributeDictionarySingleton;
+}();
 
 /**
- *
- * @param typeName
- * @param parent
+ * Attribute Dictionary alias to Attribute Dictionary Singleton instance
+ * Attribute dictionary for property definitions
  */
-AttributeDictionary.inherit = function (context, parent) {
-    context = context.toLowerCase();
-    parent = parent.toLowerCase();
 
-    if (!isObjectAssigned(AttributeDictionary._inheritance[context])) {
-        AttributeDictionary._inheritance[context] = [];
-    }
 
-    AttributeDictionary._inheritance[context].push(parent);
-};; /**
-    * CallbackResponse Class
-    */
+var AttributeDictionary = AttributeDictionarySingleton.instance;; /**
+                                                                  * CallbackResponse Class
+                                                                  */
 
 var CallbackResponse = function () {
 
@@ -9696,7 +9753,9 @@ var EventManagerSingleton = function () {
     return EventManagerSingleton;
 }();
 
-// alias
+/**
+ * Event Manager alias to Event Manager Singleton instance
+ */
 
 
 var EventManager = EventManagerSingleton.instance;; /**

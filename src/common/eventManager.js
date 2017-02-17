@@ -108,7 +108,10 @@ class EventManagerSingleton {
     }
 
     //#endregion
+
 }
 
-// alias
+/**
+ * Event Manager alias to Event Manager Singleton instance
+ */
 let EventManager = EventManagerSingleton.instance;

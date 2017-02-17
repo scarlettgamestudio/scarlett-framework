@@ -9284,81 +9284,118 @@ var Common = require('../core/Common');
 })();
 
 },{"../body/Composite":2,"../core/Common":14}]},{},[28])(28)
-});;/**
- * Attribute dictionary for property definitions
- * @constructor
- */
-var AttributeDictionary = function () {
-};
-AttributeDictionary._rules = {};
-AttributeDictionary._inheritance = {};
+});;// unique key
+let _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
 
 /**
- *
- * @param context
- * @param propertyName
- * @param rule
- * @returns {boolean}
+ * Attribute Dictionary Singleton Class
+ * Attribute dictionary for property definitions
  */
-AttributeDictionary.addRule = function (context, propertyName, rule) {
-    if (isObjectAssigned(context)) {
+class AttributeDictionarySingleton {
+
+    //#region Constructors
+
+    constructor(attributeDictionarySingletonToken) {
+        if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+
+        this._rules = {};
+        this._inheritance = {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_attributeDictionarySingleton]) {
+            this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
+        }
+
+        return this[_attributeDictionarySingleton];
+    }
+
+    //#endregion
+
+    /**
+     *
+     * @param context
+     * @param propertyName
+     * @param rule
+     * @returns {boolean}
+     */
+    addRule(context, propertyName, rule) {
+        if (isObjectAssigned(context)) {
+            context = context.toLowerCase();
+
+            if (!isObjectAssigned(this._rules[context])) {
+                this._rules[context] = {}
+            }
+
+            this._rules[context][propertyName] = rule;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param context
+     * @param propertyName
+     * @returns {*}
+     */
+    getRule(context, propertyName) {
         context = context.toLowerCase();
 
-        if (!isObjectAssigned(AttributeDictionary._rules[context])) {
-            AttributeDictionary._rules[context] = {}
+        // first check the first order rules:
+        if (this._rules[context] && this._rules[context][propertyName]) {
+            return this._rules[context][propertyName];
         }
 
-        AttributeDictionary._rules[context][propertyName] = rule;
-
-        return true;
-    }
-
-    return false;
-};
-
-/**
- *
- * @param context
- * @param propertyName
- * @returns {*}
- */
-AttributeDictionary.getRule = function (context, propertyName) {
-    context = context.toLowerCase();
-
-    // first check the first order rules:
-    if (AttributeDictionary._rules[context] && AttributeDictionary._rules[context][propertyName]) {
-        return AttributeDictionary._rules[context][propertyName];
-    }
-
-    // maybe the parents have this rule?
-    if (AttributeDictionary._inheritance[context]) {
-        // recursively try to get the rule from the parents:
-        for (var i = 0; i < AttributeDictionary._inheritance[context].length; ++i) {
-            var result = AttributeDictionary.getRule(AttributeDictionary._inheritance[context][i], propertyName);
-            if (result != null) {
-                return result;
+        // maybe the parents have this rule?
+        if (this._inheritance[context]) {
+            // recursively try to get the rule from the parents:
+            for (let i = 0; i < this._inheritance[context].length; ++i) {
+                let result = this.getRule(this._inheritance[context][i], propertyName);
+                if (result != null) {
+                    return result;
+                }
             }
         }
+
+        return null;
     }
 
-    return null;
-};
+    /**
+     *
+     * @param typeName
+     * @param parent
+     */
+    inherit(context, parent) {
+        context = context.toLowerCase();
+        parent = parent.toLowerCase();
+
+        if (!isObjectAssigned(this._inheritance[context])) {
+            this._inheritance[context] = [];
+        }
+
+        this._inheritance[context].push(parent);
+    }
+
+    //#endregion
+
+}
 
 /**
- *
- * @param typeName
- * @param parent
+ * Attribute Dictionary alias to Attribute Dictionary Singleton instance
+ * Attribute dictionary for property definitions
  */
-AttributeDictionary.inherit = function (context, parent) {
-    context = context.toLowerCase();
-    parent = parent.toLowerCase();
-
-    if (!isObjectAssigned(AttributeDictionary._inheritance[context])) {
-        AttributeDictionary._inheritance[context] = [];
-    }
-
-    AttributeDictionary._inheritance[context].push(parent);
-};;/**
+let AttributeDictionary = AttributeDictionarySingleton.instance;;/**
  * CallbackResponse Class
  */
 class CallbackResponse {
@@ -9826,9 +9863,12 @@ class EventManagerSingleton {
     }
 
     //#endregion
+
 }
 
-// alias
+/**
+ * Event Manager alias to Event Manager Singleton instance
+ */
 let EventManager = EventManagerSingleton.instance;;/**
  * Inserts an element at a desirable position
  * @param index
