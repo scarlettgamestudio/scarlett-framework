@@ -9420,7 +9420,7 @@ class CallbackResponse {
     //#endregion
 
 };// alias for scarlett constants:
-var SC = {
+let SC = {
 	WEBGL: "webgl",
 	EXECUTION_PHASES: {
 		WAITING: 0,
@@ -9440,7 +9440,7 @@ var SC = {
 };
 
 // function "quickies" holder
-var sc = {};
+let sc = {};
 ;// unique key
 let _contentLoaderSingleton = Symbol('contentLoaderSingleton');
 
@@ -10015,8 +10015,9 @@ class SetterDictionarySingleton {
     //#endregion
 }
 
-/*
- Attribute dictionary for property definitions
+/**
+ * Setter Dictionary alias to Setter Dictionary Singleton instance
+ * Attribute dictionary for property definitions
  */
 let SetterDictionary = SetterDictionarySingleton.instance;;/**
  * Scarlett @ DevTeam

@@ -9928,8 +9928,9 @@ var SetterDictionarySingleton = function () {
     return SetterDictionarySingleton;
 }();
 
-/*
- Attribute dictionary for property definitions
+/**
+ * Setter Dictionary alias to Setter Dictionary Singleton instance
+ * Attribute dictionary for property definitions
  */
 var SetterDictionary = SetterDictionarySingleton.instance;; /**
                                                             * Scarlett @ DevTeam

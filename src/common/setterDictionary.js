@@ -63,7 +63,8 @@ class SetterDictionarySingleton {
     //#endregion
 }
 
-/*
- Attribute dictionary for property definitions
+/**
+ * Setter Dictionary alias to Setter Dictionary Singleton instance
+ * Attribute dictionary for property definitions
  */
 let SetterDictionary = SetterDictionarySingleton.instance;
