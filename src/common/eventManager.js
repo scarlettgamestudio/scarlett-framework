@@ -84,7 +84,7 @@ class EventManagerSingleton {
             }
         }
 
-        if (!this._handlers.hasOwnProperty(topic)){
+        if (!this._handlers.hasOwnProperty(topic)) {
             return;
         }
 
