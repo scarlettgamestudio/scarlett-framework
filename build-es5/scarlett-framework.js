@@ -9487,95 +9487,146 @@ ContentLoader.loadFile = function (path, alias) {
             rawFile.send(null);
         }
     }.bind(this));
-};; /**
-    * Event Manager
-    * @constructor
-    */
-var EventManager = function EventManager() {};
+};; // unique key
+var _eventManagerSingleton = Symbol('eventManagerSingleton');
 
 /**
- *
- * @type {{}}
- * @private
+ * Event Manager Singleton Class
  */
-EventManager._handlers = {};
 
-/**
- *
- * @param topic
- * @param callback
- * @param context (optional)
- */
-EventManager.subscribe = function (topic, callback, context) {
-    if (!EventManager._handlers.hasOwnProperty(topic)) {
-        EventManager._handlers[topic] = [];
-    }
+var EventManagerSingleton = function () {
 
-    EventManager._handlers[topic].push({
-        callback: callback,
-        context: context
-    });
-};
+    //#region Constructors
 
-/**
- * Removes the subscription of a topic
- * @param topic
- * @param callback (for reference)
- */
-EventManager.removeSubscription = function (topic, callback) {
-    if (!EventManager._handlers[topic]) {
-        return;
-    }
+    function EventManagerSingleton(eventManagerSingletonToken) {
+        _classCallCheck(this, EventManagerSingleton);
 
-    for (var i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
-        if (EventManager._handlers[topic][i].callback == callback) {
-            EventManager._handlers[topic].splice(i, 1);
+        if (_eventManagerSingleton !== eventManagerSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
         }
+        this._handlers = {};
     }
 
-    // no more subscriptions for this topic?
-    if (EventManager._handlers[topic].length == 0) {
-        // nope... let's remove the topic then:
-        delete EventManager._handlers[topic];
-    }
-};
+    //#endregion
 
-/**
- *
- * @param topic
- */
-EventManager.emit = function (topic) {
-    // get the remaining arguments (if exist)
-    var args = [],
-        i;
-    if (arguments.length > 1) {
-        for (i = 1; i < arguments.length; i++) {
-            args.push(arguments[i]);
+    //#region Methods
+
+    //#region Static Methods
+
+    _createClass(EventManagerSingleton, [{
+        key: "subscribe",
+
+
+        //#endregion
+
+        /**
+         *
+         * @param topic
+         * @param callback
+         * @param context (optional)
+         */
+        value: function subscribe(topic, callback, context) {
+            if (!this._handlers.hasOwnProperty(topic)) {
+                this._handlers[topic] = [];
+            }
+
+            this._handlers[topic].push({
+                callback: callback,
+                context: context
+            });
         }
-    }
 
-    if (EventManager._handlers.hasOwnProperty(topic)) {
-        for (i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
-            if (EventManager._handlers[topic][i].callback) {
-                EventManager._handlers[topic][i].callback.apply(EventManager._handlers[topic][i].context, args);
-            } else {
-                // this doesn't seem to exist anymore, let's remove it from the subscribers:
-                EventManager._handlers[topic].splice(i, 1);
+        /**
+         * Removes the subscription of a topic
+         * @param topic
+         * @param callback (for reference)
+         */
+
+    }, {
+        key: "removeSubscription",
+        value: function removeSubscription(topic, callback) {
+            if (!this._handlers[topic]) {
+                return;
+            }
+
+            for (var i = this._handlers[topic].length - 1; i >= 0; i--) {
+                if (this._handlers[topic][i].callback == callback) {
+                    this._handlers[topic].splice(i, 1);
+                }
+            }
+
+            // no more subscriptions for this topic?
+            if (this._handlers[topic].length == 0) {
+                // nope... let's remove the topic then:
+                delete this._handlers[topic];
             }
         }
-    }
-};
 
-/**
- * Clears all subscriptions
- */
-EventManager.clear = function () {
-    EventManager._handlers = {};
-};; /**
-    * Inserts an element at a desirable position
-    * @param index
-    * @param item
-    */
+        /**
+         *
+         * @param topic
+         */
+
+    }, {
+        key: "emit",
+        value: function emit(topic) {
+            // get the remaining arguments (if exist)
+            var args = [],
+                i = void 0;
+            if (arguments.length > 1) {
+                for (i = 1; i < arguments.length; i++) {
+                    args.push(arguments[i]);
+                }
+            }
+
+            if (!this._handlers.hasOwnProperty(topic)) {
+                return;
+            }
+
+            for (i = this._handlers[topic].length - 1; i >= 0; i--) {
+                if (this._handlers[topic][i].callback) {
+                    this._handlers[topic][i].callback.apply(this._handlers[topic][i].context, args);
+                } else {
+                    // this doesn't seem to exist anymore, let's remove it from the subscribers:
+                    this._handlers[topic].splice(i, 1);
+                }
+            }
+        }
+
+        /**
+         * Clears all subscriptions
+         */
+
+    }, {
+        key: "clear",
+        value: function clear() {
+            this._handlers = {};
+        }
+
+        //#endregion
+
+    }], [{
+        key: "instance",
+        get: function get() {
+            if (!this[_eventManagerSingleton]) {
+                this[_eventManagerSingleton] = new EventManagerSingleton(_eventManagerSingleton);
+            }
+
+            return this[_eventManagerSingleton];
+        }
+    }]);
+
+    return EventManagerSingleton;
+}();
+
+// alias
+
+
+var EventManager = EventManagerSingleton.instance;; /**
+                                                    * Inserts an element at a desirable position
+                                                    * @param index
+                                                    * @param item
+                                                    */
 if (!Array.prototype.insert) {
     Array.prototype.insert = function (index, item) {
         this.splice(index, 0, item);
