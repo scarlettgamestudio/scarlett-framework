@@ -28,6 +28,44 @@ class Text extends GameObject {
 
     //#endregion
 
+    //#region Constants
+
+    /**
+     *
+     * @returns {number}
+     */
+
+    get RAW_MAX_DROPSHADOW_OFFSET_X(){
+        return 10;
+    }
+
+    get RAW_MAX_DROPSHADOW_OFFSET_Y(){
+        return 10;
+    }
+
+    //#endregion
+
+    get _maxDropShadowOffsetX(){
+        if (this._textureWidth !== 0){
+            return this._fontStyle.getSpread() / this._textureWidth;
+        }
+        return 0;
+    }
+
+    get _maxDropShadowOffsetY(){
+        if (this._textureHeight !== 0){
+            return this._fontStyle.getSpread() / this._textureHeight;
+        }
+        return 0;
+    }
+
+    get _maxDropShadowOffset(){
+        return new Vector2(
+            this._maxDropShadowOffsetX,
+            this._maxDropShadowOffsetY
+        );
+    }
+
     //#region Constructors
 
     constructor(params) {
@@ -41,9 +79,11 @@ class Text extends GameObject {
         this._fontStyle.setFontSize(params.fontSize || 70.0);
         this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
 
-        this._wordWrap = true;
-        this._characterWrap = true;
-        this._alignType = Text.AlignType.LEFT;
+        this._fontStyle.setSpread(params.spread || 4);
+
+        this._wordWrap = params.wordWrap || true;
+        this._characterWrap = params.characterWrap || true;
+        this._alignType = params.alignType || Text.AlignType.LEFT;
 
         this._textureSrc = "";
         this._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
@@ -54,6 +94,8 @@ class Text extends GameObject {
         // TODO: normalize inside the setters?
         // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
         this._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
+
+        this._dropShadowEnabled = 1;
 
         this._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
 
@@ -72,6 +114,9 @@ class Text extends GameObject {
         this._vertexIndicesBuffer = this._gl.createBuffer();
         this._textShader = new TextShader();
 
+        this._texture = null;
+        this._textureWidth = 0;
+        this._textureHeight = 0;
         // set text texture if defined
         this.setTexture(params.texture);
     }
@@ -127,6 +172,9 @@ class Text extends GameObject {
         // debug
         gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
 
+        // drop shadow
+        gl.uniform1f(this._textShader.uniforms.uDropShadow._location, this._dropShadowEnabled);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
         gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
 
@@ -135,27 +183,31 @@ class Text extends GameObject {
 
         // stroke
         let strokeColor = this.getStroke().getColor();
-        gl.uniform4fv(this._textShader.uniforms.uOutlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
+        gl.uniform4fv(
+            this._textShader.uniforms.uOutlineColor._location,
+            [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]
+        );
 
         // stroke size
-        // max shader value is 0.5; bigger than that is considered no outline.
-        // in terms of raw values, we go from 0 to 10, so we calculate the scaled value between 0 and 10
-        let scaledValue = this.getStroke().getSize() * 0.7 / 10;
-
-        // revert the value, so 0 represents less stroke
-        // add 0.1 because 0.0 is visually bad
-        gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, 0.7 - scaledValue + 0.1);
-
+        gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, this.getNormalizedStrokeSize());
 
         let dropShadowColor = this.getDropShadow().getColor();
-        gl.uniform4fv(this._textShader.uniforms.uDropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
-        // stroke size
-        //  (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
-        gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
+        gl.uniform4fv(
+            this._textShader.uniforms.uDropShadowColor._location,
+            [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]
+        );
+
+        // drop shadow stroke smoothing
+        gl.uniform1f(
+            this._textShader.uniforms.uDropShadowSmoothing._location, this.getNormalizedDropShadowSmoothing()
+        );
 
         // 4 / 512 = 0.0058 = max smoothing value
         this._dropShadowOffset.set(0.005, 0.005);
-        gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
+        gl.uniform2fv(
+            this._textShader.uniforms.uDropShadowOffset._location,
+            [this._dropShadowOffset.x, this._dropShadowOffset.y]
+        );
 
         let color = this.getColor();
 
@@ -294,6 +346,40 @@ class Text extends GameObject {
         this._fontStyle = fontStyle;
     }
 
+    getDropShadowOffset(){
+        return this._dropShadowOffset;
+    }
+
+    /**
+     *
+     * @param {Vector2} offset the shadow offset vector
+     */
+    setDropShadowOffset(offset){
+        this._dropShadowOffset = offset;
+    }
+
+    getNormalizedStrokeSize(){
+        // stroke size
+        // max shader value is 0.5; bigger than that is considered no outline.
+        // in terms of raw values, we go from 0 to stroke's max size,
+        // so we calculate the scaled value between 0 and stroke's max size
+        let scaledValue = this.getStroke().getSize() * 0.7 / this.getStroke().getMaxSize();
+
+        // revert the value, so 0 represents less stroke
+        // add 0.1 because 0.0 is visually bad
+        scaledValue = 0.7 - scaledValue + 0.1;
+
+        return scaledValue;
+    }
+
+    getNormalizedDropShadowSmoothing(){
+        // dropshadow stroke (smoothing) size
+        // (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
+        let scaledValue = this.getDropShadow().getSize() * 0.7 / this.getDropShadow().getMaxSize();
+
+        return scaledValue;
+    }
+
     /*
      Just for API sake
      */
@@ -327,11 +413,25 @@ class Text extends GameObject {
     }
 
     setDebug(value) {
+
+        value = MathHelper.clamp(value, 0, 1);
+
         this._debug = value;
     }
 
     getDebug() {
         return this._debug;
+    }
+
+    setDropShadowEnabled(value) {
+
+        value = MathHelper.clamp(value, 0, 1);
+
+        this._dropShadowEnabled = value;
+    }
+
+    getDropShadowEnabled() {
+        return this._dropShadowEnabled;
     }
 
     setWordWrap(wrap) {
@@ -563,7 +663,8 @@ class Text extends GameObject {
         let fontDescription = fontStyle.getFontDescription();
 
         // if font's description or any of the parameters is missing, no need to go further
-        if (!fontDescription || !fontDescription.chars || !char || !scale || scale <= 0 || !pen || lastGlyphCode == null || !outVertexElements || !outTextureElements || !outVertexIndices) {
+        if (!fontDescription || !fontDescription.chars || !char || !scale || scale <= 0 ||
+            !pen || lastGlyphCode == null || !outVertexElements || !outTextureElements || !outVertexIndices) {
             return 0;
         }
 

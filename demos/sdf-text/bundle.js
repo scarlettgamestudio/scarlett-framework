@@ -2072,6 +2072,7 @@ gameScene.initialize = function () {
         document.getElementById('wordwrap').checked = text.getWordWrap();
         document.getElementById('charwrap').checked = text.getCharacterWrap();
         document.getElementById('debug').checked = text.getDebug();
+        document.getElementById('dropShadowEnabled').checked = text.getDropShadowEnabled();
 
         document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
         document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
@@ -2102,6 +2103,7 @@ document.getElementById('letterSpacing').oninput = updateValues;
 document.getElementById('wordwrap').onchange = updateValues;
 document.getElementById('charwrap').onchange = updateValues;
 document.getElementById('debug').onchange = updateValues;
+document.getElementById('dropShadowEnabled').onchange = updateValues;
 document.getElementById('alignLeft').onchange = updateValues;
 document.getElementById('alignCenter').onchange = updateValues;
 document.getElementById('alignRight').onchange = updateValues;
@@ -2122,6 +2124,8 @@ function updateValues()
     var charWrap = +document.getElementById('charwrap').checked;
     var debug = +document.getElementById('debug').checked;
 
+    var dropShadowEnabled = +document.getElementById('dropShadowEnabled').checked;
+
     var align = +document.getElementById('alignLeft').checked ? Text.AlignType.LEFT :
                             +document.getElementById('alignCenter').checked ? Text.AlignType.CENTER : Text.AlignType.RIGHT;
 
@@ -2133,6 +2137,7 @@ function updateValues()
     text.setWordWrap(wordWrap);
     text.setCharacterWrap(charWrap);
     text.setDebug(debug);
+    text.setDropShadowEnabled(dropShadowEnabled);
     text.setAlign(align);
     text.setLetterSpacing(letterSpacing);
 };
