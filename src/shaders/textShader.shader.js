@@ -40,6 +40,7 @@ class TextShader extends Shader {
                 'uniform vec2 uDropShadowOffset;',
 
                 'uniform float uDebug;',
+                'uniform float uDropShadow;',
 
                 'varying vec2 vTexCoord;',
 
@@ -48,27 +49,30 @@ class TextShader extends Shader {
                 '   vec4 finalColor = uColor;',
                 '   if (uDebug > 0.0) {',
                 '       gl_FragColor = vec4(distance, distance, distance, 1);',
-                '   } else {',
+                '       return;',
+                '   }',
                 // outline effect
-                '       if (uOutlineDistance <= 0.5) {',
-                '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-                '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
-                '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
-                '           finalColor = vec4(color.rgb, color.a * alpha);',
-                '       } else {',
-                '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-                '           finalColor = vec4(uColor.rgb, uColor.a * alpha);',
-                '       }',
+                '   if (uOutlineDistance <= 0.5) {',
+                '       float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                '       vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
+                '       float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
+                '       finalColor = vec4(color.rgb, color.a * alpha);',
+                '   } else {',
+                '       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                '       finalColor = vec4(uColor.rgb, uColor.a * alpha);',
+                '   }',
                 // drop shadow effect
-                //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-                //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
-
+                //'     float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                //'     vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
+                '   if (uDropShadow > 0.0) {',
                 '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;',
                 '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);',
                 '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
-                // inner effect is the other way around... text, shadow
+                //      inner effect is the other way around... text, shadow
                 '       gl_FragColor = mix(shadow, finalColor, finalColor.a);',
-                '  }',
+                '       return;',
+                '   }',
+                '   gl_FragColor = finalColor;',
                 '}'
             ].join('\n'),
             uniforms: {
@@ -83,7 +87,8 @@ class TextShader extends Shader {
                 uDropShadowOffset: [0.0, 0.0],
                 uOutlineDistance: {type: '1i', value: 0},
                 uGamma: {type: '1i', value: 0},
-                uDebug: {type: '1i', value: 1}
+                uDebug: {type: '1i', value: 1},
+                uDropShadow: {type: '1i', value: 1}
             },
             attributes: {
                 aPos: 0,
