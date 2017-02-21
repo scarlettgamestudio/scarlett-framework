@@ -17,6 +17,7 @@ class FontStyle {
         this._fontDescription = fontDescription;
         this._fontSize = 70;
         this._letterSpacing = 0;
+        this._spread = 4;
     }
 
     //#endregion
@@ -87,6 +88,14 @@ class FontStyle {
 
     setLetterSpacing(spacing) {
         this._letterSpacing = spacing;
+    }
+
+    getSpread(){
+        return this._spread;
+    }
+
+    setSpread(spread) {
+        this._spread = spread;
     }
 
     /**
