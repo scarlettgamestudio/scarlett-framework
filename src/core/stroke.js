@@ -4,8 +4,32 @@
 
 /**
  * Stroke Class
+ * Stroke is a combination of a color and its size
  */
 class Stroke {
+
+    //#region Static Properties
+
+    /**
+     *
+     * @returns {number}
+     */
+    getMaxSize(){
+        return this._maxSize;
+    }
+
+    /**
+     *
+     * @param {number} size
+     */
+    setMaxSize(size){
+        if (!isNumber(size)){
+            throw new Error("The given raw size is invalid");
+        }
+        this._maxSize = size;
+    }
+
+    //#endregion
 
     //#region Constructors
 
@@ -20,6 +44,7 @@ class Stroke {
         this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
         // stroke size
         this._size = size || 0.0;
+        this._maxSize = 10;
     }
 
     //#endregion
@@ -85,6 +110,8 @@ class Stroke {
         if (!isNumber(size)) {
             throw new Error("The given size is invalid");
         }
+
+        size = MathHelper.clamp(size, 0, this.getMaxSize());
 
         this._size = size;
     }
