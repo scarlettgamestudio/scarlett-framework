@@ -15246,6 +15246,8 @@ class Text extends GameObject {
 
         this._gamma = params.gamma || 2.0;
 
+        this._strokeEnabled = 1;
+
         // TODO: normalize inside the setters?
         // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
         this._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
@@ -15329,6 +15331,9 @@ class Text extends GameObject {
 
         // drop shadow
         gl.uniform1f(this._textShader.uniforms.uDropShadow._location, this._dropShadowEnabled);
+
+        // stroke outline
+        gl.uniform1f(this._textShader.uniforms.uOutline._location, this._strokeEnabled);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
         gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
@@ -15518,11 +15523,10 @@ class Text extends GameObject {
         // max shader value is 0.5; bigger than that is considered no outline.
         // in terms of raw values, we go from 0 to stroke's max size,
         // so we calculate the scaled value between 0 and stroke's max size
-        let scaledValue = this.getStroke().getSize() * 0.7 / this.getStroke().getMaxSize();
+        let scaledValue = this.getStroke().getSize() * 0.5 / this.getStroke().getMaxSize();
 
         // revert the value, so 0 represents less stroke
-        // add 0.1 because 0.0 is visually bad
-        scaledValue = 0.7 - scaledValue + 0.1;
+        scaledValue = 0.5 - scaledValue;
 
         return scaledValue;
     }
@@ -15587,6 +15591,17 @@ class Text extends GameObject {
 
     getDropShadowEnabled() {
         return this._dropShadowEnabled;
+    }
+
+    setStrokeEnabled(value) {
+
+        value = MathHelper.clamp(value, 0, 1);
+
+        this._strokeEnabled = value;
+    }
+
+    getStrokeEnabled() {
+        return this._strokeEnabled;
     }
 
     setWordWrap(wrap) {
@@ -17139,6 +17154,7 @@ class TextShader extends Shader {
 
                 'uniform float uDebug;',
                 'uniform float uDropShadow;',
+                'uniform float uOutline;',
 
                 'varying vec2 vTexCoord;',
 
@@ -17150,7 +17166,7 @@ class TextShader extends Shader {
                 '       return;',
                 '   }',
                 // outline effect
-                '   if (uOutlineDistance <= 0.5) {',
+                '   if (uOutline > 0.0) {',
                 '       float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
                 '       vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
                 '       float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
@@ -17186,7 +17202,8 @@ class TextShader extends Shader {
                 uOutlineDistance: {type: '1i', value: 0},
                 uGamma: {type: '1i', value: 0},
                 uDebug: {type: '1i', value: 1},
-                uDropShadow: {type: '1i', value: 1}
+                uDropShadow: {type: '1i', value: 1},
+                uOutline: {type: '1i', value: 1}
             },
             attributes: {
                 aPos: 0,

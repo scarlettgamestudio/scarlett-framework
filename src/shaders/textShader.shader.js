@@ -41,6 +41,7 @@ class TextShader extends Shader {
 
                 'uniform float uDebug;',
                 'uniform float uDropShadow;',
+                'uniform float uOutline;',
 
                 'varying vec2 vTexCoord;',
 
@@ -52,7 +53,7 @@ class TextShader extends Shader {
                 '       return;',
                 '   }',
                 // outline effect
-                '   if (uOutlineDistance <= 0.5) {',
+                '   if (uOutline > 0.0) {',
                 '       float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
                 '       vec4 color = mix(uOutlineColor, uColor, outlineFactor);',
                 '       float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);',
@@ -88,7 +89,8 @@ class TextShader extends Shader {
                 uOutlineDistance: {type: '1i', value: 0},
                 uGamma: {type: '1i', value: 0},
                 uDebug: {type: '1i', value: 1},
-                uDropShadow: {type: '1i', value: 1}
+                uDropShadow: {type: '1i', value: 1},
+                uOutline: {type: '1i', value: 1}
             },
             attributes: {
                 aPos: 0,
