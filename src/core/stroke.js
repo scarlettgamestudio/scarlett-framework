@@ -14,7 +14,7 @@ class Stroke {
      *
      * @returns {number}
      */
-    getMaxSize(){
+    getMaxSize() {
         return this._maxSize;
     }
 
@@ -22,8 +22,8 @@ class Stroke {
      *
      * @param {number} size
      */
-    setMaxSize(size){
-        if (!isNumber(size)){
+    setMaxSize(size) {
+        if (!isNumber(size)) {
             throw new Error("The given raw size is invalid");
         }
         this._maxSize = size;

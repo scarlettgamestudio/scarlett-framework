@@ -60,6 +60,8 @@ gameScene.initialize = function () {
         document.getElementById('str').value = text.getText();
         document.getElementById('stroke').value = text.getStroke().getSize();
         document.getElementById('dropShadow').value = text.getDropShadow().getSize();
+        document.getElementById('dropShadowOffsetX').value = text.getDropShadowOffset().x;
+        document.getElementById('dropShadowOffsetY').value = text.getDropShadowOffset().y;
 
         document.getElementById('scale').value = text.getFontSize();
         document.getElementById('gamma').value = text.getGamma();
@@ -95,6 +97,8 @@ gameScene.initialize = function () {
 
 document.getElementById('str').oninput = updateValues;
 document.getElementById('stroke').oninput = updateValues;
+document.getElementById('dropShadowOffsetX').oninput = updateValues;
+document.getElementById('dropShadowOffsetY').oninput = updateValues;
 document.getElementById('scale').oninput = updateValues;
 document.getElementById('gamma').oninput = updateValues;
 document.getElementById('letterSpacing').oninput = updateValues;
@@ -112,6 +116,9 @@ function updateValues()
 {
     var str = document.getElementById('str').value;
     var stroke = +document.getElementById('stroke').value;
+
+    var dropshadowOffsetX = +document.getElementById('dropShadowOffsetX').value;
+    var dropshadowOffsetY = +document.getElementById('dropShadowOffsetY').value;
 
     var scale = +document.getElementById('scale').value;
     var gamma = +document.getElementById('gamma').value;
@@ -134,6 +141,7 @@ function updateValues()
     text.setGamma(gamma);
     text.setFontSize(scale);
     text.getStroke().setSize(stroke);
+    text.setDropShadowOffset(new Vector2(dropshadowOffsetX, dropshadowOffsetY));
     text.getDropShadow().setSize(dropShadowSmoothing);
     text.setWordWrap(wordWrap);
     text.setCharacterWrap(charWrap);

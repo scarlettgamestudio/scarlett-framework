@@ -11287,6 +11287,35 @@ var MathHelper = function () {
             return radians * 57.295779513;
         }
 
+        /**
+         * Normalize a given raw value between the internal [minNormalized, maxNormalized]
+         * @param {number} rawValue the value to normalize
+         * @param {number} minRaw the minimum raw value
+         * @param {number} maxRaw the maximum raw value
+         * @param {number} minNormalized the minimum normalized value
+         * @param {number} maxNormalized the maximum normalized value
+         */
+
+    }, {
+        key: "normalize",
+        value: function normalize(rawValue, minRaw, maxRaw, minNormalized, maxNormalized) {
+            var x = rawValue;
+            var minX = minRaw;
+            var maxX = maxRaw;
+            var a = minNormalized;
+            var b = maxNormalized;
+            var denominator = maxX - minX;
+
+            if (denominator === 0) {
+                throw new Error("Division by 0 not allowed");
+            }
+
+            var numerator = x - minX;
+            var normalizedValue = (b - a) * (numerator / denominator) + a;
+
+            return normalizedValue;
+        }
+
         //#endregion
 
         //#endregion
@@ -13401,6 +13430,7 @@ var FontStyle = function () {
         this._fontDescription = fontDescription;
         this._fontSize = 70;
         this._letterSpacing = 0;
+        this._spread = 4;
     }
 
     //#endregion
@@ -13478,6 +13508,16 @@ var FontStyle = function () {
         key: "setLetterSpacing",
         value: function setLetterSpacing(spacing) {
             this._letterSpacing = spacing;
+        }
+    }, {
+        key: "getSpread",
+        value: function getSpread() {
+            return this._spread;
+        }
+    }, {
+        key: "setSpread",
+        value: function setSpread(spread) {
+            this._spread = spread;
         }
 
         /**
@@ -15628,18 +15668,51 @@ var SpriteBatch = function () {
 
 /**
  * Stroke Class
+ * Stroke is a combination of a color and its size
  */
 
 var Stroke = function () {
+    _createClass(Stroke, [{
+        key: "getMaxSize",
 
-    //#region Constructors
 
-    /**
-     * Stroke is a combination of a color and its size
-     * @param {Color=} color stroke color
-     * @param {number=} size size of the stroke
-     * @constructor
-     */
+        //#region Static Properties
+
+        /**
+         *
+         * @returns {number}
+         */
+        value: function getMaxSize() {
+            return this._maxSize;
+        }
+
+        /**
+         *
+         * @param {number} size
+         */
+
+    }, {
+        key: "setMaxSize",
+        value: function setMaxSize(size) {
+            if (!isNumber(size)) {
+                throw new Error("The given raw size is invalid");
+            }
+            this._maxSize = size;
+        }
+
+        //#endregion
+
+        //#region Constructors
+
+        /**
+         * Stroke is a combination of a color and its size
+         * @param {Color=} color stroke color
+         * @param {number=} size size of the stroke
+         * @constructor
+         */
+
+    }]);
+
     function Stroke(color, size) {
         _classCallCheck(this, Stroke);
 
@@ -15647,6 +15720,7 @@ var Stroke = function () {
         this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
         // stroke size
         this._size = size || 0.0;
+        this._maxSize = 10;
     }
 
     //#endregion
@@ -15716,6 +15790,8 @@ var Stroke = function () {
             if (!isNumber(size)) {
                 throw new Error("The given size is invalid");
             }
+
+            size = MathHelper.clamp(size, 0, this.getMaxSize());
 
             this._size = size;
         }
@@ -15794,41 +15870,42 @@ var Text = function (_GameObject2) {
         var _this5 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
 
         _this5._fontStyle = new FontStyle(params.font || {});
-
         _this5._fontStyle.setFontSize(params.fontSize || 70.0);
         _this5._fontStyle.setLetterSpacing(params.letterSpacing || 0);
+        _this5._fontStyle.setSpread(params.spread || 4);
 
-        _this5._wordWrap = true;
-        _this5._characterWrap = true;
-        _this5._alignType = Text.AlignType.LEFT;
+        _this5._wordWrap = params.wordWrap || true;
+        _this5._characterWrap = params.characterWrap || true;
+        _this5._alignType = params.alignType || Text.AlignType.LEFT;
 
-        _this5._textureSrc = "";
         _this5._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
         _this5._text = params.text || "";
 
         _this5._gamma = params.gamma || 2.0;
 
-        // TODO: normalize inside the setters?
-        // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
+        _this5._strokeEnabled = 1;
         _this5._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
+        _this5._dropShadowEnabled = 1;
         _this5._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
-
-        // x and y values have to be between spread (defined in Hiero) / texture size
-        // e.g., 4 / 512
-        // need to normalize between those values
-        _this5._dropShadowOffset = new Vector2(0, 0);
+        // raw max offset
+        _this5._rawMaxDropShadowOffset = new Vector2(10, 10);
+        // raw offset from -raw offset to +raw offset
+        _this5._dropShadowOffset = new Vector2(7, 7);
 
         // either 0 or 1
         _this5._debug = 0;
 
         _this5._gl = GameManager.renderContext.getContext();
-
         _this5._vertexBuffer = _this5._gl.createBuffer();
         _this5._textureBuffer = _this5._gl.createBuffer();
         _this5._vertexIndicesBuffer = _this5._gl.createBuffer();
         _this5._textShader = new TextShader();
 
+        _this5._textureSrc = "";
+        _this5._texture = null;
+        _this5._textureWidth = 0;
+        _this5._textureHeight = 0;
         // set text texture if defined
         _this5.setTexture(params.texture);
         return _this5;
@@ -15883,6 +15960,10 @@ var Text = function (_GameObject2) {
 
             // debug
             gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
+            // stroke outline
+            gl.uniform1f(this._textShader.uniforms.uOutline._location, this._strokeEnabled);
+            // drop shadow
+            gl.uniform1f(this._textShader.uniforms.uDropShadow._location, this._dropShadowEnabled);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
             gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
@@ -15890,31 +15971,22 @@ var Text = function (_GameObject2) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
             gl.vertexAttribPointer(this._textShader.attributes.aTexCoord, 2, gl.FLOAT, false, 0, 0);
 
-            // stroke
+            // stroke color
             var strokeColor = this.getStroke().getColor();
             gl.uniform4fv(this._textShader.uniforms.uOutlineColor._location, [strokeColor.r, strokeColor.g, strokeColor.b, strokeColor.a]);
-
             // stroke size
-            // max shader value is 0.5; bigger than that is considered no outline.
-            // in terms of raw values, we go from 0 to 10, so we calculate the scaled value between 0 and 10
-            var scaledValue = this.getStroke().getSize() * 0.7 / 10;
+            gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, this.getNormalizedStrokeSize());
 
-            // revert the value, so 0 represents less stroke
-            // add 0.1 because 0.0 is visually bad
-            gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, 0.7 - scaledValue + 0.1);
-
+            // drop shadow color
             var dropShadowColor = this.getDropShadow().getColor();
             gl.uniform4fv(this._textShader.uniforms.uDropShadowColor._location, [dropShadowColor.r, dropShadowColor.g, dropShadowColor.b, dropShadowColor.a]);
-            // stroke size
-            //  (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
-            gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getDropShadow().getSize() * 0.5 / 10);
-
-            // 4 / 512 = 0.0058 = max smoothing value
-            this._dropShadowOffset.set(0.005, 0.005);
-            gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [this._dropShadowOffset.x, this._dropShadowOffset.y]);
+            // drop shadow stroke smoothing
+            gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getNormalizedDropShadowSmoothing());
+            // drop shadow offset (direction)
+            var normalizedOffset = this.getNormalizedDropShadowOffset();
+            gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [normalizedOffset.x, normalizedOffset.y]);
 
             var color = this.getColor();
-
             // font color (tint)
             gl.uniform4fv(this._textShader.uniforms.uColor._location, [color.r, color.g, color.b, color.a]);
             //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50); // 192 / 255
@@ -16039,8 +16111,8 @@ var Text = function (_GameObject2) {
         }
 
         /**
-         * Sets the dropshadow effect of the text
-         * @param {Stroke} shadow dropshadow effect of the text
+         * Sets the drop shadow effect of the text
+         * @param {Stroke} shadow drop shadow effect of the text
          */
 
     }, {
@@ -16073,6 +16145,74 @@ var Text = function (_GameObject2) {
         key: "setFontStyle",
         value: function setFontStyle(fontStyle) {
             this._fontStyle = fontStyle;
+        }
+    }, {
+        key: "getDropShadowOffset",
+        value: function getDropShadowOffset() {
+            return this._dropShadowOffset;
+        }
+
+        /**
+         *
+         * @param {Vector2} offset the shadow offset vector
+         */
+
+    }, {
+        key: "setDropShadowOffset",
+        value: function setDropShadowOffset(offset) {
+            if (!offset instanceof Vector2) {
+                throw new Error("The given raw max drop shadow offset is invalid");
+            }
+            this._dropShadowOffset = offset;
+        }
+    }, {
+        key: "getRawMaxDropShadowOffset",
+        value: function getRawMaxDropShadowOffset() {
+            return this._rawMaxDropShadowOffset;
+        }
+    }, {
+        key: "setRawMaxDropShadowOffset",
+        value: function setRawMaxDropShadowOffset(offset) {
+            if (!offset instanceof Vector2) {
+                throw new Error("The given raw max drop shadow offset is invalid");
+            }
+            this._rawMaxDropShadowOffset = offset;
+        }
+    }, {
+        key: "getNormalizedStrokeSize",
+        value: function getNormalizedStrokeSize() {
+            // stroke size
+            // max shader value is 0.5
+            // in terms of raw values, we go from 0 to stroke's max size,
+            // so we calculate the scaled value between 0 and max shader value
+            var scaledValue = MathHelper.normalize(this.getStroke().getSize(), 0, this.getStroke().getMaxSize(), 0, 0.5);
+
+            // revert the value, so 0 represents less stroke
+            scaledValue = 0.5 - scaledValue;
+
+            return scaledValue;
+        }
+    }, {
+        key: "getNormalizedDropShadowSmoothing",
+        value: function getNormalizedDropShadowSmoothing() {
+            // drop shadow stroke (smoothing) size
+            // (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
+            return MathHelper.normalize(this.getDropShadow().getSize(), 0, this.getDropShadow().getMaxSize(), 0, 0.5);
+        }
+    }, {
+        key: "getNormalizedDropShadowOffset",
+        value: function getNormalizedDropShadowOffset() {
+            // x and y values have to be between spread (defined in Hiero) / texture size
+            // e.g., 4 / 512
+            // need to normalize between those values
+
+            var dropShadowOffset = this.getDropShadowOffset();
+
+            var normalizedX = MathHelper.normalize(dropShadowOffset.x, -1 * this.getRawMaxDropShadowOffset().x, this.getRawMaxDropShadowOffset().x, -1 * this.maxDropShadowOffsetX, this.maxDropShadowOffsetX);
+
+            var normalizedY = MathHelper.normalize(dropShadowOffset.y, -1 * this.getRawMaxDropShadowOffset().y, this.getRawMaxDropShadowOffset().y, -1 * this.maxDropShadowOffsetY, this.maxDropShadowOffsetY);
+
+            return new Vector2(normalizedX, normalizedY);
         }
 
         /*
@@ -16117,12 +16257,41 @@ var Text = function (_GameObject2) {
     }, {
         key: "setDebug",
         value: function setDebug(value) {
+
+            value = MathHelper.clamp(value, 0, 1);
+
             this._debug = value;
         }
     }, {
         key: "getDebug",
         value: function getDebug() {
             return this._debug;
+        }
+    }, {
+        key: "setDropShadowEnabled",
+        value: function setDropShadowEnabled(value) {
+
+            value = MathHelper.clamp(value, 0, 1);
+
+            this._dropShadowEnabled = value;
+        }
+    }, {
+        key: "getDropShadowEnabled",
+        value: function getDropShadowEnabled() {
+            return this._dropShadowEnabled;
+        }
+    }, {
+        key: "setStrokeEnabled",
+        value: function setStrokeEnabled(value) {
+
+            value = MathHelper.clamp(value, 0, 1);
+
+            this._strokeEnabled = value;
+        }
+    }, {
+        key: "getStrokeEnabled",
+        value: function getStrokeEnabled() {
+            return this._strokeEnabled;
         }
     }, {
         key: "setWordWrap",
@@ -16454,6 +16623,22 @@ var Text = function (_GameObject2) {
         //#endregion
 
 
+    }, {
+        key: "maxDropShadowOffsetX",
+        get: function get() {
+            if (this._textureWidth !== 0 && this._fontStyle != null) {
+                return this._fontStyle.getSpread() / this._textureWidth;
+            }
+            return 0;
+        }
+    }, {
+        key: "maxDropShadowOffsetY",
+        get: function get() {
+            if (this._textureHeight !== 0 && this._fontStyle != null) {
+                return this._fontStyle.getSpread() / this._textureHeight;
+            }
+            return 0;
+        }
     }], [{
         key: "restore",
         value: function restore(data) {
@@ -17878,16 +18063,15 @@ var TextShader = function (_Shader2) {
         get: function get() {
             return {
                 vertex: ['attribute vec2 aPos;', 'attribute vec2 aTexCoord;', 'uniform mat4 uMatrix;', 'uniform mat4 uTransform;', 'uniform vec2 uTexSize;', 'varying vec2 vTexCoord;', 'void main() {', '   gl_Position = uMatrix * uTransform * vec4(aPos, 0, 1);', '   vTexCoord = aTexCoord / uTexSize;', '}'].join('\n'),
-                fragment: ['#ifdef GL_ES', '   precision mediump float;', '#endif', 'uniform sampler2D uTexture;', 'uniform vec4 uColor;', 'uniform float uGamma;', 'uniform float uOutlineDistance;', 'uniform vec4 uOutlineColor;', 'uniform vec4 uDropShadowColor;', 'uniform float uDropShadowSmoothing;', 'uniform vec2 uDropShadowOffset;', 'uniform float uDebug;', 'varying vec2 vTexCoord;', 'void main() {', '   float distance = texture2D(uTexture, vTexCoord).a;', '   vec4 finalColor = uColor;', '   if (uDebug > 0.0) {', '       gl_FragColor = vec4(distance, distance, distance, 1);', '   } else {',
+                fragment: ['#ifdef GL_ES', '   precision mediump float;', '#endif', 'uniform sampler2D uTexture;', 'uniform vec4 uColor;', 'uniform float uGamma;', 'uniform float uOutlineDistance;', 'uniform vec4 uOutlineColor;', 'uniform vec4 uDropShadowColor;', 'uniform float uDropShadowSmoothing;', 'uniform vec2 uDropShadowOffset;', 'uniform float uDebug;', 'uniform float uDropShadow;', 'uniform float uOutline;', 'varying vec2 vTexCoord;', 'void main() {', '   float distance = texture2D(uTexture, vTexCoord).a;', '   vec4 finalColor = uColor;', '   if (uDebug > 0.0) {', '       gl_FragColor = vec4(distance, distance, distance, 1);', '       return;', '   }',
                 // outline effect
-                '       if (uOutlineDistance <= 0.5) {', '           float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '           vec4 color = mix(uOutlineColor, uColor, outlineFactor);', '           float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);', '           finalColor = vec4(color.rgb, color.a * alpha);', '       } else {', '           float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '           finalColor = vec4(uColor.rgb, uColor.a * alpha);', '       }',
+                '   if (uOutline > 0.0) {', '       float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '       vec4 color = mix(uOutlineColor, uColor, outlineFactor);', '       float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, distance);', '       finalColor = vec4(color.rgb, color.a * alpha);', '   } else {', '       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);', '       finalColor = vec4(uColor.rgb, uColor.a * alpha);', '   }',
                 // drop shadow effect
-                //'       float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
-                //'       vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
-
-                '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;', '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);', '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
-                // inner effect is the other way around... text, shadow
-                '       gl_FragColor = mix(shadow, finalColor, finalColor.a);', '  }', '}'].join('\n'),
+                //'     float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
+                //'     vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
+                '   if (uDropShadow > 0.0) {', '       float shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).a;', '       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, shadowDistance);', '       vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);',
+                //      inner effect is the other way around... text, shadow
+                '       gl_FragColor = mix(shadow, finalColor, finalColor.a);', '       return;', '   }', '   gl_FragColor = finalColor;', '}'].join('\n'),
                 uniforms: {
                     uMatrix: { type: 'mat4', value: new Float32Array(16) },
                     uTransform: { type: 'mat4', value: new Float32Array(16) },
@@ -17900,7 +18084,9 @@ var TextShader = function (_Shader2) {
                     uDropShadowOffset: [0.0, 0.0],
                     uOutlineDistance: { type: '1i', value: 0 },
                     uGamma: { type: '1i', value: 0 },
-                    uDebug: { type: '1i', value: 1 }
+                    uDebug: { type: '1i', value: 1 },
+                    uDropShadow: { type: '1i', value: 1 },
+                    uOutline: { type: '1i', value: 1 }
                 },
                 attributes: {
                     aPos: 0,

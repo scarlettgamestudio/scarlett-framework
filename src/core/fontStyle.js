@@ -90,7 +90,7 @@ class FontStyle {
         this._letterSpacing = spacing;
     }
 
-    getSpread(){
+    getSpread() {
         return this._spread;
     }
 
