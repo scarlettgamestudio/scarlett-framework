@@ -29,7 +29,7 @@
 <style>
     canvas {
         position: absolute;
-        top:110px;
+        top:160px;
         left:0;
         border:1px solid black;
     }
@@ -46,7 +46,7 @@
 <!-- canvas -->
 <canvas id="canvas"></canvas>
 
-<div style="float:left; margin-left: 200px;">
+<div style="float:left; margin-left: 100px;">
     <label>Text <textarea cols="40" rows="5" style="width:400px;" value="Lorem ipsum" id="str"></textarea></label><br>
     <label>Letter Spacing <input type="number" id="letterSpacing" value="0"></label>
 </div>
@@ -54,8 +54,10 @@
 <div style="float:left;">
     <label><input type="range" style="width:400px" value="70" step="0.01" min="6" max="128.0" id="scale">Size</label><br>
     <label><input type="range" style="width:400px" value="0.0" step="1.0" min="0.0" max="10.0" id="stroke">Stroke Size</label><br>
-    <label><input type="range" style="width:400px" value="5.0" step="1.0" min="0.0" max="10.0" id="dropShadow">DropShadow Smoothing</label><br>
     <label><input type="range" style="width:400px" value="2" step="0.01" min="0" max="4" id="gamma">Gamma</label><br>
+    <label><input type="range" style="width:400px" value="5.0" step="1.0" min="0.0" max="10.0" id="dropShadow">DropShadow Smoothing</label><br>
+    <label><input type="range" style="width:400px" value="5.0" step="1.0" min="-10.0" max="10.0" id="dropShadowOffsetX">Shadow Offset X</label><br>
+    <label><input type="range" style="width:400px" value="5.0" step="1.0" min="-10.0" max="10.0" id="dropShadowOffsetY">Shadow Offset Y</label><br>
 </div>
 
 <div style="float:left;">
@@ -65,11 +67,16 @@
 
     <label><input type="checkbox" id="wordwrap">Word Wrap</label><br>
     <label><input type="checkbox" id="charwrap">Character Wrap</label><br>
+</div>
+
+<div style="float:left;">
     <label><input type="checkbox" id="debug">Debug Texture</label><br>
+    <label><input type="checkbox" id="outlineEnabled">Stroke</label><br>
+    <label><input type="checkbox" id="dropShadowEnabled">DropShadow</label><br>
 </div>
 
 <!-- imports -->
-<script src="../../build/scarlett-framework.js"></script>
+<script src="../../build-es5/scarlett-framework.js"></script>
 
 <!-- browserify -->
 <script src="bundle.js"></script>

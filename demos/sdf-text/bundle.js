@@ -2063,6 +2063,8 @@ gameScene.initialize = function () {
         document.getElementById('str').value = text.getText();
         document.getElementById('stroke').value = text.getStroke().getSize();
         document.getElementById('dropShadow').value = text.getDropShadow().getSize();
+        document.getElementById('dropShadowOffsetX').value = text.getDropShadowOffset().x;
+        document.getElementById('dropShadowOffsetY').value = text.getDropShadowOffset().y;
 
         document.getElementById('scale').value = text.getFontSize();
         document.getElementById('gamma').value = text.getGamma();
@@ -2072,6 +2074,8 @@ gameScene.initialize = function () {
         document.getElementById('wordwrap').checked = text.getWordWrap();
         document.getElementById('charwrap').checked = text.getCharacterWrap();
         document.getElementById('debug').checked = text.getDebug();
+        document.getElementById('dropShadowEnabled').checked = text.getDropShadowEnabled();
+        document.getElementById('outlineEnabled').checked = text.getStrokeEnabled();
 
         document.getElementById('alignLeft').checked = text.getAlign() == Text.AlignType.LEFT;
         document.getElementById('alignCenter').checked = text.getAlign() == Text.AlignType.CENTER;
@@ -2096,12 +2100,16 @@ gameScene.initialize = function () {
 
 document.getElementById('str').oninput = updateValues;
 document.getElementById('stroke').oninput = updateValues;
+document.getElementById('dropShadowOffsetX').oninput = updateValues;
+document.getElementById('dropShadowOffsetY').oninput = updateValues;
 document.getElementById('scale').oninput = updateValues;
 document.getElementById('gamma').oninput = updateValues;
 document.getElementById('letterSpacing').oninput = updateValues;
 document.getElementById('wordwrap').onchange = updateValues;
 document.getElementById('charwrap').onchange = updateValues;
 document.getElementById('debug').onchange = updateValues;
+document.getElementById('dropShadowEnabled').onchange = updateValues;
+document.getElementById('outlineEnabled').onchange = updateValues;
 document.getElementById('alignLeft').onchange = updateValues;
 document.getElementById('alignCenter').onchange = updateValues;
 document.getElementById('alignRight').onchange = updateValues;
@@ -2111,6 +2119,9 @@ function updateValues()
 {
     var str = document.getElementById('str').value;
     var stroke = +document.getElementById('stroke').value;
+
+    var dropshadowOffsetX = +document.getElementById('dropShadowOffsetX').value;
+    var dropshadowOffsetY = +document.getElementById('dropShadowOffsetY').value;
 
     var scale = +document.getElementById('scale').value;
     var gamma = +document.getElementById('gamma').value;
@@ -2122,17 +2133,24 @@ function updateValues()
     var charWrap = +document.getElementById('charwrap').checked;
     var debug = +document.getElementById('debug').checked;
 
+    var dropShadowEnabled = +document.getElementById('dropShadowEnabled').checked;
+
+    var outlineEnabled = +document.getElementById('outlineEnabled').checked;
+
     var align = +document.getElementById('alignLeft').checked ? Text.AlignType.LEFT :
-                            +document.getElementById('alignCenter').checked ? Text.AlignType.CENTER : Text.AlignType.RIGHT;
+            +document.getElementById('alignCenter').checked ? Text.AlignType.CENTER : Text.AlignType.RIGHT;
 
     text.setText(str);
     text.setGamma(gamma);
     text.setFontSize(scale);
     text.getStroke().setSize(stroke);
+    text.setDropShadowOffset(new Vector2(dropshadowOffsetX, dropshadowOffsetY));
     text.getDropShadow().setSize(dropShadowSmoothing);
     text.setWordWrap(wordWrap);
     text.setCharacterWrap(charWrap);
     text.setDebug(debug);
+    text.setDropShadowEnabled(dropShadowEnabled);
+    text.setStrokeEnabled(outlineEnabled);
     text.setAlign(align);
     text.setLetterSpacing(letterSpacing);
 };
