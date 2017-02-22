@@ -15534,7 +15534,7 @@ class Text extends GameObject {
     getNormalizedDropShadowSmoothing(){
         // dropshadow stroke (smoothing) size
         // (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
-        let scaledValue = this.getDropShadow().getSize() * 0.7 / this.getDropShadow().getMaxSize();
+        let scaledValue = this.getDropShadow().getSize() * 0.5 / this.getDropShadow().getMaxSize();
 
         return scaledValue;
     }
