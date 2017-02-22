@@ -56,6 +56,8 @@ gameScene.initialize = function () {
         text.transform.setPosition(-300, -180);
         text.setColor(Color.fromRGBA(232,78,64, 1.0));
 
+        console.log(text.objectify());
+
         // set initial text area value
         document.getElementById('str').value = text.getText();
         document.getElementById('stroke').value = text.getStroke().getSize();

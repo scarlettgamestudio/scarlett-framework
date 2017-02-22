@@ -10184,7 +10184,7 @@ class Objectify {
      * Objectify an array:
      * @param array
      */
-    array(array) {
+    static array(array) {
         let result = [];
         array.forEach(function (elem) {
             // this element has objectify implemented?
@@ -13201,6 +13201,15 @@ class FontStyle {
         return 0;
     }
 
+    objectify() {
+        return {
+            fontDescription: this.getFontDescription(),
+            fontSize: this.getFontSize(),
+            letterSpacing: this.getLetterSpacing(),
+            spread: this.getSpread()
+        };
+    }
+
     //#endregion
 
     //#endregion
@@ -15672,6 +15681,26 @@ class Text extends GameObject {
 
     getTextureSrc() {
         return this._textureSrc;
+    }
+
+    objectify() {
+        let superObjectify = super.objectify();
+        return Objectify.extend(superObjectify, {
+            fontStyle: this.getFontStyle().objectify(),
+            wordWrap: this.getWordWrap(),
+            characterWrap: this.getCharacterWrap(),
+            alignType: this.getAlign(),
+            color: this.getColor().objectify(),
+            text: this.getText(),
+            gamma: this.getGamma(),
+            strokeEnabled: this.getStrokeEnabled(),
+            stroke: this.getStroke().objectify(),
+            dropShadowEnabled: this.getDropShadowEnabled(),
+            dropShadow: this.getDropShadow().objectify(),
+            rawMaxDropShadowOffset: this.getRawMaxDropShadowOffset().objectify(),
+            dropShadowOffset: this.getDropShadowOffset().objectify(),
+            debug: this.getDebug()
+        });
     }
 
     //#endregion

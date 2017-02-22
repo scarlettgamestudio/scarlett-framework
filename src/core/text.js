@@ -493,6 +493,26 @@ class Text extends GameObject {
         return this._textureSrc;
     }
 
+    objectify() {
+        let superObjectify = super.objectify();
+        return Objectify.extend(superObjectify, {
+            fontStyle: this.getFontStyle().objectify(),
+            wordWrap: this.getWordWrap(),
+            characterWrap: this.getCharacterWrap(),
+            alignType: this.getAlign(),
+            color: this.getColor().objectify(),
+            text: this.getText(),
+            gamma: this.getGamma(),
+            strokeEnabled: this.getStrokeEnabled(),
+            stroke: this.getStroke().objectify(),
+            dropShadowEnabled: this.getDropShadowEnabled(),
+            dropShadow: this.getDropShadow().objectify(),
+            rawMaxDropShadowOffset: this.getRawMaxDropShadowOffset().objectify(),
+            dropShadowOffset: this.getDropShadowOffset().objectify(),
+            debug: this.getDebug()
+        });
+    }
+
     //#endregion
 
     //#region Private Methods
