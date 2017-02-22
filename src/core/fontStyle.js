@@ -173,6 +173,15 @@ class FontStyle {
         return 0;
     }
 
+    objectify() {
+        return {
+            fontDescription: this.getFontDescription(),
+            fontSize: this.getFontSize(),
+            letterSpacing: this.getLetterSpacing(),
+            spread: this.getSpread()
+        };
+    }
+
     //#endregion
 
     //#endregion
