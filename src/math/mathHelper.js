@@ -88,6 +88,32 @@ class MathHelper {
         return radians * 57.295779513;
     }
 
+    /**
+     * Normalize a given raw value between the internal [minNormalized, maxNormalized]
+     * @param {number} rawValue the value to normalize
+     * @param {number} minRaw the minimum raw value
+     * @param {number} maxRaw the maximum raw value
+     * @param {number} minNormalized the minimum normalized value
+     * @param {number} maxNormalized the maximum normalized value
+     */
+    static normalize(rawValue, minRaw, maxRaw, minNormalized, maxNormalized){
+        let x = rawValue;
+        let minX = minRaw;
+        let maxX = maxRaw;
+        let a = minNormalized;
+        let b = maxNormalized;
+        let denominator = maxX - minX;
+
+        if (denominator === 0){
+            throw new Error("Division by 0 not allowed");
+        }
+
+        let numerator = x - minX;
+        let normalizedValue = (b - a) * (numerator / denominator) + a;
+
+        return normalizedValue;
+    }
+
     //#endregion
 
     //#endregion
