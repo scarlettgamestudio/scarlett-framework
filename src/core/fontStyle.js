@@ -27,8 +27,13 @@ class FontStyle {
     //#region Static Methods
 
     static restore(data) {
-        // TODO:
-        return {};
+        let fontStyle = new FontStyle(data.fontDescription);
+
+        fontStyle.setSpread(data.spread);
+        fontStyle.setFontSize(data.fontSize);
+        fontStyle.setLetterSpacing(data.letterSpacing);
+
+        return fontStyle;
     }
 
     //#endregion
