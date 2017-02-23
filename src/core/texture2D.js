@@ -51,13 +51,11 @@ class Texture2D {
      * @returns {Promise}
      */
     static fromPath(path) {
-        return new Promise((function (resolve, reject) {
-            ContentLoader.loadImage(path).then(function (image) {
+        return new Promise(((resolve, reject) => {
+            ContentLoader.loadImage(path).then((image) => {
                 resolve(new Texture2D(image));
-
             }, function () {
                 reject();
-
             });
         }).bind(this));
     }

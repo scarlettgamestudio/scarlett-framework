@@ -10100,7 +10100,7 @@ var Objectify = function () {
      */
 
 
-    _createClass(Objectify, [{
+    _createClass(Objectify, null, [{
         key: "array",
         value: function array(_array) {
             var result = [];
@@ -10126,7 +10126,7 @@ var Objectify = function () {
          * @param array
          */
 
-    }], [{
+    }, {
         key: "restoreArray",
         value: function restoreArray(array) {
             var result = [];
@@ -13600,6 +13600,16 @@ var FontStyle = function () {
             // return 0 if there is no match
             return 0;
         }
+    }, {
+        key: "objectify",
+        value: function objectify() {
+            return {
+                fontDescription: this.getFontDescription(),
+                fontSize: this.getFontSize(),
+                letterSpacing: this.getLetterSpacing(),
+                spread: this.getSpread()
+            };
+        }
 
         //#endregion
 
@@ -13608,8 +13618,13 @@ var FontStyle = function () {
     }], [{
         key: "restore",
         value: function restore(data) {
-            // TODO:
-            return {};
+            var fontStyle = new FontStyle(data.fontDescription);
+
+            fontStyle.setSpread(data.spread);
+            fontStyle.setFontSize(data.fontSize);
+            fontStyle.setLetterSpacing(data.letterSpacing);
+
+            return fontStyle;
         }
     }]);
 
@@ -15811,10 +15826,7 @@ var Stroke = function () {
     }], [{
         key: "restore",
         value: function restore(data) {
-            return {
-                color: Color.restore(data),
-                size: data.size
-            };
+            return new Stroke(Color.restore(data.color), data.size);
         }
     }]);
 
@@ -15897,23 +15909,21 @@ var Text = function (_GameObject2) {
         _this5._debug = 0;
 
         _this5._gl = GameManager.renderContext.getContext();
-        _this5._vertexBuffer = _this5._gl.createBuffer();
-        _this5._textureBuffer = _this5._gl.createBuffer();
-        _this5._vertexIndicesBuffer = _this5._gl.createBuffer();
-        _this5._textShader = new TextShader();
+
+        _this5._setTextureParameters();
 
         _this5._textureSrc = "";
         _this5._texture = null;
         _this5._textureWidth = 0;
         _this5._textureHeight = 0;
         // set text texture if defined
-        _this5.setTexture(params.texture);
+        _this5.setTexture(params.texture, "");
         return _this5;
     }
 
     //#endregion
 
-    //#region Methods
+    //#region Public Methods
 
     //#region Static Methods
 
@@ -15923,8 +15933,6 @@ var Text = function (_GameObject2) {
 
         //#endregion
 
-        //#region Public Methods
-
         //#region Overridden Methods
 
         value: function render(delta, spriteBatch) {
@@ -15933,6 +15941,10 @@ var Text = function (_GameObject2) {
             }
 
             // TODO: don't render if font or font's texture are not valid/defined?
+
+            if (this.getTexture() === null) {
+                return;
+            }
 
             // get gl context
             var gl = this._gl;
@@ -16004,13 +16016,23 @@ var Text = function (_GameObject2) {
     }, {
         key: "unload",
         value: function unload() {
-            this._gl.deleteBuffer(this._vertexBuffer);
-            this._gl.deleteBuffer(this._textureBuffer);
-            this._gl.deleteBuffer(this._vertexIndicesBuffer);
 
-            this._textShader.unload();
+            if (isObjectAssigned(this._vertexBuffer)) {
+                this._gl.deleteBuffer(this._vertexBuffer);
+            }
+            if (isObjectAssigned(this._textureBuffer)) {
+                this._gl.deleteBuffer(this._textureBuffer);
+            }
+            if (isObjectAssigned(this._vertexIndicesBuffer)) {
+                this._gl.deleteBuffer(this._vertexIndicesBuffer);
+            }
 
-            // spritebatch related... TODO: add/remove when spritebatch is fixed?
+            if (isObjectAssigned(this._textShader)) {
+                this._textShader.unload();
+            }
+
+            // TODO: add/remove when spritebatch is fixed? we need to unload this specific texture from memory!
+            // spritebatch related...
             //this._gl.deleteBuffer(this._texBuffer);
             //this._textureShader.unload();
         }
@@ -16051,32 +16073,41 @@ var Text = function (_GameObject2) {
             return this._texture;
         }
     }, {
+        key: "setTextureSrc",
+        value: function setTextureSrc(path) {
+            Texture2D.fromPath(path).then(function (texture) {
+                // set WebGL texture parameters
+                this._setTextureParameters();
+                this.setTexture(texture, path);
+            }.bind(this), function (error) {
+                this.setTexture(null, null);
+            }.bind(this));
+        }
+    }, {
         key: "setTexture",
-        value: function setTexture(texture) {
+        value: function setTexture(texture, path) {
             // is this a ready texture?
             if (!texture || !texture.isReady()) {
+                this._textureSrc = "";
                 this._texture = null;
                 this._textureWidth = 0;
                 this._textureHeight = 0;
                 return;
             }
 
+            this._textureSrc = path;
             this._texture = texture;
 
             // cache the dimensions
             this._textureWidth = this._texture.getWidth();
             this._textureHeight = this._texture.getHeight();
 
-            var gl = this._gl;
+            this._vertexBuffer = this._gl.createBuffer();
+            this._textureBuffer = this._gl.createBuffer();
+            this._vertexIndicesBuffer = this._gl.createBuffer();
+            this._textShader = new TextShader();
 
-            // the line below is already done when creating a Texture2D with content loader
-            // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-            gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
+            this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
         }
     }, {
         key: "setColor",
@@ -16329,33 +16360,55 @@ var Text = function (_GameObject2) {
         value: function getAlign() {
             return this._alignType;
         }
-
-        // TODO: use anonymous promises () => {}
-
     }, {
-        key: "setTextureSrc",
-        value: function setTextureSrc(path) {
+        key: "setTextureSourcePathOnly",
+        value: function setTextureSourcePathOnly(path) {
             this._textureSrc = path;
-
-            if (path && path.length > 0) {
-                Texture2D.fromPath(path).then(function (texture) {
-                    this.setTexture(texture);
-                }.bind(this), function (error) {
-                    this.setTexture(null);
-                }.bind(this));
-            } else {
-                this.setTexture(null);
-            }
         }
     }, {
         key: "getTextureSrc",
         value: function getTextureSrc() {
             return this._textureSrc;
         }
+    }, {
+        key: "objectify",
+        value: function objectify() {
+            var superObjectify = _get(Text.prototype.__proto__ || Object.getPrototypeOf(Text.prototype), "objectify", this).call(this);
+            return Objectify.extend(superObjectify, {
+                fontStyle: this.getFontStyle().objectify(),
+                wordWrap: this.getWordWrap(),
+                characterWrap: this.getCharacterWrap(),
+                alignType: this.getAlign(),
+                color: this.getColor().objectify(),
+                text: this.getText(),
+                gamma: this.getGamma(),
+                strokeEnabled: this.getStrokeEnabled(),
+                stroke: this.getStroke().objectify(),
+                dropShadowEnabled: this.getDropShadowEnabled(),
+                dropShadow: this.getDropShadow().objectify(),
+                rawMaxDropShadowOffset: this.getRawMaxDropShadowOffset().objectify(),
+                dropShadowOffset: this.getDropShadowOffset().objectify(),
+                debug: this.getDebug(),
+                textureSrc: this.getTextureSrc()
+            });
+        }
 
         //#endregion
 
         //#region Private Methods
+
+    }, {
+        key: "_setTextureParameters",
+        value: function _setTextureParameters() {
+            var gl = this._gl;
+
+            // the line below is already done when creating a Texture2D with content loader
+            // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        }
 
         /**
          * Draws the text onto the screen
@@ -16620,9 +16673,6 @@ var Text = function (_GameObject2) {
 
         //#endregion
 
-        //#endregion
-
-
     }, {
         key: "maxDropShadowOffsetX",
         get: function get() {
@@ -16642,8 +16692,27 @@ var Text = function (_GameObject2) {
     }], [{
         key: "restore",
         value: function restore(data) {
-            // TODO:
-            return {};
+            var superRestore = _get(Text.__proto__ || Object.getPrototypeOf(Text), "restore", this).call(this, data);
+
+            var text = new Text();
+            text.setFontStyle(FontStyle.restore(data.fontStyle));
+            text.setWordWrap(data.wordWrap);
+            text.setCharacterWrap(data.characterWrap);
+            text.setAlign(data.alignType);
+            text.setColor(Color.restore(data.color));
+            text.setText(data.text);
+            text.setGamma(data.gamma);
+            text.setStrokeEnabled(data.strokeEnabled);
+            text.setStroke(Stroke.restore(data.stroke));
+            text.setDropShadowEnabled(data.dropShadowEnabled);
+            text.setDropShadow(Stroke.restore(data.dropShadow));
+            text.setRawMaxDropShadowOffset(Vector2.restore(data.rawMaxDropShadowOffset));
+            text.setDropShadowOffset(Vector2.restore(data.dropShadowOffset));
+            text.setDebug(data.debug);
+
+            text.setTextureSrc(data.textureSrc);
+
+            return Objectify.extend(text, superRestore);
         }
     }]);
 
