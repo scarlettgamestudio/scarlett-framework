@@ -9422,26 +9422,34 @@ var ContentLoaderSingleton = function () {
                 return this._imgLoaded[this._imgAlias[alias]];
             }
         }
+    }, {
+        key: "getSourcePath",
+        value: function getSourcePath(alias) {
+            if (this._imgAlias.hasOwnProperty(alias)) {
+                return this._imgAlias[alias];
+            }
+            return null;
+        }
 
         /**
-         * loads an image file from a specified path into memory
+         *
          * @param path
          * @param alias
-         * @returns {*}
+         * @returns {Promise|Image} Image when successful
          */
 
     }, {
         key: "loadImage",
         value: function loadImage(path, alias) {
-            return new Promise(function (resolve, reject) {
-                var _this = this;
+            var _this = this;
 
-                path = this._enrichRelativePath(path);
+            return new Promise(function (resolve, reject) {
+                path = _this._enrichRelativePath(path);
 
                 // is the image on cache?
-                if (this._imgLoaded.hasOwnProperty(path)) {
+                if (_this._imgLoaded.hasOwnProperty(path)) {
                     // the image is already cached. let's use it!
-                    resolve(this._imgLoaded[path]);
+                    resolve(_this._imgLoaded[path]);
                 } else {
                     (function () {
                         // the image is not in cache, we must load it:
@@ -9449,21 +9457,21 @@ var ContentLoaderSingleton = function () {
                         image.src = path;
                         image.onload = function () {
                             // cache the loaded image:
-                            this._imgLoaded[path] = image;
+                            _this._imgLoaded[path] = image;
 
                             if (alias) {
-                                this._imgAlias[alias] = path;
+                                _this._imgAlias[alias] = path;
                             }
 
                             resolve(image);
-                        }.bind(_this);
+                        };
                         image.onerror = function () {
                             // TODO: log this
                             reject();
                         };
                     })();
                 }
-            }.bind(this));
+            });
         }
 
         /**
@@ -16075,17 +16083,19 @@ var Text = function (_GameObject2) {
     }, {
         key: "setTextureSrc",
         value: function setTextureSrc(path) {
+            var _this6 = this;
+
             Texture2D.fromPath(path).then(function (texture) {
                 // set WebGL texture parameters
-                this._setTextureParameters();
-                this.setTexture(texture, path);
-            }.bind(this), function (error) {
-                this.setTexture(null, null);
-            }.bind(this));
+                _this6._setTextureParameters();
+                _this6.setTexture(texture);
+            }, function (error) {
+                _this6.setTexture(null, null);
+            });
         }
     }, {
         key: "setTexture",
-        value: function setTexture(texture, path) {
+        value: function setTexture(texture) {
             // is this a ready texture?
             if (!texture || !texture.isReady()) {
                 this._textureSrc = "";
@@ -16095,7 +16105,7 @@ var Text = function (_GameObject2) {
                 return;
             }
 
-            this._textureSrc = path;
+            this._textureSrc = texture.getImageData().src;
             this._texture = texture;
 
             // cache the dimensions
@@ -16359,11 +16369,6 @@ var Text = function (_GameObject2) {
         key: "getAlign",
         value: function getAlign() {
             return this._alignType;
-        }
-    }, {
-        key: "setTextureSourcePathOnly",
-        value: function setTextureSourcePathOnly(path) {
-            this._textureSrc = path;
         }
     }, {
         key: "getTextureSrc",
@@ -16728,7 +16733,7 @@ var Texture2D = function () {
     //#region Constructors
 
     /**
-     * @param image
+     * @param {Image} image
      */
     function Texture2D(image) {
         _classCallCheck(this, Texture2D);
@@ -16802,7 +16807,7 @@ var Texture2D = function () {
 
         /**
          *
-         * @param imageData
+         * @param {Image} imageData
          */
 
     }, {
@@ -16813,7 +16818,7 @@ var Texture2D = function () {
 
         /**
          *
-         * @returns {*}
+         * @returns {Image}
          */
 
     }, {

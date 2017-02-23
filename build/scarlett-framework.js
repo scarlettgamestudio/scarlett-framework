@@ -9595,14 +9595,21 @@ class ContentLoaderSingleton {
         }
     }
 
+    getSourcePath(alias) {
+        if (this._imgAlias.hasOwnProperty(alias)) {
+            return this._imgAlias[alias];
+        }
+        return null;
+    }
+
     /**
-     * loads an image file from a specified path into memory
+     *
      * @param path
      * @param alias
-     * @returns {*}
+     * @returns {Promise|Image} Image when successful
      */
     loadImage(path, alias) {
-        return new Promise((function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             path = this._enrichRelativePath(path);
 
             // is the image on cache?
@@ -9614,7 +9621,7 @@ class ContentLoaderSingleton {
                 // the image is not in cache, we must load it:
                 let image = new Image();
                 image.src = path;
-                image.onload = (function () {
+                image.onload = () => {
                     // cache the loaded image:
                     this._imgLoaded[path] = image;
 
@@ -9623,13 +9630,13 @@ class ContentLoaderSingleton {
                     }
 
                     resolve(image);
-                }.bind(this));
-                image.onerror = function () {
+                };
+                image.onerror = () => {
                     // TODO: log this
                     reject();
                 };
             }
-        }).bind(this));
+        });
     }
 
     /**
@@ -15393,13 +15400,13 @@ class Text extends GameObject {
 
     unload() {
 
-        if (isObjectAssigned(this._vertexBuffer)){
+        if (isObjectAssigned(this._vertexBuffer)) {
             this._gl.deleteBuffer(this._vertexBuffer);
         }
-        if (isObjectAssigned(this._textureBuffer)){
+        if (isObjectAssigned(this._textureBuffer)) {
             this._gl.deleteBuffer(this._textureBuffer);
         }
-        if (isObjectAssigned(this._vertexIndicesBuffer)){
+        if (isObjectAssigned(this._vertexIndicesBuffer)) {
             this._gl.deleteBuffer(this._vertexIndicesBuffer);
         }
 
@@ -15443,18 +15450,18 @@ class Text extends GameObject {
     };
 
     setTextureSrc(path) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
+        Texture2D.fromPath(path).then((texture) => {
                 // set WebGL texture parameters
                 this._setTextureParameters();
-                this.setTexture(texture, path);
-            }).bind(this), (function (error) {
+                this.setTexture(texture);
+            },
+            (error) => {
                 this.setTexture(null, null);
-            }).bind(this)
+            }
         );
     }
 
-    setTexture(texture, path) {
+    setTexture(texture) {
         // is this a ready texture?
         if (!texture || !texture.isReady()) {
             this._textureSrc = "";
@@ -15464,7 +15471,7 @@ class Text extends GameObject {
             return;
         }
 
-        this._textureSrc = path;
+        this._textureSrc = texture.getImageData().src;
         this._texture = texture;
 
         // cache the dimensions
@@ -15702,10 +15709,6 @@ class Text extends GameObject {
 
     getAlign() {
         return this._alignType;
-    }
-
-    setTextureSourcePathOnly(path){
-        this._textureSrc = path;
     }
 
     getTextureSrc() {
@@ -16023,7 +16026,7 @@ class Texture2D {
     //#region Constructors
 
     /**
-     * @param image
+     * @param {Image} image
      */
     constructor(image) {
         if (!isObjectAssigned(image)) {
@@ -16096,7 +16099,7 @@ class Texture2D {
 
     /**
      *
-     * @param imageData
+     * @param {Image} imageData
      */
     setImageData(imageData) {
         this._source = imageData;
@@ -16104,7 +16107,7 @@ class Texture2D {
 
     /**
      *
-     * @returns {*}
+     * @returns {Image}
      */
     getImageData() {
         return this._source;

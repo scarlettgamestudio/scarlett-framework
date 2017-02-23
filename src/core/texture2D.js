@@ -6,7 +6,7 @@ class Texture2D {
     //#region Constructors
 
     /**
-     * @param image
+     * @param {Image} image
      */
     constructor(image) {
         if (!isObjectAssigned(image)) {
@@ -79,7 +79,7 @@ class Texture2D {
 
     /**
      *
-     * @param imageData
+     * @param {Image} imageData
      */
     setImageData(imageData) {
         this._source = imageData;
@@ -87,7 +87,7 @@ class Texture2D {
 
     /**
      *
-     * @returns {*}
+     * @returns {Image}
      */
     getImageData() {
         return this._source;

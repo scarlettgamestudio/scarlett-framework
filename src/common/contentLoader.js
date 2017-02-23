@@ -152,14 +152,21 @@ class ContentLoaderSingleton {
         }
     }
 
+    getSourcePath(alias) {
+        if (this._imgAlias.hasOwnProperty(alias)) {
+            return this._imgAlias[alias];
+        }
+        return null;
+    }
+
     /**
-     * loads an image file from a specified path into memory
+     *
      * @param path
      * @param alias
-     * @returns {*}
+     * @returns {Promise|Image} Image when successful
      */
     loadImage(path, alias) {
-        return new Promise((function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             path = this._enrichRelativePath(path);
 
             // is the image on cache?
@@ -171,7 +178,7 @@ class ContentLoaderSingleton {
                 // the image is not in cache, we must load it:
                 let image = new Image();
                 image.src = path;
-                image.onload = (function () {
+                image.onload = () => {
                     // cache the loaded image:
                     this._imgLoaded[path] = image;
 
@@ -180,13 +187,13 @@ class ContentLoaderSingleton {
                     }
 
                     resolve(image);
-                }.bind(this));
-                image.onerror = function () {
+                };
+                image.onerror = () => {
                     // TODO: log this
                     reject();
                 };
             }
-        }).bind(this));
+        });
     }
 
     /**

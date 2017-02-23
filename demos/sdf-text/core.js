@@ -54,7 +54,6 @@ gameScene.initialize = function () {
         console.log(font.kernings);*/
 
         text = new Text({font: font, texture: textTexture, text: "Lorem ipsum\r\ndolore"});
-        text.setTextureSourcePathOnly("assets/fnt/open-sans-sdf.png");
         text.transform.setPosition(-300, -180);
         text.setColor(Color.fromRGBA(232,78,64, 1.0));
 

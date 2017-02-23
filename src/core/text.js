@@ -201,13 +201,13 @@ class Text extends GameObject {
 
     unload() {
 
-        if (isObjectAssigned(this._vertexBuffer)){
+        if (isObjectAssigned(this._vertexBuffer)) {
             this._gl.deleteBuffer(this._vertexBuffer);
         }
-        if (isObjectAssigned(this._textureBuffer)){
+        if (isObjectAssigned(this._textureBuffer)) {
             this._gl.deleteBuffer(this._textureBuffer);
         }
-        if (isObjectAssigned(this._vertexIndicesBuffer)){
+        if (isObjectAssigned(this._vertexIndicesBuffer)) {
             this._gl.deleteBuffer(this._vertexIndicesBuffer);
         }
 
@@ -251,18 +251,18 @@ class Text extends GameObject {
     };
 
     setTextureSrc(path) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
+        Texture2D.fromPath(path).then((texture) => {
                 // set WebGL texture parameters
                 this._setTextureParameters();
-                this.setTexture(texture, path);
-            }).bind(this), (function (error) {
+                this.setTexture(texture);
+            },
+            (error) => {
                 this.setTexture(null, null);
-            }).bind(this)
+            }
         );
     }
 
-    setTexture(texture, path) {
+    setTexture(texture) {
         // is this a ready texture?
         if (!texture || !texture.isReady()) {
             this._textureSrc = "";
@@ -272,7 +272,7 @@ class Text extends GameObject {
             return;
         }
 
-        this._textureSrc = path;
+        this._textureSrc = texture.getImageData().src;
         this._texture = texture;
 
         // cache the dimensions
@@ -510,10 +510,6 @@ class Text extends GameObject {
 
     getAlign() {
         return this._alignType;
-    }
-
-    setTextureSourcePathOnly(path){
-        this._textureSrc = path;
     }
 
     getTextureSrc() {
