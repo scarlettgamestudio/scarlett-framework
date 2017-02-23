@@ -15920,6 +15920,11 @@ var Text = function (_GameObject2) {
 
         _this5._setTextureParameters();
 
+        _this5._vertexBuffer = null;
+        _this5._textureBuffer = null;
+        _this5._vertexIndicesBuffer = null;
+        _this5._textShader = null;
+
         _this5._textureSrc = "";
         _this5._texture = null;
         _this5._textureWidth = 0;
@@ -16117,7 +16122,7 @@ var Text = function (_GameObject2) {
             this._vertexIndicesBuffer = this._gl.createBuffer();
             this._textShader = new TextShader();
 
-            this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
+            this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._textureWidth, this._textureHeight);
         }
     }, {
         key: "setColor",

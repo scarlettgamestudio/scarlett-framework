@@ -15266,6 +15266,11 @@ class Text extends GameObject {
 
         this._setTextureParameters();
 
+        this._vertexBuffer = null;
+        this._textureBuffer = null;
+        this._vertexIndicesBuffer = null;
+        this._textShader = null;
+
         this._textureSrc = "";
         this._texture = null;
         this._textureWidth = 0;
@@ -15483,8 +15488,7 @@ class Text extends GameObject {
         this._vertexIndicesBuffer = this._gl.createBuffer();
         this._textShader = new TextShader();
 
-        this._gl.uniform2f(this._textShader.uniforms.uTexSize._location,
-            this._texture.getWidth(), this._texture.getHeight());
+        this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._textureWidth, this._textureHeight);
     }
 
     setColor(color) {

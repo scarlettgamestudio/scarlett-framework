@@ -2022,6 +2022,8 @@ var gameScene = new GameScene({
     backgroundColor: Color.fromRGB(29, 25, 35)
 });
 
+GameManager.activeProjectPath = "http://localhost:8080/demos/sdf-text/";
+
 ContentLoader.load({
     images: [
         {path: "assets/player.png", alias: "player"},
