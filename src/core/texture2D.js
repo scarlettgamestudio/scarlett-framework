@@ -17,6 +17,7 @@ class Texture2D {
         this._uid = generateUID();
         this._source = image;
         this._texture = null;
+        this._textureSrc = image.src;
         this._gl = GameManager.renderContext.getContext();
 
         // Prepare the webgl texture:
@@ -83,6 +84,7 @@ class Texture2D {
      */
     setImageData(imageData) {
         this._source = imageData;
+        this._textureSrc = imageData.src;
     }
 
     /**
@@ -91,6 +93,10 @@ class Texture2D {
      */
     getImageData() {
         return this._source;
+    }
+
+    getTextureSrc() {
+        return this._textureSrc;
     }
 
     /**

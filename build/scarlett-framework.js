@@ -15471,7 +15471,7 @@ class Text extends GameObject {
             return;
         }
 
-        this._textureSrc = texture.getImageData().src;
+        this._textureSrc = texture.getTextureSrc();
         this._texture = texture;
 
         // cache the dimensions
@@ -16037,6 +16037,7 @@ class Texture2D {
         this._uid = generateUID();
         this._source = image;
         this._texture = null;
+        this._textureSrc = image.src;
         this._gl = GameManager.renderContext.getContext();
 
         // Prepare the webgl texture:
@@ -16103,6 +16104,7 @@ class Texture2D {
      */
     setImageData(imageData) {
         this._source = imageData;
+        this._textureSrc = imageData.src;
     }
 
     /**
@@ -16111,6 +16113,10 @@ class Texture2D {
      */
     getImageData() {
         return this._source;
+    }
+
+    getTextureSrc() {
+        return this._textureSrc;
     }
 
     /**

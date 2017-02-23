@@ -272,7 +272,7 @@ class Text extends GameObject {
             return;
         }
 
-        this._textureSrc = texture.getImageData().src;
+        this._textureSrc = texture.getTextureSrc();
         this._texture = texture;
 
         // cache the dimensions

@@ -16105,7 +16105,7 @@ var Text = function (_GameObject2) {
                 return;
             }
 
-            this._textureSrc = texture.getImageData().src;
+            this._textureSrc = texture.getTextureSrc();
             this._texture = texture;
 
             // cache the dimensions
@@ -16746,6 +16746,7 @@ var Texture2D = function () {
         this._uid = generateUID();
         this._source = image;
         this._texture = null;
+        this._textureSrc = image.src;
         this._gl = GameManager.renderContext.getContext();
 
         // Prepare the webgl texture:
@@ -16814,6 +16815,7 @@ var Texture2D = function () {
         key: "setImageData",
         value: function setImageData(imageData) {
             this._source = imageData;
+            this._textureSrc = imageData.src;
         }
 
         /**
@@ -16825,6 +16827,11 @@ var Texture2D = function () {
         key: "getImageData",
         value: function getImageData() {
             return this._source;
+        }
+    }, {
+        key: "getTextureSrc",
+        value: function getTextureSrc() {
+            return this._textureSrc;
         }
 
         /**
