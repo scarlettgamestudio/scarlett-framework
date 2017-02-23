@@ -15202,7 +15202,7 @@ class Stroke {
  */
 
 AttributeDictionary.inherit("text", "gameobject");
-AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
+AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Font Image Src", editor: "filepath"});
 AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
 AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
 AttributeDictionary.addRule("text", "_texture", {visible: false});
@@ -15264,7 +15264,10 @@ class Text extends GameObject {
 
         this._gl = GameManager.renderContext.getContext();
 
-        this._setTextureParameters();
+
+        if (params.texture) {
+            this._setTextureParameters();
+        }
 
         this._vertexBuffer = null;
         this._textureBuffer = null;
