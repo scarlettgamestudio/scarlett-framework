@@ -13037,6 +13037,8 @@ class Color {
  * Created by Luis on 08/02/2017.
  */
 
+AttributeDictionary.addRule("fontStyle", "_fontDescription", {displayName: "Font Description Source", editor: "filepath"});
+
 /**
  * FontStyle Class
  */
@@ -15206,6 +15208,9 @@ AttributeDictionary.addRule("text", "_textureSrc", {displayName: "Font Image Src
 AttributeDictionary.addRule("text", "_color", {displayName: "Color"});
 AttributeDictionary.addRule("text", "_text", {displayName: "Text"});
 AttributeDictionary.addRule("text", "_texture", {visible: false});
+AttributeDictionary.addRule("text", "_fontStyle", {ownContainer: true});
+AttributeDictionary.addRule("text", "_stroke", {ownContainer: true});
+AttributeDictionary.addRule("text", "_dropShadow", {ownContainer: true});
 
 // TODO: remove this... use game object boundary?
 let maxWidth = 500;

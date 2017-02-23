@@ -2,6 +2,8 @@
  * Created by Luis on 08/02/2017.
  */
 
+AttributeDictionary.addRule("fontStyle", "_fontDescription", {displayName: "Font Description Source", editor: "filepath"});
+
 /**
  * FontStyle Class
  */
