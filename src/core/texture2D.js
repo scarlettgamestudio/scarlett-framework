@@ -6,7 +6,7 @@ class Texture2D {
     //#region Constructors
 
     /**
-     * @param image
+     * @param {Image} image
      */
     constructor(image) {
         if (!isObjectAssigned(image)) {
@@ -17,6 +17,7 @@ class Texture2D {
         this._uid = generateUID();
         this._source = image;
         this._texture = null;
+        this._textureSrc = image.src;
         this._gl = GameManager.renderContext.getContext();
 
         // Prepare the webgl texture:
@@ -51,13 +52,11 @@ class Texture2D {
      * @returns {Promise}
      */
     static fromPath(path) {
-        return new Promise((function (resolve, reject) {
-            ContentLoader.loadImage(path).then(function (image) {
+        return new Promise(((resolve, reject) => {
+            ContentLoader.loadImage(path).then((image) => {
                 resolve(new Texture2D(image));
-
             }, function () {
                 reject();
-
             });
         }).bind(this));
     }
@@ -81,18 +80,23 @@ class Texture2D {
 
     /**
      *
-     * @param imageData
+     * @param {Image} imageData
      */
     setImageData(imageData) {
         this._source = imageData;
+        this._textureSrc = imageData.src;
     }
 
     /**
      *
-     * @returns {*}
+     * @returns {Image}
      */
     getImageData() {
         return this._source;
+    }
+
+    getTextureSrc() {
+        return this._textureSrc;
     }
 
     /**

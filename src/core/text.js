@@ -64,33 +64,53 @@ class Text extends GameObject {
         this._debug = 0;
 
         this._gl = GameManager.renderContext.getContext();
-        this._vertexBuffer = this._gl.createBuffer();
-        this._textureBuffer = this._gl.createBuffer();
-        this._vertexIndicesBuffer = this._gl.createBuffer();
-        this._textShader = new TextShader();
+
+        this._setTextureParameters();
+
+        this._vertexBuffer = null;
+        this._textureBuffer = null;
+        this._vertexIndicesBuffer = null;
+        this._textShader = null;
 
         this._textureSrc = "";
         this._texture = null;
         this._textureWidth = 0;
         this._textureHeight = 0;
         // set text texture if defined
-        this.setTexture(params.texture);
-    }
-
-    //#endregion
-
-    //#region Methods
-
-    //#region Static Methods
-
-    static restore(data) {
-        // TODO:
-        return {};
+        this.setTexture(params.texture, "");
     }
 
     //#endregion
 
     //#region Public Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        let superRestore = super.restore(data);
+
+        let text = new Text();
+        text.setFontStyle(FontStyle.restore(data.fontStyle));
+        text.setWordWrap(data.wordWrap);
+        text.setCharacterWrap(data.characterWrap);
+        text.setAlign(data.alignType);
+        text.setColor(Color.restore(data.color));
+        text.setText(data.text);
+        text.setGamma(data.gamma);
+        text.setStrokeEnabled(data.strokeEnabled);
+        text.setStroke(Stroke.restore(data.stroke));
+        text.setDropShadowEnabled(data.dropShadowEnabled);
+        text.setDropShadow(Stroke.restore(data.dropShadow));
+        text.setRawMaxDropShadowOffset(Vector2.restore(data.rawMaxDropShadowOffset));
+        text.setDropShadowOffset(Vector2.restore(data.dropShadowOffset));
+        text.setDebug(data.debug);
+
+        text.setTextureSrc(data.textureSrc);
+
+        return Objectify.extend(text, superRestore);
+    }
+
+    //#endregion
 
     //#region Overridden Methods
 
@@ -100,6 +120,10 @@ class Text extends GameObject {
         }
 
         // TODO: don't render if font or font's texture are not valid/defined?
+
+        if (this.getTexture() === null) {
+            return;
+        }
 
         // get gl context
         let gl = this._gl;
@@ -181,13 +205,23 @@ class Text extends GameObject {
     }
 
     unload() {
-        this._gl.deleteBuffer(this._vertexBuffer);
-        this._gl.deleteBuffer(this._textureBuffer);
-        this._gl.deleteBuffer(this._vertexIndicesBuffer);
 
-        this._textShader.unload();
+        if (isObjectAssigned(this._vertexBuffer)) {
+            this._gl.deleteBuffer(this._vertexBuffer);
+        }
+        if (isObjectAssigned(this._textureBuffer)) {
+            this._gl.deleteBuffer(this._textureBuffer);
+        }
+        if (isObjectAssigned(this._vertexIndicesBuffer)) {
+            this._gl.deleteBuffer(this._vertexIndicesBuffer);
+        }
 
-        // spritebatch related... TODO: add/remove when spritebatch is fixed?
+        if (isObjectAssigned(this._textShader)) {
+            this._textShader.unload();
+        }
+
+        // TODO: add/remove when spritebatch is fixed? we need to unload this specific texture from memory!
+        // spritebatch related...
         //this._gl.deleteBuffer(this._texBuffer);
         //this._textureShader.unload();
     }
@@ -221,31 +255,41 @@ class Text extends GameObject {
         return this._texture;
     };
 
+    setTextureSrc(path) {
+        Texture2D.fromPath(path).then((texture) => {
+                // set WebGL texture parameters
+                this._setTextureParameters();
+                this.setTexture(texture);
+            },
+            (error) => {
+                this.setTexture(null, null);
+            }
+        );
+    }
+
     setTexture(texture) {
         // is this a ready texture?
         if (!texture || !texture.isReady()) {
+            this._textureSrc = "";
             this._texture = null;
             this._textureWidth = 0;
             this._textureHeight = 0;
             return;
         }
 
+        this._textureSrc = texture.getTextureSrc();
         this._texture = texture;
 
         // cache the dimensions
         this._textureWidth = this._texture.getWidth();
         this._textureHeight = this._texture.getHeight();
 
-        let gl = this._gl;
+        this._vertexBuffer = this._gl.createBuffer();
+        this._textureBuffer = this._gl.createBuffer();
+        this._vertexIndicesBuffer = this._gl.createBuffer();
+        this._textShader = new TextShader();
 
-        // the line below is already done when creating a Texture2D with content loader
-        // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-        gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._texture.getWidth(), this._texture.getHeight());
+        this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._textureWidth, this._textureHeight);
     }
 
     setColor(color) {
@@ -472,30 +516,45 @@ class Text extends GameObject {
         return this._alignType;
     }
 
-    // TODO: use anonymous promises () => {}
-    setTextureSrc(path) {
-        this._textureSrc = path;
-
-        if (path && path.length > 0) {
-            Texture2D.fromPath(path).then(
-                (function (texture) {
-                    this.setTexture(texture);
-                }).bind(this), (function (error) {
-                    this.setTexture(null);
-                }).bind(this)
-            );
-        } else {
-            this.setTexture(null);
-        }
-    }
-
     getTextureSrc() {
         return this._textureSrc;
+    }
+
+    objectify() {
+        let superObjectify = super.objectify();
+        return Objectify.extend(superObjectify, {
+            fontStyle: this.getFontStyle().objectify(),
+            wordWrap: this.getWordWrap(),
+            characterWrap: this.getCharacterWrap(),
+            alignType: this.getAlign(),
+            color: this.getColor().objectify(),
+            text: this.getText(),
+            gamma: this.getGamma(),
+            strokeEnabled: this.getStrokeEnabled(),
+            stroke: this.getStroke().objectify(),
+            dropShadowEnabled: this.getDropShadowEnabled(),
+            dropShadow: this.getDropShadow().objectify(),
+            rawMaxDropShadowOffset: this.getRawMaxDropShadowOffset().objectify(),
+            dropShadowOffset: this.getDropShadowOffset().objectify(),
+            debug: this.getDebug(),
+            textureSrc: this.getTextureSrc()
+        });
     }
 
     //#endregion
 
     //#region Private Methods
+
+    _setTextureParameters() {
+        let gl = this._gl;
+
+        // the line below is already done when creating a Texture2D with content loader
+        // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
 
     /**
      * Draws the text onto the screen
@@ -762,8 +821,5 @@ class Text extends GameObject {
     }
 
     //#endregion
-
-    //#endregion
-
 
 }
