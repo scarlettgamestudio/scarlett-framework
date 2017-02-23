@@ -54,10 +54,7 @@ class Stroke {
     //#region Static Methods
 
     static restore(data) {
-        return {
-            color: Color.restore(data),
-            size: data.size
-        };
+        return new Stroke(Color.restore(data.color), data.size);
     }
 
     //#endregion
