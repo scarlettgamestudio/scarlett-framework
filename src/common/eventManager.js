@@ -59,13 +59,13 @@ class EventManagerSingleton {
         }
 
         for (let i = this._handlers[topic].length - 1; i >= 0; i--) {
-            if (this._handlers[topic][i].callback == callback) {
+            if (this._handlers[topic][i].callback === callback) {
                 this._handlers[topic].splice(i, 1);
             }
         }
 
         // no more subscriptions for this topic?
-        if (this._handlers[topic].length == 0) {
+        if (this._handlers[topic].length === 0) {
             // nope... let's remove the topic then:
             delete this._handlers[topic];
         }
