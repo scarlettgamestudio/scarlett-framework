@@ -18,11 +18,25 @@ class ProjectFile {
         this.content = params.content || {
                 scripts: []
             };
+
+        this.ensureContentStructure();
     }
 
     //#endregion
 
     //#region Methods
+
+	//#region Methods
+
+    ensureContentStructure () {
+	    this.content = this.content || {};
+
+	    if (!this.content.hasOwnProperty("scripts")) {
+		    this.content.scripts = [];
+	    }
+    }
+
+    //#endregion
 
     //#region Static Methods
 
