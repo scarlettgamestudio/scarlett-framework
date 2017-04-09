@@ -10184,7 +10184,7 @@ class Objectify {
      * Objectify an array:
      * @param array
      */
-    array(array) {
+    static array(array) {
         let result = [];
         array.forEach(function (elem) {
             // this element has objectify implemented?
@@ -12414,16 +12414,28 @@ class ProjectFile {
 
         this.name = params.name || "New Project";
         this.settings = params.settings || {};
-        this.editor = params.editor || {
-                lastScene: null,
-                layout: null
+        this.content = params.content || {
+                scripts: []
             };
-        this.content = params.content || {};
+
+        this.ensureContentStructure();
     }
 
     //#endregion
 
     //#region Methods
+
+	//#region Methods
+
+    ensureContentStructure () {
+	    this.content = this.content || {};
+
+	    if (!this.content.hasOwnProperty("scripts")) {
+		    this.content.scripts = [];
+	    }
+    }
+
+    //#endregion
 
     //#region Static Methods
 
@@ -12482,6 +12494,43 @@ class TextureAtlas {
     getType() {
         return "TextureAtlas";
     }
+
+    //#endregion
+
+};/**
+ * Workspace File class
+ */
+class WorkspaceFile {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+        params = params || {};
+
+        this.activeLayout = params.activeLayout || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {WorkspaceFile}
+     */
+    static restore(data) {
+        return new WorkspaceFile(data);
+    }
+
+    //#endregion
 
     //#endregion
 

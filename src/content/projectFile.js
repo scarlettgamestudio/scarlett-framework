@@ -15,16 +15,28 @@ class ProjectFile {
 
         this.name = params.name || "New Project";
         this.settings = params.settings || {};
-        this.editor = params.editor || {
-                lastScene: null,
-                layout: null
+        this.content = params.content || {
+                scripts: []
             };
-        this.content = params.content || {};
+
+        this.ensureContentStructure();
     }
 
     //#endregion
 
     //#region Methods
+
+	//#region Methods
+
+    ensureContentStructure () {
+	    this.content = this.content || {};
+
+	    if (!this.content.hasOwnProperty("scripts")) {
+		    this.content.scripts = [];
+	    }
+    }
+
+    //#endregion
 
     //#region Static Methods
 
