@@ -1,7 +1,7 @@
 /**
- * Project File class
+ * Workspace File class
  */
-class ProjectFile {
+class WorkspaceFile {
 
     //#region Constructors
 
@@ -13,11 +13,7 @@ class ProjectFile {
     constructor(params) {
         params = params || {};
 
-        this.name = params.name || "New Project";
-        this.settings = params.settings || {};
-        this.content = params.content || {
-                scripts: []
-            };
+        this.activeLayout = params.activeLayout || {};
     }
 
     //#endregion
@@ -29,10 +25,10 @@ class ProjectFile {
     /**
      *
      * @param data
-     * @returns {ProjectFile}
+     * @returns {WorkspaceFile}
      */
     static restore(data) {
-        return new ProjectFile(data);
+        return new WorkspaceFile(data);
     }
 
     //#endregion
