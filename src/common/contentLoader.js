@@ -274,14 +274,16 @@ class ContentLoaderSingleton {
                 rawFile.open("GET", path, true);
                 rawFile.onreadystatechange = (function () {
                     if (rawFile.readyState === 4 && rawFile.status == "200") {
+                        let fileContext = FileContext.fromXHR(rawFile);
+
                         // cache the loaded image:
-                        this._fileLoaded[path] = rawFile.responseText;
+                        this._fileLoaded[path] = fileContext;
 
                         if (alias) {
                             this._fileAlias[alias] = path;
                         }
 
-                        resolve(rawFile.responseText);
+                        resolve(fileContext);
 
                     } else if (rawFile.readyState === 4 && rawFile.status != "200") {
                         reject();

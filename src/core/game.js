@@ -378,5 +378,4 @@ class Game {
     }
 
     //#endregion
-
 }
