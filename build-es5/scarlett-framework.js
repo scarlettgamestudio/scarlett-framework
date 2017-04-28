@@ -9434,8 +9434,6 @@ var ContentLoaderSingleton = function () {
         key: "loadImage",
         value: function loadImage(path, alias) {
             return new Promise(function (resolve, reject) {
-                var _this = this;
-
                 path = this._enrichRelativePath(path);
 
                 // is the image on cache?
@@ -9443,25 +9441,23 @@ var ContentLoaderSingleton = function () {
                     // the image is already cached. let's use it!
                     resolve(this._imgLoaded[path]);
                 } else {
-                    (function () {
-                        // the image is not in cache, we must load it:
-                        var image = new Image();
-                        image.src = path;
-                        image.onload = function () {
-                            // cache the loaded image:
-                            this._imgLoaded[path] = image;
+                    // the image is not in cache, we must load it:
+                    var image = new Image();
+                    image.src = path;
+                    image.onload = function () {
+                        // cache the loaded image:
+                        this._imgLoaded[path] = image;
 
-                            if (alias) {
-                                this._imgAlias[alias] = path;
-                            }
+                        if (alias) {
+                            this._imgAlias[alias] = path;
+                        }
 
-                            resolve(image);
-                        }.bind(_this);
-                        image.onerror = function () {
-                            // TODO: log this
-                            reject();
-                        };
-                    })();
+                        resolve(image);
+                    }.bind(this);
+                    image.onerror = function () {
+                        // TODO: log this
+                        reject();
+                    };
                 }
             }.bind(this));
         }
@@ -9490,8 +9486,6 @@ var ContentLoaderSingleton = function () {
         key: "loadAudio",
         value: function loadAudio(path, alias) {
             return new Promise(function (resolve, reject) {
-                var _this2 = this;
-
                 path = this._enrichRelativePath(path);
 
                 // is the audio on cache?
@@ -9499,24 +9493,22 @@ var ContentLoaderSingleton = function () {
                     // the audio is already cached. let's use it!
                     resolve(this._audioLoaded[path]);
                 } else {
-                    (function () {
-                        var audio = new Audio();
-                        audio.src = path;
-                        audio.oncanplaythrough = function () {
-                            // cache the loaded image:
-                            this._audioLoaded[path] = audio;
+                    var audio = new Audio();
+                    audio.src = path;
+                    audio.oncanplaythrough = function () {
+                        // cache the loaded image:
+                        this._audioLoaded[path] = audio;
 
-                            if (alias) {
-                                this._audioAlias[alias] = path;
-                            }
+                        if (alias) {
+                            this._audioAlias[alias] = path;
+                        }
 
-                            resolve(audio);
-                        }.bind(_this2);
-                        audio.onerror = function () {
-                            // TODO: log this
-                            reject();
-                        };
-                    })();
+                        resolve(audio);
+                    }.bind(this);
+                    audio.onerror = function () {
+                        // TODO: log this
+                        reject();
+                    };
                 }
             }.bind(this));
         }
@@ -9545,8 +9537,6 @@ var ContentLoaderSingleton = function () {
         key: "loadFile",
         value: function loadFile(path, alias) {
             return new Promise(function (resolve, reject) {
-                var _this3 = this;
-
                 path = this._enrichRelativePath(path);
 
                 // is the image on cache?
@@ -9554,26 +9544,26 @@ var ContentLoaderSingleton = function () {
                     // the image is already cached. let's use it!
                     resolve(this._fileLoaded[path]);
                 } else {
-                    (function () {
-                        var rawFile = new XMLHttpRequest();
-                        //rawFile.overrideMimeType("application/json");
-                        rawFile.open("GET", path, true);
-                        rawFile.onreadystatechange = function () {
-                            if (rawFile.readyState === 4 && rawFile.status == "200") {
-                                // cache the loaded image:
-                                this._fileLoaded[path] = rawFile.responseText;
+                    var rawFile = new XMLHttpRequest();
+                    //rawFile.overrideMimeType("application/json");
+                    rawFile.open("GET", path, true);
+                    rawFile.onreadystatechange = function () {
+                        if (rawFile.readyState === 4 && rawFile.status == "200") {
+                            var fileContext = FileContext.fromXHR(rawFile);
 
-                                if (alias) {
-                                    this._fileAlias[alias] = path;
-                                }
+                            // cache the loaded image:
+                            this._fileLoaded[path] = fileContext;
 
-                                resolve(rawFile.responseText);
-                            } else if (rawFile.readyState === 4 && rawFile.status != "200") {
-                                reject();
+                            if (alias) {
+                                this._fileAlias[alias] = path;
                             }
-                        }.bind(_this3);
-                        rawFile.send(null);
-                    })();
+
+                            resolve(fileContext);
+                        } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                            reject();
+                        }
+                    }.bind(this);
+                    rawFile.send(null);
                 }
             }.bind(this));
         }
@@ -9684,13 +9674,13 @@ var EventManagerSingleton = function () {
             }
 
             for (var i = this._handlers[topic].length - 1; i >= 0; i--) {
-                if (this._handlers[topic][i].callback == callback) {
+                if (this._handlers[topic][i].callback === callback) {
                     this._handlers[topic].splice(i, 1);
                 }
             }
 
             // no more subscriptions for this topic?
-            if (this._handlers[topic].length == 0) {
+            if (this._handlers[topic].length === 0) {
                 // nope... let's remove the topic then:
                 delete this._handlers[topic];
             }
@@ -9805,8 +9795,55 @@ Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
     }
     return -1;
 };; /**
-    *  Logger Class
+    * File Context Class
     */
+
+var FileContext = function () {
+
+    /**
+     *
+     * @param headers
+     * @param content
+     */
+    function FileContext(headers, content) {
+        _classCallCheck(this, FileContext);
+
+        this.headers = headers;
+        this.content = content;
+    }
+
+    /**
+     * Creates a file context from a XHR object
+     * @param xhr
+     * @returns {FileContext}
+     */
+
+
+    _createClass(FileContext, null, [{
+        key: "fromXHR",
+        value: function fromXHR(xhr) {
+
+            var headers = {};
+
+            // iterate through every header line
+            xhr.getAllResponseHeaders().split('\r\n').forEach(function (headerLine) {
+                var index = headerLine.indexOf(':');
+                var key = headerLine.slice(0, index).toLowerCase().trim();
+                var value = headerLine.slice(index + 1).trim();
+
+                headers[key] = value;
+            });
+
+            return new FileContext(headers, xhr.responseText);
+        }
+    }]);
+
+    return FileContext;
+}();
+
+; /**
+  *  Logger Class
+  */
 
 var Logger = function () {
 
@@ -10100,7 +10137,7 @@ var Objectify = function () {
      */
 
 
-    _createClass(Objectify, [{
+    _createClass(Objectify, null, [{
         key: "array",
         value: function array(_array) {
             var result = [];
@@ -10126,7 +10163,7 @@ var Objectify = function () {
          * @param array
          */
 
-    }], [{
+    }, {
         key: "restoreArray",
         value: function restoreArray(array) {
             var result = [];
@@ -12664,27 +12701,40 @@ var ProjectFile = function () {
 
         this.name = params.name || "New Project";
         this.settings = params.settings || {};
-        this.editor = params.editor || {
-            lastScene: null,
-            layout: null
+        this.content = params.content || {
+            scripts: []
         };
-        this.content = params.content || {};
+
+        this.ensureContentStructure();
     }
 
     //#endregion
 
     //#region Methods
 
-    //#region Static Methods
+    //#region Methods
 
-    /**
-     *
-     * @param data
-     * @returns {ProjectFile}
-     */
+    _createClass(ProjectFile, [{
+        key: "ensureContentStructure",
+        value: function ensureContentStructure() {
+            this.content = this.content || {};
 
+            if (!this.content.hasOwnProperty("scripts")) {
+                this.content.scripts = [];
+            }
+        }
 
-    _createClass(ProjectFile, null, [{
+        //#endregion
+
+        //#region Static Methods
+
+        /**
+         *
+         * @param data
+         * @returns {ProjectFile}
+         */
+
+    }], [{
         key: "restore",
         value: function restore(data) {
             return new ProjectFile(data);
@@ -12756,6 +12806,55 @@ var TextureAtlas = function () {
     }]);
 
     return TextureAtlas;
+}();
+
+; /**
+  * Workspace File class
+  */
+
+var WorkspaceFile = function () {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param params
+     * @constructor
+     */
+    function WorkspaceFile(params) {
+        _classCallCheck(this, WorkspaceFile);
+
+        params = params || {};
+
+        this.activeLayout = params.activeLayout || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {WorkspaceFile}
+     */
+
+
+    _createClass(WorkspaceFile, null, [{
+        key: "restore",
+        value: function restore(data) {
+            return new WorkspaceFile(data);
+        }
+
+        //#endregion
+
+        //#endregion
+
+    }]);
+
+    return WorkspaceFile;
 }();
 
 ; /**
@@ -14951,6 +15050,39 @@ var PrimitiveRender = function () {
     return PrimitiveRender;
 }();
 
+; /**
+  * Base class for scripts
+  */
+
+var Script = function () {
+    function Script() {
+        _classCallCheck(this, Script);
+    }
+
+    _createClass(Script, [{
+        key: "update",
+
+
+        /**
+         * Anchor method for updating
+         * @param delta
+         */
+        value: function update(delta) {}
+
+        /**
+         * Anchor method for rendering
+         * @param delta
+         * @param spriteBatch
+         */
+
+    }, {
+        key: "render",
+        value: function render(delta, spriteBatch) {}
+    }]);
+
+    return Script;
+}();
+
 ; // unique key
 var _scriptsSingleton = Symbol('scriptsSingleton');
 
@@ -15256,19 +15388,19 @@ var Sprite = function (_GameObject) {
         params.name = params.name || "Sprite";
 
         // private properties:
-        var _this4 = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, params));
+        var _this = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, params));
 
-        _this4._source = "";
-        _this4._atlasRegion = "";
-        _this4._tint = params.tint || Color.fromRGB(255, 255, 255);
-        _this4._textureWidth = 0;
-        _this4._textureHeight = 0;
-        _this4._origin = new Vector2(0.5, 0.5);
-        _this4._wrapMode = WrapMode.CLAMP;
-        _this4._atlas = null;
+        _this._source = "";
+        _this._atlasRegion = "";
+        _this._tint = params.tint || Color.fromRGB(255, 255, 255);
+        _this._textureWidth = 0;
+        _this._textureHeight = 0;
+        _this._origin = new Vector2(0.5, 0.5);
+        _this._wrapMode = WrapMode.CLAMP;
+        _this._atlas = null;
 
-        _this4.setTexture(params.texture);
-        return _this4;
+        _this.setTexture(params.texture);
+        return _this;
     }
 
     //#endregion
@@ -15359,7 +15491,7 @@ var Sprite = function (_GameObject) {
 
                 if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
                     ContentLoader.loadFile(path).then(function (data) {
-                        var atlas = Objectify.restoreFromString(data);
+                        var atlas = Objectify.restoreFromString(data.content);
 
                         // is this a valid atlas?
                         if (atlas && isObjectAssigned(atlas.sourcePath)) {
@@ -15791,47 +15923,47 @@ var Text = function (_GameObject2) {
         params = params || {};
         params.name = params.name || "Text";
 
-        var _this5 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
+        var _this2 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
 
-        _this5._fontStyle = new FontStyle(params.font || {});
+        _this2._fontStyle = new FontStyle(params.font || {});
 
-        _this5._fontStyle.setFontSize(params.fontSize || 70.0);
-        _this5._fontStyle.setLetterSpacing(params.letterSpacing || 0);
+        _this2._fontStyle.setFontSize(params.fontSize || 70.0);
+        _this2._fontStyle.setLetterSpacing(params.letterSpacing || 0);
 
-        _this5._wordWrap = true;
-        _this5._characterWrap = true;
-        _this5._alignType = Text.AlignType.LEFT;
+        _this2._wordWrap = true;
+        _this2._characterWrap = true;
+        _this2._alignType = Text.AlignType.LEFT;
 
-        _this5._textureSrc = "";
-        _this5._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
-        _this5._text = params.text || "";
+        _this2._textureSrc = "";
+        _this2._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
+        _this2._text = params.text || "";
 
-        _this5._gamma = params.gamma || 2.0;
+        _this2._gamma = params.gamma || 2.0;
 
         // TODO: normalize inside the setters?
         // values between 0.1 and 0.5, where 0.1 is the highest stroke value... better to normalize? and clamp...
-        _this5._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
+        _this2._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
-        _this5._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
+        _this2._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
 
         // x and y values have to be between spread (defined in Hiero) / texture size
         // e.g., 4 / 512
         // need to normalize between those values
-        _this5._dropShadowOffset = new Vector2(0, 0);
+        _this2._dropShadowOffset = new Vector2(0, 0);
 
         // either 0 or 1
-        _this5._debug = 0;
+        _this2._debug = 0;
 
-        _this5._gl = GameManager.renderContext.getContext();
+        _this2._gl = GameManager.renderContext.getContext();
 
-        _this5._vertexBuffer = _this5._gl.createBuffer();
-        _this5._textureBuffer = _this5._gl.createBuffer();
-        _this5._vertexIndicesBuffer = _this5._gl.createBuffer();
-        _this5._textShader = new TextShader();
+        _this2._vertexBuffer = _this2._gl.createBuffer();
+        _this2._textureBuffer = _this2._gl.createBuffer();
+        _this2._vertexIndicesBuffer = _this2._gl.createBuffer();
+        _this2._textShader = new TextShader();
 
         // set text texture if defined
-        _this5.setTexture(params.texture);
-        return _this5;
+        _this2.setTexture(params.texture);
+        return _this2;
     }
 
     //#endregion

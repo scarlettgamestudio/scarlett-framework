@@ -19,6 +19,18 @@ class FileContext {
 	 * @returns {FileContext}
 	 */
 	static fromXHR(xhr) {
-		return new FileContext(xhr.headers, xhr.responseText);
+
+		let headers = {};
+
+		// iterate through every header line
+		xhr.getAllResponseHeaders().split('\r\n').forEach((headerLine) => {
+            let index = headerLine.indexOf(':');
+            let key = headerLine.slice(0, index).toLowerCase().trim();
+			let value = headerLine.slice(index + 1).trim();
+
+			headers[key] = value;
+		});
+
+		return new FileContext(headers, xhr.responseText);
 	}
 }
