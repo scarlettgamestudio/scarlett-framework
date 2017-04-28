@@ -125,7 +125,7 @@ class Sprite extends GameObject {
             if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
                 ContentLoader.loadFile(path).then(
                     (function (data) {
-                        let atlas = Objectify.restoreFromString(data);
+                        let atlas = Objectify.restoreFromString(data.content);
 
                         // is this a valid atlas?
                         if (atlas && isObjectAssigned(atlas.sourcePath)) {
