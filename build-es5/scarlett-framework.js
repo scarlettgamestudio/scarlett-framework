@@ -9451,25 +9451,23 @@ var ContentLoaderSingleton = function () {
                     // the image is already cached. let's use it!
                     resolve(_this._imgLoaded[path]);
                 } else {
-                    (function () {
-                        // the image is not in cache, we must load it:
-                        var image = new Image();
-                        image.src = path;
-                        image.onload = function () {
-                            // cache the loaded image:
-                            _this._imgLoaded[path] = image;
+                    // the image is not in cache, we must load it:
+                    var image = new Image();
+                    image.src = path;
+                    image.onload = function () {
+                        // cache the loaded image:
+                        _this._imgLoaded[path] = image;
 
-                            if (alias) {
-                                _this._imgAlias[alias] = path;
-                            }
+                        if (alias) {
+                            _this._imgAlias[alias] = path;
+                        }
 
-                            resolve(image);
-                        };
-                        image.onerror = function () {
-                            // TODO: log this
-                            reject();
-                        };
-                    })();
+                        resolve(image);
+                    };
+                    image.onerror = function () {
+                        // TODO: log this
+                        reject();
+                    };
                 }
             });
         }
@@ -9498,8 +9496,6 @@ var ContentLoaderSingleton = function () {
         key: "loadAudio",
         value: function loadAudio(path, alias) {
             return new Promise(function (resolve, reject) {
-                var _this2 = this;
-
                 path = this._enrichRelativePath(path);
 
                 // is the audio on cache?
@@ -9507,24 +9503,22 @@ var ContentLoaderSingleton = function () {
                     // the audio is already cached. let's use it!
                     resolve(this._audioLoaded[path]);
                 } else {
-                    (function () {
-                        var audio = new Audio();
-                        audio.src = path;
-                        audio.oncanplaythrough = function () {
-                            // cache the loaded image:
-                            this._audioLoaded[path] = audio;
+                    var audio = new Audio();
+                    audio.src = path;
+                    audio.oncanplaythrough = function () {
+                        // cache the loaded image:
+                        this._audioLoaded[path] = audio;
 
-                            if (alias) {
-                                this._audioAlias[alias] = path;
-                            }
+                        if (alias) {
+                            this._audioAlias[alias] = path;
+                        }
 
-                            resolve(audio);
-                        }.bind(_this2);
-                        audio.onerror = function () {
-                            // TODO: log this
-                            reject();
-                        };
-                    })();
+                        resolve(audio);
+                    }.bind(this);
+                    audio.onerror = function () {
+                        // TODO: log this
+                        reject();
+                    };
                 }
             }.bind(this));
         }
@@ -9553,8 +9547,6 @@ var ContentLoaderSingleton = function () {
         key: "loadFile",
         value: function loadFile(path, alias) {
             return new Promise(function (resolve, reject) {
-                var _this3 = this;
-
                 path = this._enrichRelativePath(path);
 
                 // is the image on cache?
@@ -9562,26 +9554,24 @@ var ContentLoaderSingleton = function () {
                     // the image is already cached. let's use it!
                     resolve(this._fileLoaded[path]);
                 } else {
-                    (function () {
-                        var rawFile = new XMLHttpRequest();
-                        //rawFile.overrideMimeType("application/json");
-                        rawFile.open("GET", path, true);
-                        rawFile.onreadystatechange = function () {
-                            if (rawFile.readyState === 4 && rawFile.status == "200") {
-                                // cache the loaded image:
-                                this._fileLoaded[path] = rawFile.responseText;
+                    var rawFile = new XMLHttpRequest();
+                    //rawFile.overrideMimeType("application/json");
+                    rawFile.open("GET", path, true);
+                    rawFile.onreadystatechange = function () {
+                        if (rawFile.readyState === 4 && rawFile.status == "200") {
+                            // cache the loaded image:
+                            this._fileLoaded[path] = rawFile.responseText;
 
-                                if (alias) {
-                                    this._fileAlias[alias] = path;
-                                }
-
-                                resolve(rawFile.responseText);
-                            } else if (rawFile.readyState === 4 && rawFile.status != "200") {
-                                reject();
+                            if (alias) {
+                                this._fileAlias[alias] = path;
                             }
-                        }.bind(_this3);
-                        rawFile.send(null);
-                    })();
+
+                            resolve(rawFile.responseText);
+                        } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                            reject();
+                        }
+                    }.bind(this);
+                    rawFile.send(null);
                 }
             }.bind(this));
         }
@@ -9692,13 +9682,13 @@ var EventManagerSingleton = function () {
             }
 
             for (var i = this._handlers[topic].length - 1; i >= 0; i--) {
-                if (this._handlers[topic][i].callback == callback) {
+                if (this._handlers[topic][i].callback === callback) {
                     this._handlers[topic].splice(i, 1);
                 }
             }
 
             // no more subscriptions for this topic?
-            if (this._handlers[topic].length == 0) {
+            if (this._handlers[topic].length === 0) {
                 // nope... let's remove the topic then:
                 delete this._handlers[topic];
             }
@@ -12701,27 +12691,40 @@ var ProjectFile = function () {
 
         this.name = params.name || "New Project";
         this.settings = params.settings || {};
-        this.editor = params.editor || {
-            lastScene: null,
-            layout: null
+        this.content = params.content || {
+            scripts: []
         };
-        this.content = params.content || {};
+
+        this.ensureContentStructure();
     }
 
     //#endregion
 
     //#region Methods
 
-    //#region Static Methods
+    //#region Methods
 
-    /**
-     *
-     * @param data
-     * @returns {ProjectFile}
-     */
+    _createClass(ProjectFile, [{
+        key: "ensureContentStructure",
+        value: function ensureContentStructure() {
+            this.content = this.content || {};
 
+            if (!this.content.hasOwnProperty("scripts")) {
+                this.content.scripts = [];
+            }
+        }
 
-    _createClass(ProjectFile, null, [{
+        //#endregion
+
+        //#region Static Methods
+
+        /**
+         *
+         * @param data
+         * @returns {ProjectFile}
+         */
+
+    }], [{
         key: "restore",
         value: function restore(data) {
             return new ProjectFile(data);
@@ -12793,6 +12796,55 @@ var TextureAtlas = function () {
     }]);
 
     return TextureAtlas;
+}();
+
+; /**
+  * Workspace File class
+  */
+
+var WorkspaceFile = function () {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param params
+     * @constructor
+     */
+    function WorkspaceFile(params) {
+        _classCallCheck(this, WorkspaceFile);
+
+        params = params || {};
+
+        this.activeLayout = params.activeLayout || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {WorkspaceFile}
+     */
+
+
+    _createClass(WorkspaceFile, null, [{
+        key: "restore",
+        value: function restore(data) {
+            return new WorkspaceFile(data);
+        }
+
+        //#endregion
+
+        //#endregion
+
+    }]);
+
+    return WorkspaceFile;
 }();
 
 ; /**
@@ -13419,6 +13471,8 @@ var Color = function () {
 ; /**
   * Created by Luis on 08/02/2017.
   */
+
+AttributeDictionary.addRule("fontStyle", "_fontDescription", { displayName: "Font Description Source", editor: "filepath" });
 
 /**
  * FontStyle Class
@@ -15014,6 +15068,39 @@ var PrimitiveRender = function () {
     return PrimitiveRender;
 }();
 
+; /**
+  * Base class for scripts
+  */
+
+var Script = function () {
+    function Script() {
+        _classCallCheck(this, Script);
+    }
+
+    _createClass(Script, [{
+        key: "update",
+
+
+        /**
+         * Anchor method for updating
+         * @param delta
+         */
+        value: function update(delta) {}
+
+        /**
+         * Anchor method for rendering
+         * @param delta
+         * @param spriteBatch
+         */
+
+    }, {
+        key: "render",
+        value: function render(delta, spriteBatch) {}
+    }]);
+
+    return Script;
+}();
+
 ; // unique key
 var _scriptsSingleton = Symbol('scriptsSingleton');
 
@@ -15319,19 +15406,19 @@ var Sprite = function (_GameObject) {
         params.name = params.name || "Sprite";
 
         // private properties:
-        var _this4 = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, params));
+        var _this2 = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, params));
 
-        _this4._source = "";
-        _this4._atlasRegion = "";
-        _this4._tint = params.tint || Color.fromRGB(255, 255, 255);
-        _this4._textureWidth = 0;
-        _this4._textureHeight = 0;
-        _this4._origin = new Vector2(0.5, 0.5);
-        _this4._wrapMode = WrapMode.CLAMP;
-        _this4._atlas = null;
+        _this2._source = "";
+        _this2._atlasRegion = "";
+        _this2._tint = params.tint || Color.fromRGB(255, 255, 255);
+        _this2._textureWidth = 0;
+        _this2._textureHeight = 0;
+        _this2._origin = new Vector2(0.5, 0.5);
+        _this2._wrapMode = WrapMode.CLAMP;
+        _this2._atlas = null;
 
-        _this4.setTexture(params.texture);
-        return _this4;
+        _this2.setTexture(params.texture);
+        return _this2;
     }
 
     //#endregion
@@ -15846,10 +15933,13 @@ var Stroke = function () {
   */
 
 AttributeDictionary.inherit("text", "gameobject");
-AttributeDictionary.addRule("text", "_textureSrc", { displayName: "Image Src", editor: "filepath" });
+AttributeDictionary.addRule("text", "_textureSrc", { displayName: "Font Image Src", editor: "filepath" });
 AttributeDictionary.addRule("text", "_color", { displayName: "Color" });
 AttributeDictionary.addRule("text", "_text", { displayName: "Text" });
 AttributeDictionary.addRule("text", "_texture", { visible: false });
+AttributeDictionary.addRule("text", "_fontStyle", { ownContainer: true });
+AttributeDictionary.addRule("text", "_stroke", { ownContainer: true });
+AttributeDictionary.addRule("text", "_dropShadow", { ownContainer: true });
 
 // TODO: remove this... use game object boundary?
 var maxWidth = 500;
@@ -15887,51 +15977,53 @@ var Text = function (_GameObject2) {
         params = params || {};
         params.name = params.name || "Text";
 
-        var _this5 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
+        var _this3 = _possibleConstructorReturn(this, (Text.__proto__ || Object.getPrototypeOf(Text)).call(this, params));
 
-        _this5._fontStyle = new FontStyle(params.font || {});
-        _this5._fontStyle.setFontSize(params.fontSize || 70.0);
-        _this5._fontStyle.setLetterSpacing(params.letterSpacing || 0);
-        _this5._fontStyle.setSpread(params.spread || 4);
+        _this3._fontStyle = new FontStyle(params.font || {});
+        _this3._fontStyle.setFontSize(params.fontSize || 70.0);
+        _this3._fontStyle.setLetterSpacing(params.letterSpacing || 0);
+        _this3._fontStyle.setSpread(params.spread || 4);
 
-        _this5._wordWrap = params.wordWrap || true;
-        _this5._characterWrap = params.characterWrap || true;
-        _this5._alignType = params.alignType || Text.AlignType.LEFT;
+        _this3._wordWrap = params.wordWrap || true;
+        _this3._characterWrap = params.characterWrap || true;
+        _this3._alignType = params.alignType || Text.AlignType.LEFT;
 
-        _this5._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
-        _this5._text = params.text || "";
+        _this3._color = params.color || Color.fromRGBA(164, 56, 32, 1.0);
+        _this3._text = params.text || "";
 
-        _this5._gamma = params.gamma || 2.0;
+        _this3._gamma = params.gamma || 2.0;
 
-        _this5._strokeEnabled = 1;
-        _this5._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
+        _this3._strokeEnabled = 1;
+        _this3._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
-        _this5._dropShadowEnabled = 1;
-        _this5._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
+        _this3._dropShadowEnabled = 1;
+        _this3._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
         // raw max offset
-        _this5._rawMaxDropShadowOffset = new Vector2(10, 10);
+        _this3._rawMaxDropShadowOffset = new Vector2(10, 10);
         // raw offset from -raw offset to +raw offset
-        _this5._dropShadowOffset = new Vector2(7, 7);
+        _this3._dropShadowOffset = new Vector2(7, 7);
 
         // either 0 or 1
-        _this5._debug = 0;
+        _this3._debug = 0;
 
-        _this5._gl = GameManager.renderContext.getContext();
+        _this3._gl = GameManager.renderContext.getContext();
 
-        _this5._setTextureParameters();
+        if (params.texture) {
+            _this3._setTextureParameters();
+        }
 
-        _this5._vertexBuffer = null;
-        _this5._textureBuffer = null;
-        _this5._vertexIndicesBuffer = null;
-        _this5._textShader = null;
+        _this3._vertexBuffer = null;
+        _this3._textureBuffer = null;
+        _this3._vertexIndicesBuffer = null;
+        _this3._textShader = null;
 
-        _this5._textureSrc = "";
-        _this5._texture = null;
-        _this5._textureWidth = 0;
-        _this5._textureHeight = 0;
+        _this3._textureSrc = "";
+        _this3._texture = null;
+        _this3._textureWidth = 0;
+        _this3._textureHeight = 0;
         // set text texture if defined
-        _this5.setTexture(params.texture, "");
-        return _this5;
+        _this3.setTexture(params.texture, "");
+        return _this3;
     }
 
     //#endregion
@@ -16088,14 +16180,14 @@ var Text = function (_GameObject2) {
     }, {
         key: "setTextureSrc",
         value: function setTextureSrc(path) {
-            var _this6 = this;
+            var _this4 = this;
 
             Texture2D.fromPath(path).then(function (texture) {
                 // set WebGL texture parameters
-                _this6._setTextureParameters();
-                _this6.setTexture(texture);
+                _this4._setTextureParameters();
+                _this4.setTexture(texture);
             }, function (error) {
-                _this6.setTexture(null, null);
+                _this4.setTexture(null, null);
             });
         }
     }, {

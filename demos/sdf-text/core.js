@@ -43,6 +43,16 @@ gameScene.initialize = function () {
     backgroundTex = new Texture2D(ContentLoader.getImage("background"));
     textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
 
+
+    var testLoad = null;
+
+    ContentLoader.loadFile('assets/fnt/open-sans-sdf.fnt', 'openSansFont').then((file) => {
+        testLoad = file;
+    });
+
+
+    return;
+
     var load = require('load-bmfont');
 
     load('assets/fnt/open-sans-sdf.fnt', function(err, font) {
