@@ -9559,14 +9559,16 @@ var ContentLoaderSingleton = function () {
                     rawFile.open("GET", path, true);
                     rawFile.onreadystatechange = function () {
                         if (rawFile.readyState === 4 && rawFile.status == "200") {
+                            var fileContext = FileContext.fromXHR(rawFile);
+
                             // cache the loaded image:
-                            this._fileLoaded[path] = rawFile.responseText;
+                            this._fileLoaded[path] = fileContext;
 
                             if (alias) {
                                 this._fileAlias[alias] = path;
                             }
 
-                            resolve(rawFile.responseText);
+                            resolve(fileContext);
                         } else if (rawFile.readyState === 4 && rawFile.status != "200") {
                             reject();
                         }
@@ -9803,8 +9805,61 @@ Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
     }
     return -1;
 };; /**
-    *  Logger Class
+    * File Context Class
     */
+
+var FileContext = function () {
+
+    /**
+     *
+     * @param {*} headers
+     * @param {String} content
+     */
+    function FileContext(headers, content) {
+        _classCallCheck(this, FileContext);
+
+        this.headers = headers;
+        this.content = content;
+    }
+
+    /**
+     * Creates a file context from a XHR object
+     * @param {XMLHttpRequest} xhr
+     * @returns {FileContext}
+     */
+
+
+    _createClass(FileContext, null, [{
+        key: "fromXHR",
+        value: function fromXHR(xhr) {
+
+            var headers = {};
+
+            // iterate through every header line
+            xhr.getAllResponseHeaders().split('\r\n').forEach(function (headerLine) {
+                var index = headerLine.indexOf(':');
+
+                // if ':' character does not exist, no need to go further on this iteration
+                if (index === -1) {
+                    return;
+                }
+
+                var key = headerLine.slice(0, index).toLowerCase().trim();
+                var value = headerLine.slice(index + 1).trim();
+
+                headers[key] = value;
+            });
+
+            return new FileContext(headers, xhr.responseText);
+        }
+    }]);
+
+    return FileContext;
+}();
+
+; /**
+  *  Logger Class
+  */
 
 var Logger = function () {
 
@@ -10072,6 +10127,217 @@ function isEqual(a, b) {
 
     return a === b;
 }
+; /**
+  * Created by luisf on 29/04/2017.
+  */
+
+/**
+ * BM Font Parser Utility Class
+ * Based on load-bmfont package under MIT License:
+ * see http://github.com/Jam3/load-bmfont/blob/master/LICENSE.md for details.
+ */
+
+var BMFontParser = function () {
+    function BMFontParser() {
+        _classCallCheck(this, BMFontParser);
+    }
+
+    _createClass(BMFontParser, null, [{
+        key: "parse",
+
+
+        /**
+         *
+         * @param {FileContext} fileContext
+         */
+        value: function parse(fileContext) {
+            var result = void 0;
+            var contentType = fileContext.headers['content-type'];
+
+            // no need to go further if content type isn't a string
+            if (!isString(contentType)) {
+                // TODO: throw new error
+                return null;
+            }
+
+            var content = fileContext.content;
+
+            if (!isString(content) || content.trim().length === 0) {
+                return null;
+            }
+
+            if (/json/.test(contentType) || content.charAt(0) === '{') {
+                result = JSON.parse(content);
+            } else if (/xml/.test(contentType) || content.charAt(0) === '<') {
+                // TODO: parse xml bm font
+
+            } else {
+                result = BMFontParserAscii.parseASCII(content);
+            }
+
+            return result;
+        }
+    }]);
+
+    return BMFontParser;
+}();
+
+; /**
+  * Created by luisf on 29/04/2017.
+  */
+
+/**
+ * Based on parse-bmfont-ascii package, under MIT License:
+ * see http://github.com/mattdesl/parse-bmfont-ascii/blob/master/LICENSE.md for details.
+ */
+
+var BMFontParserAscii = function () {
+    function BMFontParserAscii() {
+        _classCallCheck(this, BMFontParserAscii);
+    }
+
+    _createClass(BMFontParserAscii, null, [{
+        key: "parseASCII",
+
+
+        /**
+         *
+         * @param {String} data
+         */
+        value: function parseASCII(data) {
+            if (!data || !isString(data)) {
+                throw new Error('No data provided');
+            }
+
+            data = data.trim();
+
+            var output = {
+                pages: [],
+                chars: [],
+                kernings: []
+            };
+
+            var lines = data.split(/\r\n?|\n/g);
+
+            if (lines.length === 0) {
+                throw new Error('No data in BMFont file');
+            }
+
+            for (var i = 0; i < lines.length; i++) {
+                var lineData = BMFontParserAscii._splitLine(lines[i], i);
+
+                //skip empty lines
+                if (!lineData) {
+                    continue;
+                }
+
+                if (lineData.key === 'page') {
+                    if (typeof lineData.data.id !== 'number') {
+                        throw new Error('Malformed file at line ' + i + ' -- needs page id=N');
+                    }
+
+                    if (typeof lineData.data.file !== 'string') {
+                        throw new Error('Malformed file at line ' + i + ' -- needs page file="path"');
+                    }
+
+                    output.pages[lineData.data.id] = lineData.data.file;
+                } else if (lineData.key === 'chars' || lineData.key === 'kernings') {
+                    //... do nothing for these two ...
+
+                } else if (lineData.key === 'char') {
+                    output.chars.push(lineData.data);
+                } else if (lineData.key === 'kerning') {
+                    output.kernings.push(lineData.data);
+                } else {
+                    output[lineData.key] = lineData.data;
+                }
+            }
+
+            return output;
+        }
+    }, {
+        key: "_splitLine",
+        value: function _splitLine(line, idx) {
+            line = line.replace(/\t+/g, ' ').trim();
+            if (!line) {
+                return null;
+            }
+
+            var space = line.indexOf(' ');
+            if (space === -1) {
+                throw new Error("No named row at line " + idx);
+            }
+
+            var key = line.substring(0, space);
+
+            line = line.substring(space + 1);
+            //clear "letter" field as it is non-standard and
+            //requires additional complexity to parse " / = symbols
+            line = line.replace(/letter=[\'\"]\S+[\'\"]/gi, '');
+            line = line.split("=");
+            line = line.map(function (str) {
+                return str.trim().match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g);
+            });
+
+            var data = [];
+            for (var i = 0; i < line.length; i++) {
+                var dt = line[i];
+                if (i === 0) {
+                    data.push({
+                        key: dt[0],
+                        data: ""
+                    });
+                } else if (i === line.length - 1) {
+                    data[data.length - 1].data = BMFontParserAscii._parseData(dt[0]);
+                } else {
+                    data[data.length - 1].data = BMFontParserAscii._parseData(dt[0]);
+                    data.push({
+                        key: dt[1],
+                        data: ""
+                    });
+                }
+            }
+
+            var out = {
+                key: key,
+                data: {}
+            };
+
+            data.forEach(function (v) {
+                out.data[v.key] = v.data;
+            });
+
+            return out;
+        }
+    }, {
+        key: "_parseData",
+        value: function _parseData(data) {
+            if (!data || data.length === 0) {
+                return "";
+            }
+
+            if (data.indexOf('"') === 0 || data.indexOf("'") === 0) {
+                return data.substring(1, data.length - 1);
+            }
+
+            if (data.indexOf(',') !== -1) {
+                return BMFontParserAscii._parseIntList(data);
+            }
+
+            return parseInt(data, 10);
+        }
+    }, {
+        key: "_parseIntList",
+        value: function _parseIntList(data) {
+            return data.split(',').map(function (val) {
+                return parseInt(val, 10);
+            });
+        }
+    }]);
+
+    return BMFontParserAscii;
+}();
+
 ; /**
   * Objectify utility class
   */
@@ -15509,7 +15775,7 @@ var Sprite = function (_GameObject) {
 
                 if (ext == SC.CONTENT_EXTENSIONS.ATLAS) {
                     ContentLoader.loadFile(path).then(function (data) {
-                        var atlas = Objectify.restoreFromString(data);
+                        var atlas = Objectify.restoreFromString(data.content);
 
                         // is this a valid atlas?
                         if (atlas && isObjectAssigned(atlas.sourcePath)) {

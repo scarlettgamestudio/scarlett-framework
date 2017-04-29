@@ -1955,10 +1955,8 @@ gameScene.initialize = function () {
     textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
 
 
-    var testLoad = null;
-
-    ContentLoader.loadFile('assets/fnt/open-sans-sdf.fnt', 'openSansFont').then((file) => {
-        testLoad = file;
+    ContentLoader.loadFile('assets/fnt/open-sans-sdf.fnt', 'openSansFont').then((fileContext) => {
+        var parsedBMFont = BMFontParser.parse(fileContext);
     });
 
 
