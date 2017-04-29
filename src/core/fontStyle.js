@@ -2,7 +2,8 @@
  * Created by Luis on 08/02/2017.
  */
 
-AttributeDictionary.addRule("fontStyle", "_fontDescription", {displayName: "Font Description Source", editor: "filepath"});
+AttributeDictionary.addRule("fontStyle", "_fontDescriptionFilePath", {displayName: "Font Description Source", editor: "filepath"});
+AttributeDictionary.addRule("fontStyle", "_fontDescription", {visible: false});
 
 /**
  * FontStyle Class
@@ -15,7 +16,8 @@ class FontStyle {
      * @param fontDescription
      * @constructor
      */
-    constructor(fontDescription) {
+    constructor(fontDescription, fontDescriptionFilePath) {
+        this._fontDescriptionFilePath = fontDescriptionFilePath;
         this._fontDescription = fontDescription;
         this._fontSize = 70;
         this._letterSpacing = 0;
@@ -29,7 +31,7 @@ class FontStyle {
     //#region Static Methods
 
     static restore(data) {
-        let fontStyle = new FontStyle(data.fontDescription);
+        let fontStyle = new FontStyle(data.fontDescription, data.fontDescriptionFilePath);
 
         fontStyle.setSpread(data.spread);
         fontStyle.setFontSize(data.fontSize);
@@ -56,6 +58,22 @@ class FontStyle {
         // TODO: make sure fontInfo follows bmfont format!
 
         return this._fontDescription = fontInfo;
+    }
+
+    getFontDescriptionFilePath() {
+        return this._fontDescriptionFilePath;
+    }
+
+    setFontDescriptionFilePath(filepath) {
+
+        ContentLoader.loadFile(filepath, 'openSansFont').then((fileContext) => {
+            let parsedBMFont = BMFontParser.parse(fileContext);
+
+            this.setFontDescription(parsedBMFont);
+
+        });
+
+        this._fontDescriptionFilePath = filepath;
     }
 
     getFontSize() {
@@ -182,6 +200,7 @@ class FontStyle {
 
     objectify() {
         return {
+            fontDescriptionFilePath: this.getFontDescriptionFilePath(),
             fontDescription: this.getFontDescription(),
             fontSize: this.getFontSize(),
             letterSpacing: this.getLetterSpacing(),

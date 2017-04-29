@@ -39,7 +39,7 @@ class Text extends GameObject {
 
         super(params);
 
-        this._fontStyle = new FontStyle(params.font || {});
+        this._fontStyle = new FontStyle(params.font || {}, params.fontFilePath || "");
         this._fontStyle.setFontSize(params.fontSize || 70.0);
         this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
         this._fontStyle.setSpread(params.spread || 4);

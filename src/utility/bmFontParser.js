@@ -20,7 +20,7 @@ class BMFontParser {
         // no need to go further if content type isn't a string
         if (!isString(contentType)) {
             // TODO: throw new error
-            return null;
+            //return null;
 
         }
 
