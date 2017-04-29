@@ -25,6 +25,12 @@ class FileContext {
 		// iterate through every header line
 		xhr.getAllResponseHeaders().split('\r\n').forEach((headerLine) => {
             let index = headerLine.indexOf(':');
+
+            // if ':' character does not exist, no need to go further on this iteration
+            if (index === -1){
+                return;
+            }
+
             let key = headerLine.slice(0, index).toLowerCase().trim();
 			let value = headerLine.slice(index + 1).trim();
 

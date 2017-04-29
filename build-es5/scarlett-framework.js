@@ -9828,6 +9828,12 @@ var FileContext = function () {
             // iterate through every header line
             xhr.getAllResponseHeaders().split('\r\n').forEach(function (headerLine) {
                 var index = headerLine.indexOf(':');
+
+                // if ':' character does not exist, no need to go further on this iteration
+                if (index === -1) {
+                    return;
+                }
+
                 var key = headerLine.slice(0, index).toLowerCase().trim();
                 var value = headerLine.slice(index + 1).trim();
 
