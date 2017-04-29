@@ -46,56 +46,8 @@ gameScene.initialize = function () {
 
     ContentLoader.loadFile('assets/fnt/open-sans-sdf.fnt', 'openSansFont').then((fileContext) => {
         var parsedBMFont = BMFontParser.parse(fileContext);
-    });
 
-
-    return;
-
-    var load = require('load-bmfont');
-
-    load('assets/fnt/open-sans-sdf.fnt', function(err, font) {
-        if (err)
-            throw err;
-
-        //The BMFont spec in JSON form
-        /*console.log(font.common.lineHeight);
-        console.log(font.info);
-        console.log(font.chars);
-        console.log(font.kernings);*/
-
-        text = new Text({font: font, texture: textTexture, text: "Lorem ipsum\r\ndolore"});
-        text.transform.setPosition(-300, -180);
-        text.setColor(Color.fromRGBA(232,78,64, 1.0));
-
-        var data = text.objectify();
-
-        console.log(data);
-
-        text.unload();
-
-        newText = Text.restore(data);
-
-        // set initial text area value
-        document.getElementById('str').value = newText.getText();
-        document.getElementById('stroke').value = newText.getStroke().getSize();
-        document.getElementById('dropShadow').value = newText.getDropShadow().getSize();
-        document.getElementById('dropShadowOffsetX').value = newText.getDropShadowOffset().x;
-        document.getElementById('dropShadowOffsetY').value = newText.getDropShadowOffset().y;
-
-        document.getElementById('scale').value = newText.getFontSize();
-        document.getElementById('gamma').value = newText.getGamma();
-
-        document.getElementById('letterSpacing').value = newText.getLetterSpacing();
-
-        document.getElementById('wordwrap').checked = newText.getWordWrap();
-        document.getElementById('charwrap').checked = newText.getCharacterWrap();
-        document.getElementById('debug').checked = newText.getDebug();
-        document.getElementById('dropShadowEnabled').checked = newText.getDropShadowEnabled();
-        document.getElementById('outlineEnabled').checked = newText.getStrokeEnabled();
-
-        document.getElementById('alignLeft').checked = newText.getAlign() == Text.AlignType.LEFT;
-        document.getElementById('alignCenter').checked = newText.getAlign() == Text.AlignType.CENTER;
-        document.getElementById('alignRight').checked = newText.getAlign() == Text.AlignType.RIGHT;
+        initializeTextDependencies(parsedBMFont, textTexture);
 
     });
 
@@ -112,6 +64,49 @@ gameScene.initialize = function () {
     sc.assignScript("playerInput", player);
     //gameScene.addGameObject(player);
     //gameScene.addGameObject(text);
+};
+
+function initializeTextDependencies(fontDescription, textTexture){
+
+    //The BMFont spec in JSON form
+    /*console.log(fontDescription.common.lineHeight);
+     console.log(fontDescription.info);
+     console.log(fontDescription.chars);
+     console.log(fontDescription.kernings);*/
+
+    text = new Text({font: fontDescription, texture: textTexture, text: "Lorem ipsum\r\ndolore"});
+    text.transform.setPosition(-300, -180);
+    text.setColor(Color.fromRGBA(232,78,64, 1.0));
+
+    var data = text.objectify();
+
+    console.log(data);
+
+    text.unload();
+
+    newText = Text.restore(data);
+
+    // set initial text area value
+    document.getElementById('str').value = newText.getText();
+    document.getElementById('stroke').value = newText.getStroke().getSize();
+    document.getElementById('dropShadow').value = newText.getDropShadow().getSize();
+    document.getElementById('dropShadowOffsetX').value = newText.getDropShadowOffset().x;
+    document.getElementById('dropShadowOffsetY').value = newText.getDropShadowOffset().y;
+
+    document.getElementById('scale').value = newText.getFontSize();
+    document.getElementById('gamma').value = newText.getGamma();
+
+    document.getElementById('letterSpacing').value = newText.getLetterSpacing();
+
+    document.getElementById('wordwrap').checked = newText.getWordWrap();
+    document.getElementById('charwrap').checked = newText.getCharacterWrap();
+    document.getElementById('debug').checked = newText.getDebug();
+    document.getElementById('dropShadowEnabled').checked = newText.getDropShadowEnabled();
+    document.getElementById('outlineEnabled').checked = newText.getStrokeEnabled();
+
+    document.getElementById('alignLeft').checked = newText.getAlign() == Text.AlignType.LEFT;
+    document.getElementById('alignCenter').checked = newText.getAlign() == Text.AlignType.CENTER;
+    document.getElementById('alignRight').checked = newText.getAlign() == Text.AlignType.RIGHT;
 };
 
 document.getElementById('str').oninput = updateValues;
