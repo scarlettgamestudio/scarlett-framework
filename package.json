@@ -1,5 +1,5 @@
 {
-  "name": "scarlett-framework",
+  "name": "@scarlett-game-studio/scarlett-framework",
   "version": "0.0.1",
   "dependencies": {
     "matter-js": "^0.10.0"
@@ -18,5 +18,20 @@
     "grunt-contrib-uglify": "~1.0.1",
     "grunt-contrib-watch": "~1.0.0",
     "sort-dependencies": "~0.1.1"
-  }
+  },
+  "description": "Scarlett WebGL Graphics Framework repository",
+  "main": "Gruntfile.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scarlettgamestudio/scarlett-framework.git"
+  },
+  "author": "Apidcloud <luisapidcloud@hotmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/scarlettgamestudio/scarlett-framework/issues"
+  },
+  "homepage": "https://github.com/scarlettgamestudio/scarlett-framework#readme"
 }
