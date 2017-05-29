@@ -1,6 +1,8 @@
 {
   "name": "@scarlett-game-studio/scarlett-framework",
   "version": "0.0.1",
+  "description": "Scarlett WebGL Graphics Framework",
+  "main": "src/index.js",
   "dependencies": {
     "matter-js": "^0.10.0"
   },
@@ -24,16 +26,11 @@
     "webpack-dev-server": "2.4.5",
     "webpack-notifier": "1.5.0"
   },
-  "description": "Scarlett WebGL Graphics Framework repository",
-  "main": "Gruntfile.js",
-  "directories": {
-    "test": "test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scarlettgamestudio/scarlett-framework.git"
   },
-  "author": "Apidcloud <luisapidcloud@hotmail.com>",
+  "author": "João Alves <joao.cpp.sca@gmail.com> and Luís Fernandes aka Apidcloud <luisapidcloud@hotmail.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/scarlettgamestudio/scarlett-framework/issues"
