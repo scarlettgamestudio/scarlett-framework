@@ -14,7 +14,7 @@
     "build:all": "rimraf build && npm run build && npm run editor-build && npm run deploy",
     "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
     "watch": "npm run build -- -w",
-    "start": "py -3 -m http.server 8080"
+    "start": "http-server -a localhost -p 8080 -c-1"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",
@@ -29,6 +29,7 @@
     "grunt-contrib-jshint": "~1.0.0",
     "grunt-contrib-uglify": "~1.0.1",
     "grunt-contrib-watch": "~1.0.0",
+    "http-server": "0.10.0",
     "rimraf": "2.6.1",
     "sort-dependencies": "~0.1.1",
     "webpack": "2.6.1",
