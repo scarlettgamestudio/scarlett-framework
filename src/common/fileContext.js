@@ -1,7 +1,7 @@
 /**
  * File Context Class
  */
-class FileContext {
+export default class FileContext {
 
     /**
      *

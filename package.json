@@ -1,5 +1,6 @@
 {
   "name": "@scarlett-game-studio/scarlett-framework",
+  "shortName": "scarlett-framework",
   "version": "0.0.1",
   "description": "Scarlett WebGL Graphics Framework",
   "main": "src/index.js",
@@ -7,6 +8,7 @@
     "matter-js": "^0.10.0"
   },
   "scripts": {
+    "build": "webpack -d --config config/webpack.config.js",
     "start": "py -3 -m http.server 8080"
   },
   "devDependencies": {

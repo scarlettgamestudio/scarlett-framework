@@ -33,4 +33,4 @@ class Logger {
 }
 
 // General Debug Logger
-let debug = new Logger("Debug");
+export let Debug = new Logger("Debug");

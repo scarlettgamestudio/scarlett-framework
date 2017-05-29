@@ -1,5 +1,5 @@
 // alias for scarlett constants:
-let SC = {
+export const CONSTANTS = {
 	WEBGL: "webgl",
 	EXECUTION_PHASES: {
 		WAITING: 0,
@@ -19,4 +19,4 @@ let SC = {
 };
 
 // function "quickies" holder
-let sc = {};
+//let sc = {};

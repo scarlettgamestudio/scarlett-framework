@@ -67,4 +67,4 @@ class SetterDictionarySingleton {
  * Setter Dictionary alias to Setter Dictionary Singleton instance
  * Attribute dictionary for property definitions
  */
-let SetterDictionary = SetterDictionarySingleton.instance;
+export let SetterDictionary = SetterDictionarySingleton.instance;

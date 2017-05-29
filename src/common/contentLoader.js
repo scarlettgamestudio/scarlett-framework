@@ -319,4 +319,4 @@ class ContentLoaderSingleton {
 /**
  * Content Loader alias to Content Loader Singleton instance
  */
-let ContentLoader = ContentLoaderSingleton.instance;
+export let ContentLoader = ContentLoaderSingleton.instance;

@@ -1,7 +1,7 @@
 /**
  * CallbackResponse Class
  */
-class CallbackResponse {
+export default class CallbackResponse {
 
     //#region Constructors
 

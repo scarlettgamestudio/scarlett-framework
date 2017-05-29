@@ -114,4 +114,4 @@ class EventManagerSingleton {
 /**
  * Event Manager alias to Event Manager Singleton instance
  */
-let EventManager = EventManagerSingleton.instance;
+export let EventManager = EventManagerSingleton.instance;

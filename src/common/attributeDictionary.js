@@ -109,4 +109,4 @@ class AttributeDictionarySingleton {
  * Attribute Dictionary alias to Attribute Dictionary Singleton instance
  * Attribute dictionary for property definitions
  */
-let AttributeDictionary = AttributeDictionarySingleton.instance;
+export let AttributeDictionary = AttributeDictionarySingleton.instance;
