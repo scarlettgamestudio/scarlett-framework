@@ -58,14 +58,22 @@ let config = {
         // Look for modules in .ts(x) files first, then .js(x)
         extensions: ['.js', '.jsx'],
         // Add 'src' to our modules, as all our app code will live in there, so Webpack should look in there for modules
-        modules: ['src', 'node_modules']
+        modules: ['./src', 'node_modules']
     },
+    
     module: {
-        loaders: [
-            // .ts(x) files should first pass through the Typescript loader, and then through babel
+        rules: [
             {
                 test: /\.jsx?$/,
-                loaders: loadersSetup
+                // Skip any files outside of `src` directory
+                include: /src/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [['es2015', { modules: false }], 'stage-3'],
+                        plugins: ['transform-runtime']
+                    }
+                }
             }
         ]
     },

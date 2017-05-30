@@ -3,6 +3,23 @@
  * This javascript file will include global utility functions that can be called from any context
  */
 
+export {
+    isObjectAssigned, 
+    isString, 
+    isNumber, 
+    isGame, 
+    isGameScene, 
+    isTexture2D, 
+    isFunction, 
+    isSprite,
+    inheritsFrom,
+    capitalize,
+    generateUID,
+    splitCamelCase,
+    getType,
+    isEqual,
+};
+
 /**
  * This function will return true if there is something assigned to the given object and false if it isn't
  * @param obj

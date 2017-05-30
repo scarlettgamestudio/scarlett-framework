@@ -5,10 +5,12 @@
   "description": "Scarlett WebGL Graphics Framework",
   "main": "src/index.js",
   "dependencies": {
+    "babel-runtime": "6.23.0",
     "matter-js": "^0.10.0"
   },
   "scripts": {
-    "build": "webpack -d --config config/webpack.config.js",
+    "test": "babel src/index.js --out-file index-compiled.js",
+    "build": "webpack --config config/webpack.config.js",
     "editor-build": "cross-env NODE_ENV=es6 npm run build",
     "deploy": "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
     "build:all": "rimraf build && npm run build && npm run editor-build && npm run deploy",
@@ -19,6 +21,7 @@
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-loader": "7.0.0",
+    "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-es2015": "6.24.1",
     "babel-preset-stage-3": "6.24.1",
     "cross-env": "5.0.0",
