@@ -14,6 +14,8 @@
     "deploy": "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
     "build:all": "rimraf build && npm run build && npm run editor-build && npm run deploy",
     "live-server": "webpack-dev-server -d --port 8082 --progress --colors --hot --config config/webpack.config.js",
+    "editor-live-server": "cross-env NODE_ENV=es6 npm run live-server",
+    "deploy-live-server": "cross-env NODE_ENV=production npm run live-server",
     "watch": "npm run build -- -w",
     "start": "http-server -a localhost -p 8080 -c-1"
   },
