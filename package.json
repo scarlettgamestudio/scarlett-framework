@@ -24,7 +24,7 @@
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "commit": "git-cz",
     "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
-    "precommit": "opt --in pre-commit --exec \"npm run test\""
+    "precommit": "opt --in pre-commit --exec \"npm run test && npm run build\""
   },
   "devDependencies": {
     "@types/jest": "19.2.3",
