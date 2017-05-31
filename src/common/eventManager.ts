@@ -1,17 +1,23 @@
-// unique key
-let _eventManagerSingleton = Symbol('eventManagerSingleton');
-
 /**
  * Event Manager Singleton Class
  */
 class EventManagerSingleton {
 
+    //#region Fields
+
+    private _handlers: Object;
+
+    //#endregion
+
+    //#region Static Fields
+
+    private static _instance: EventManagerSingleton;
+
+    //#endregion
+
     //#region Constructors
 
-    constructor(eventManagerSingletonToken) {
-        if (_eventManagerSingleton !== eventManagerSingletonToken) {
-            throw new Error('Cannot instantiate directly.');
-        }
+    private constructor () {
         this._handlers = {};
     }
 
@@ -21,13 +27,13 @@ class EventManagerSingleton {
 
     //#region Static Methods
 
-    static get instance() {
-        if (!this[_eventManagerSingleton]) {
-            this[_eventManagerSingleton] = new EventManagerSingleton(_eventManagerSingleton);
-        }
+    //#region Static Methods
 
-        return this[_eventManagerSingleton];
+    static get instance(): EventManagerSingleton {
+        return this._instance || (this._instance = new EventManagerSingleton());
     }
+
+    //#endregion
 
     //#endregion
 
@@ -37,7 +43,7 @@ class EventManagerSingleton {
      * @param callback
      * @param context (optional)
      */
-    subscribe(topic, callback, context) {
+    subscribe(topic: string, callback: Function, context: string): void {
         if (!this._handlers.hasOwnProperty(topic)) {
             this._handlers[topic] = [];
         }
@@ -53,7 +59,7 @@ class EventManagerSingleton {
      * @param topic
      * @param callback (for reference)
      */
-    removeSubscription(topic, callback) {
+    removeSubscription(topic: string, callback: Function): void {
         if (!this._handlers[topic]) {
             return;
         }
@@ -75,9 +81,11 @@ class EventManagerSingleton {
      *
      * @param topic
      */
-    emit(topic) {
+    emit(topic: string) {
         // get the remaining arguments (if exist)
-        let args = [], i;
+        let args: Array<any> = [];
+        let i: number;
+
         if (arguments.length > 1) {
             for (i = 1; i < arguments.length; i++) {
                 args.push(arguments[i]);
@@ -103,7 +111,7 @@ class EventManagerSingleton {
     /**
      * Clears all subscriptions
      */
-    clear() {
+    clear(): void {
         this._handlers = {};
     }
 
@@ -114,4 +122,4 @@ class EventManagerSingleton {
 /**
  * Event Manager alias to Event Manager Singleton instance
  */
-export let EventManager = EventManagerSingleton.instance;
+export const EventManager = EventManagerSingleton.instance;

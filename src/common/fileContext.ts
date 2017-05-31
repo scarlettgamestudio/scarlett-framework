@@ -3,14 +3,21 @@
  */
 export default class FileContext {
 
+    //#region Fields
+
+    private _headers: Object;
+    private _content: string;
+
+    //#endregion
+
     /**
      *
-     * @param {*} headers
+     * @param {Object} headers
      * @param {String} content
      */
-    constructor(headers, content) {
-        this.headers = headers;
-        this.content = content;
+    constructor(headers: Object, content: string) {
+        this._headers = headers;
+        this._content = content;
     }
 
     /**
@@ -18,9 +25,9 @@ export default class FileContext {
      * @param {XMLHttpRequest} xhr
      * @returns {FileContext}
      */
-    static fromXHR(xhr) {
+    static fromXHR(xhr: XMLHttpRequest): FileContext {
 
-        let headers = {};
+        let headers: Object = {};
 
         // iterate through every header line
         xhr.getAllResponseHeaders().split('\r\n').forEach((headerLine) => {

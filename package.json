@@ -9,12 +9,11 @@
     "matter-js": "^0.10.0"
   },
   "scripts": {
-    "test": "babel src/index.js --out-file index-compiled.js",
-    "build": "webpack --config config/webpack.config.js",
+    "build": "webpack -d --config config/webpack.config.js",
     "editor-build": "cross-env NODE_ENV=es6 npm run build",
     "deploy": "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
     "build:all": "rimraf build && npm run build && npm run editor-build && npm run deploy",
-    "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
+    "live-server": "webpack-dev-server -d --port 8082 --progress --colors --hot --config config/webpack.config.js",
     "watch": "npm run build -- -w",
     "start": "http-server -a localhost -p 8080 -c-1"
   },
@@ -35,6 +34,8 @@
     "http-server": "0.10.0",
     "rimraf": "2.6.1",
     "sort-dependencies": "~0.1.1",
+    "ts-loader": "2.1.0",
+    "typescript": "2.3.4",
     "webpack": "2.6.1",
     "webpack-dev-server": "2.4.5",
     "webpack-notifier": "1.5.0"

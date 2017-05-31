@@ -4,20 +4,20 @@
  */
 
 export {
-    isObjectAssigned, 
-    isString, 
-    isNumber, 
-    isGame, 
-    isGameScene, 
-    isTexture2D, 
-    isFunction, 
-    isSprite,
+    isObjectAssigned,
+    isString,
+    isNumber,
+    //isGame,
+    //isGameScene,
+    //isTexture2D,
+    isFunction,
+    //isSprite,
     inheritsFrom,
-    capitalize,
     generateUID,
     splitCamelCase,
+    capitalize,
     getType,
-    isEqual,
+    isEqual
 };
 
 /**
@@ -25,7 +25,7 @@ export {
  * @param obj
  * @returns {boolean}
  */
-function isObjectAssigned(obj) {
+function isObjectAssigned(obj: any): boolean {
     return (typeof obj !== "undefined" && obj !== null);
 }
 
@@ -34,7 +34,7 @@ function isObjectAssigned(obj) {
  * @param obj
  * @returns {boolean}
  */
-function isString(obj) {
+function isString(obj: any): boolean {
     return typeof obj === "string";
 }
 
@@ -43,7 +43,7 @@ function isString(obj) {
  * @param obj
  * @returns {boolean}
  */
-function isNumber(obj) {
+function isNumber(obj: any): boolean {
     return typeof obj === "number";
 }
 
@@ -53,7 +53,7 @@ function isNumber(obj) {
  * @returns {boolean}
  */
 function isGame(obj) {
-    return obj instanceof Game;
+    //return obj instanceof Game;
 }
 
 /**
@@ -62,7 +62,7 @@ function isGame(obj) {
  * @returns {boolean}
  */
 function isGameScene(obj) {
-    return obj instanceof GameScene;
+    //return obj instanceof GameScene;
 }
 
 /**
@@ -71,7 +71,7 @@ function isGameScene(obj) {
  * @returns {boolean}
  */
 function isTexture2D(obj) {
-    return obj instanceof Texture2D;
+    //return obj instanceof Texture2D;
 }
 
 /**
@@ -79,7 +79,7 @@ function isTexture2D(obj) {
  * @param obj
  * @returns {boolean}
  */
-function isFunction(obj) {
+function isFunction(obj: any): boolean {
     return typeof obj === "function";
 }
 
@@ -89,7 +89,7 @@ function isFunction(obj) {
  * @returns {boolean}
  */
 function isSprite(obj) {
-    return obj instanceof Sprite;
+    //return obj instanceof Sprite;
 }
 
 /**
@@ -97,7 +97,7 @@ function isSprite(obj) {
  * @param child
  * @param parent
  */
-function inheritsFrom(child, parent) {
+function inheritsFrom(child, parent): void {
     child.prototype = Object.create(parent.prototype);
 }
 
@@ -106,8 +106,8 @@ function inheritsFrom(child, parent) {
  * @type {number}
  * @private
  */
-var _SS_UID = 0;
-function generateUID() {
+let _SS_UID = 0;
+function generateUID(): number {
     return ++_SS_UID;
 }
 
@@ -116,13 +116,13 @@ function generateUID() {
  * @param string
  * @returns {*}
  */
-function capitalize(string) {
-    if (string.length >= 2) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    } else if (string.length == 1) {
-        return string.charAt(0).toUpperCase();
+function capitalize(str: string): string {
+    if (str.length >= 2) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    } else if (str.length == 1) {
+        return str.charAt(0).toUpperCase();
     }
-    return string;
+    return str;
 }
 
 /**
@@ -130,8 +130,8 @@ function capitalize(string) {
  * @param string
  * @returns {string}
  */
-function splitCamelCase(string) {
-    return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
+function splitCamelCase(str: string): string {
+    return str.replace(/([a-z](?=[A-Z]))/g, '$1 ');
 }
 
 /**
@@ -139,9 +139,15 @@ function splitCamelCase(string) {
  * @param object
  * @returns {*}
  */
-function getType(object) {
-    if (object === null) return "[object Null]"; // special case
-    if (object.getType) return object.getType();
+function getType(object): string {
+    if (object === null){
+        // special case
+        return "[object Null]"; 
+    } 
+    else if (object.getType) {
+        return object.getType();
+    }
+
     return object.constructor.name || Object.prototype.toString.call(object);
 }
 
@@ -150,7 +156,7 @@ function getType(object) {
  * @param a
  * @param b
  */
-function isEqual(a, b) {
+function isEqual(a: any, b: any): boolean {
     if (isFunction(a.equals)) {
         return a.equals(b);
     }

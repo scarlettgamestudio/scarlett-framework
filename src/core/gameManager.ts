@@ -1,7 +1,17 @@
 /**
  * Game Manager static class
  */
-class GameManager {
+export default class GameManager {
+
+    //#region Static Fields
+
+    private static _renderContext;
+    private static _activeScene;
+    private static _activeProject;
+    private static _activeGame;
+    private static _activeProjectPath;
+
+    //#endregion
 
     //#region Static Properties
 
@@ -51,14 +61,6 @@ class GameManager {
 
     static set activeProjectPath(value) {
         this._activeProjectPath = value;
-    }
-
-    //#endregion
-
-    //#region Constructors
-
-    constructor() {
-
     }
 
     //#endregion

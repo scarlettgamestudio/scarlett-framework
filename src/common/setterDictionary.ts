@@ -1,5 +1,5 @@
 // unique key
-let _setterDictionarySingleton = Symbol('setterDictionarySingleton');
+import { isObjectAssigned } from "common/utils";
 
 /**
  * SetterDictionary Singleton Class
@@ -7,12 +7,21 @@ let _setterDictionarySingleton = Symbol('setterDictionarySingleton');
  */
 class SetterDictionarySingleton {
 
+    //#region Fields
+
+    private _rules: Object;
+
+    //#endregion
+
+    //#region Static Fields
+
+    private static _instance: SetterDictionarySingleton;
+
+    //#endregion
+
     //#region Constructors
 
-    constructor(setterDictionarySingletonToken) {
-        if (_setterDictionarySingleton !== setterDictionarySingletonToken) {
-            throw new Error('Cannot instantiate directly.');
-        }
+    private constructor () {
         this._rules = {};
     }
 
@@ -22,12 +31,8 @@ class SetterDictionarySingleton {
 
     //#region Static Methods
 
-    static get instance() {
-        if (!this[_setterDictionarySingleton]) {
-            this[_setterDictionarySingleton] = new SetterDictionarySingleton(_setterDictionarySingleton);
-        }
-
-        return this[_setterDictionarySingleton];
+    static get instance(): SetterDictionarySingleton {
+        return this._instance || (this._instance = new SetterDictionarySingleton());
     }
 
     //#endregion
@@ -38,7 +43,7 @@ class SetterDictionarySingleton {
      * @param rule
      * @returns {boolean}
      */
-    addRule(context, rule) {
+    addRule(context: string, rule: Object): boolean {
         if (isObjectAssigned(context)) {
             context = context.toLowerCase();
             this._rules[context] = rule;
@@ -53,7 +58,7 @@ class SetterDictionarySingleton {
      * @param typeName
      * @returns {*}
      */
-    getRule(typeName) {
+    getRule(typeName: string): {Object} {
         typeName = typeName.toLowerCase();
         if (this._rules[typeName]) {
             return this._rules[typeName];
@@ -67,4 +72,4 @@ class SetterDictionarySingleton {
  * Setter Dictionary alias to Setter Dictionary Singleton instance
  * Attribute dictionary for property definitions
  */
-export let SetterDictionary = SetterDictionarySingleton.instance;
+export const SetterDictionary = SetterDictionarySingleton.instance;

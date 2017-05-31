@@ -1,27 +1,38 @@
-// unique key
-let _contentLoaderSingleton = Symbol('contentLoaderSingleton');
+import FileContext from "common/fileContext";
+import GameManager from "core/gameManager";
 
 /**
  * Content Loader Singleton Class
  */
 class ContentLoaderSingleton {
 
+    //#region Fields
+
+    private _fileLoaded: Object;
+    private _fileAlias: Object;
+    private _imgLoaded: Object;
+    private _imgAlias: Object;
+    private _audioLoaded: Object;
+    private _audioAlias: Object;
+
+    //#endregion
+
+    //#region Static Fields
+
+    private static _instance: ContentLoaderSingleton;
+
+    //#endregion
+
     //#region Constructors
 
-    constructor(contentLoaderSingletonToken) {
-        if (_contentLoaderSingleton !== contentLoaderSingletonToken) {
-            throw new Error('Cannot instantiate directly.');
-        }
-
+    private constructor () {
         // Cached files
         this._fileLoaded = {};
         this._fileAlias = {};
 
-
         // Cached images
         this._imgLoaded = {};
         this._imgAlias = {};
-
 
         // Cached audio
         this._audioLoaded = {};
@@ -34,20 +45,20 @@ class ContentLoaderSingleton {
 
     //#region Static Methods
 
-    static get instance() {
-        if (!this[_contentLoaderSingleton]) {
-            this[_contentLoaderSingleton] = new ContentLoaderSingleton(_contentLoaderSingleton);
-        }
+    //#region Static Methods
 
-        return this[_contentLoaderSingleton];
+    static get instance(): ContentLoaderSingleton {
+        return this._instance || (this._instance = new ContentLoaderSingleton());
     }
+
+    //#endregion
 
     //#endregion
 
     /**
      * Clears all loaded assets from the content loader
      */
-    clear() {
+    clear (): void {
         this._imgLoaded = {};
         this._imgAlias = {};
         this._audioLoaded = {};
@@ -60,7 +71,7 @@ class ContentLoaderSingleton {
      * Loads several assets per category (audio, images, ..) and resolves after all are loaded
      * @param assets
      */
-    load(assets) {
+    load (assets): Promise<{}> {
         return new Promise((function (resolve, reject) {
             // result holder
             let result = {
@@ -146,13 +157,13 @@ class ContentLoaderSingleton {
      * Returns an image loaded by the given alias (if exists)
      * @param alias
      */
-    getImage(alias) {
+    getImage(alias: string): HTMLImageElement {
         if (this._imgAlias.hasOwnProperty(alias)) {
             return this._imgLoaded[this._imgAlias[alias]]
         }
     }
 
-    getSourcePath(alias) {
+    getSourcePath(alias: string): string {
         if (this._imgAlias.hasOwnProperty(alias)) {
             return this._imgAlias[alias];
         }
@@ -165,7 +176,7 @@ class ContentLoaderSingleton {
      * @param alias
      * @returns {Promise|Image} Image when successful
      */
-    loadImage(path, alias) {
+    loadImage(path: string, alias: string): Promise<HTMLImageElement> {
         return new Promise((resolve, reject) => {
             path = this._enrichRelativePath(path);
 
@@ -200,7 +211,7 @@ class ContentLoaderSingleton {
      * Returns an audio loaded by the given alias (if exists)
      * @param alias
      */
-    getAudio(alias) {
+    getAudio(alias: string): HTMLAudioElement {
         if (this._audioAlias.hasOwnProperty(alias)) {
             return this._audioLoaded[this._audioAlias[alias]]
         }
@@ -212,7 +223,7 @@ class ContentLoaderSingleton {
      * @param alias
      * @returns {*}
      */
-    loadAudio(path, alias) {
+    loadAudio(path: string, alias: string): Promise<HTMLAudioElement> {
         return new Promise((function (resolve, reject) {
             path = this._enrichRelativePath(path);
 
@@ -247,7 +258,7 @@ class ContentLoaderSingleton {
      * Returns a file loaded by the given alias (if exists)
      * @param alias
      */
-    getFile(alias) {
+    getFile(alias: string): XMLHttpRequest {
         if (this._fileAlias.hasOwnProperty(alias)) {
             return this._fileLoaded[this._fileAlias[alias]]
         }
@@ -257,9 +268,9 @@ class ContentLoaderSingleton {
      * loads a file from a specified path into memory
      * @param path
      * @param alias
-     * @returns {*}
+     * @returns {Promise|XMLHttpRequest}
      */
-    loadFile(path, alias) {
+    loadFile(path: string, alias: string): Promise<XMLHttpRequest> {
         return new Promise((function (resolve, reject) {
             path = this._enrichRelativePath(path);
 
@@ -273,7 +284,7 @@ class ContentLoaderSingleton {
                 //rawFile.overrideMimeType("application/json");
                 rawFile.open("GET", path, true);
                 rawFile.onreadystatechange = (function () {
-                    if (rawFile.readyState === 4 && rawFile.status == "200") {
+                    if (rawFile.readyState === 4 && rawFile.status === 200) {
                         let fileContext = FileContext.fromXHR(rawFile);
 
                         // cache the loaded image:
@@ -285,7 +296,7 @@ class ContentLoaderSingleton {
 
                         resolve(fileContext);
 
-                    } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                    } else if (rawFile.readyState === 4 && rawFile.status != 200) {
                         reject();
                     }
                 }.bind(this));
@@ -304,7 +315,7 @@ class ContentLoaderSingleton {
      * @returns {*}
      * @private
      */
-    _enrichRelativePath(path) {
+    _enrichRelativePath(path: string): string {
         // is this a relative path?
         if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
             path = GameManager.activeProjectPath + path;
@@ -319,4 +330,4 @@ class ContentLoaderSingleton {
 /**
  * Content Loader alias to Content Loader Singleton instance
  */
-export let ContentLoader = ContentLoaderSingleton.instance;
+export const ContentLoader = ContentLoaderSingleton.instance;

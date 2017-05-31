@@ -3,9 +3,15 @@
  */
 class Logger {
 
+    //#region Fields
+
+    private _context: string;
+
+    //#endregion
+
     //#region Constructors
 
-    constructor(params) {
+    constructor (params) {
         params = params || {};
 
         // private properties:
@@ -16,15 +22,15 @@ class Logger {
 
     //#region Methods
 
-    log(message) {
+    log (message: string): void {
         console.log(this._context + " | " + message);
     }
 
-    warn(message) {
+    warn (message: string): void {
         console.warn(this._context + " | " + message);
     }
 
-    error(message) {
+    error (message: string): void {
         console.error(this._context + " | " + message);
     }
 
@@ -33,4 +39,4 @@ class Logger {
 }
 
 // General Debug Logger
-export let Debug = new Logger("Debug");
+export const Debug = new Logger("Debug");

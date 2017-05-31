@@ -1,5 +1,5 @@
 // unique key
-let _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
+import { isObjectAssigned } from "common/utils";
 
 /**
  * Attribute Dictionary Singleton Class
@@ -7,13 +7,22 @@ let _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
  */
 class AttributeDictionarySingleton {
 
+    //#region Fields
+
+    private _rules: Object;
+    private _inheritance: Object;
+
+    //#endregion
+
+    //#region Static Fields
+
+    private static _instance: AttributeDictionarySingleton;
+
+    //#endregion
+
     //#region Constructors
 
-    constructor(attributeDictionarySingletonToken) {
-        if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
-            throw new Error('Cannot instantiate directly.');
-        }
-
+    private constructor() {
         this._rules = {};
         this._inheritance = {};
     }
@@ -24,12 +33,8 @@ class AttributeDictionarySingleton {
 
     //#region Static Methods
 
-    static get instance() {
-        if (!this[_attributeDictionarySingleton]) {
-            this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
-        }
-
-        return this[_attributeDictionarySingleton];
+    static get instance(): AttributeDictionarySingleton {
+        return this._instance || (this._instance = new AttributeDictionarySingleton());
     }
 
     //#endregion
@@ -41,7 +46,7 @@ class AttributeDictionarySingleton {
      * @param rule
      * @returns {boolean}
      */
-    addRule(context, propertyName, rule) {
+    addRule(context: string, propertyName: string, rule: Object): boolean {
         if (isObjectAssigned(context)) {
             context = context.toLowerCase();
 
@@ -63,7 +68,7 @@ class AttributeDictionarySingleton {
      * @param propertyName
      * @returns {*}
      */
-    getRule(context, propertyName) {
+    getRule(context: string, propertyName: string): any {
         context = context.toLowerCase();
 
         // first check the first order rules:
@@ -90,7 +95,7 @@ class AttributeDictionarySingleton {
      * @param typeName
      * @param parent
      */
-    inherit(context, parent) {
+    inherit(context: string, parent: string): void {
         context = context.toLowerCase();
         parent = parent.toLowerCase();
 
@@ -109,4 +114,4 @@ class AttributeDictionarySingleton {
  * Attribute Dictionary alias to Attribute Dictionary Singleton instance
  * Attribute dictionary for property definitions
  */
-export let AttributeDictionary = AttributeDictionarySingleton.instance;
+export const AttributeDictionary = AttributeDictionarySingleton.instance;
