@@ -22,7 +22,8 @@
     "watch:test": "cross-env CI=true jest --watch",
     "report-coverage": "codecov",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\""
   },
   "devDependencies": {
     "@types/jest": "19.2.3",
@@ -46,6 +47,7 @@
     "http-server": "0.10.0",
     "husky": "0.13.4",
     "jest": "20.0.4",
+    "opt-cli": "1.5.1",
     "rimraf": "2.6.1",
     "semantic-release": "^6.3.6",
     "sort-dependencies": "~0.1.1",

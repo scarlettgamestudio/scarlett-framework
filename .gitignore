@@ -1,4 +1,6 @@
 build
+.opt-in
+.opt-out
 
 ### Node template
 # Logs
