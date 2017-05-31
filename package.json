@@ -23,7 +23,8 @@
     "report-coverage": "codecov",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "commit": "git-cz",
-    "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\""
+    "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
+    "precommit": "opt --in pre-commit --exec \"npm run test\""
   },
   "devDependencies": {
     "@types/jest": "19.2.3",
