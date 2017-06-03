@@ -1,4 +1,4 @@
-import { isObjectAssigned } from "./utils";
+import { isObjectAssigned } from './utils';
 
 // unique key
 const _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
@@ -8,103 +8,103 @@ const _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
  * Attribute dictionary for property definitions
  */
 class AttributeDictionarySingleton {
+  //#region Constructors
 
-    //#region Constructors
-
-    constructor(attributeDictionarySingletonToken) {
-        if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
-            throw new Error('Cannot instantiate directly.');
-        }
-
-        this._rules = {};
-        this._inheritance = {};
+  constructor (attributeDictionarySingletonToken) {
+    if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
+      throw new Error('Cannot instantiate directly.');
     }
 
-    //#endregion
+    this._rules = {};
+    this._inheritance = {};
+  }
 
-    //#region Methods
+  //#endregion
 
-    //#region Static Methods
+  //#region Methods
 
-    static get instance() {
-        if (!this[_attributeDictionarySingleton]) {
-            this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
-        }
+  //#region Static Methods
 
-        return this[_attributeDictionarySingleton];
+  static get instance () {
+    if (!this[_attributeDictionarySingleton]) {
+      this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(
+        _attributeDictionarySingleton
+      );
     }
 
-    //#endregion
+    return this[_attributeDictionarySingleton];
+  }
 
-    /**
+  //#endregion
+
+  /**
      *
      * @param context
      * @param propertyName
      * @param rule
      * @returns {boolean}
      */
-    addRule(context, propertyName, rule) {
-        if (isObjectAssigned(context)) {
-            context = context.toLowerCase();
+  addRule (context, propertyName, rule) {
+    if (isObjectAssigned(context)) {
+      context = context.toLowerCase();
 
-            if (!isObjectAssigned(this._rules[context])) {
-                this._rules[context] = {}
-            }
+      if (!isObjectAssigned(this._rules[context])) {
+        this._rules[context] = {};
+      }
 
-            this._rules[context][propertyName] = rule;
+      this._rules[context][propertyName] = rule;
 
-            return true;
-        }
-
-        return false;
+      return true;
     }
 
-    /**
+    return false;
+  }
+
+  /**
      *
      * @param context
      * @param propertyName
      * @returns {*}
      */
-    getRule(context, propertyName) {
-        context = context.toLowerCase();
+  getRule (context, propertyName) {
+    context = context.toLowerCase();
 
-        // first check the first order rules:
-        if (this._rules[context] && this._rules[context][propertyName]) {
-            return this._rules[context][propertyName];
-        }
-
-        // maybe the parents have this rule?
-        if (this._inheritance[context]) {
-            // recursively try to get the rule from the parents:
-            for (let i = 0; i < this._inheritance[context].length; ++i) {
-                let result = this.getRule(this._inheritance[context][i], propertyName);
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-
-        return null;
+    // first check the first order rules:
+    if (this._rules[context] && this._rules[context][propertyName]) {
+      return this._rules[context][propertyName];
     }
 
-    /**
+    // maybe the parents have this rule?
+    if (this._inheritance[context]) {
+      // recursively try to get the rule from the parents:
+      for (let i = 0; i < this._inheritance[context].length; ++i) {
+        let result = this.getRule(this._inheritance[context][i], propertyName);
+        if (result != null) {
+          return result;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
      *
      * @param typeName
      * @param parent
      */
-    inherit(context, parent) {
-        context = context.toLowerCase();
-        parent = parent.toLowerCase();
+  inherit (context, parent) {
+    context = context.toLowerCase();
+    parent = parent.toLowerCase();
 
-        if (!isObjectAssigned(this._inheritance[context])) {
-            this._inheritance[context] = [];
-        }
-
-        this._inheritance[context].push(parent);
+    if (!isObjectAssigned(this._inheritance[context])) {
+      this._inheritance[context] = [];
     }
 
-    //#endregion
+    this._inheritance[context].push(parent);
+  }
 
+  //#endregion
 }
 
 /**

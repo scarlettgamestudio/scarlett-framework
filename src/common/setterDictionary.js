@@ -1,3 +1,5 @@
+import { isObjectAssigned } from './utils';
+
 // unique key
 const _setterDictionarySingleton = Symbol('setterDictionarySingleton');
 
@@ -6,61 +8,62 @@ const _setterDictionarySingleton = Symbol('setterDictionarySingleton');
  * Attribute dictionary for property definitions
  */
 class SetterDictionarySingleton {
+  //#region Constructors
 
-    //#region Constructors
+  constructor (setterDictionarySingletonToken) {
+    if (_setterDictionarySingleton !== setterDictionarySingletonToken) {
+      throw new Error('Cannot instantiate directly.');
+    }
+    this._rules = {};
+  }
 
-    constructor(setterDictionarySingletonToken) {
-        if (_setterDictionarySingleton !== setterDictionarySingletonToken) {
-            throw new Error('Cannot instantiate directly.');
-        }
-        this._rules = {};
+  //#endregion
+
+  //#region Methods
+
+  //#region Static Methods
+
+  static get instance () {
+    if (!this[_setterDictionarySingleton]) {
+      this[_setterDictionarySingleton] = new SetterDictionarySingleton(
+        _setterDictionarySingleton
+      );
     }
 
-    //#endregion
+    return this[_setterDictionarySingleton];
+  }
 
-    //#region Methods
+  //#endregion
 
-    //#region Static Methods
-
-    static get instance() {
-        if (!this[_setterDictionarySingleton]) {
-            this[_setterDictionarySingleton] = new SetterDictionarySingleton(_setterDictionarySingleton);
-        }
-
-        return this[_setterDictionarySingleton];
-    }
-
-    //#endregion
-
-    /**
+  /**
      *
      * @param context
      * @param rule
      * @returns {boolean}
      */
-    addRule(context, rule) {
-        if (isObjectAssigned(context)) {
-            context = context.toLowerCase();
-            this._rules[context] = rule;
-            return true;
-        }
-
-        return false;
+  addRule (context, rule) {
+    if (isObjectAssigned(context)) {
+      context = context.toLowerCase();
+      this._rules[context] = rule;
+      return true;
     }
 
-    /**
+    return false;
+  }
+
+  /**
      *
      * @param typeName
      * @returns {*}
      */
-    getRule(typeName) {
-        typeName = typeName.toLowerCase();
-        if (this._rules[typeName]) {
-            return this._rules[typeName];
-        }
-    };
+  getRule (typeName) {
+    typeName = typeName.toLowerCase();
+    if (this._rules[typeName]) {
+      return this._rules[typeName];
+    }
+  }
 
-    //#endregion
+  //#endregion
 }
 
 /**
