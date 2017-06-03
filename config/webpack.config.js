@@ -11,7 +11,7 @@ const DEPLOYING = process.env.NODE_ENV === 'production';
 // the variable name from which the library should be accessed from
 const globalLibraryName = 'SC';
 // the entry filename of the library (inside src)
-const entryFilename = 'index.ts'
+const entryFilenames = ['index.js'];
 
 // default package name (ES5)
 let finalPackageName = packageName + '.browser.js';
@@ -27,16 +27,13 @@ let loadersSetup = [
             plugins: ['transform-runtime'],
             presets: [['es2015', { modules: false }], 'stage-3'],
         }
-    },
-    {
-        loader: 'ts-loader'
     }
 ];
 
 // if transpiling to ES6
 if (TO_ES6) {
     // remove babel loader that would otherwise transpile to ES5
-    loadersSetup.shift();
+    loadersSetup = [];
     // update output path
     relativeOutputPath = 'build/build-es6';
     // update package name
@@ -55,9 +52,7 @@ const config = {
     // devtool: 'source-map',
 
     // Library (or app) entry point (webpack will look for it in the 'src' directory due to the modules setting below).
-    entry: [
-        entryFilename
-    ],
+    entry: entryFilenames,
     // Output the bundled JS to dist/app.js
     output: {
         filename: finalPackageName,
@@ -70,17 +65,18 @@ const config = {
         publicPath: relativeOutputPath
     },
     resolve: {
-        // Look for modules in .ts(x) files first, then .js(x)
-        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+        // Look for modules in .js(x) files first, then .js(x)
+        extensions: ['.js', '.jsx'],
         // Add 'src' to our modules, as all our app code will live in there, so Webpack should look in there for modules
         modules: ['src', 'node_modules']
     },
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
+                test: /\.jsx?$/,
                 // Skip any files outside of `src` directory
                 include: /src/,
+                exclude: /node_modules/,
                 // loaders depending on target (ES6 or ES5)
                 use: loadersSetup
             }

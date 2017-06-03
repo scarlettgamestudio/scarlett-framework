@@ -5,14 +5,11 @@ export default class CallbackResponse {
 
     //#region Constructors
 
-    private _success: boolean;
-    private _data: any;
-
     constructor(params) {
         params = params || {};
 
-        this._success = params.success;
-        this._data = params.data || {};
+        this.success = params.success;
+        this.data = params.data || {};
     }
 
     //#endregion
@@ -20,7 +17,7 @@ export default class CallbackResponse {
     //#region Methods
 
     isSuccessful() {
-        return this._success;
+        return this.success;
     }
 
     //#endregion

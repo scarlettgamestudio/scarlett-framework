@@ -14,7 +14,7 @@
     "editor-build": "cross-env NODE_ENV=es6 npm run build",
     "deploy": "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
     "build:all": "rimraf build && npm run build && npm run editor-build && npm run deploy",
-    "live-server": "webpack-dev-server -d --port 8082 --progress --colors --hot --config config/webpack.config.js",
+    "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
     "editor-live-server": "cross-env NODE_ENV=es6 npm run live-server",
     "deploy-live-server": "cross-env NODE_ENV=production npm run live-server",
     "watch": "npm run build -- -w",
@@ -47,10 +47,6 @@
     "opt-cli": "1.5.1",
     "rimraf": "2.6.1",
     "semantic-release": "6.3.6",
-    "ts-jest": "20.0.5",
-    "ts-loader": "2.1.0",
-    "typescript": "2.3.4",
-    "typescript-babel-jest": "1.0.3",
     "validate-commit-msg": "2.12.1",
     "webpack": "2.6.1",
     "webpack-dev-server": "2.4.5",
@@ -66,26 +62,23 @@
     }
   },
   "jest": {
-    "testEnvironment": "node",
+    "testEnvironment": "jest-environment-node",
     "transform": {
-      "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      "^.+\\.js$": "babel-jest"
     },
     "mapCoverage": true,
     "moduleDirectories": [
       "node_modules",
       "src"
     ],
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$",
     "moduleFileExtensions": [
-      "ts",
-      "tsx",
       "js",
       "json"
     ],
     "collectCoverageFrom": [
-      "!src/**/index.ts",
-      "src/**/*.ts"
+      "!src/**/index.js",
+      "src/**/*.js"
     ],
     "coverageThreshold": {
       "global": {

@@ -1,5 +1,7 @@
+import { isObjectAssigned } from "./utils";
+
 // unique key
-import { isObjectAssigned } from "common/utils";
+const _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
 
 /**
  * Attribute Dictionary Singleton Class
@@ -7,22 +9,13 @@ import { isObjectAssigned } from "common/utils";
  */
 class AttributeDictionarySingleton {
 
-    //#region Fields
-
-    private _rules: Object;
-    private _inheritance: Object;
-
-    //#endregion
-
-    //#region Static Fields
-
-    private static _instance: AttributeDictionarySingleton;
-
-    //#endregion
-
     //#region Constructors
 
-    private constructor() {
+    constructor(attributeDictionarySingletonToken) {
+        if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+
         this._rules = {};
         this._inheritance = {};
     }
@@ -33,8 +26,12 @@ class AttributeDictionarySingleton {
 
     //#region Static Methods
 
-    static get instance(): AttributeDictionarySingleton {
-        return this._instance || (this._instance = new AttributeDictionarySingleton());
+    static get instance() {
+        if (!this[_attributeDictionarySingleton]) {
+            this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
+        }
+
+        return this[_attributeDictionarySingleton];
     }
 
     //#endregion
@@ -46,7 +43,7 @@ class AttributeDictionarySingleton {
      * @param rule
      * @returns {boolean}
      */
-    addRule(context: string, propertyName: string, rule: Object): boolean {
+    addRule(context, propertyName, rule) {
         if (isObjectAssigned(context)) {
             context = context.toLowerCase();
 
@@ -68,7 +65,7 @@ class AttributeDictionarySingleton {
      * @param propertyName
      * @returns {*}
      */
-    getRule(context: string, propertyName: string): any {
+    getRule(context, propertyName) {
         context = context.toLowerCase();
 
         // first check the first order rules:
@@ -95,7 +92,7 @@ class AttributeDictionarySingleton {
      * @param typeName
      * @param parent
      */
-    inherit(context: string, parent: string): void {
+    inherit(context, parent) {
         context = context.toLowerCase();
         parent = parent.toLowerCase();
 

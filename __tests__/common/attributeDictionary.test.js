@@ -4,9 +4,9 @@ test("Able to add a rule and get it back", () => {
 
     expect.assertions(2);
 
-    const context: string = "fontStyle";
-    const propertyName: string = "_fontDescriptionFilePath";
-    const rule: Object = {
+    const context = "fontStyle";
+    const propertyName = "_fontDescriptionFilePath";
+    const rule = {
         displayName: "Font Description Source",
         editor: "filepath"
     };

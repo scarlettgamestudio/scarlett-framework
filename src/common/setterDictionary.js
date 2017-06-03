@@ -1,5 +1,5 @@
 // unique key
-import { isObjectAssigned } from "common/utils";
+const _setterDictionarySingleton = Symbol('setterDictionarySingleton');
 
 /**
  * SetterDictionary Singleton Class
@@ -7,21 +7,12 @@ import { isObjectAssigned } from "common/utils";
  */
 class SetterDictionarySingleton {
 
-    //#region Fields
-
-    private _rules: Object;
-
-    //#endregion
-
-    //#region Static Fields
-
-    private static _instance: SetterDictionarySingleton;
-
-    //#endregion
-
     //#region Constructors
 
-    private constructor () {
+    constructor(setterDictionarySingletonToken) {
+        if (_setterDictionarySingleton !== setterDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
         this._rules = {};
     }
 
@@ -31,8 +22,12 @@ class SetterDictionarySingleton {
 
     //#region Static Methods
 
-    static get instance(): SetterDictionarySingleton {
-        return this._instance || (this._instance = new SetterDictionarySingleton());
+    static get instance() {
+        if (!this[_setterDictionarySingleton]) {
+            this[_setterDictionarySingleton] = new SetterDictionarySingleton(_setterDictionarySingleton);
+        }
+
+        return this[_setterDictionarySingleton];
     }
 
     //#endregion
@@ -43,7 +38,7 @@ class SetterDictionarySingleton {
      * @param rule
      * @returns {boolean}
      */
-    addRule(context: string, rule: Object): boolean {
+    addRule(context, rule) {
         if (isObjectAssigned(context)) {
             context = context.toLowerCase();
             this._rules[context] = rule;
@@ -58,7 +53,7 @@ class SetterDictionarySingleton {
      * @param typeName
      * @returns {*}
      */
-    getRule(typeName: string): {Object} {
+    getRule(typeName) {
         typeName = typeName.toLowerCase();
         if (this._rules[typeName]) {
             return this._rules[typeName];

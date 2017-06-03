@@ -21,11 +21,16 @@ export {
 };
 
 /**
+ * Scarlett @ DevTeam
+ * This javascript file will include global utility functions that can be called from any context
+ */
+
+/**
  * This function will return true if there is something assigned to the given object and false if it isn't
  * @param obj
  * @returns {boolean}
  */
-function isObjectAssigned(obj: any): boolean {
+function isObjectAssigned(obj) {
     return (typeof obj !== "undefined" && obj !== null);
 }
 
@@ -34,7 +39,7 @@ function isObjectAssigned(obj: any): boolean {
  * @param obj
  * @returns {boolean}
  */
-function isString(obj: any): boolean {
+function isString(obj) {
     return typeof obj === "string";
 }
 
@@ -43,7 +48,7 @@ function isString(obj: any): boolean {
  * @param obj
  * @returns {boolean}
  */
-function isNumber(obj: any): boolean {
+function isNumber(obj) {
     return typeof obj === "number";
 }
 
@@ -79,7 +84,7 @@ function isTexture2D(obj) {
  * @param obj
  * @returns {boolean}
  */
-function isFunction(obj: any): boolean {
+function isFunction(obj) {
     return typeof obj === "function";
 }
 
@@ -97,7 +102,7 @@ function isSprite(obj) {
  * @param child
  * @param parent
  */
-function inheritsFrom(child, parent): void {
+function inheritsFrom(child, parent) {
     child.prototype = Object.create(parent.prototype);
 }
 
@@ -106,8 +111,8 @@ function inheritsFrom(child, parent): void {
  * @type {number}
  * @private
  */
-let _SS_UID = 0;
-function generateUID(): number {
+var _SS_UID = 0;
+function generateUID() {
     return ++_SS_UID;
 }
 
@@ -116,13 +121,13 @@ function generateUID(): number {
  * @param string
  * @returns {*}
  */
-function capitalize(str: string): string {
-    if (str.length >= 2) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    } else if (str.length == 1) {
-        return str.charAt(0).toUpperCase();
+function capitalize(string) {
+    if (string.length >= 2) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    } else if (string.length == 1) {
+        return string.charAt(0).toUpperCase();
     }
-    return str;
+    return string;
 }
 
 /**
@@ -130,8 +135,8 @@ function capitalize(str: string): string {
  * @param string
  * @returns {string}
  */
-function splitCamelCase(str: string): string {
-    return str.replace(/([a-z](?=[A-Z]))/g, '$1 ');
+function splitCamelCase(string) {
+    return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
 }
 
 /**
@@ -139,15 +144,9 @@ function splitCamelCase(str: string): string {
  * @param object
  * @returns {*}
  */
-function getType(object): string {
-    if (object === null){
-        // special case
-        return "[object Null]"; 
-    } 
-    else if (object.getType) {
-        return object.getType();
-    }
-
+function getType(object) {
+    if (object === null) return "[object Null]"; // special case
+    if (object.getType) return object.getType();
     return object.constructor.name || Object.prototype.toString.call(object);
 }
 
@@ -156,7 +155,7 @@ function getType(object): string {
  * @param a
  * @param b
  */
-function isEqual(a: any, b: any): boolean {
+function isEqual(a, b) {
     if (isFunction(a.equals)) {
         return a.equals(b);
     }

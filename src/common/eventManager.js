@@ -1,23 +1,17 @@
+// unique key
+const _eventManagerSingleton = Symbol('eventManagerSingleton');
+
 /**
  * Event Manager Singleton Class
  */
 class EventManagerSingleton {
 
-    //#region Fields
-
-    private _handlers: Object;
-
-    //#endregion
-
-    //#region Static Fields
-
-    private static _instance: EventManagerSingleton;
-
-    //#endregion
-
     //#region Constructors
 
-    private constructor () {
+    constructor(eventManagerSingletonToken) {
+        if (_eventManagerSingleton !== eventManagerSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
         this._handlers = {};
     }
 
@@ -27,13 +21,13 @@ class EventManagerSingleton {
 
     //#region Static Methods
 
-    //#region Static Methods
+    static get instance() {
+        if (!this[_eventManagerSingleton]) {
+            this[_eventManagerSingleton] = new EventManagerSingleton(_eventManagerSingleton);
+        }
 
-    static get instance(): EventManagerSingleton {
-        return this._instance || (this._instance = new EventManagerSingleton());
+        return this[_eventManagerSingleton];
     }
-
-    //#endregion
 
     //#endregion
 
@@ -43,7 +37,7 @@ class EventManagerSingleton {
      * @param callback
      * @param context (optional)
      */
-    subscribe(topic: string, callback: Function, context: string): void {
+    subscribe(topic, callback, context) {
         if (!this._handlers.hasOwnProperty(topic)) {
             this._handlers[topic] = [];
         }
@@ -59,19 +53,19 @@ class EventManagerSingleton {
      * @param topic
      * @param callback (for reference)
      */
-    removeSubscription(topic: string, callback: Function): void {
+    removeSubscription(topic, callback) {
         if (!this._handlers[topic]) {
             return;
         }
 
         for (let i = this._handlers[topic].length - 1; i >= 0; i--) {
-            if (this._handlers[topic][i].callback === callback) {
+            if (this._handlers[topic][i].callback == callback) {
                 this._handlers[topic].splice(i, 1);
             }
         }
 
         // no more subscriptions for this topic?
-        if (this._handlers[topic].length === 0) {
+        if (this._handlers[topic].length == 0) {
             // nope... let's remove the topic then:
             delete this._handlers[topic];
         }
@@ -81,11 +75,9 @@ class EventManagerSingleton {
      *
      * @param topic
      */
-    emit(topic: string) {
+    emit(topic) {
         // get the remaining arguments (if exist)
-        let args: Array<any> = [];
-        let i: number;
-
+        let args = [], i;
         if (arguments.length > 1) {
             for (i = 1; i < arguments.length; i++) {
                 args.push(arguments[i]);
@@ -111,7 +103,7 @@ class EventManagerSingleton {
     /**
      * Clears all subscriptions
      */
-    clear(): void {
+    clear() {
         this._handlers = {};
     }
 
