@@ -1,5 +1,5 @@
 // unique key
-const _eventManagerSingleton = Symbol('eventManagerSingleton');
+const _eventManagerSingleton = Symbol("eventManagerSingleton");
 
 /**
  * Event Manager Singleton Class
@@ -7,9 +7,9 @@ const _eventManagerSingleton = Symbol('eventManagerSingleton');
 class EventManagerSingleton {
   //#region Constructors
 
-  constructor (eventManagerSingletonToken) {
+  constructor(eventManagerSingletonToken) {
     if (_eventManagerSingleton !== eventManagerSingletonToken) {
-      throw new Error('Cannot instantiate directly.');
+      throw new Error("Cannot instantiate directly.");
     }
     this._handlers = {};
   }
@@ -20,7 +20,7 @@ class EventManagerSingleton {
 
   //#region Static Methods
 
-  static get instance () {
+  static get instance() {
     if (!this[_eventManagerSingleton]) {
       this[_eventManagerSingleton] = new EventManagerSingleton(
         _eventManagerSingleton
@@ -38,7 +38,7 @@ class EventManagerSingleton {
      * @param callback
      * @param context (optional)
      */
-  subscribe (topic, callback, context) {
+  subscribe(topic, callback, context) {
     if (!this._handlers.hasOwnProperty(topic)) {
       this._handlers[topic] = [];
     }
@@ -54,7 +54,7 @@ class EventManagerSingleton {
      * @param topic
      * @param callback (for reference)
      */
-  removeSubscription (topic, callback) {
+  removeSubscription(topic, callback) {
     if (!this._handlers[topic]) {
       return;
     }
@@ -76,7 +76,7 @@ class EventManagerSingleton {
      *
      * @param topic
      */
-  emit (topic) {
+  emit(topic) {
     // get the remaining arguments (if exist)
     let args = [],
       i;
@@ -97,7 +97,8 @@ class EventManagerSingleton {
           args
         );
       } else {
-        // this doesn't seem to exist anymore, let's remove it from the subscribers:
+        // this doesn't seem to exist anymore
+        // let's remove it from the subscribers
         this._handlers[topic].splice(i, 1);
       }
     }
@@ -106,7 +107,7 @@ class EventManagerSingleton {
   /**
      * Clears all subscriptions
      */
-  clear () {
+  clear() {
     this._handlers = {};
   }
 

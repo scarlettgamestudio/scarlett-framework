@@ -20,6 +20,8 @@ export {
   isEqual
 };
 
+import _ from "lodash";
+
 /**
  * Returns true if there is something assigned to the given object
  * @param obj
@@ -117,16 +119,12 @@ function generateUID() {
  * @returns {*}
  */
 function capitalize(string) {
-  if (string.length >= 2) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  } else if (string.length == 1) {
-    return string.charAt(0).toUpperCase();
-  }
-  return string;
+  return _.capitalize(string);
 }
 
 /**
  * Split camel case
+ * TODO: change to lodash startCase?
  * @param string
  * @returns {string}
  */
