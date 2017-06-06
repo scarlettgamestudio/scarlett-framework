@@ -9,6 +9,7 @@ SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 /**
  * Color Class
  */
+
 export default class Color {
   //#region Static Properties
 

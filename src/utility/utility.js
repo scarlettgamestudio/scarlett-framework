@@ -1,10 +1,6 @@
 /**
  * General utility class
  */
-class Utility {
-
-    constructor() {
-
-    }
-
+export default class Utility {
+  constructor() {}
 }

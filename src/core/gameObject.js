@@ -1,4 +1,7 @@
 import AttributeDictionary from "common/attributeDictionary";
+import GameManager from "core/gameManager";
+import { Matrix4, Vector2, Boundary, Rectangle } from "math";
+import { generateUID, isObjectAssigned, isFunction } from "common/utils";
 
 AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
 AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
@@ -113,7 +116,8 @@ export default class GameObject {
 
   setParent(gameObject) {
     if (!gameObject) {
-      // since there is no game object specified we will try to look for a scene related to this game object
+      // since there is no game object specified we will try to
+      // look for a scene related to this game object
       // and then add it to the root hierarchy:
       if (GameManager.activeScene) {
         GameManager.activeScene.addGameObject(this);
@@ -123,7 +127,8 @@ export default class GameObject {
       if (this.getParent() != null) {
         this.getParent().removeChild(this);
       } else {
-        // maybe is part of a game scene root hierarchy? if so try to remove from that
+        // maybe is part of a game scene root hierarchy?
+        // if so try to remove from that
         if (GameManager.activeScene) {
           GameManager.activeScene.removeGameObject(this);
         }
@@ -169,7 +174,8 @@ export default class GameObject {
 
   isChild(gameObject) {
     // check if is a child simply by getting the hierarchy hash:
-    let hierarchyHash = gameObject.getHierarchyHash().split("."); // this . x . y . z . other
+    // this . x . y . z . other
+    let hierarchyHash = gameObject.getHierarchyHash().split(".");
     let thisIndex = hierarchyHash.indexOf(this._uid + ""),
       otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
     return otherIndex > thisIndex && thisIndex >= 0;

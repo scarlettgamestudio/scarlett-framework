@@ -1,107 +1,111 @@
 /**
  * IO Path utility class
  */
-class Path {
+export default class Path {
+  //#region Static Properties
 
-    //#region Static Properties
-
-    /**
+  /**
      *
      * @type {boolean}
      * @private
      */
-    static get _IS_WIN() {
-        return navigator.platform.toLowerCase().indexOf('win') > -1;
-    }
+  static get _IS_WIN() {
+    return navigator.platform.toLowerCase().indexOf("win") > -1;
+  }
 
-    /**
+  /**
      * The appropriate system trailing slash
      * @type {string}
      * @public
      */
-    static get TRAILING_SLASH() {
-        return Path._IS_WIN ? "\\" : "/";
-    }
+  static get TRAILING_SLASH() {
+    return Path._IS_WIN ? "\\" : "/";
+  }
 
-    //#endregion
+  //#endregion
 
-    //#region Constructors
+  //#region Constructors
 
-    constructor() {
+  constructor() {}
 
-    }
+  //#endregion
 
-    //#endregion
+  //#region Static Methods
 
-    //#region Static Methods
-
-    /**
+  /**
      * Ensures this is a valid string directory (eg. ends with slash)
      * @param path
      * @returns {string}
      */
-    static wrapDirectoryPath(path) {
-        return path + (path.endsWith('/') || path.endsWith('\\') ? '' : Path.TRAILING_SLASH);
-    }
+  static wrapDirectoryPath(path) {
+    return (
+      path +
+      (path.endsWith("/") || path.endsWith("\\") ? "" : Path.TRAILING_SLASH)
+    );
+  }
 
-    /**
+  /**
      * Strips only the directory path (excludes file names)
      * @param path
      */
-    static getDirectory(path) {
-        let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-        return path.substring(0, (index >= 0 ? index : path.length));
-    }
+  static getDirectory(path) {
+    let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+    return path.substring(0, index >= 0 ? index : path.length);
+  }
 
-    /**
+  /**
      * Returns the directory name from a given path
      * @param path
      * @returns {string}
      */
-    static getDirectoryName(path) {
-        if (path.endsWith("/") || path.endsWith("\\")) {
-            path = path.substring(0, path.length - 1);
-        }
-
-        let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-        return path.substring(index + 1, path.length);
+  static getDirectoryName(path) {
+    if (path.endsWith("/") || path.endsWith("\\")) {
+      path = path.substring(0, path.length - 1);
     }
 
-    /**
+    let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+    return path.substring(index + 1, path.length);
+  }
+
+  /**
      * Gets a filename from a given path
      * @param path
      */
-    static getFilename(path) {
-        let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-        return path.substring((index >= 0 && index < path.length - 1 ? index + 1 : 0), path.length);
-    }
+  static getFilename(path) {
+    let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+    return path.substring(
+      index >= 0 && index < path.length - 1 ? index + 1 : 0,
+      path.length
+    );
+  }
 
-    /**
+  /**
      * Gets a file extension from a given path
      * @param path
      */
-    static getFileExtension(path) {
-        return path.substring(path.lastIndexOf('.'), path.length);
-    }
+  static getFileExtension(path) {
+    return path.substring(path.lastIndexOf("."), path.length);
+  }
 
-    /**
+  /**
      * Checks if pathA can be contained inside pathB
      * @param pathA
      * @param pathB
      */
-    static relativeTo(pathA, pathB) {
-        return Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0;
-    }
+  static relativeTo(pathA, pathB) {
+    return (
+      Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0
+    );
+  }
 
-    /**
+  /**
      * Makes the full path relative to the base path
      * @param basePath
      * @param fullPath
      */
-    static makeRelative(basePath, fullPath) {
-        return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
-    }
+  static makeRelative(basePath, fullPath) {
+    return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
+  }
 
-    //#endregion
-
+  //#endregion
 }

@@ -1,9 +1,9 @@
+import Matrix4 from "math/matrix4";
+import Vector2 from "math/vector2";
+
 /**
  * Camera2D class
  */
-
-import Matrix4 from "math/matrix4";
-import Vector2 from "math/vector2";
 
 export default class Camera2D {
   //#region Constructors
