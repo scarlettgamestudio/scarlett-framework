@@ -1,3 +1,4 @@
+const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 const webpack = require("webpack");
 const path = require("path");
 const WebpackNotifierPlugin = require("webpack-notifier");
@@ -24,7 +25,7 @@ let loadersSetup = [
   {
     loader: "babel-loader",
     options: {
-      plugins: ["transform-runtime"],
+      plugins: ["transform-runtime", "lodash"],
       presets: [["es2015", { modules: false }], "stage-3"]
     }
   }
@@ -84,7 +85,8 @@ const config = {
   },
   plugins: [
     // Set up the notifier plugin - you can remove this (or set alwaysNotify false) if desired
-    new WebpackNotifierPlugin({ alwaysNotify: true })
+    new WebpackNotifierPlugin({ alwaysNotify: true }),
+    new LodashModuleReplacementPlugin()
   ]
 };
 
