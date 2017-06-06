@@ -1,10 +1,8 @@
 /**
  *  Keys Class
  */
-class Keys {
-    constructor() {
-
-    }
+export default class Keys {
+  constructor() {}
 }
 
 /**

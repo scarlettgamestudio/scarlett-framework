@@ -3,15 +3,17 @@
  * Includes global utility functions that can be called from any context
  */
 
+import _ from "lodash";
+
 export {
   isObjectAssigned,
   isString,
   isNumber,
-  //isGame,
-  //isGameScene,
-  //isTexture2D,
+  isGame,
+  isGameScene,
+  isTexture2D,
   isFunction,
-  //isSprite,
+  isSprite,
   inheritsFrom,
   generateUID,
   splitCamelCase,
@@ -19,8 +21,6 @@ export {
   getType,
   isEqual
 };
-
-import _ from "lodash";
 
 /**
  * Returns true if there is something assigned to the given object
@@ -37,7 +37,7 @@ function isObjectAssigned(obj) {
  * @returns {boolean}
  */
 function isString(obj) {
-  return typeof obj === "string";
+  return _.isString(obj);
 }
 
 /**
@@ -46,7 +46,7 @@ function isString(obj) {
  * @returns {boolean}
  */
 function isNumber(obj) {
-  return typeof obj === "number";
+  return _.isNumber(obj);
 }
 
 /**
@@ -55,7 +55,7 @@ function isNumber(obj) {
  * @returns {boolean}
  */
 function isGame(obj) {
-  //return obj instanceof Game;
+  return obj instanceof Game;
 }
 
 /**
@@ -64,7 +64,7 @@ function isGame(obj) {
  * @returns {boolean}
  */
 function isGameScene(obj) {
-  //return obj instanceof GameScene;
+  return obj instanceof GameScene;
 }
 
 /**
@@ -73,7 +73,7 @@ function isGameScene(obj) {
  * @returns {boolean}
  */
 function isTexture2D(obj) {
-  //return obj instanceof Texture2D;
+  return obj instanceof Texture2D;
 }
 
 /**
@@ -82,7 +82,7 @@ function isTexture2D(obj) {
  * @returns {boolean}
  */
 function isFunction(obj) {
-  return typeof obj === "function";
+  return _.isFunction(obj);
 }
 
 /**
@@ -91,7 +91,7 @@ function isFunction(obj) {
  * @returns {boolean}
  */
 function isSprite(obj) {
-  //return obj instanceof Sprite;
+  return obj instanceof Sprite;
 }
 
 /**
@@ -108,7 +108,7 @@ function inheritsFrom(child, parent) {
  * @type {number}
  * @private
  */
-var _SS_UID = 0;
+let _SS_UID = 0;
 function generateUID() {
   return ++_SS_UID;
 }
@@ -129,7 +129,7 @@ function capitalize(string) {
  * @returns {string}
  */
 function splitCamelCase(string) {
-  return string.replace(/([a-z](?=[A-Z]))/g, "$1 ");
+  return _.startCase(string);
 }
 
 /**
@@ -149,9 +149,5 @@ function getType(object) {
  * @param b
  */
 function isEqual(a, b) {
-  if (isFunction(a.equals)) {
-    return a.equals(b);
-  }
-
-  return a === b;
+  return _.isEqual(a, b);
 }

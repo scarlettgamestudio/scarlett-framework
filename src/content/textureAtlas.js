@@ -1,46 +1,44 @@
 /**
  * Content Texture Atlas Class
  */
-class TextureAtlas {
+export default class TextureAtlas {
+  //#region Constructors
 
-    //#region Constructors
-
-    /**
+  /**
      * @param params
      * @constructor
      */
-    constructor(params) {
-        params = params || {};
+  constructor(params) {
+    params = params || {};
 
-        // public properties:
-        this.sourcePath = params.sourcePath || ""; // should be a relative path
-        this.mapping = [];
-    }
+    // public properties:
+    this.sourcePath = params.sourcePath || ""; // should be a relative path
+    this.mapping = [];
+  }
 
-    //#endregion
+  //#endregion
 
-    //#region Methods
+  //#region Methods
 
-    //#region Static Methods
+  //#region Static Methods
 
-    static restore(data) {
-        return new TextureAtlas({
-            sourcePath: data.sourcePath
-        });
-    }
+  static restore(data) {
+    return new TextureAtlas({
+      sourcePath: data.sourcePath
+    });
+  }
 
-    //#endregion
+  //#endregion
 
-    objectify() {
-        return {
-            sourcePath: this.sourcePath
-        };
-    }
+  objectify() {
+    return {
+      sourcePath: this.sourcePath
+    };
+  }
 
-    getType() {
-        return "TextureAtlas";
-    }
+  getType() {
+    return "TextureAtlas";
+  }
 
-    //#endregion
-
+  //#endregion
 }

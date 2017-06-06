@@ -1,59 +1,61 @@
+import { SetterDictionary } from "common/setterDictionary";
+
 SetterDictionary.addRule("vector4", ["x", "y", "z", "w"]);
 
 /**
  * Vector4 Class for tri dimensional point references
  */
-class Vector4 {
+export default class Vector4 {
+  //#region Constructors
 
-    //#region Constructors
+  constructor(x, y, z, w) {
+    // just because they 'should' be declared here
+    this.x = 0;
+    this.y = 0;
+    this.z = 0;
+    this.w = 0;
 
-    constructor(x, y, z, w) {
-        // just because they 'should' be declared here
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
-        this.w = 0;
+    this.set(x, y, z, w);
+  }
 
-        this.set(x, y, z, w);
-    }
+  //#endregion
 
+  //#region Methods
 
-    //#endregion
+  //#region Static Methods
 
-    //#region Methods
+  static restore(data) {
+    return new Vector4(data.x, data.y, data.z, data.w);
+  }
 
-    //#region Static Methods
+  //#endregion
 
-    static restore(data) {
-        return new Vector4(data.x, data.y, data.z, data.w);
-    }
+  set(x, y, z, w) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.w = w || 0;
+  }
 
-    //#endregion
+  objectify() {
+    return {
+      x: this.x,
+      y: this.y,
+      z: this.z,
+      w: this.w
+    };
+  }
 
-    set(x, y, z, w) {
-        this.x = x || 0;
-        this.y = y || 0;
-        this.z = z || 0;
-        this.w = w || 0;
-    }
+  equals(obj) {
+    return (
+      obj.x === this.x &&
+      obj.y === this.y &&
+      obj.z === this.z &&
+      obj.w === this.w
+    );
+  }
 
-    objectify() {
-        return {
-            x: this.x,
-            y: this.y,
-            z: this.z,
-            w: this.w
-        };
-    }
+  unload() {}
 
-    equals(obj) {
-        return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
-    }
-
-    unload() {
-
-    }
-
-    //#endregion
-
+  //#endregion
 }

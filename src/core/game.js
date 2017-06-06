@@ -1,7 +1,24 @@
+import Logger from "common/logger";
+import { CONSTANTS } from "common/constants";
+import Matter from "matter-js";
+import GameManager from "./gameManager";
+import WebGLContext from "webgl/webGLContext";
+import ShaderManager from "shaders/shaderManager";
+import Keys from "input/keys";
+import { Keyboard } from "input/keyboard";
+
+import {
+  isString,
+  isObjectAssigned,
+  isGameScene,
+  isFunction
+} from "common/utils";
+
 /**
  * GameScene Class
  */
-class Game {
+
+export default class Game {
   //#region Constructors
 
   constructor(params) {
@@ -20,7 +37,7 @@ class Game {
     this._totalElapsedTime = null;
     this._virtualResolution = null;
     this._shaderManager = null;
-    this._executionPhase = SC.EXECUTION_PHASES.WAITING;
+    this._executionPhase = CONSTANTS.EXECUTION_PHASES.WAITING;
     this._physicsEngine = Matter.Engine.create();
     this._physicsEngine.enableSleeping = true;
     this._renderExtensions = {};
@@ -102,7 +119,8 @@ class Game {
     // context initialization
     if (!isObjectAssigned(this._canvas)) {
       this._logger.warn(
-        "Cannot initialize game, the render display target was not provided or is invalid."
+        "Cannot initialize game, " +
+          "the render display target was not provided or is invalid."
       );
       return;
     }
@@ -188,7 +206,7 @@ class Game {
     }
 
     // is it safe to swap scenes now?
-    if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
+    if (this._executionPhase == CONSTANTS.EXECUTION_PHASES.WAITING) {
       // flag the swapping state
       this._swappingScenes = true;
 
@@ -271,7 +289,7 @@ class Game {
     }
 
     // update the keyboard data:
-    Keyboard.instance.removeKeys(keys);
+    Keyboard.removeKeys(keys);
   }
 
   /**
@@ -291,7 +309,7 @@ class Game {
     }
 
     // update the keyboard data:
-    Keyboard.instance.addKeys(keys);
+    Keyboard.addKeys(keys);
   }
 
   /**
@@ -328,7 +346,7 @@ class Game {
       // the user defined the game scene update function?
       if (isFunction(this._gameScene.update)) {
         // call user defined update function:
-        this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
+        this._executionPhase = CONSTANTS.EXECUTION_PHASES.UPDATE;
         this._gameScene.update(delta);
       }
 
@@ -336,7 +354,7 @@ class Game {
 
       if (isFunction(this._gameScene.lateUpdate)) {
         // call user defined update function:
-        this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
+        this._executionPhase = CONSTANTS.EXECUTION_PHASES.LATE_UPDATE;
         this._gameScene.lateUpdate(delta);
       }
 
@@ -353,19 +371,19 @@ class Game {
 
       // the user defined the game scene early-render function?
       if (isFunction(this._gameScene.render)) {
-        this._executionPhase = SC.EXECUTION_PHASES.RENDER;
+        this._executionPhase = CONSTANTS.EXECUTION_PHASES.RENDER;
         this._gameScene.render(delta);
       }
 
       // call internal scene render function:
-      this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
+      this._executionPhase = CONSTANTS.EXECUTION_PHASES.SCENE_RENDER;
       this._gameScene.sceneRender(delta);
 
       this._gameScene.flushRender();
 
       // the user defined the game scene pre-render function?
       if (isFunction(this._gameScene.lateRender)) {
-        this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
+        this._executionPhase = CONSTANTS.EXECUTION_PHASES.LATE_RENDER;
         this._gameScene.lateRender(delta);
         this._gameScene.flushRender();
       }
@@ -374,14 +392,15 @@ class Game {
       //    this._logger.error(ex);
       //}
 
-      this._executionPhase = SC.EXECUTION_PHASES.WAITING;
+      this._executionPhase = CONSTANTS.EXECUTION_PHASES.WAITING;
     }
 
     // request a new animation frame:
     if (!this._paused) {
       requestAnimationFrame(this._onAnimationFrame.bind(this));
     } else {
-      // when the game is paused it's a good idea to wait a few ms before requesting a new animation frame to
+      // when the game is paused it's a good idea to wait a
+      // few ms before requesting a new animation frame to
       // save some machine resources...
       setTimeout(function() {
         requestAnimationFrame(self._onAnimationFrame.bind(self));

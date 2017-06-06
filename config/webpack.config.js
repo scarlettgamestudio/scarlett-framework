@@ -12,7 +12,7 @@ const DEPLOYING = process.env.NODE_ENV === "production";
 // the variable name from which the library should be accessed from
 const globalLibraryName = "SC";
 // the entry filename of the library (inside src)
-const entryFilenames = ["index.js"];
+const entryFilenames = ["matter-js", "index.js"];
 
 // default package name (ES5)
 let finalPackageName = packageName + ".browser.js";

@@ -8,7 +8,7 @@ export { EventManager } from "./eventManager";
 
 export { default as FileContext } from "./fileContext";
 
-export { Debug } from "./logger";
+export { default as Logger, Debug } from "./logger";
 export { SetterDictionary } from "./setterDictionary";
 
 export * from "./utils";

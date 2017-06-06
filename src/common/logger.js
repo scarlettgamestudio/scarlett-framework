@@ -31,4 +31,4 @@ export default class Logger {
 }
 
 // General Debug Logger
-export const debug = new Logger("Debug");
+export const Debug = new Logger("Debug");

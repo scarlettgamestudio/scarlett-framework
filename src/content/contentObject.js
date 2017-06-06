@@ -1,22 +1,18 @@
 /**
  * Content Object Class
  */
-class ContentObject {
+export default class ContentObject {
+  //#region Constructors
 
-    //#region Constructors
-
-    /**
+  /**
      * @param params
      * @constructor
      */
-    constructor(params) {
+  constructor(params) {}
 
-    }
+  //#endregion
 
-    //#endregion
+  //#region Methods
 
-    //#region Methods
-
-    //#endregion
-
+  //#endregion
 }
