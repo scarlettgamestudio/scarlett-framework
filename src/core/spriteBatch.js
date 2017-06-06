@@ -16,7 +16,6 @@ class SpriteBatch {
         this._vertexBuffer = this._gl.createBuffer();
         this._texBuffer = this._gl.createBuffer();
         this._textureShader = new TextureShader();
-        this._lastTexUID = -1;
         this._sprites = [];
         this._rectangleData = new Float32Array([
             0.0, 0.0,
@@ -60,12 +59,13 @@ class SpriteBatch {
     }
 
     flush() {
-        if (this._sprites.length == 0) {
+        if (this._sprites.length === 0) {
             return;
         }
 
         let gl = this._gl;
         let cameraMatrix = this._game.getActiveCamera().getMatrix();
+        let lastTextureId = -1, texture, tint;
 
         this._game.getShaderManager().useShader(this._textureShader);
 
@@ -85,7 +85,6 @@ class SpriteBatch {
         // set uniforms
         gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-        let texture, tint;
         for (let i = 0; i < this._sprites.length; i++) {
             texture = this._sprites[i].getTexture();
 
@@ -95,11 +94,12 @@ class SpriteBatch {
                 // for performance sake, consider if the texture is the same so we don't need to bind again
                 // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
                 // TODO: correct this when using textures outside spritebatch...
-                //if (this._lastTexUID != texture.getUID()) {
-                texture.bind();
-                this._lastTexUID = texture.getUID();
-                //}
+                if (lastTextureId !== texture.getUID()) {
+                    texture.bind();
+                    lastTextureId = texture.getUID();
+                }
 
+                // TODO: fix wrap modes:
                 switch (this._sprites[i].getWrapMode()) {
                     case WrapMode.REPEAT:
                         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);

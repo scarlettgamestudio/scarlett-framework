@@ -21,8 +21,9 @@ class GridExt {
         this._gridColor = params.gridColor || Color.Red;
         this._originLines = true;
         this._zoomMultiplier = 2;
-        // TODO: maybe get a batch here?
+        this._primitiveBatch = new PrimitiveBatch(params.game);
         this._primitiveRender = new PrimitiveRender(params.game);
+        this._useDynamicColor = params.dynamicColor || true;
     }
 
     //#endregion
@@ -67,6 +68,8 @@ class GridExt {
     render(delta) {
         // render a grid?
         if (this.enabled) {
+            this._primitiveBatch.begin();
+
             // I have an idea that can be great here..
             // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
             // the following calculations on event:
@@ -76,7 +79,7 @@ class GridExt {
             //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
             let gridSize = this._gridSize;
             for (let i = 0; i < floorZoom - 1; i++) {
-                if (i % this._zoomMultiplier == 0) {
+                if (i % this._zoomMultiplier === 0) {
                     gridSize *= 2;
                 }
             }
@@ -89,8 +92,8 @@ class GridExt {
             let zoomDifY = (zoom * screenResolution.height) * 2.0;
             let howManyX = Math.floor((screenResolution.width + zoomDifX) / gridSize + 2);
             let howManyY = Math.floor((screenResolution.height + zoomDifY) / gridSize + 2);
-            let alignedX = Math.floor(howManyX / 2.0) % 2 == 0;
-            let alignedY = Math.floor(howManyY / 2.0) % 2 == 0;
+            let alignedX = Math.floor(howManyX / 2.0) % 2 === 0;
+            let alignedY = Math.floor(howManyY / 2.0) % 2 === 0;
             let left = -(screenResolution.width + zoomDifX) / 2;
             let right = (screenResolution.width + zoomDifX) / 2;
             let top = -(screenResolution.height + zoomDifY) / 2;
@@ -98,18 +101,18 @@ class GridExt {
             let dynColor = this._gridColor.clone();
             let color = null;
 
-            if (zoom > 1) {
+            if (zoom > 1 && this._useDynamicColor) {
                 dynColor.a = 1 - ((zoom % this._zoomMultiplier) / this._zoomMultiplier);
             }
 
             // horizontal shift ||||||||
             for (let x = 0; x < howManyX; x++) {
                 color = this._gridColor;
-                if (((x * gridSize) + offsetX + (alignedX ? gridSize : 0)) % upperGridSize) {
+                if (this._useDynamicColor && (((x * gridSize) + offsetX + (alignedX ? gridSize : 0)) % upperGridSize)) {
                     color = dynColor;
                 }
 
-                this._primitiveRender.drawLine(
+                this._primitiveBatch.storeLine(
                     {
                         x: x * gridSize + left - (left % gridSize) + offsetX,
                         y: bottom + gridSize + offsetY
@@ -117,18 +120,17 @@ class GridExt {
                     {
                         x: x * gridSize + left - (left % gridSize) + offsetX,
                         y: top - gridSize + offsetY
-                    },
-                    1, color);
+                    }, color);
             }
 
             // vertical shift _ _ _ _ _
             for (let y = 0; y < howManyY; y++) {
                 color = this._gridColor;
-                if (((y * gridSize) + offsetY + (alignedY ? gridSize : 0)) % upperGridSize) {
+                if (this._useDynamicColor && (((y * gridSize) + offsetY + (alignedY ? gridSize : 0)) % upperGridSize)) {
                     color = dynColor;
                 }
 
-                this._primitiveRender.drawLine(
+                this._primitiveBatch.storeLine(
                     {
                         x: right + this._gridSize + offsetX,
                         y: y * gridSize + top - (top % gridSize) + offsetY
@@ -136,9 +138,10 @@ class GridExt {
                     {
                         x: left - gridSize + offsetX,
                         y: y * gridSize + top - (top % gridSize) + offsetY
-                    },
-                    1, color);
+                    }, color);
             }
+
+            this._primitiveBatch.flushLines();
 
             // main "lines" (origin)
             if (this._originLines) {

@@ -10885,8 +10885,9 @@ class GridExt {
         this._gridColor = params.gridColor || Color.Red;
         this._originLines = true;
         this._zoomMultiplier = 2;
-        // TODO: maybe get a batch here?
+        this._primitiveBatch = new PrimitiveBatch(params.game);
         this._primitiveRender = new PrimitiveRender(params.game);
+        this._useDynamicColor = params.dynamicColor || true;
     }
 
     //#endregion
@@ -10931,6 +10932,8 @@ class GridExt {
     render(delta) {
         // render a grid?
         if (this.enabled) {
+            this._primitiveBatch.begin();
+
             // I have an idea that can be great here..
             // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
             // the following calculations on event:
@@ -10940,7 +10943,7 @@ class GridExt {
             //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
             let gridSize = this._gridSize;
             for (let i = 0; i < floorZoom - 1; i++) {
-                if (i % this._zoomMultiplier == 0) {
+                if (i % this._zoomMultiplier === 0) {
                     gridSize *= 2;
                 }
             }
@@ -10953,8 +10956,8 @@ class GridExt {
             let zoomDifY = (zoom * screenResolution.height) * 2.0;
             let howManyX = Math.floor((screenResolution.width + zoomDifX) / gridSize + 2);
             let howManyY = Math.floor((screenResolution.height + zoomDifY) / gridSize + 2);
-            let alignedX = Math.floor(howManyX / 2.0) % 2 == 0;
-            let alignedY = Math.floor(howManyY / 2.0) % 2 == 0;
+            let alignedX = Math.floor(howManyX / 2.0) % 2 === 0;
+            let alignedY = Math.floor(howManyY / 2.0) % 2 === 0;
             let left = -(screenResolution.width + zoomDifX) / 2;
             let right = (screenResolution.width + zoomDifX) / 2;
             let top = -(screenResolution.height + zoomDifY) / 2;
@@ -10962,18 +10965,18 @@ class GridExt {
             let dynColor = this._gridColor.clone();
             let color = null;
 
-            if (zoom > 1) {
+            if (zoom > 1 && this._useDynamicColor) {
                 dynColor.a = 1 - ((zoom % this._zoomMultiplier) / this._zoomMultiplier);
             }
 
             // horizontal shift ||||||||
             for (let x = 0; x < howManyX; x++) {
                 color = this._gridColor;
-                if (((x * gridSize) + offsetX + (alignedX ? gridSize : 0)) % upperGridSize) {
+                if (this._useDynamicColor && (((x * gridSize) + offsetX + (alignedX ? gridSize : 0)) % upperGridSize)) {
                     color = dynColor;
                 }
 
-                this._primitiveRender.drawLine(
+                this._primitiveBatch.storeLine(
                     {
                         x: x * gridSize + left - (left % gridSize) + offsetX,
                         y: bottom + gridSize + offsetY
@@ -10981,18 +10984,17 @@ class GridExt {
                     {
                         x: x * gridSize + left - (left % gridSize) + offsetX,
                         y: top - gridSize + offsetY
-                    },
-                    1, color);
+                    }, color);
             }
 
             // vertical shift _ _ _ _ _
             for (let y = 0; y < howManyY; y++) {
                 color = this._gridColor;
-                if (((y * gridSize) + offsetY + (alignedY ? gridSize : 0)) % upperGridSize) {
+                if (this._useDynamicColor && (((y * gridSize) + offsetY + (alignedY ? gridSize : 0)) % upperGridSize)) {
                     color = dynColor;
                 }
 
-                this._primitiveRender.drawLine(
+                this._primitiveBatch.storeLine(
                     {
                         x: right + this._gridSize + offsetX,
                         y: y * gridSize + top - (top % gridSize) + offsetY
@@ -11000,9 +11002,10 @@ class GridExt {
                     {
                         x: left - gridSize + offsetX,
                         y: y * gridSize + top - (top % gridSize) + offsetY
-                    },
-                    1, color);
+                    }, color);
             }
+
+            this._primitiveBatch.flushLines();
 
             // main "lines" (origin)
             if (this._originLines) {
@@ -14211,12 +14214,14 @@ class PrimitiveBatch {
         this._game = game;
         this._gl = game.getRenderContext().getContext();
         this._primitiveShader = new PrimitiveShader();
-        this._vertexBuffer = this._gl.createBuffer();
-        this._colorBuffer = this._gl.createBuffer();
+        this._vbo = this._gl.createBuffer();
 
         this._rectangleVertexData = [];
         this._rectangleColorData = [];
         this._rectangleCount = 0;
+
+        this._lineArrayCount = 0;
+        this._lineVertexData = [];
 
         this._transformMatrix = new Matrix4();
         this._rectangleData = new Float32Array([
@@ -14234,60 +14239,92 @@ class PrimitiveBatch {
     //#region Methods
 
     unload() {
-        this._gl.deleteBuffer(this._vertexBuffer);
-        this._gl.deleteBuffer(this._colorBuffer);
+        this._gl.deleteBuffer(this._vbo);
 
         this._primitiveShader.unload();
     }
 
     begin() {
-        //let gl = this._gl;
-        // bind buffers
-        //gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        this.clear();
     }
 
     clear() {
+        // rectangle data
         this._rectangleVertexData = [];
         this._rectangleColorData = [];
         this._rectangleCount = 0;
+
+        // lines data
+        this._lineVertexData = [];
+        this._lineArrayCount = 0;
     }
 
-    flush() {
+    flushRectangles() {
+        if (this._rectangleCount === 0) {
+            // nothing to do..
+            return;
+        }
+
         let gl = this._gl;
         let cameraMatrix = this._game.getActiveCamera().getMatrix();
 
         this._game.getShaderManager().useShader(this._primitiveShader);
 
-        // draw rectangles?
-        if (this._rectangleCount > 0) {
-            // position buffer
-            gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+        // TODO: review this.. not batched at all!
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
-            gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-            gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-            // set uniforms
-            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-            for (let i = 0; i < this._rectangleCount; i++) {
-                this._transformMatrix.identity();
-                this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
-                this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0])
+        for (let i = 0; i < this._rectangleCount; i++) {
+            this._transformMatrix.identity();
+            this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
+            this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0])
 
-                gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-                gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
-                    this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
+            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+            gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
+                this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
 
-                gl.drawArrays(gl.TRIANGLES, 0, 6);
-            }
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
         }
-
-        this.clear();
     }
 
-    drawPoint(vector, size, color) {
+    flushLines() {
+        if (this._lineVertexData.length === 0) {
+            // nothing to do..
+            return;
+        }
 
+        let gl = this._gl;
+
+        // TODO: not all implementations support this, to check again in a near future..
+        // gl.lineWidth(thickness);
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        // vbo buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._lineVertexData), gl.STATIC_DRAW);
+
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 24, 0);
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexColorPosition, 4, this._gl.FLOAT, false, 24, 8);
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexColorPosition);
+
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        //gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.LINES, 0, this._lineArrayCount);
     }
 
     storeRectangle(rectangle, color) {
@@ -14296,8 +14333,23 @@ class PrimitiveBatch {
         this._rectangleCount++;
     }
 
-    drawLine(vectorA, vectorB, thickness, color) {
+    storeLine(vectorA, vectorB, color) {
+        // Note: DO NOT use any kind of javascript concatenation mechanism here! it slows down things considerably
+        this._lineVertexData.push(vectorA.x);
+        this._lineVertexData.push(vectorA.y);
+        this._lineVertexData.push(color.r);
+        this._lineVertexData.push(color.g);
+        this._lineVertexData.push(color.b);
+        this._lineVertexData.push(color.a);
 
+        this._lineVertexData.push(vectorB.x);
+        this._lineVertexData.push(vectorB.y);
+        this._lineVertexData.push(color.r);
+        this._lineVertexData.push(color.g);
+        this._lineVertexData.push(color.b);
+        this._lineVertexData.push(color.a);
+
+        this._lineArrayCount += 2;
     }
 
     //#endregion
@@ -14460,7 +14512,7 @@ class PrimitiveRender {
         // set uniforms
         gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
         gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+        //gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
@@ -14989,7 +15041,6 @@ class SpriteBatch {
         this._vertexBuffer = this._gl.createBuffer();
         this._texBuffer = this._gl.createBuffer();
         this._textureShader = new TextureShader();
-        this._lastTexUID = -1;
         this._sprites = [];
         this._rectangleData = new Float32Array([
             0.0, 0.0,
@@ -15033,12 +15084,13 @@ class SpriteBatch {
     }
 
     flush() {
-        if (this._sprites.length == 0) {
+        if (this._sprites.length === 0) {
             return;
         }
 
         let gl = this._gl;
         let cameraMatrix = this._game.getActiveCamera().getMatrix();
+        let lastTextureId = -1, texture, tint;
 
         this._game.getShaderManager().useShader(this._textureShader);
 
@@ -15058,7 +15110,6 @@ class SpriteBatch {
         // set uniforms
         gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-        let texture, tint;
         for (let i = 0; i < this._sprites.length; i++) {
             texture = this._sprites[i].getTexture();
 
@@ -15068,11 +15119,12 @@ class SpriteBatch {
                 // for performance sake, consider if the texture is the same so we don't need to bind again
                 // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
                 // TODO: correct this when using textures outside spritebatch...
-                //if (this._lastTexUID != texture.getUID()) {
-                texture.bind();
-                this._lastTexUID = texture.getUID();
-                //}
+                if (lastTextureId !== texture.getUID()) {
+                    texture.bind();
+                    lastTextureId = texture.getUID();
+                }
 
+                // TODO: fix wrap modes:
                 switch (this._sprites[i].getWrapMode()) {
                     case WrapMode.REPEAT:
                         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -16942,6 +16994,9 @@ let glu = new WebGLUtils();
 ;/**
  * Shader Class
  * Some cool code ideas were applied from Pixi.JS Shader class
+ * 
+ * Relevant information regarding attribute usage:
+ * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
  */
 class Shader {
 
@@ -16967,6 +17022,7 @@ class Shader {
         this._fragmentScript = fragmentScript;
         this._textureCount = 1;
         this._uid = generateUID();
+        this._logger = new Logger("Shader");
 
         this.setup();
     }
@@ -16983,6 +17039,7 @@ class Shader {
             let shaderManager = GameManager.activeGame.getShaderManager();
             if (shaderManager) {
                 shaderManager.useShader(this);
+
             } else {
                 this._gl.useProgram(this._program);
             }
@@ -16992,7 +17049,8 @@ class Shader {
             this.cacheAttributeLocations(Object.keys(this.attributes));
 
         } else {
-            debug.error("Shader setup failed");
+            this._logger.error("Shader setup failed");
+
         }
     }
 
@@ -17007,8 +17065,10 @@ class Shader {
             this._program = program;
 
             return true;
+
         } else {
             program = null;
+
         }
 
         return false;
@@ -17030,7 +17090,7 @@ class Shader {
             let type = typeof(this.uniforms[keys[i]]);
 
             if (type !== "object"){
-                debug.warn("Shader's uniform " + keys[i] + " is not an object.");
+                this._logger.warn("Shader's uniform " + keys[i] + " is not an object.");
                 continue;
             }
 
@@ -17133,7 +17193,7 @@ class Shader {
 
                 break;
             default:
-                debug.warn("Unknown uniform type: " + uniform.type);
+                this._logger.warn("Unknown uniform type: " + uniform.type);
                 break;
         }
     }
@@ -17144,7 +17204,7 @@ class Shader {
 
     initSampler2D(uniform) {
         if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-            debug.warn("Could not initialize sampler2D because the texture isn't ready.");
+            this._logger.warn("Could not initialize sampler2D because the texture isn't ready.");
             return;
         }
 
@@ -17417,12 +17477,16 @@ class PrimitiveShader extends Shader {
         return {
             vertex: [
                 'attribute vec2 aVertexPosition;',
+                'attribute vec4 aVertexColorPosition;',
 
                 'uniform mat4 uMatrix;',
                 'uniform mat4 uTransform;',
                 'uniform float uPointSize;',
 
+                'varying vec4 vColor;',
+
                 'void main(void) {',
+                '   vColor = aVertexColorPosition;',
                 '   gl_PointSize = uPointSize;',
                 '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
                 '}'
@@ -17430,20 +17494,20 @@ class PrimitiveShader extends Shader {
             fragment: [
                 'precision mediump float;',
 
-                'uniform vec4 uColor;',
+                'varying vec4 vColor;',
 
                 'void main(void) {',
-                '   gl_FragColor = uColor;',
+                '   gl_FragColor = vColor;',
                 '}'
             ].join('\n'),
             uniforms: {
                 uMatrix: {type: 'mat4', value: new Float32Array(16)},
                 uTransform: {type: 'mat4', value: new Float32Array(16)},
-                uColor: [0.0, 0.0, 0.0, 1.0],
                 uPointSize: {type: '1i', value: 2}
             },
             attributes: {
-                aVertexPosition: 0
+                aVertexPosition: -1,
+                aVertexColorPosition: -1
             }
         };
     }

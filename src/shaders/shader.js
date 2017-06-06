@@ -1,6 +1,9 @@
 /**
  * Shader Class
  * Some cool code ideas were applied from Pixi.JS Shader class
+ * 
+ * Relevant information regarding attribute usage:
+ * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
  */
 class Shader {
 
@@ -26,6 +29,7 @@ class Shader {
         this._fragmentScript = fragmentScript;
         this._textureCount = 1;
         this._uid = generateUID();
+        this._logger = new Logger("Shader");
 
         this.setup();
     }
@@ -42,6 +46,7 @@ class Shader {
             let shaderManager = GameManager.activeGame.getShaderManager();
             if (shaderManager) {
                 shaderManager.useShader(this);
+
             } else {
                 this._gl.useProgram(this._program);
             }
@@ -51,7 +56,8 @@ class Shader {
             this.cacheAttributeLocations(Object.keys(this.attributes));
 
         } else {
-            debug.error("Shader setup failed");
+            this._logger.error("Shader setup failed");
+
         }
     }
 
@@ -66,8 +72,10 @@ class Shader {
             this._program = program;
 
             return true;
+
         } else {
             program = null;
+
         }
 
         return false;
@@ -89,7 +97,7 @@ class Shader {
             let type = typeof(this.uniforms[keys[i]]);
 
             if (type !== "object"){
-                debug.warn("Shader's uniform " + keys[i] + " is not an object.");
+                this._logger.warn("Shader's uniform " + keys[i] + " is not an object.");
                 continue;
             }
 
@@ -192,7 +200,7 @@ class Shader {
 
                 break;
             default:
-                debug.warn("Unknown uniform type: " + uniform.type);
+                this._logger.warn("Unknown uniform type: " + uniform.type);
                 break;
         }
     }
@@ -203,7 +211,7 @@ class Shader {
 
     initSampler2D(uniform) {
         if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-            debug.warn("Could not initialize sampler2D because the texture isn't ready.");
+            this._logger.warn("Could not initialize sampler2D because the texture isn't ready.");
             return;
         }
 
