@@ -1,7 +1,7 @@
-import { isObjectAssigned } from './utils';
+import { isObjectAssigned } from "./utils";
 
 // unique key
-const _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
+const _attributeDictionarySingleton = Symbol("attributeDictionarySingleton");
 
 /**
  * Attribute Dictionary Singleton Class
@@ -10,9 +10,9 @@ const _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
 class AttributeDictionarySingleton {
   //#region Constructors
 
-  constructor (attributeDictionarySingletonToken) {
+  constructor(attributeDictionarySingletonToken) {
     if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
-      throw new Error('Cannot instantiate directly.');
+      throw new Error("Cannot instantiate directly.");
     }
 
     this._rules = {};
@@ -25,7 +25,7 @@ class AttributeDictionarySingleton {
 
   //#region Static Methods
 
-  static get instance () {
+  static get instance() {
     if (!this[_attributeDictionarySingleton]) {
       this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(
         _attributeDictionarySingleton
@@ -44,7 +44,7 @@ class AttributeDictionarySingleton {
      * @param rule
      * @returns {boolean}
      */
-  addRule (context, propertyName, rule) {
+  addRule(context, propertyName, rule) {
     if (isObjectAssigned(context)) {
       context = context.toLowerCase();
 
@@ -66,7 +66,7 @@ class AttributeDictionarySingleton {
      * @param propertyName
      * @returns {*}
      */
-  getRule (context, propertyName) {
+  getRule(context, propertyName) {
     context = context.toLowerCase();
 
     // first check the first order rules:
@@ -93,7 +93,7 @@ class AttributeDictionarySingleton {
      * @param typeName
      * @param parent
      */
-  inherit (context, parent) {
+  inherit(context, parent) {
     context = context.toLowerCase();
     parent = parent.toLowerCase();
 

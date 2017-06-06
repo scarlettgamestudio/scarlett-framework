@@ -8,7 +8,7 @@ export default class GameManager {
    * The active render context
    * @type {renderContext}
    */
-  static get renderContext () {
+  static get renderContext() {
     return this._renderContext;
   }
 
@@ -16,39 +16,39 @@ export default class GameManager {
    * The active render context
    * @type {renderContext}
    */
-  static set renderContext (value) {
+  static set renderContext(value) {
     this._renderContext = value;
   }
 
-  static get activeScene () {
+  static get activeScene() {
     return this._activeScene;
   }
 
-  static set activeScene (value) {
+  static set activeScene(value) {
     this._activeScene = value;
   }
 
-  static get activeProject () {
+  static get activeProject() {
     return this._activeProject;
   }
 
-  static set activeProject (value) {
+  static set activeProject(value) {
     this._activeProject = value;
   }
 
-  static get activeGame () {
+  static get activeGame() {
     return this._activeGame;
   }
 
-  static set activeGame (value) {
+  static set activeGame(value) {
     this._activeGame = value;
   }
 
-  static get activeProjectPath () {
+  static get activeProjectPath() {
     return this._activeProjectPath;
   }
 
-  static set activeProjectPath (value) {
+  static set activeProjectPath(value) {
     this._activeProjectPath = value;
   }
 
@@ -56,7 +56,7 @@ export default class GameManager {
 
   //#region Constructors
 
-  constructor () {}
+  constructor() {}
 
   //#endregion
 }

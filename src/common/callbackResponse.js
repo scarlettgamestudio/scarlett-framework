@@ -2,24 +2,22 @@
  * CallbackResponse Class
  */
 export default class CallbackResponse {
+  //#region Constructors
 
-    //#region Constructors
+  constructor(params) {
+    params = params || {};
 
-    constructor(params) {
-        params = params || {};
+    this.success = params.success;
+    this.data = params.data || {};
+  }
 
-        this.success = params.success;
-        this.data = params.data || {};
-    }
+  //#endregion
 
-    //#endregion
+  //#region Methods
 
-    //#region Methods
+  isSuccessful() {
+    return this.success;
+  }
 
-    isSuccessful() {
-        return this.success;
-    }
-
-    //#endregion
-
+  //#endregion
 }

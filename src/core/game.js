@@ -4,7 +4,7 @@
 class Game {
   //#region Constructors
 
-  constructor (params) {
+  constructor(params) {
     params = params || {};
 
     let DEFAULT_VIRTUAL_WIDTH = 800;
@@ -14,7 +14,7 @@ class Game {
 
     // private properties:
     this._renderContext = null;
-    this._logger = new Logger('Game');
+    this._logger = new Logger("Game");
     this._initialized = false;
     this._gameScene = params.scene;
     this._totalElapsedTime = null;
@@ -49,7 +49,7 @@ class Game {
      * @param name
      * @param extension
      */
-  addRenderExtension (name, extension) {
+  addRenderExtension(name, extension) {
     this._renderExtensions[name] = extension;
   }
 
@@ -57,14 +57,14 @@ class Game {
      *
      * @param name
      */
-  removeRenderExtension (name) {
+  removeRenderExtension(name) {
     delete this._renderExtensions[name];
   }
 
   /**
      *
      */
-  clearRenderExtensions () {
+  clearRenderExtensions() {
     this._renderExtensions = [];
   }
 
@@ -72,37 +72,37 @@ class Game {
      *
      * @returns {engine|*}
      */
-  getPhysicsEngine () {
+  getPhysicsEngine() {
     return this._physicsEngine;
   }
 
-  pauseGame () {
+  pauseGame() {
     this._paused = true;
   }
 
-  resumeGame () {
+  resumeGame() {
     this._paused = false;
   }
 
-  getShaderManager () {
+  getShaderManager() {
     return this._shaderManager;
   }
 
-  getActiveCamera () {
+  getActiveCamera() {
     return this._gameScene ? this._gameScene.getCamera() : null;
   }
 
-  getExecutionPhase () {
+  getExecutionPhase() {
     return this._executionPhase;
   }
 
-  init (params) {
+  init(params) {
     params = params || {};
 
     // context initialization
     if (!isObjectAssigned(this._canvas)) {
       this._logger.warn(
-        'Cannot initialize game, the render display target was not provided or is invalid.'
+        "Cannot initialize game, the render display target was not provided or is invalid."
       );
       return;
     }
@@ -123,11 +123,11 @@ class Game {
   /**
      * Set this as the active game
      */
-  setActive () {
+  setActive() {
     GameManager.activeGame = this;
   }
 
-  setVirtualResolution (width, height) {
+  setVirtualResolution(width, height) {
     this._virtualResolution = {
       width: width,
       height: height
@@ -141,7 +141,7 @@ class Game {
     }
   }
 
-  refreshVirtualResolution () {
+  refreshVirtualResolution() {
     this._renderContext.setVirtualResolution(
       this._virtualResolution.width,
       this._virtualResolution.height
@@ -156,15 +156,15 @@ class Game {
     }
   }
 
-  getVirtualResolution () {
+  getVirtualResolution() {
     return this._virtualResolution;
   }
 
-  getRenderContext () {
+  getRenderContext() {
     return this._renderContext;
   }
 
-  setTarget (target) {
+  setTarget(target) {
     this._canvas = isString(target) ? document.getElementById(target) : null;
 
     if (isObjectAssigned(this._canvas)) {
@@ -182,7 +182,7 @@ class Game {
     }
   }
 
-  changeScene (scene) {
+  changeScene(scene) {
     if (!isGameScene(scene)) {
       return;
     }
@@ -216,11 +216,11 @@ class Game {
     }
   }
 
-  getTotalElapsedTime () {
+  getTotalElapsedTime() {
     return this._totalElapsedTime;
   }
 
-  unload () {
+  unload() {
     if (this._inputHandlersBinded) {
       this._unbindInputHandlers();
     }
@@ -234,9 +234,9 @@ class Game {
      *
      * @private
      */
-  _bindInputHandlers () {
-    window.addEventListener('keyup', this._keyUpListener.bind(this), false);
-    window.addEventListener('keydown', this._keyDownListener.bind(this), false);
+  _bindInputHandlers() {
+    window.addEventListener("keyup", this._keyUpListener.bind(this), false);
+    window.addEventListener("keydown", this._keyDownListener.bind(this), false);
     this._inputHandlersBinded = true;
   }
 
@@ -244,10 +244,10 @@ class Game {
      *
      * @private
      */
-  _unbindInputHandlers () {
-    window.removeEventListener('keyup', this._keyUpListener.bind(this), false);
+  _unbindInputHandlers() {
+    window.removeEventListener("keyup", this._keyUpListener.bind(this), false);
     window.removeEventListener(
-      'keydown',
+      "keydown",
       this._keyDownListener.bind(this),
       false
     );
@@ -259,7 +259,7 @@ class Game {
      * @param e
      * @private
      */
-  _keyUpListener (e) {
+  _keyUpListener(e) {
     let keys = [e.keyCode];
 
     if (e.ctrlKey) {
@@ -279,7 +279,7 @@ class Game {
      * @param e
      * @private
      */
-  _keyDownListener (e) {
+  _keyDownListener(e) {
     let keys = [e.keyCode];
 
     if (e.ctrlKey) {
@@ -299,7 +299,7 @@ class Game {
      * @param timestamp
      * @private
      */
-  _onAnimationFrame (timestamp) {
+  _onAnimationFrame(timestamp) {
     // is this the first run?
     if (this._totalElapsedTime === null) {
       this._totalElapsedTime = timestamp;
@@ -317,7 +317,9 @@ class Game {
     this._totalElapsedTime = timestamp;
 
     if (
-      !this._paused && isGameScene(this._gameScene) && !this._swappingScenes
+      !this._paused &&
+      isGameScene(this._gameScene) &&
+      !this._swappingScenes
     ) {
       // handle the active game scene interactions here:
 
@@ -345,7 +347,7 @@ class Game {
 
       // render extensions?
       let renderExtensions = Object.keys(this._renderExtensions);
-      renderExtensions.forEach(function (name) {
+      renderExtensions.forEach(function(name) {
         self._renderExtensions[name].render(delta);
       });
 
@@ -381,7 +383,7 @@ class Game {
     } else {
       // when the game is paused it's a good idea to wait a few ms before requesting a new animation frame to
       // save some machine resources...
-      setTimeout(function () {
+      setTimeout(function() {
         requestAnimationFrame(self._onAnimationFrame.bind(self));
       }, 100);
     }

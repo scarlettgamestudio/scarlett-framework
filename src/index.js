@@ -1,5 +1,5 @@
-export * from './common';
+export * from "./common";
 
-export * from './core';
+export * from "./core";
 
-export let XPTO = Symbol('#########!232131232');
+export let XPTO = Symbol("#########!232131232");

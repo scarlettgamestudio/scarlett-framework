@@ -66,12 +66,14 @@
     }
   },
   "eslintConfig": {
+    "parserOptions": {
+      "sourceType": "module"
+    },
     "env": {
       "browser": true,
       "es6": true,
       "jest/globals": true
     },
-    "parser": "babel-eslint",
     "extends": [
       "eslint:recommended"
     ],
@@ -80,29 +82,9 @@
     ],
     "rules": {
       "no-console": 0,
-      "indent": [
-        "error",
-        2
-      ],
-      "linebreak-style": [
-        "error",
-        "unix"
-      ],
-      "space-before-function-paren": [
-        "error",
-        "always"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ],
-      "quotes": [
-        "error",
-        "single"
-      ],
       "max-len": [
         "error",
-        100
+        80
       ]
     }
   },
