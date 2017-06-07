@@ -27,7 +27,8 @@
     "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
     "precommit": "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\"",
     "format": "prettier-eslint --write \"src/**/*.js\"",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "validate": "npm run lint && npm run test && npm run build:all"
   },
   "devDependencies": {
     "@types/jest": "19.2.3",
