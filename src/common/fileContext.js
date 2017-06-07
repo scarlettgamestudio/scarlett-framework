@@ -7,7 +7,7 @@ export default class FileContext {
      * @param {*} headers
      * @param {String} content
      */
-  constructor (headers, content) {
+  constructor(headers, content) {
     this.headers = headers;
     this.content = content;
   }
@@ -17,12 +17,12 @@ export default class FileContext {
      * @param {XMLHttpRequest} xhr
      * @returns {FileContext}
      */
-  static fromXHR (xhr) {
+  static fromXHR(xhr) {
     let headers = {};
 
     // iterate through every header line
-    xhr.getAllResponseHeaders().split('\r\n').forEach(headerLine => {
-      let index = headerLine.indexOf(':');
+    xhr.getAllResponseHeaders().split("\r\n").forEach(headerLine => {
+      let index = headerLine.indexOf(":");
 
       // if ':' character does not exist,
       // no need to go further on this iteration
