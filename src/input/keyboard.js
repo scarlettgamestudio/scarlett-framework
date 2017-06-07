@@ -1,12 +1,11 @@
-/**
- * Global Keyboard handler
- */
-
 import KeyboardState from "./keyboardState";
 
 // unique key
-let _keyboardSingleton = Symbol("keyboardSingleton");
+const _keyboardSingleton = Symbol("keyboardSingleton");
 
+/**
+ * Global Keyboard handler
+ */
 class KeyboardSingleton {
   //#region Constructors
 

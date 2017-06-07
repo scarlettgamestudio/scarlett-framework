@@ -5,21 +5,27 @@
 
 import _ from "lodash";
 
+/*
+import { Game } from "core/game";
+import { GameScene } from "core/gameScene";
+import { Sprite } from "core/sprite";
+import { Texture2D } from "core/texture2D";*/
+
 export {
   isObjectAssigned,
   isString,
   isNumber,
-  isGame,
-  isGameScene,
-  isTexture2D,
   isFunction,
-  isSprite,
   inheritsFrom,
   generateUID,
   splitCamelCase,
   capitalize,
   getType,
-  isEqual
+  isEqual,
+  isGame,
+  isGameScene,
+  isTexture2D,
+  isSprite
 };
 
 /**

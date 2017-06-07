@@ -1,128 +1,130 @@
 // unique key
-let _scriptsSingleton = Symbol('scriptsSingleton');
+const _scriptsSingleton = Symbol("scriptsSingleton");
 
 /**
  * Scripts Singleton Class
  */
 class ScriptsSingleton {
+  //#region Constructors
 
-    //#region Constructors
-
-    constructor(scriptsSingletonToken) {
-        if (_scriptsSingleton !== scriptsSingletonToken) {
-            throw new Error('Cannot instantiate directly.');
-        }
-
-        this._store = {};
+  constructor(scriptsSingletonToken) {
+    if (_scriptsSingleton !== scriptsSingletonToken) {
+      throw new Error("Cannot instantiate directly.");
     }
 
-    //#endregion
+    this._store = {};
+  }
 
-    //#region Public Methods
+  //#endregion
 
-    //#region Static Methods
+  //#region Public Methods
 
-    static get instance() {
-        if (!this[_scriptsSingleton]) {
-            this[_scriptsSingleton] = new ScriptsSingleton(_scriptsSingleton);
-        }
+  //#region Static Methods
 
-        return this[_scriptsSingleton];
+  static get instance() {
+    if (!this[_scriptsSingleton]) {
+      this[_scriptsSingleton] = new ScriptsSingleton(_scriptsSingleton);
     }
 
-    //#endregion
+    return this[_scriptsSingleton];
+  }
 
-    /**
+  //#endregion
+
+  /**
      * Clear all the stored scripts
      */
-    clear() {
-        this._store = {};
-    }
+  clear() {
+    this._store = {};
+  }
 
-    /**
+  /**
      * Creates and stores a script code
      * @returns {ObjectComponent}
      */
-    addScript(name) {
-        let script = function instance() {
-        };
-        this._store[name] = script;
-        this._setupScript(script);
-        return script;
-    }
+  addScript(name) {
+    let script = function instance() {};
+    this._store[name] = script;
+    this._setupScript(script);
+    return script;
+  }
 
-    /**
-     * Generates and assigns a component to the given game object. The component is returned in the function call
+  /**
+     * Generates and assigns a component to the given game object. T
+     * he component is returned in the function call
      * @param scriptName
      * @param gameObject
      */
-    assign(scriptName, gameObject) {
-        let component = this.generateComponent(scriptName);
-        gameObject.addComponent(component);
-        return component;
-    }
+  assign(scriptName, gameObject) {
+    let component = this.generateComponent(scriptName);
+    gameObject.addComponent(component);
+    return component;
+  }
 
-    /**
+  /**
      * Generates a component from one stored script
      * @param scriptName
      */
-    generateComponent(scriptName) {
-        if (!this._store[scriptName]) {
-            return null;
-        }
-
-        let component = Object.create(this._store[scriptName].prototype);
-        component._name = scriptName;
-
-        // now we need to assign all the instance properties defined:
-        let properties = this._store[scriptName].properties.getAll();
-        let propertyNames = Object.keys(properties);
-
-        if (propertyNames && propertyNames.length > 0) {
-            propertyNames.forEach(function (propName) {
-                // assign the default value if exists:
-                component[propName] = properties[propName].default;
-            });
-        }
-
-        return component;
+  generateComponent(scriptName) {
+    if (!this._store[scriptName]) {
+      return null;
     }
 
-    //#endregion
+    let component = Object.create(this._store[scriptName].prototype);
+    component._name = scriptName;
 
-    //#region Private Methods
+    // now we need to assign all the instance properties defined:
+    let properties = this._store[scriptName].properties.getAll();
+    let propertyNames = Object.keys(properties);
 
-    /**
+    if (propertyNames && propertyNames.length > 0) {
+      propertyNames.forEach(function(propName) {
+        // assign the default value if exists:
+        component[propName] = properties[propName].default;
+      });
+    }
+
+    return component;
+  }
+
+  //#endregion
+
+  //#region Private Methods
+
+  /**
      * Setup a script adding event handlers and such
      * @private
      */
-    _setupScript(script) {
-        script.properties = {
-            _store: {},
-            _target: script,
-            add: function (name, attr) {
-                // save on the target's properties store the attributes:
-                this._store[name] = attr;
-            },
-            get: function (name) {
-                return this._store[name];
-            },
-            getAll: function () {
-                return this._store;
-            }
-        };
-    }
+  _setupScript(script) {
+    script.properties = {
+      _store: {},
+      _target: script,
+      add: function(name, attr) {
+        // save on the target's properties store the attributes:
+        this._store[name] = attr;
+      },
+      get: function(name) {
+        return this._store[name];
+      },
+      getAll: function() {
+        return this._store;
+      }
+    };
+  }
 
-    //#endregion
-
+  //#endregion
 }
 
 /**
  *  Scripts alias to Scripts Singleton instance
  */
-let Scripts = ScriptsSingleton.instance;
+export const Scripts = ScriptsSingleton.instance;
+
+export const AddScript = Scripts.addScript;
+export const AssignScript = Scripts.assignScript;
 
 // aliases
-// there is the need to do a binding because otherwise the reference to the original object would be lost
-sc.addScript = Scripts.addScript.bind(Scripts);
-sc.assignScript = Scripts.assign.bind(Scripts);
+// there is the need to do a binding because
+// otherwise the reference to the original object would be lost
+//sc.addScript = Scripts.addScript.bind(Scripts);
+//sc.assignScript = Scripts.assign.bind(Scripts);

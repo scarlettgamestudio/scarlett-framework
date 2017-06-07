@@ -1,4 +1,6 @@
-import { isFunction, isObjectAssigned, getType, Logger } from "common";
+import Logger from "common/logger";
+
+import { isFunction, isObjectAssigned, getType } from "common/utils";
 
 /**
  * Objectify utility class

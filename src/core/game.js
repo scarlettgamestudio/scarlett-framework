@@ -1,14 +1,15 @@
-import { CONSTANTS, Logger } from "common";
 import Matter from "matter-js";
+import { CONSTANTS } from "common/constants";
+import Logger from "common/logger";
 import GameManager from "./gameManager";
 import WebGLContext from "webgl/webGLContext";
 import ShaderManager from "shaders/shaderManager";
-import { Keys, Keyboard } from "input";
-
+import Keys from "input/keys";
+import { Keyboard } from "input/keyboard";
 import {
   isString,
-  isObjectAssigned,
   isGameScene,
+  isObjectAssigned,
   isFunction
 } from "common/utils";
 

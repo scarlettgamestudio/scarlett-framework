@@ -1,4 +1,5 @@
 const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
+const CircularDependencyPlugin = require("circular-dependency-plugin");
 const webpack = require("webpack");
 const path = require("path");
 const WebpackNotifierPlugin = require("webpack-notifier");
@@ -85,6 +86,12 @@ const config = {
   },
   plugins: [
     new LodashModuleReplacementPlugin(),
+    new CircularDependencyPlugin({
+      // exclude detection of files based on a RegExp
+      exclude: /a\.js|node_modules/,
+      // add errors to webpack instead of warnings
+      failOnError: true
+    }),
     // Set up the notifier plugin - you can remove this (or set alwaysNotify false) if desired
     new WebpackNotifierPlugin({ alwaysNotify: true })
   ]

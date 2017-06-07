@@ -1,97 +1,100 @@
+import { ContentLoader } from "common/contentLoader";
+import { isObjectAssigned } from "common/utils";
+
 /**
  * Sound class
  */
-class Sound {
+export default class Sound {
+  //#region Constructors
 
-    //#region Constructors
-
-    /**
+  /**
      *
      * @param audio
      */
-    constructor(audio) {
-        if (!isObjectAssigned(audio)) {
-            throw new Error("Cannot create Sound without a valid audio source");
-        }
-
-        // private properties
-        this._source = audio;
+  constructor(audio) {
+    if (!isObjectAssigned(audio)) {
+      throw new Error("Cannot create Sound without a valid audio source");
     }
 
-    //#endregion
+    // private properties
+    this._source = audio;
+  }
 
-    //#region Methods
+  //#endregion
 
-    //#region Static Methods
+  //#region Methods
 
-    /**
+  //#region Static Methods
+
+  /**
      *
      * @param path
      * @returns {Promise}
      */
-    static fromPath(path) {
-        return new Promise((function (resolve, reject) {
-            ContentLoader.loadAudio(path).then(function (audio) {
-                resolve(new Sound(audio));
+  static fromPath(path) {
+    return new Promise(
+      function(resolve, reject) {
+        ContentLoader.loadAudio(path).then(
+          function(audio) {
+            resolve(new Sound(audio));
+          },
+          function() {
+            reject();
+          }
+        );
+      }.bind(this)
+    );
+  }
 
-            }, function () {
-                reject();
+  // TODO: static restore
 
-            });
-        }).bind(this));
-    }
+  //#endregion
 
-    // TODO: static restore
-
-    //#endregion
-
-    /**
+  /**
      *
      * @param audio
      */
-    setAudioSource(audio) {
-        this._source = audio;
-    }
+  setAudioSource(audio) {
+    this._source = audio;
+  }
 
-    /**
+  /**
      * plays the current audio source
      */
-    play() {
-        this._source.play();
-    }
+  play() {
+    this._source.play();
+  }
 
-    /**
+  /**
      * pauses the current audio source
      */
-    pause() {
-        this._source.pause();
-    }
+  pause() {
+    this._source.pause();
+  }
 
-    /**
+  /**
      * stops the current audio source
      */
-    stop() {
-        this._source.pause();
-        this._source.currentTime = 0;
-    }
+  stop() {
+    this._source.pause();
+    this._source.currentTime = 0;
+  }
 
-    /**
+  /**
      * sets the current audio source loop behavior
      * @param loop
      */
-    setLoop(loop) {
-        this._source.loop = loop;
-    }
+  setLoop(loop) {
+    this._source.loop = loop;
+  }
 
-
-    /**
+  /**
      * sets the current audio source output volume (0 to 1)
      * @param volume
      */
-    setVolume(volume) {
-        this._source.volume = volume;
-    }
+  setVolume(volume) {
+    this._source.volume = volume;
+  }
 
-    //#endregion
-
+  //#endregion
 }

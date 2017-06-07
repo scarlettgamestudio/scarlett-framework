@@ -1,7 +1,5 @@
 import { SetterDictionary } from "common/setterDictionary";
-
 import { isNumber, isString } from "common/utils";
-
 import MathHelper from "math/mathHelper";
 
 SetterDictionary.addRule("color", ["r", "g", "b", "a"]);

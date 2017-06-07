@@ -1,6 +1,7 @@
-/**
- * Created by Luis on 08/02/2017.
- */
+import { AttributeDictionary } from "common/attributeDictionary";
+import { ContentLoader } from "common/contentLoader";
+import { isObjectAssigned } from "common/utils";
+import BMFontParser from "utility/bmFontParser";
 
 AttributeDictionary.addRule("fontStyle", "_fontDescriptionFilePath", {
   displayName: "Font Description Source",
@@ -13,7 +14,7 @@ AttributeDictionary.addRule("fontStyle", "_fontDescription", {
 /**
  * FontStyle Class
  */
-class FontStyle {
+export default class FontStyle {
   //#region Constructors
 
   /**
@@ -89,7 +90,8 @@ class FontStyle {
   }
 
   /**
-     * Retrieves font style scale based on font size and font's description info size
+     * Retrieves font style scale based on 
+     * font size and font's description info size
      * @returns {number|null} font style scale or null if invalid
      */
   getScale() {
@@ -100,7 +102,8 @@ class FontStyle {
       return null;
     }
 
-    // calculate scale between generated font's size and the desired (font) size of the text
+    // calculate scale between generated
+    // font's size and the desired (font) size of the text
     let scale = this.getFontSize() / metricsSize;
 
     if (!scale || scale <= 0) {
@@ -128,7 +131,8 @@ class FontStyle {
 
   /**
      *
-     * @param {string} char character whose correspondent (font) ID is to be found (different from ascii code!)
+     * @param {string} char character whose correspondent (font) 
+     * ID is to be found (different from ascii code!)
      * @returns {number|null} font's character's ID or null if invalid
      * @public
      */
@@ -159,7 +163,8 @@ class FontStyle {
 
       // if that's the code we are looking for
       if (glyphID === charCode) {
-        // return the iteration number (the position of that character inside the array of characters)
+        // return the iteration number
+        // (the position of that character inside the array of characters)
         return i;
       }
     }

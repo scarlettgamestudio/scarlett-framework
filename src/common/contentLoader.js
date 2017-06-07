@@ -58,7 +58,8 @@ class ContentLoaderSingleton {
   }
 
   /**
-     * Loads several assets per category (audio, images, ..) and resolves after all are loaded
+     * Loads several assets per category (audio, images, ..) 
+     * and resolves after all are loaded
      * @param assets
      */
   load(assets) {

@@ -1,22 +1,17 @@
 /**
  * Base class for scripts
  */
-class Script {
-
-    /**
+export default class Script {
+  /**
      * Anchor method for updating
      * @param delta
      */
-    update(delta) {
+  update(delta) {}
 
-    }
-
-    /**
+  /**
      * Anchor method for rendering
      * @param delta
      * @param spriteBatch
      */
-    render(delta, spriteBatch) {
-
-    }
+  render(delta, spriteBatch) {}
 }

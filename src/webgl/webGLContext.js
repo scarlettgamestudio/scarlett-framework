@@ -3,8 +3,9 @@
  */
 
 import Logger from "common/logger";
-import { isObjectAssigned } from "common/utils";
 import { CONSTANTS } from "common/constants";
+
+import { isObjectAssigned } from "common/utils";
 
 export default class WebGLContext {
   //#region Constructors

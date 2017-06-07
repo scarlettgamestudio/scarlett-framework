@@ -1,7 +1,12 @@
-import AttributeDictionary from "common/attributeDictionary";
 import GameManager from "core/gameManager";
-import { Matrix4, Vector2, Boundary, Rectangle } from "math";
-import { generateUID, isObjectAssigned, isFunction } from "common/utils";
+import Transform from "core/transform";
+import Matrix4 from "math/matrix4";
+import Vector2 from "math/vector2";
+import Boundary from "math/boundary";
+import Rectangle from "math/rectangle";
+import Objectify from "utility/objectify";
+import { AttributeDictionary } from "common/attributeDictionary";
+import { generateUID, isFunction, isObjectAssigned } from "common/utils";
 
 AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
 AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
@@ -331,7 +336,7 @@ export default class GameObject {
 
   unload() {
     for (let i = 0; i < this._components.length; ++i) {
-      if (isFunction(this._components[i].unload)) {
+      if (Utils.isFunction(this._components[i].unload)) {
         this._components[i].unload();
       }
     }

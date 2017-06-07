@@ -153,7 +153,8 @@ export default class TextUtils {
   }
 
   /**
-     * Wraps the words of a given text depending on a maximum width and font style
+     * Wraps the words of a given text depending 
+     * on a maximum width and font style
      * @param {FontStyle} fontStyle font style to measure with
      * @param {string} textStr text string to wrap
      * @param {number} maxLineWidth maximum width per line
