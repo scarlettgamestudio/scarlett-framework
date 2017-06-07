@@ -25,7 +25,9 @@
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "commit": "git-cz",
     "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
-    "precommit": "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\""
+    "precommit": "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\"",
+    "format": "prettier-eslint --write \"src/**/*.js\"",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@types/jest": "19.2.3",
