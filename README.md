@@ -9,6 +9,7 @@ Scarlett WebGL Graphics Framework repository
 [![Dependencies][dependencyci-badge]][dependencyci]
 [![Commitizen friendly][commitizen-badge]][commitizen]
 [![Semantic-release][semantic-release-badge]][semantic-release]
+[![styled with prettier][prettier-badge]][prettier]
 
 [![typescript][typescript-version-badge]][typescript]
 [![node-version][node-version-badge]][node]
@@ -82,4 +83,5 @@ To allow Ecma6 syntax make sure to change the Javascript Version in the settings
 [typescript]: https://www.typescriptlang.org/
 [semantic-release-badge]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
 [semantic-release]: https://github.com/semantic-release/semantic-release
-
+[prettier-badge]: https://img.shields.io/badge/styled_with-prettier-ff69b4.svg
+[prettier]: https://github.com/prettier/prettier
