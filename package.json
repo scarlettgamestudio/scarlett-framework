@@ -25,7 +25,7 @@
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "commit": "git-cz",
     "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
-    "precommit": "opt --in pre-commit --exec \"npm run test && npm run build\""
+    "precommit": "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\""
   },
   "devDependencies": {
     "@types/jest": "19.2.3",
@@ -51,8 +51,10 @@
     "http-server": "0.10.0",
     "husky": "0.13.4",
     "jest": "20.0.4",
+    "lint-staged": "3.6.0",
     "lodash-webpack-plugin": "0.11.4",
     "opt-cli": "1.5.1",
+    "prettier-eslint-cli": "4.0.4",
     "rimraf": "2.6.1",
     "semantic-release": "6.3.6",
     "validate-commit-msg": "2.12.1",
@@ -68,6 +70,12 @@
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier-eslint --write",
+      "git add"
+    ]
   },
   "eslintConfig": {
     "parserOptions": {
