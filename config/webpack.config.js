@@ -34,8 +34,14 @@ let loadersSetup = [
 
 // if transpiling to ES6
 if (TO_ES6) {
-  // remove babel loader that would otherwise transpile to ES5
-  loadersSetup = [];
+  // remove presets from babel loader that would otherwise transpile to ES5
+  // it's important to have lodash plugin, as it will only import the used functions
+  loadersSetup = {
+    loader: "babel-loader",
+    options: {
+      plugins: ["lodash"]
+    }
+  };
   // update output path
   relativeOutputPath = "build/build-es6";
   // update package name
