@@ -14,7 +14,7 @@
     "build": "webpack -d --config config/webpack.config.js",
     "build:editor": "cross-env NODE_ENV=es6 npm run build",
     "build:deploy": "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
-    "build:all": "rimraf build && npm run build && npm run editor-build && npm run deploy",
+    "build:all": "rimraf build && run-p build build:editor build:deploy",
     "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
     "live-server:editor": "cross-env NODE_ENV=es6 npm run live-server",
     "live-server:deploy": "cross-env NODE_ENV=production npm run live-server",
@@ -28,7 +28,7 @@
     "precommit": "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\"",
     "format": "prettier-eslint --write \"src/**/*.js\"",
     "lint": "eslint .",
-    "validate": "npm run lint && npm run test && npm run build:all"
+    "validate": "run-p lint test build:all"
   },
   "devDependencies": {
     "@types/jest": "19.2.3",
