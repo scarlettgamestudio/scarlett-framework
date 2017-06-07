@@ -1,5 +1,5 @@
-import { isGame } from "common/utils";
 import TextureShader from "shaders/textureShader.shader";
+import { isGame } from "core/game";
 import { WrapMode } from "./wrapMode";
 
 /**

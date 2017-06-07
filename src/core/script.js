@@ -6,6 +6,7 @@ export default class Script {
      * Anchor method for updating
      * @param delta
      */
+  // eslint-disable-next-line
   update(delta) {}
 
   /**
@@ -13,5 +14,6 @@ export default class Script {
      * @param delta
      * @param spriteBatch
      */
+  // eslint-disable-next-line
   render(delta, spriteBatch) {}
 }

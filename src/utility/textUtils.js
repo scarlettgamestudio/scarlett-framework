@@ -270,7 +270,8 @@ export default class TextUtils {
   }
 
   /**
-     * Wraps the characters of a given text depending on a maximum width and text scale
+     * Wraps the characters of a given text 
+     * depending on a maximum width and text scale
      * @param {FontStyle} fontStyle font style to measure with
      * @param {string} textStr text string to wrap
      * @param {number} maxLineWidth maximum width per line
@@ -307,22 +308,26 @@ export default class TextUtils {
       // store current line index
       let currentLine = lines.length - 1;
 
-      // after the first (valid) character of current line, get the actual value of letter spacing
+      // after the first (valid) character of current line,
+      // get the actual value of letter spacing
       if (!revertedToOriginalValue && lines[currentLine].width > 0) {
         // revert to original value
         currentLetterSpacing = fontStyle.getLetterSpacing();
-        // make sure we only enter this condition once (per line, thus the resets down below)
+        // make sure we only enter this condition once
+        // (per line, thus the resets down below)
         revertedToOriginalValue = true;
       }
 
       // retrieve character width
       let charWidth = TextUtils.measureCharacterWidth(fontStyle, char);
 
-      // current width + char width + letter spacing if there is at least 1 character
+      // current width + char width + letter spacing
+      // if there is at least 1 character
       let tempWidth =
         lines[currentLine].width + charWidth + currentLetterSpacing;
 
-      // if current line width + the current character width is > than the max width
+      // if current line width + the current character width
+      // is > than the max width
       if (tempWidth > maxLineWidth) {
         // create a new and empty line
         lines.push({
@@ -334,7 +339,8 @@ export default class TextUtils {
         currentLine++;
         // reset letter spacing!
         currentLetterSpacing = 0;
-        // and the variable that keeps track of reverting to actual letter spacing value
+        // and the variable that keeps track of
+        // reverting to actual letter spacing value
         revertedToOriginalValue = false;
 
         // skip if the character is a whitespace
@@ -343,7 +349,8 @@ export default class TextUtils {
         }
       }
 
-      // add character and its width to current line (plus letter spacing if there is at least 1 character)
+      // add character and its width to current line
+      // (plus letter spacing if there is at least 1 character)
       lines[currentLine].width += charWidth + currentLetterSpacing;
       lines[currentLine].chars.push(char);
     }
@@ -352,7 +359,8 @@ export default class TextUtils {
   }
 
   /**
-     * Converts a given text into a Line Object, with an array of characters and the line total width
+     * Converts a given text into a Line Object, 
+     * with an array of characters and the line total width
      * @param {FontStyle} fontStyle font style to measure with
      * @param {string} textStr text string to convert into a line object
      * @returns {{chars: Array, width: number}}
@@ -430,7 +438,8 @@ export default class TextUtils {
           maxLineWidth,
           characterWrap
         ).join("\n");
-        // always insert a break at the end since the split gets rid of the user defined breaks...
+        // always insert a break at the end
+        // since the split gets rid of the user defined breaks...
         wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
         // concatenate to resulting wrapping text
         wrappedText = wrappedText.concat(wrappedLine);
@@ -449,7 +458,8 @@ export default class TextUtils {
 
       let preparedLines = [];
 
-      // only perform character wrap if word wrap isn't enabled in the first place
+      // only perform character wrap
+      // if word wrap isn't enabled in the first place
       if (!wordWrap && characterWrap) {
         preparedLines = TextUtils.wrapTextByCharacter(
           fontStyle,

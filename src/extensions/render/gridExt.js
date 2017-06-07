@@ -67,6 +67,7 @@ export default class GridExt {
      *
      * @param delta
      */
+  // eslint-disable-next-line
   render(delta) {
     // render a grid?
     if (this.enabled) {
@@ -77,6 +78,7 @@ export default class GridExt {
       let zoom = this._game.getActiveCamera().zoom;
       let floorZoom = Math.floor(zoom);
 
+      // eslint-disable-next-line
       //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
       let gridSize = this._gridSize;
       for (let i = 0; i < floorZoom - 1; i++) {

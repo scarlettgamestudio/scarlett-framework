@@ -3,8 +3,9 @@
  */
 
 import Matter from "matter-js";
-import { isObjectAssigned, isSprite } from "common/utils";
 import GameManager from "core/gameManager";
+import { isObjectAssigned } from "common/utils";
+import { isSprite } from "core/sprite";
 
 export default class RigidBody {
   //#region Constructors
@@ -43,6 +44,7 @@ export default class RigidBody {
     return this.mass;
   }
 
+  // eslint-disable-next-line
   setGameObject(gameObject) {
     this._sync();
   }

@@ -5,12 +5,6 @@
 
 import _ from "lodash";
 
-/*
-import { Game } from "core/game";
-import { GameScene } from "core/gameScene";
-import { Sprite } from "core/sprite";
-import { Texture2D } from "core/texture2D";*/
-
 export {
   isObjectAssigned,
   isString,
@@ -21,11 +15,7 @@ export {
   splitCamelCase,
   capitalize,
   getType,
-  isEqual,
-  isGame,
-  isGameScene,
-  isTexture2D,
-  isSprite
+  isEqual
 };
 
 /**
@@ -56,48 +46,12 @@ function isNumber(obj) {
 }
 
 /**
- * Validates if the given object is a game object
- * @param obj
- * @returns {boolean}
- */
-function isGame(obj) {
-  return obj instanceof Game;
-}
-
-/**
- * Validates if the given object is a game scene
- * @param obj
- * @returns {boolean}
- */
-function isGameScene(obj) {
-  return obj instanceof GameScene;
-}
-
-/**
- * Validates if the given object is a texture2d
- * @param obj
- * @returns {boolean}
- */
-function isTexture2D(obj) {
-  return obj instanceof Texture2D;
-}
-
-/**
  * Validates if the given object is a function
  * @param obj
  * @returns {boolean}
  */
 function isFunction(obj) {
   return _.isFunction(obj);
-}
-
-/**
- * Validates if the given object is a sprite
- * @param obj
- * @returns {boolean}
- */
-function isSprite(obj) {
-  return obj instanceof Sprite;
 }
 
 /**

@@ -1,5 +1,3 @@
-import { AttributeDictionary } from "common/attributeDictionary";
-import { Debug } from "common/logger";
 import Vector2 from "math/vector2";
 import MathHelper from "math/mathHelper";
 import Objectify from "utility/objectify";
@@ -11,6 +9,8 @@ import Stroke from "core/stroke";
 import FontStyle from "core/fontStyle";
 import GameManager from "core/gameManager";
 import Texture2D from "core/texture2D";
+import { AttributeDictionary } from "common/attributeDictionary";
+import { Debug } from "common/logger";
 import { isObjectAssigned } from "common/utils";
 
 AttributeDictionary.inherit("text", "gameobject");
@@ -311,6 +311,7 @@ export default class Text extends GameObject {
     this._transformMatrix.identity();
 
     //mat4.translate(this._transformMatrix, this._transformMatrix, [x, y, 0]);
+    // eslint-disable-next-line
     //mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
     //mat4.translate(this._transformMatrix, this._transformMatrix, [-x, -y, 0]);
 
@@ -473,6 +474,7 @@ export default class Text extends GameObject {
 
   getNormalizedDropShadowSmoothing() {
     // drop shadow stroke (smoothing) size
+    // eslint-disable-next-line
     // (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
     return MathHelper.normalize(
       this.getDropShadow().getSize(),
@@ -498,6 +500,7 @@ export default class Text extends GameObject {
   }
 
   getNormalizedDropShadowOffset() {
+    // eslint-disable-next-line
     // x and y values have to be between spread (defined in Hiero) / texture size
     // e.g., 4 / 512
     // need to normalize between those values
@@ -645,7 +648,9 @@ export default class Text extends GameObject {
   _setTextureParameters() {
     let gl = this._gl;
 
+    // eslint-disable-next-line
     // the line below is already done when creating a Texture2D with content loader
+    // eslint-disable-next-line
     // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, this._texture.getImageData());
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -738,7 +743,8 @@ export default class Text extends GameObject {
      * @private
      */
   _drawLines(lines, scale, lineHeight) {
-    // TODO: maybe throw new Error when simply returning? so errors can be seen in the console?
+    // TODO: maybe throw new Error when simply returning?
+    // so errors can be seen in the console?
     // if parameters are invalid, no need to go further
     if (!lines || !scale || scale <= 0 || !lineHeight || lineHeight === 0) {
       return;
@@ -752,7 +758,8 @@ export default class Text extends GameObject {
     let textureElements = [];
     let vertexIndices = [];
 
-    // create pen with the screen coordinates, where (0,0) is the center of the screen
+    // create pen with the screen coordinates,
+    // where (0,0) is the center of the screen
     let pen = {
       x: 0,
       y: this.transform.getPosition().y
@@ -811,7 +818,8 @@ export default class Text extends GameObject {
      * @param {number} scale text desired scale
      * @param {{x: number, y:number}} pen pen to draw with
      * @param {Array} vertexElements array to store the characters vertices
-     * @param {Array} textureElements array to store the characters texture elements
+     * @param {Array} textureElements array to store the 
+     * characters texture elements
      * @param {Array} vertexIndices array to store the vertices indices
      * @private
      */
@@ -844,13 +852,16 @@ export default class Text extends GameObject {
   }
 
   /**
-     * Creates the necessary vertices and texture elements to draw a given character
+     * Creates the necessary vertices and t
+     * exture elements to draw a given character
      * @param {string} char character to prepare to draw
      * @param {number} scale text scale
      * @param {{x: number, y: number}} pen pen to draw with
      * @param {number} lastGlyphCode last drawn glyph ascii code
-     * @param {Array} outVertexElements out array to store the characters vertices
-     * @param {Array} outTextureElements out array to store the characters texture elements
+     * @param {Array} outVertexElements out array to store 
+     * the characters vertices
+     * @param {Array} outTextureElements out array to store the 
+     * characters texture elements
      * @param {Array} outVertexIndices out array to store the vertices indices
      * @returns {number} drawn glyph ascii code or 0 if invalid
      * @private

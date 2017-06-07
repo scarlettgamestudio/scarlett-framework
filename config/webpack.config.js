@@ -90,7 +90,7 @@ const config = {
       // exclude detection of files based on a RegExp
       exclude: /a\.js|node_modules/,
       // add errors to webpack instead of warnings
-      failOnError: true
+      failOnError: false
     }),
     // Set up the notifier plugin - you can remove this (or set alwaysNotify false) if desired
     new WebpackNotifierPlugin({ alwaysNotify: true })

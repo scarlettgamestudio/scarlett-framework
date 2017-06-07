@@ -2,7 +2,8 @@ import { isString } from "common/utils";
 
 /**
  * Based on parse-bmfont-ascii package, under MIT License:
- * see http://github.com/mattdesl/parse-bmfont-ascii/blob/master/LICENSE.md for details.
+ * see more details at
+ * http://github.com/mattdesl/parse-bmfont-ascii/blob/master/LICENSE.md
  */
 export default class BMFontParserAscii {
   /**

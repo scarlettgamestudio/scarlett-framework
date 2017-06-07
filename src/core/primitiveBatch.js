@@ -1,6 +1,6 @@
-import { isGame } from "common/utils";
 import PrimitiveShader from "shaders/primitiveShader.shader";
 import Matrix4 from "math/matrix4";
+import { isGame } from "core/game";
 
 /**
  * PrimitiveBatch class for on demand direct drawing
@@ -137,6 +137,7 @@ export default class PrimitiveBatch {
     this.clear();
   }
 
+  // eslint-disable-next-line
   drawPoint(vector, size, color) {}
 
   storeRectangle(rectangle, color) {
@@ -145,6 +146,7 @@ export default class PrimitiveBatch {
     this._rectangleCount++;
   }
 
+  // eslint-disable-next-line
   drawLine(vectorA, vectorB, thickness, color) {}
 
   //#endregion

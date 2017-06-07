@@ -30,6 +30,15 @@ AttributeDictionary.addRule("sprite", "_atlasRegion", {
 });
 
 /**
+ * Validates if the given object is a sprite
+ * @param obj
+ * @returns {boolean}
+ */
+export function isSprite(obj) {
+  return obj instanceof Sprite;
+}
+
+/**
  * Sprite class
  */
 export default class Sprite extends GameObject {

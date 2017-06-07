@@ -336,7 +336,7 @@ export default class GameObject {
 
   unload() {
     for (let i = 0; i < this._components.length; ++i) {
-      if (Utils.isFunction(this._components[i].unload)) {
+      if (isFunction(this._components[i].unload)) {
         this._components[i].unload();
       }
     }

@@ -81,7 +81,8 @@ export default class Rectangle {
 
   /**
   * Get the rectangle vertices based on the position and width/height
-  * @returns {{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
+  * @returns {{topLeft: Vector2, topRight: 
+          Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
   */
   getVertices() {
     return {

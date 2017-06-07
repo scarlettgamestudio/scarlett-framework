@@ -47,7 +47,9 @@ export default class Boundary {
      * @returns {boolean} whether the boundaries overlap
      */
   static overlap(boundaryA, boundaryB) {
-    // the following collision detection is based on the separating axis theorem:
+    // the following collision detection is based
+    // on the separating axis theorem:
+    // eslint-disable-next-line
     // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
     let normA = boundaryA.getNormals();
     let normB = boundaryB.getNormals();
@@ -87,15 +89,17 @@ export default class Boundary {
   //#endregion
 
   /**
-     * Returns all vertices in an array
-     * @returns {Array.<{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}>}
-     */
+  * Returns all vertices in an array
+  * @returns {Array.<{topLeft: Vector2, topRight: 
+              Vector2, bottomRight: Vector2, bottomLeft: Vector2}>}
+  */
   getVertices() {
     return [this.topLeft, this.topRight, this.bottomRight, this.bottomLeft];
   }
 
   /**
-     * Calculate the normals of each boundary side and returns a object mapped with the values of each side
+     * Calculate the normals of each boundary side and 
+     * returns a object mapped with the values of each side
      * @returns {{top: Vector2, right: Vector2, bottom: Vector2, left: Vector2}}
      */
   getNormals() {

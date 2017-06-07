@@ -1,7 +1,8 @@
 import GameManager from "core/gameManager";
 import { Debug } from "common/logger";
 import { GLU } from "webgl/webGLUtils";
-import { isObjectAssigned, generateUID, isTexture2D } from "common/utils";
+import { isObjectAssigned, generateUID } from "common/utils";
+import { isTexture2D } from "core/texture2D";
 
 /**
  * Shader Class

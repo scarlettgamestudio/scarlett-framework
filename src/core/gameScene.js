@@ -13,6 +13,15 @@ AttributeDictionary.addRule("gameScene", "_camera", { visible: false });
 AttributeDictionary.addRule("gameScene", "_spriteBatch", { visible: false });
 
 /**
+ * Validates if the given object is a game scene
+ * @param obj
+ * @returns {boolean}
+ */
+export function isGameScene(obj) {
+  return obj instanceof GameScene;
+}
+
+/**
  * GameScene class
  */
 export default class GameScene {
@@ -151,6 +160,7 @@ export default class GameScene {
     gl.clear(gl.COLOR_BUFFER_BIT);
   }
 
+  // eslint-disable-next-line
   sceneLateUpdate(delta) {
     Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
   }

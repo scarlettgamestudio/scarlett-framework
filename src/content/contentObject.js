@@ -5,9 +5,10 @@ export default class ContentObject {
   //#region Constructors
 
   /**
-     * @param params
-     * @constructor
-     */
+  * @param params
+  * @constructor
+  */
+  // eslint-disable-next-line
   constructor(params) {}
 
   //#endregion

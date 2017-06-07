@@ -6,17 +6,21 @@ import WebGLContext from "webgl/webGLContext";
 import ShaderManager from "shaders/shaderManager";
 import Keys from "input/keys";
 import { Keyboard } from "input/keyboard";
-import {
-  isString,
-  isGameScene,
-  isObjectAssigned,
-  isFunction
-} from "common/utils";
+import { isString, isObjectAssigned, isFunction } from "common/utils";
+import { isGameScene } from "core/gameScene";
+
+/**
+ * Validates if the given object is a game object
+ * @param obj
+ * @returns {boolean}
+ */
+export function isGame(obj) {
+  return obj instanceof Game;
+}
 
 /**
  * GameScene Class
  */
-
 export default class Game {
   //#region Constructors
 

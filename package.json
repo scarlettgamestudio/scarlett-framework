@@ -46,6 +46,8 @@
     "cz-conventional-changelog": "2.0.0",
     "eslint": "3.19.0",
     "eslint-config-kentcdodds": "12.4.1",
+    "eslint-import-resolver-webpack": "0.8.1",
+    "eslint-plugin-import": "2.3.0",
     "eslint-plugin-jest": "20.0.3",
     "grunt": "1.0.1",
     "grunt-contrib-copy": "1.0.0",
@@ -80,7 +82,9 @@
     ]
   },
   "eslintConfig": {
+    "parser": "babel-eslint",
     "parserOptions": {
+      "ecmaVersion": 6,
       "sourceType": "module"
     },
     "env": {
@@ -89,7 +93,9 @@
       "jest/globals": true
     },
     "extends": [
-      "eslint:recommended"
+      "eslint:recommended",
+      "plugin:import/errors",
+      "plugin:import/warnings"
     ],
     "plugins": [
       "jest"
@@ -100,6 +106,13 @@
         "error",
         80
       ]
+    },
+    "settings": {
+      "import/resolver": {
+        "webpack": {
+          "config": "config/webpack.config.js"
+        }
+      }
     }
   },
   "jest": {

@@ -1,7 +1,8 @@
-import { isGame } from "common/utils";
 import PrimitiveShader from "shaders/primitiveShader.shader";
 import MathHelper from "math/mathHelper";
 import Matrix4 from "math/matrix4";
+import { isGame } from "core/game";
+
 /**
  * PrimitiveRender class for on demand direct drawing
  */
