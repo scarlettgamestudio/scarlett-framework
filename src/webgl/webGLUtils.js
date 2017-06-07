@@ -8,7 +8,7 @@ import { isObjectAssigned } from "common/utils";
  * Some boilerplate code fetched from Gregg Tavares webgl utilities
  * http://webglfundamentals.org/webgl/resources/webgl-utils.js
  */
-export class WebGLUtils {
+export default class WebGLUtils {
   //#region Constructors
 
   constructor() {
@@ -180,3 +180,6 @@ export class WebGLUtils {
 
   //#endregion
 }
+
+/* for simplicity sake, add a global instance of the webgl utils */
+export const GLU = new WebGLUtils();

@@ -1,2 +1,2 @@
 export { default as WebGLContext } from "./webGLContext";
-export { WebGLUtils } from "./webGLUtils";
+export { WebGLUtils, GLU } from "./webGLUtils";

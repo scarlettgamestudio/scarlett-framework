@@ -1,6 +1,6 @@
 import GameManager from "core/gameManager";
 import { Debug } from "common/logger";
-import { WebGLUtils as glu } from "webgl/webGLUtils";
+import { GLU } from "webgl/webGLUtils";
 import { isObjectAssigned, generateUID, isTexture2D } from "common/utils";
 
 /**
@@ -68,7 +68,7 @@ export default class Shader {
      * @returns {boolean}
      */
   compile() {
-    let program = glu.createProgramFromScripts(
+    let program = GLU.createProgramFromScripts(
       this._gl,
       this._vertexScript,
       this._fragmentScript

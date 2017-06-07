@@ -8,7 +8,16 @@ export { default as GameScene } from "./gameScene";
 export { default as PrimitiveBatch } from "./primitiveBatch";
 export { default as PrimitiveRender } from "./primitiveRender";
 export { default as Script } from "./script";
-export { Scripts, AddScript, AssignScript } from "./scripts";
+import { Scripts } from "./scripts";
+
+// aliases
+// there is the need to do a binding because
+// otherwise the reference to the original object (singleton) would be lost
+const addScript = Scripts.addScript.bind(Scripts);
+const assignScript = Scripts.assign.bind(Scripts);
+
+export { Scripts, addScript, assignScript };
+
 export { default as Sound } from "./sound";
 export { default as Sprite } from "./sprite";
 export { default as SpriteBatch } from "./spriteBatch";

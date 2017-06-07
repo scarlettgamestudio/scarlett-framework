@@ -119,12 +119,3 @@ class ScriptsSingleton {
  *  Scripts alias to Scripts Singleton instance
  */
 export const Scripts = ScriptsSingleton.instance;
-
-export const AddScript = Scripts.addScript;
-export const AssignScript = Scripts.assignScript;
-
-// aliases
-// there is the need to do a binding because
-// otherwise the reference to the original object would be lost
-//sc.addScript = Scripts.addScript.bind(Scripts);
-//sc.assignScript = Scripts.assign.bind(Scripts);
