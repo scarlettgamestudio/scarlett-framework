@@ -166,6 +166,7 @@ class ContentLoaderSingleton {
     }
   }
 
+  // TODO: make it image explicit?
   getSourcePath(alias) {
     if (this._imgAlias.hasOwnProperty(alias)) {
       return this._imgAlias[alias];
@@ -214,41 +215,41 @@ class ContentLoaderSingleton {
     }
   }
 
+  _loadAudio(path) {
+    return new Promise((resolve, reject) => {
+      let audio = new Audio();
+      audio.src = path;
+      audio.oncanplaythrough = () => resolve(audio);
+      audio.onerror = () =>
+        reject(new Error("Audio is not defined. Unable to load it."));
+    });
+  }
+
   /**
      * loads an audio file from a specified path into memory
      * @param path
      * @param alias
      * @returns {*}
      */
-  loadAudio(path, alias) {
-    return new Promise(
-      function(resolve, reject) {
-        path = this._enrichRelativePath(path);
+  async loadAudio(path, alias) {
+    const newPath = this._enrichRelativePath(path);
+    let audio;
+    try {
+      audio = await this._loadAudio(newPath);
+    } catch (error) {
+      // log and rethrow
+      console.error(error);
+      throw error;
+    }
 
-        // is the audio on cache?
-        if (this._audioLoaded.hasOwnProperty(path)) {
-          // the audio is already cached. let's use it!
-          resolve(this._audioLoaded[path]);
-        } else {
-          let audio = new Audio();
-          audio.src = path;
-          audio.oncanplaythrough = function() {
-            // cache the loaded image:
-            this._audioLoaded[path] = audio;
+    // cache the loaded audio:
+    this._audioLoaded[newPath] = audio;
 
-            if (alias) {
-              this._audioAlias[alias] = path;
-            }
+    if (alias) {
+      this._audioAlias[alias] = newPath;
+    }
 
-            resolve(audio);
-          }.bind(this);
-          audio.onerror = function() {
-            // TODO: log this
-            reject();
-          };
-        }
-      }.bind(this)
-    );
+    return audio;
   }
 
   /**

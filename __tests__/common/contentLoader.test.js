@@ -8,7 +8,7 @@ beforeEach(() => {
 });
 
 /*
-test("Something", () => {
+test("Mock Test", () => {
   expect.assertions(1);
 
   expect(ContentLoader._loadImage()).not.toBe("teeehee2");
