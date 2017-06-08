@@ -203,7 +203,7 @@ class ContentLoaderSingleton {
         };
         image.onerror = () => {
           // TODO: log this
-          reject();
+          reject(new Error("Image is not defined. Unable to load it."));
         };
       }
     });
