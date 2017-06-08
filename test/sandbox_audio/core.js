@@ -1,9 +1,7 @@
-
-
-Sound.fromPath("DeadMemories.mp3").then(function(sound) {
+SC.Sound.fromPath("DeadMemories.mp3").then(function(sound) {
   /*  setTimeout(function() {
         sound.stop();
     }, 1500);*/
-    sound.setVolume(0.1);
-   sound.play();
+  sound.setVolume(0.1);
+  sound.play();
 });

@@ -183,12 +183,6 @@ class ContentLoaderSingleton {
     });
   }
 
-  /**
-     *
-     * @param path
-     * @param alias
-     * @returns {Promise|Image} Image when successful
-     */
   async loadImage(path, alias) {
     const newPath = this._enrichRelativePath(path);
     let image;
@@ -206,6 +200,8 @@ class ContentLoaderSingleton {
     if (alias) {
       this._imgAlias[alias] = newPath;
     }
+
+    return image;
   }
 
   /**
