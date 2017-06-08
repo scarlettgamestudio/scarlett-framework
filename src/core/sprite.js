@@ -78,10 +78,12 @@ class Sprite extends GameObject {
 
         this._transformMatrix.identity();
 
-        if (this._wrapMode != WrapMode.REPEAT) {
+        if (this._wrapMode !== WrapMode.REPEAT) {
             this._transformMatrix.translate([x - width * this._origin.x, y - height * this._origin.y, 0]);
+
         } else {
             this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
+
         }
 
         this._transformMatrix.translate([width * this._origin.x, height * this._origin.y, 0]);

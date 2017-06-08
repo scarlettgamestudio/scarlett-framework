@@ -129,6 +129,8 @@ class GameScene {
         // set clear color and clear the screen:
         gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
         gl.clear(gl.COLOR_BUFFER_BIT);
+
+        this._spriteBatch.begin();
     }
 
     sceneLateUpdate(delta) {
