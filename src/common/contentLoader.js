@@ -173,40 +173,39 @@ class ContentLoaderSingleton {
     return null;
   }
 
+  _loadImage(path) {
+    return new Promise((resolve, reject) => {
+      let image = new Image();
+      image.src = path;
+      image.onload = () => resolve(image);
+      image.onerror = () =>
+        reject(new Error("Image is not defined. Unable to load it."));
+    });
+  }
+
   /**
      *
      * @param path
      * @param alias
      * @returns {Promise|Image} Image when successful
      */
-  loadImage(path, alias) {
-    return new Promise((resolve, reject) => {
-      path = this._enrichRelativePath(path);
+  async loadImage(path, alias) {
+    const newPath = this._enrichRelativePath(path);
+    let image;
+    try {
+      image = await this._loadImage(newPath);
+    } catch (error) {
+      // log and rethrow
+      console.error(error);
+      throw error;
+    }
 
-      // is the image on cache?
-      if (this._imgLoaded.hasOwnProperty(path)) {
-        // the image is already cached. let's use it!
-        resolve(this._imgLoaded[path]);
-      } else {
-        // the image is not in cache, we must load it:
-        let image = new Image();
-        image.src = path;
-        image.onload = () => {
-          // cache the loaded image:
-          this._imgLoaded[path] = image;
+    // cache the loaded image:
+    this._imgLoaded[newPath] = image;
 
-          if (alias) {
-            this._imgAlias[alias] = path;
-          }
-
-          resolve(image);
-        };
-        image.onerror = () => {
-          // TODO: log this
-          reject(new Error("Image is not defined. Unable to load it."));
-        };
-      }
-    });
+    if (alias) {
+      this._imgAlias[alias] = newPath;
+    }
   }
 
   /**
