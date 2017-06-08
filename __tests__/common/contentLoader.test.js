@@ -54,43 +54,66 @@ test("Unable to retrieve inexistent image", () => {
   expect(pathResult).toBeNull();
 });
 
-test("Unable to load inexistent image", async () => {
-  expect.assertions(1);
+describe("Unable to load inexistent resources", async () => {
+  test("Unable to load inexistent image", async () => {
+    expect.assertions(1);
 
-  try {
-    await ContentLoader.loadImage("invalid", "invalid");
-  } catch (e) {
-    expect(e.message).toMatch("Image is not defined");
-  }
+    try {
+      await ContentLoader.loadImage("invalid", "invalid");
+    } catch (e) {
+      expect(e.message).toMatch("Image is not defined");
+    }
+  });
+
+  test("Unable to load inexistent audio", async () => {
+    expect.assertions(1);
+
+    try {
+      await ContentLoader.loadAudio("invalid", "invalid");
+    } catch (e) {
+      expect(e.message).toMatch("Audio is not defined");
+    }
+  });
 });
 
-describe("Able to load mock image and clean it", () => {
+describe("Able to load mock resources and clean them", () => {
   // "Success"" is the hardcoded result of the happy mock
-  const mockImage = "Success";
-  const imagePath = "path";
-  const imageAlias = "alias";
+  const mockResult = "Success";
+  const resourcePath = "path";
+  const resourceAlias = "alias";
 
-  test("Able to load mock image", async () => {
+  test("Able to load mock resources", async () => {
     jest.setMock(
       "common/contentLoader",
       require("../../__mocks__/happyContentLoader")
     );
 
-    expect.assertions(1);
+    expect.assertions(2);
 
-    const image = await ContentLoader.loadImage(imagePath, imageAlias);
-    expect(image).toBe(mockImage);
+    const image = await ContentLoader.loadImage(resourcePath, resourceAlias);
+    expect(image).toBe(mockResult);
+
+    const audio = await ContentLoader.loadAudio(resourcePath, resourceAlias);
+    expect(audio).toBe(mockResult);
   });
 
-  test("Able to clean loaded image", () => {
-    expect.assertions(4);
+  test("Able to clean loaded resources", () => {
+    expect.assertions(6);
 
-    expect(ContentLoader.getImage(imageAlias)).toBe(mockImage);
-    expect(ContentLoader.getSourcePath(imageAlias)).toBe(imagePath);
+    // image
+    expect(ContentLoader.getImage(resourceAlias)).toBe(mockResult);
+    expect(ContentLoader.getSourcePath(resourceAlias)).toBe(resourcePath);
+
+    // audio
+    expect(ContentLoader.getAudio(resourceAlias)).toBe(mockResult);
 
     ContentLoader.clear();
 
-    expect(ContentLoader.getImage(imageAlias)).toBeUndefined();
-    expect(ContentLoader.getSourcePath(imageAlias)).toBeNull();
+    // image
+    expect(ContentLoader.getImage(resourceAlias)).toBeUndefined();
+    expect(ContentLoader.getSourcePath(resourceAlias)).toBeNull();
+
+    // audio
+    expect(ContentLoader.getAudio(resourceAlias)).toBeUndefined();
   });
 });
