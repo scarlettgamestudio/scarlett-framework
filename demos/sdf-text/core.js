@@ -49,12 +49,15 @@ ContentLoader.loadAll({
     { path: "assets/background.jpg", alias: "background" }
   ],
   files: [{ path: "assets/fnt/open-sans-sdf.fnt", alias: "openSansFont" }]
-}).then(([images, files]) => {
+}).then(([images, files, audios]) => {
   images.map(image => {
-    console.log(image.src);
+    console.log(image.alias);
   });
   files.map(file => {
     console.log(file);
+  });
+  images.map(audio => {
+    console.log(audio.alias);
   });
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);

@@ -61,11 +61,13 @@ class ContentLoaderSingleton {
     // prepare assets
     assets.images = assets.images || [];
     assets.files = assets.files || [];
+    assets.audios = assets.audios || [];
 
     const imagesPromise = this.loadAllImages(assets.images);
     const filesPromise = this.loadAllFiles(assets.files);
+    const audiosPromise = this.loadAllAudios(assets.audios);
 
-    return await Promise.all([imagesPromise, filesPromise]);
+    return await Promise.all([imagesPromise, filesPromise, audiosPromise]);
   }
 
   async loadAllImages(images) {
@@ -80,6 +82,14 @@ class ContentLoaderSingleton {
     return await Promise.all(
       files.map(async file => {
         return await this.loadFile(file.path, file.alias);
+      })
+    );
+  }
+
+  async loadAllAudios(audios) {
+    return await Promise.all(
+      audios.map(async audio => {
+        return await this.loadAudio(audio.path, audio.alias);
       })
     );
   }
