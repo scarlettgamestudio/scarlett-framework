@@ -14,6 +14,7 @@ var WrapMode = SC.WrapMode;
 var MathHelper = SC.MathHelper;
 var Keyboard = SC.Keyboard;
 var Keys = SC.Keys;
+var assignScript = SC.assignScript;
 
 var game = new Game({ target: "canvas" });
 var player;
@@ -37,7 +38,7 @@ ContentLoader.loadAll({
     { path: "assets/enemy_2.png", alias: "enemy2" },
     { path: "assets/background.jpg", alias: "background" }
   ]
-}).then(() => {
+}).then(function(result) {
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 });
@@ -51,13 +52,13 @@ gameScene.initialize = function() {
 
   var background = new Sprite({ texture: backgroundTex });
   background.setWrapMode(WrapMode.REPEAT);
-  SC.assignScript("backgroundAgent", background);
+  assignScript("backgroundAgent", background);
 
   player = new Sprite({ texture: playerTex });
   player.transform.setPosition(-300, 0);
   player.transform.setScale(0.5);
   player.transform.setRotation(MathHelper.PI);
-  SC.assignScript("playerInput", player);
+  assignScript("playerInput", player);
   gameScene.addGameObject(player);
 };
 
@@ -102,7 +103,7 @@ gameScene.dispatchEnemies = function() {
     enemy.transform.setScale(0.6);
     enemy.transform.lookAt(player.transform.getPosition());
     //enemy.transform.setRotation(-MathHelper.PIo2);
-    SC.assignScript("enemyAgent", enemy);
+    assignScript("enemyAgent", enemy);
 
     enemies.push(enemy);
   }

@@ -3,10 +3,13 @@ var Sound = SC.Sound;
 
 ContentLoader.loadAll({
   audios: [{ path: "DeadMemories.mp3", alias: "dead" }]
-}).then(([images, files, audios]) => {
+}).then(function(result) {
+  var audios = result[2];
+
+  /*
   audios.map(audio => {
     console.log(audio.alias);
-  });
+  });*/
 
   var deadAudio = ContentLoader.getAudio("dead");
 

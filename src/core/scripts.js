@@ -57,6 +57,11 @@ class ScriptsSingleton {
      */
   assign(scriptName, gameObject) {
     let component = this.generateComponent(scriptName);
+
+    if (component === null) {
+      throw new Error("Could not generate script component: " + scriptName);
+    }
+
     gameObject.addComponent(component);
     return component;
   }

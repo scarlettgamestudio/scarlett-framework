@@ -49,16 +49,23 @@ ContentLoader.loadAll({
     { path: "assets/background.jpg", alias: "background" }
   ],
   files: [{ path: "assets/fnt/open-sans-sdf.fnt", alias: "openSansFont" }]
-}).then(([images, files, audios]) => {
-  images.map(image => {
-    console.log(image.alias);
-  });
-  files.map(file => {
-    console.log(file);
-  });
-  audios.map(audio => {
-    console.log(audio.alias);
-  });
+}).then(function(result) {
+  var images = result[0];
+  var files = result[1];
+  var audios = result[2];
+
+  // map doesn't work on internet explorer... :D
+  /* 
+    images.map(image => {
+      console.log(image.alias);
+    });
+    files.map(file => {
+      console.log(file);
+    });
+    audios.map(audio => {
+      console.log(audio.alias);
+    });
+  */
 
   // needs to come before initializeTexDependencies
   game.changeScene(gameScene);
