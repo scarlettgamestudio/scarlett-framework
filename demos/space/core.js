@@ -29,7 +29,7 @@ var gameScene = new GameScene({
   backgroundColor: Color.fromRGB(29, 25, 35)
 });
 
-ContentLoader.load({
+ContentLoader.loadAll({
   images: [
     { path: "assets/player.png", alias: "player" },
     { path: "assets/player_bullet1.png", alias: "playerBullet" },
@@ -37,7 +37,7 @@ ContentLoader.load({
     { path: "assets/enemy_2.png", alias: "enemy2" },
     { path: "assets/background.jpg", alias: "background" }
   ]
-}).then(function(result) {
+}).then(() => {
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 });

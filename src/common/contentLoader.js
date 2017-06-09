@@ -57,6 +57,33 @@ class ContentLoaderSingleton {
     this._fileAlias = {};
   }
 
+  async loadAll(assets) {
+    // prepare assets
+    assets.images = assets.images || [];
+    assets.files = assets.files || [];
+
+    const imagesPromise = this.loadAllImages(assets.images);
+    const filesPromise = this.loadAllFiles(assets.files);
+
+    return await Promise.all([imagesPromise, filesPromise]);
+  }
+
+  async loadAllImages(images) {
+    return await Promise.all(
+      images.map(async image => {
+        return await this.loadImage(image.path, image.alias);
+      })
+    );
+  }
+
+  async loadAllFiles(files) {
+    return await Promise.all(
+      files.map(async file => {
+        return await this.loadFile(file.path, file.alias);
+      })
+    );
+  }
+
   /**
      * Loads several assets per category (audio, images,...) 
      * and resolves after all are loaded
@@ -262,45 +289,48 @@ class ContentLoaderSingleton {
     }
   }
 
+  _loadFile(path) {
+    return new Promise((resolve, reject) => {
+      let rawFile = new XMLHttpRequest();
+      rawFile.open("GET", path, true);
+
+      rawFile.onreadystatechange = () => {
+        if (rawFile.readyState === 4 && rawFile.status === 200) {
+          const fileContext = FileContext.fromXHR(rawFile);
+          resolve(fileContext);
+        } else if (rawFile.readyState === 4 && rawFile.status != 200) {
+          reject(new Error("Could not load file."));
+        }
+      };
+      rawFile.send(null);
+    });
+  }
+
   /**
      * loads a file from a specified path into memory
      * @param path
      * @param alias
      * @returns {*}
      */
-  loadFile(path, alias) {
-    return new Promise(
-      function(resolve, reject) {
-        path = this._enrichRelativePath(path);
+  async loadFile(path, alias) {
+    const newPath = this._enrichRelativePath(path);
+    let fileContext;
+    try {
+      fileContext = await this._loadFile(newPath);
+    } catch (error) {
+      // log and rethrow
+      console.error(error);
+      throw error;
+    }
 
-        // is the image on cache?
-        if (this._fileLoaded.hasOwnProperty(path)) {
-          // the image is already cached. let's use it!
-          resolve(this._fileLoaded[path]);
-        } else {
-          let rawFile = new XMLHttpRequest();
-          //rawFile.overrideMimeType("application/json");
-          rawFile.open("GET", path, true);
-          rawFile.onreadystatechange = function() {
-            if (rawFile.readyState === 4 && rawFile.status == "200") {
-              let fileContext = FileContext.fromXHR(rawFile);
+    // cache the loaded file:
+    this._fileLoaded[newPath] = fileContext;
 
-              // cache the loaded image:
-              this._fileLoaded[path] = fileContext;
+    if (alias) {
+      this._fileAlias[alias] = newPath;
+    }
 
-              if (alias) {
-                this._fileAlias[alias] = path;
-              }
-
-              resolve(fileContext);
-            } else if (rawFile.readyState === 4 && rawFile.status != "200") {
-              reject();
-            }
-          }.bind(this);
-          rawFile.send(null);
-        }
-      }.bind(this)
-    );
+    return fileContext;
   }
 
   //#endregion

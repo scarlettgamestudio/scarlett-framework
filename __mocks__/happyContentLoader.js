@@ -11,5 +11,9 @@ ContentLoader._loadAudio = function() {
   return Promise.resolve(successMessage);
 };
 
+ContentLoader._loadFile = function() {
+  return Promise.resolve(successMessage);
+};
+
 // eslint-disable-next-line
 module.exports = ContentLoader;

@@ -74,6 +74,16 @@ describe("Unable to load inexistent resources", async () => {
       expect(e.message).toMatch("Audio is not defined");
     }
   });
+
+  test("Unable to load inexistent file", async () => {
+    expect.assertions(1);
+
+    try {
+      await ContentLoader.loadFile("invalid", "invalid");
+    } catch (e) {
+      expect(e.message).toMatch("XMLHttpRequest is not defined");
+    }
+  });
 });
 
 describe("Able to load mock resources and clean them", () => {
@@ -88,17 +98,23 @@ describe("Able to load mock resources and clean them", () => {
       require("../../__mocks__/happyContentLoader")
     );
 
-    expect.assertions(2);
+    expect.assertions(3);
 
     const image = await ContentLoader.loadImage(resourcePath, resourceAlias);
     expect(image).toBe(mockResult);
 
     const audio = await ContentLoader.loadAudio(resourcePath, resourceAlias);
     expect(audio).toBe(mockResult);
+
+    const fileContext = await ContentLoader.loadFile(
+      resourcePath,
+      resourceAlias
+    );
+    expect(fileContext).toBe(mockResult);
   });
 
   test("Able to clean loaded resources", () => {
-    expect.assertions(6);
+    expect.assertions(8);
 
     // image
     expect(ContentLoader.getImage(resourceAlias)).toBe(mockResult);
@@ -106,6 +122,9 @@ describe("Able to load mock resources and clean them", () => {
 
     // audio
     expect(ContentLoader.getAudio(resourceAlias)).toBe(mockResult);
+
+    // fileContext
+    expect(ContentLoader.getFile(resourceAlias)).toBe(mockResult);
 
     ContentLoader.clear();
 
@@ -115,5 +134,8 @@ describe("Able to load mock resources and clean them", () => {
 
     // audio
     expect(ContentLoader.getAudio(resourceAlias)).toBeUndefined();
+
+    // fileContext
+    expect(ContentLoader.getFile(resourceAlias)).toBeUndefined();
   });
 });

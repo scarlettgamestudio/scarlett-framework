@@ -39,7 +39,7 @@ var gameScene = new GameScene({
 
 GameManager.activeProjectPath = "http://localhost:8080/demos/sdf-text/";
 
-ContentLoader.load({
+ContentLoader.loadAll({
   images: [
     { path: "assets/player.png", alias: "player" },
     { path: "assets/player_bullet1.png", alias: "playerBullet" },
@@ -47,10 +47,23 @@ ContentLoader.load({
     { path: "assets/enemy_2.png", alias: "enemy2" },
     { path: "assets/fnt/open-sans-sdf.png", alias: "fontBitmap" },
     { path: "assets/background.jpg", alias: "background" }
-  ]
-}).then(function(result) {
+  ],
+  files: [{ path: "assets/fnt/open-sans-sdf.fnt", alias: "openSansFont" }]
+}).then(([images, files]) => {
+  images.map(image => {
+    console.log(image.src);
+  });
+  files.map(file => {
+    console.log(file);
+  });
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+  // either BMFontParser.parse(files[0]);
+  // or BMFontParser.parse(ContentLoader.getFile("openSansFont"))
+  var parsedBMFont = BMFontParser.parse(ContentLoader.getFile("openSansFont"));
+
+  initializeTextDependencies(parsedBMFont, textTexture);
 });
 
 gameScene.initialize = function() {
@@ -60,15 +73,6 @@ gameScene.initialize = function() {
   enemyTex2 = new Texture2D(ContentLoader.getImage("enemy2"));
   backgroundTex = new Texture2D(ContentLoader.getImage("background"));
   textTexture = new Texture2D(ContentLoader.getImage("fontBitmap"));
-
-  ContentLoader.loadFile(
-    "assets/fnt/open-sans-sdf.fnt",
-    "openSansFont"
-  ).then(fileContext => {
-    var parsedBMFont = BMFontParser.parse(fileContext);
-
-    initializeTextDependencies(parsedBMFont, textTexture);
-  });
 
   var background = new Sprite({ texture: backgroundTex });
   background.setWrapMode(WrapMode.REPEAT);
