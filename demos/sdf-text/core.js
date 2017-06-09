@@ -56,9 +56,11 @@ ContentLoader.loadAll({
   files.map(file => {
     console.log(file);
   });
-  images.map(audio => {
+  audios.map(audio => {
     console.log(audio.alias);
   });
+
+  // needs to come before initializeTexDependencies
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
