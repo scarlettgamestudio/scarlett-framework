@@ -54,6 +54,7 @@ ContentLoader.loadAll({
   var files = result[1];
   var audios = result[2];
 
+  ContentLoader.loadFile("assets/fnt/open-sans-sdf.fnt");
   // map doesn't work on internet explorer... :D
   /* 
     images.map(image => {

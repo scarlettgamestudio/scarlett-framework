@@ -220,17 +220,14 @@ describe("Able to load, cache and clean mock resources", () => {
     expect(fileContext).toBe(mockResult);
   });
 
-  test("Able to use cached mock resources", async () => {
+  test("Able to use cached mock image", async () => {
     expect.assertions(3);
 
-    let cacheSpy;
-    let cachedResult;
-
     // make sure to know the result of the function before spying
-    cachedResult = ContentLoader.isImageCached(resourcePath);
+    const cachedResult = ContentLoader.isImageCached(resourcePath);
     expect(cachedResult).toBeTruthy();
 
-    cacheSpy = jest.spyOn(ContentLoader, "isImageCached");
+    const cacheSpy = jest.spyOn(ContentLoader, "isImageCached");
 
     const image = await ContentLoader.loadImage(resourcePath, resourceAlias);
     // also make sure to use the same arguments!
@@ -239,7 +236,45 @@ describe("Able to load, cache and clean mock resources", () => {
 
     cacheSpy.mockReset();
     cacheSpy.mockRestore();
-    // audio and files tests
+  });
+
+  test("Able to use cached mock audio", async () => {
+    expect.assertions(3);
+
+    // make sure to know the result of the function before spying
+    const cachedResult = ContentLoader.isAudioCached(resourcePath);
+    expect(cachedResult).toBeTruthy();
+
+    const cacheSpy = jest.spyOn(ContentLoader, "isAudioCached");
+
+    const audio = await ContentLoader.loadAudio(resourcePath, resourceAlias);
+    // also make sure to use the same arguments!
+    expect(cacheSpy).toHaveBeenCalledWith(resourcePath);
+    expect(audio).toBe(mockResult);
+
+    cacheSpy.mockReset();
+    cacheSpy.mockRestore();
+  });
+
+  test("Able to use cached mock file", async () => {
+    expect.assertions(3);
+
+    // make sure to know the result of the function before spying
+    const cachedResult = ContentLoader.isFileCached(resourcePath);
+    expect(cachedResult).toBeTruthy();
+
+    const cacheSpy = jest.spyOn(ContentLoader, "isFileCached");
+
+    const fileContext = await ContentLoader.loadFile(
+      resourcePath,
+      resourceAlias
+    );
+    // also make sure to use the same arguments!
+    expect(cacheSpy).toHaveBeenCalledWith(resourcePath);
+    expect(fileContext).toBe(mockResult);
+
+    cacheSpy.mockReset();
+    cacheSpy.mockRestore();
   });
 
   test("Able to clean loaded resources", () => {

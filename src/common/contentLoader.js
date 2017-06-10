@@ -188,21 +188,17 @@ class ContentLoaderSingleton {
 
     // enrich path if possible
     const newPath = this._enrichRelativePath(path);
-    let audio;
-    try {
-      audio = await this._loadAudio(newPath);
-    } catch (error) {
-      // log and rethrow
-      console.error(error);
-      throw error;
+
+    // no need to go further if already in cache
+    if (this.isAudioCached(newPath)) {
+      return this._imgLoaded[newPath];
     }
 
-    // cache the loaded audio:
-    this._audioLoaded[newPath] = audio;
+    // otherwise, try to load it
+    const audio = await this._tryToLoadAudio(newPath);
 
-    if (alias) {
-      this._audioAlias[alias] = newPath;
-    }
+    // and cache audio based on the determined path and alias
+    this._cacheAudio(newPath, alias, audio);
 
     return audio;
   }
@@ -219,21 +215,16 @@ class ContentLoaderSingleton {
     // enrich path if possible
     const newPath = this._enrichRelativePath(path);
 
-    let fileContext;
-    try {
-      fileContext = await this._loadFile(newPath);
-    } catch (error) {
-      // log and rethrow
-      console.error(error);
-      throw error;
+    // no need to go further if already in cache
+    if (this.isFileCached(newPath)) {
+      return this._fileLoaded[newPath];
     }
 
-    // cache the loaded file:
-    this._fileLoaded[newPath] = fileContext;
+    // otherwise, try to load it
+    const fileContext = await this._tryToLoadFile(newPath);
 
-    if (alias) {
-      this._fileAlias[alias] = newPath;
-    }
+    // and cache file based on the determined path and alias
+    this._cacheFile(newPath, alias, fileContext);
 
     return fileContext;
   }
@@ -288,6 +279,30 @@ class ContentLoaderSingleton {
   }
 
   /**
+   * Caches the given audio using the given path and alias as keys
+   * @param {string} path 
+   * @param {string} alias 
+   * @param {HTMLAudioElement} audio 
+   */
+  _cacheAudio(path, alias, audio) {
+    // cache the loaded audio:
+    this._audioLoaded[path] = audio;
+    this._audioAlias[alias] = path;
+  }
+
+  /**
+   * Caches the given file using the given path and alias as keys
+   * @param {string} path 
+   * @param {string} alias 
+   * @param {FileContext} file 
+   */
+  _cacheFile(path, alias, file) {
+    // cache the loaded file:
+    this._fileLoaded[path] = file;
+    this._fileAlias[alias] = path;
+  }
+
+  /**
    * Attempts to load an image, returning it if successful
    * @param {string} path 
    * @returns {Promise<HTMLImageElement>}
@@ -295,6 +310,36 @@ class ContentLoaderSingleton {
   async _tryToLoadImage(path) {
     try {
       return await this._loadImage(path);
+    } catch (error) {
+      // log and rethrow
+      console.error(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Attempts to load an audio file, returning it if successful
+   * @param {string} path 
+   * @returns {Promise<HTMLAudioElement>}
+   */
+  async _tryToLoadAudio(path) {
+    try {
+      return await this._loadAudio(path);
+    } catch (error) {
+      // log and rethrow
+      console.error(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Attempts to load a file, returning it if successful
+   * @param {string} path 
+   * @returns {Promise<FileContext>}
+   */
+  async _tryToLoadFile(path) {
+    try {
+      return await this._loadFile(path);
     } catch (error) {
       // log and rethrow
       console.error(error);

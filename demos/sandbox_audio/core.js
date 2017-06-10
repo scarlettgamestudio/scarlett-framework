@@ -6,6 +6,8 @@ ContentLoader.loadAll({
 }).then(function(result) {
   var audios = result[2];
 
+  ContentLoader.loadAudio("DeadMemories.mp3");
+
   /*
   audios.map(audio => {
     console.log(audio.alias);
