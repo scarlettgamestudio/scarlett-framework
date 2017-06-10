@@ -80,7 +80,20 @@ describe("Unable to retrieve inexistent resources", () => {
   });
 });
 
-//describe("Invalid arguments")
+test("Handle invalid path and alias with fallbacks", () => {
+  expect.assertions(2);
+
+  const invalidPath = null;
+  const invalidAlias = undefined;
+
+  const [resultPath, resultAlias] = ContentLoader._assertPathAliasValidity(
+    invalidPath,
+    invalidAlias
+  );
+
+  expect(resultPath).not.toBeNull();
+  expect(resultAlias).toBe(resultPath);
+});
 
 /*
   test("Load All invalid images", async () => {

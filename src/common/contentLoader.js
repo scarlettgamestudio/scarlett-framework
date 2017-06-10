@@ -158,7 +158,7 @@ class ContentLoaderSingleton {
   }
 
   async loadImage(path, alias) {
-    [path, alias] = this._assertPathAlias(path, alias);
+    [path, alias] = this._assertPathAliasValidity(path, alias);
 
     // enrich path if possible
     const newPath = this._enrichRelativePath(path);
@@ -261,7 +261,7 @@ class ContentLoaderSingleton {
    * @param {string} alias 
    * @returns {[string,string]} valid versions of the given path and alias
    */
-  _assertPathAlias(path, alias) {
+  _assertPathAliasValidity(path, alias) {
     const newPath = path == null ? "" : path;
     // fallback to path if invalid
     const newAlias = alias == null ? newPath : alias;
