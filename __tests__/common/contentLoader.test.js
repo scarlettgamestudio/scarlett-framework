@@ -80,21 +80,6 @@ describe("Unable to retrieve inexistent resources", () => {
   });
 });
 
-test("Handle invalid path and alias with fallbacks", () => {
-  expect.assertions(2);
-
-  const invalidPath = null;
-  const invalidAlias = undefined;
-
-  const [resultPath, resultAlias] = ContentLoader._assertPathAliasValidity(
-    invalidPath,
-    invalidAlias
-  );
-
-  expect(resultPath).not.toBeNull();
-  expect(resultAlias).toBe(resultPath);
-});
-
 /*
   test("Load All invalid images", async () => {
     expect.assertions(1);
@@ -107,11 +92,33 @@ test("Handle invalid path and alias with fallbacks", () => {
 */
 
 describe("Unable to load inexistent resources", async () => {
-  const invalidPath = "invalidPath";
-  const invalidAlias = "invalidAlias";
+  const invalidPath = null;
+  const invalidAlias = undefined;
+  let validitySpy;
+
+  beforeEach(() => {
+    validitySpy = jest.spyOn(ContentLoader, "_assertPathAliasValidity");
+  });
+
+  afterEach(() => {
+    validitySpy.mockReset();
+    validitySpy.mockRestore();
+  });
+
+  test("Handle invalid path and alias with fallbacks", () => {
+    expect.assertions(2);
+
+    const [resultPath, resultAlias] = ContentLoader._assertPathAliasValidity(
+      invalidPath,
+      invalidAlias
+    );
+
+    expect(resultPath).not.toBeNull();
+    expect(resultAlias).toBe(resultPath);
+  });
 
   test("Unable to load inexistent image", async () => {
-    expect.assertions(2);
+    expect.assertions(4);
 
     consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
@@ -120,11 +127,13 @@ describe("Unable to load inexistent resources", async () => {
     } catch (e) {
       expect(e.message).toMatch("Image is not defined");
       expect(consoleSpy).toHaveBeenCalled();
+      expect(validitySpy).toHaveBeenCalledTimes(1);
+      expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
     }
   });
 
   test("Unable to load inexistent audio", async () => {
-    expect.assertions(2);
+    expect.assertions(4);
 
     consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
@@ -133,11 +142,13 @@ describe("Unable to load inexistent resources", async () => {
     } catch (e) {
       expect(e.message).toMatch("Audio is not defined");
       expect(consoleSpy).toHaveBeenCalled();
+      expect(validitySpy).toHaveBeenCalledTimes(1);
+      expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
     }
   });
 
   test("Unable to load inexistent file", async () => {
-    expect.assertions(2);
+    expect.assertions(4);
 
     consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
@@ -146,6 +157,8 @@ describe("Unable to load inexistent resources", async () => {
     } catch (e) {
       expect(e.message).toMatch("XMLHttpRequest is not defined");
       expect(consoleSpy).toHaveBeenCalled();
+      expect(validitySpy).toHaveBeenCalledTimes(1);
+      expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
     }
   });
 });
@@ -225,7 +238,7 @@ describe("Able to load, cache and clean mock resources", () => {
     expect(image).toBe(mockResult);
 
     cacheSpy.mockReset();
-
+    cacheSpy.mockRestore();
     // audio and files tests
   });
 

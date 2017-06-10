@@ -184,6 +184,9 @@ class ContentLoaderSingleton {
    * @returns {*}
    */
   async loadAudio(path, alias) {
+    [path, alias] = this._assertPathAliasValidity(path, alias);
+
+    // enrich path if possible
     const newPath = this._enrichRelativePath(path);
     let audio;
     try {
@@ -211,6 +214,9 @@ class ContentLoaderSingleton {
      * @returns {*}
      */
   async loadFile(path, alias) {
+    [path, alias] = this._assertPathAliasValidity(path, alias);
+
+    // enrich path if possible
     const newPath = this._enrichRelativePath(path);
 
     let fileContext;
