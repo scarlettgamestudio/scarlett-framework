@@ -33,6 +33,7 @@ var gameScene = new GameScene({
 ContentLoader.loadAll({
   images: [
     { path: "assets/player.png", alias: "player" },
+    { path: "assets/player.png", alias: "player" },
     { path: "assets/player_bullet1.png", alias: "playerBullet" },
     { path: "assets/enemy_1.png", alias: "enemy1" },
     { path: "assets/enemy_2.png", alias: "enemy2" },
@@ -41,6 +42,8 @@ ContentLoader.loadAll({
 }).then(function(result) {
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+  ContentLoader.loadImage("assets/player.png", "player");
 });
 
 gameScene.initialize = function() {

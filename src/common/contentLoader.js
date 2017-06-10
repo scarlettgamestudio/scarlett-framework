@@ -1,5 +1,6 @@
 import GameManager from "core/gameManager";
 import FileContext from "common/fileContext";
+
 // unique key
 const _contentLoaderSingleton = Symbol("contentLoaderSingleton");
 
@@ -57,22 +58,44 @@ class ContentLoaderSingleton {
     this._fileAlias = {};
   }
 
+  isImageAliasCached(alias) {
+    return this._imgAlias.hasOwnProperty(alias);
+  }
+
+  isFileAliasCached(alias) {
+    return this._fileAlias.hasOwnProperty(alias);
+  }
+
+  isAudioAliasCached(alias) {
+    return this._audioAlias.hasOwnProperty(alias);
+  }
+
+  isImageCached(path) {
+    return this._imgLoaded.hasOwnProperty(path);
+  }
+
+  isFileCached(path) {
+    return this._fileLoaded.hasOwnProperty(path);
+  }
+
+  isAudioCached(path) {
+    return this._audioLoaded.hasOwnProperty(path);
+  }
+
   /**
      * Returns an image loaded by the given alias (if exists)
      * @param alias
      */
   getImage(alias) {
-    if (this._imgAlias.hasOwnProperty(alias)) {
+    if (this.isImageAliasCached(alias)) {
       return this._imgLoaded[this._imgAlias[alias]];
     }
   }
 
-  // TODO: make it image explicit?
   getSourcePath(alias) {
-    if (this._imgAlias.hasOwnProperty(alias)) {
+    if (this.isImageAliasCached(alias)) {
       return this._imgAlias[alias];
     }
-    return null;
   }
 
   /**
@@ -80,7 +103,7 @@ class ContentLoaderSingleton {
      * @param alias
      */
   getFile(alias) {
-    if (this._fileAlias.hasOwnProperty(alias)) {
+    if (this.isFileAliasCached(alias)) {
       return this._fileLoaded[this._fileAlias[alias]];
     }
   }
@@ -90,7 +113,7 @@ class ContentLoaderSingleton {
      * @param alias
      */
   getAudio(alias) {
-    if (this._audioAlias.hasOwnProperty(alias)) {
+    if (this.isAudioAliasCached(alias)) {
       return this._audioLoaded[this._audioAlias[alias]];
     }
   }
@@ -109,6 +132,8 @@ class ContentLoaderSingleton {
   }
 
   async loadAllImages(images) {
+    images = Array.isArray(images) ? images : [];
+
     return await Promise.all(
       images.map(async image => {
         return await this.loadImage(image.path, image.alias);
@@ -133,32 +158,31 @@ class ContentLoaderSingleton {
   }
 
   async loadImage(path, alias) {
+    [path, alias] = this._assertPathAlias(path, alias);
+
+    // enrich path if possible
     const newPath = this._enrichRelativePath(path);
-    let image;
-    try {
-      image = await this._loadImage(newPath);
-    } catch (error) {
-      // log and rethrow
-      console.error(error);
-      throw error;
+
+    // no need to go further if already in cache
+    if (this.isImageCached(newPath)) {
+      return this._imgLoaded[newPath];
     }
 
-    // cache the loaded image:
-    this._imgLoaded[newPath] = image;
+    // otherwise, try to load it
+    const image = await this._tryToLoadImage(newPath);
 
-    if (alias) {
-      this._imgAlias[alias] = newPath;
-    }
+    // and cache image based on the determined path and alias
+    this._cacheImage(newPath, alias, image);
 
     return image;
   }
 
   /**
-     * loads an audio file from a specified path into memory
-     * @param path
-     * @param alias
-     * @returns {*}
-     */
+   * loads an audio file from a specified path into memory
+   * @param path
+   * @param alias
+   * @returns {*}
+   */
   async loadAudio(path, alias) {
     const newPath = this._enrichRelativePath(path);
     let audio;
@@ -188,6 +212,7 @@ class ContentLoaderSingleton {
      */
   async loadFile(path, alias) {
     const newPath = this._enrichRelativePath(path);
+
     let fileContext;
     try {
       fileContext = await this._loadFile(newPath);
@@ -212,11 +237,11 @@ class ContentLoaderSingleton {
   //#region Private Methods
 
   /**
-     *
-     * @param path
-     * @returns {*}
-     * @private
-     */
+   *
+   * @param path
+   * @returns {*}
+   * @private
+   */
   _enrichRelativePath(path) {
     // is this a relative path?
     if (
@@ -229,6 +254,52 @@ class ContentLoaderSingleton {
     return path;
   }
 
+  /**
+   * Asserts that the given path and alias are valid
+   * returning valid versions
+   * @param {string} path 
+   * @param {string} alias 
+   * @returns {[string,string]} valid versions of the given path and alias
+   */
+  _assertPathAlias(path, alias) {
+    const newPath = path == null ? "" : path;
+    // fallback to path if invalid
+    const newAlias = alias == null ? newPath : alias;
+
+    return [newPath, newAlias];
+  }
+
+  /**
+   * Caches the given image using the given path and alias as keys
+   * @param {string} path 
+   * @param {string} alias 
+   * @param {HTMLImageElement} image 
+   */
+  _cacheImage(path, alias, image) {
+    // cache the loaded image:
+    this._imgLoaded[path] = image;
+    this._imgAlias[alias] = path;
+  }
+
+  /**
+   * Attempts to load an image, returning it if successful
+   * @param {string} path 
+   * @returns {Promise<HTMLImageElement>}
+   */
+  async _tryToLoadImage(path) {
+    try {
+      return await this._loadImage(path);
+    } catch (error) {
+      // log and rethrow
+      console.error(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Attempts to load the image from the given path
+   * @param {string} path 
+   */
   _loadImage(path) {
     return new Promise((resolve, reject) => {
       let image = new Image();
@@ -243,7 +314,6 @@ class ContentLoaderSingleton {
     return new Promise((resolve, reject) => {
       let rawFile = new XMLHttpRequest();
       rawFile.open("GET", path, true);
-
       rawFile.onreadystatechange = () => {
         if (rawFile.readyState === 4 && rawFile.status === 200) {
           const fileContext = FileContext.fromXHR(rawFile);
