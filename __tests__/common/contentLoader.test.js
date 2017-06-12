@@ -207,11 +207,13 @@ describe("Able to load, cache and clean mock resources", () => {
   test("Able to load mock resources", async () => {
     expect.assertions(3);
 
-    const image = await ContentLoader.loadImage(resourcePath, resourceAlias);
-    expect(image).toBe(mockResult);
+    await expect(
+      ContentLoader.loadImage(resourcePath, resourceAlias)
+    ).resolves.toBe(mockResult);
 
-    const audio = await ContentLoader.loadAudio(resourcePath, resourceAlias);
-    expect(audio).toBe(mockResult);
+    await expect(
+      ContentLoader.loadAudio(resourcePath, resourceAlias)
+    ).resolves.toBe(mockResult);
 
     const fileContext = await ContentLoader.loadFile(
       resourcePath,
