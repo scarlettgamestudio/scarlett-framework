@@ -15038,7 +15038,7 @@ class SpriteBatch {
 
     //#region Constructors
 
-    constructor(game, maxBatchLength) {
+    constructor(game) {
         if (!isGame(game)) {
             throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
         }
@@ -15049,10 +15049,11 @@ class SpriteBatch {
         this._renderBuffer = this._gl.createBuffer();
         this._textureShader = new TextureShader();
 
-        this._spriteData = [];
-        this._spriteCount = 0;
         this._stride = 16;
-        this._maxBatchLength = maxBatchLength || 4096;
+        this._singleDataLength = 24;
+        this._maxSpritesPerBatch = 2500;
+        this._spriteData = new Float32Array(this._singleDataLength * this._maxSpritesPerBatch);
+        this._spriteDataIdx = 0;
 
         this._sprites = [];
 
@@ -15075,8 +15076,7 @@ class SpriteBatch {
 
     clear() {
         this._sprites = [];
-        this._spriteData = [];
-        this._spriteCount = 0;
+        this._spriteDataIdx = 0;
     }
 
     begin() {
@@ -15087,61 +15087,50 @@ class SpriteBatch {
         this._sprites.push(sprite);
     }
 
-    _process() {
+    _processSprite(sprite) {
         let magnitude = 1.0;
+        let spriteMatrix = sprite.getMatrix();
 
-        for (let i = 0; i < this._sprites.length; i++) {
-            let sp = this._sprites[i];
-            let spriteMatrix = sp.getMatrix();
+        let bottomLeft = Vector2.transformMat4(new Vector2(0, 0), spriteMatrix);
+        let bottomRight = Vector2.transformMat4(new Vector2(magnitude, 0), spriteMatrix);
+        let topLeft = Vector2.transformMat4(new Vector2(0, magnitude), spriteMatrix);
+        let topRight = Vector2.transformMat4(new Vector2(magnitude, magnitude), spriteMatrix);
 
-            let bottomLeft = Vector2.transformMat4(new Vector2(0, 0), spriteMatrix);
-            let bottomRight = Vector2.transformMat4(new Vector2(magnitude, 0), spriteMatrix);
-            let topLeft = Vector2.transformMat4(new Vector2(0, magnitude), spriteMatrix);
-            let topRight = Vector2.transformMat4(new Vector2(magnitude, magnitude), spriteMatrix);
+        this._spriteData[this._spriteDataIdx++] = (bottomLeft.x);
+        this._spriteData[this._spriteDataIdx++] = (bottomLeft.y);
+        this._spriteData[this._spriteDataIdx++] = (0);
+        this._spriteData[this._spriteDataIdx++] = (0);
 
-            //console.log("bottom-left: " + bottomLeft.toString());
-            //console.log("bottom-right: " + bottomRight.toString());
-            //console.log("top-left: " + topLeft.toString());
-            //console.log("top-right: " + topRight.toString());
+        this._spriteData[this._spriteDataIdx++] = (bottomRight.x);
+        this._spriteData[this._spriteDataIdx++] = (bottomRight.y);
+        this._spriteData[this._spriteDataIdx++] = (1);
+        this._spriteData[this._spriteDataIdx++] = (0);
 
-            this._spriteData.push(bottomLeft.x);
-            this._spriteData.push(bottomLeft.y);
-            this._spriteData.push(0);
-            this._spriteData.push(0);
+        this._spriteData[this._spriteDataIdx++] = (topLeft.x);
+        this._spriteData[this._spriteDataIdx++] = (topLeft.y);
+        this._spriteData[this._spriteDataIdx++] = (0);
+        this._spriteData[this._spriteDataIdx++] = (1);
 
-            this._spriteData.push(bottomRight.x);
-            this._spriteData.push(bottomRight.y);
-            this._spriteData.push(1);
-            this._spriteData.push(0);
+        this._spriteData[this._spriteDataIdx++] = (topLeft.x);
+        this._spriteData[this._spriteDataIdx++] = (topLeft.y);
+        this._spriteData[this._spriteDataIdx++] = (0);
+        this._spriteData[this._spriteDataIdx++] = (1);
 
-            this._spriteData.push(topLeft.x);
-            this._spriteData.push(topLeft.y);
-            this._spriteData.push(0);
-            this._spriteData.push(1);
+        this._spriteData[this._spriteDataIdx++] = (bottomRight.x);
+        this._spriteData[this._spriteDataIdx++] = (bottomRight.y);
+        this._spriteData[this._spriteDataIdx++] = (1);
+        this._spriteData[this._spriteDataIdx++] = (0);
 
-            this._spriteData.push(topLeft.x);
-            this._spriteData.push(topLeft.y);
-            this._spriteData.push(0);
-            this._spriteData.push(1);
-
-            this._spriteData.push(bottomRight.x);
-            this._spriteData.push(bottomRight.y);
-            this._spriteData.push(1);
-            this._spriteData.push(0);
-
-            this._spriteData.push(topRight.x);
-            this._spriteData.push(topRight.y);
-            this._spriteData.push(1);
-            this._spriteData.push(1);
-
-            this._spriteCount++;
-        }
+        this._spriteData[this._spriteDataIdx++] = (topRight.x);
+        this._spriteData[this._spriteDataIdx++] = (topRight.y);
+        this._spriteData[this._spriteDataIdx++] = (1);
+        this._spriteData[this._spriteDataIdx++] = (1);
     }
 
-    _renderBatch(renderData, count) {
+    _renderBatch() {
         let gl = this._gl;
 
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(renderData), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this._spriteData, gl.STATIC_DRAW);
 
         // vertex position attribute
         gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
@@ -15151,9 +15140,9 @@ class SpriteBatch {
         gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
         gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, this._stride, 8);
 
-        gl.drawArrays(gl.TRIANGLES, 0, 6 * count);
+        gl.drawArrays(gl.TRIANGLES, 0, 6 * (this._spriteDataIdx / this._singleDataLength));
 
-        //console.log("rendering..." + count + ":" + renderData.length);
+        this._spriteDataIdx = 0;
     }
 
     flush() {
@@ -15161,10 +15150,9 @@ class SpriteBatch {
             return;
         }
 
-        this._process();
-
         let gl = this._gl;
-        let lastTextureId = -1, texture;
+        let lastTextureId = -1, count = 0;
+        let texture;
 
         this._game.getShaderManager().useShader(this._textureShader);
 
@@ -15174,33 +15162,25 @@ class SpriteBatch {
         // camera matrix uniform
         gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
 
-        let renderData = [], count = 0;
         for (let i = 0; i < this._sprites.length; i++) {
-            let sp = this._sprites[i];
-            texture = sp.getTexture();
-
-            if (texture && texture.isReady() && lastTextureId !== texture.getUID()) {
+            texture = this._sprites[i].getTexture();
+            if (lastTextureId !== texture.getUID()) {
+                // is this the first check?
                 if (lastTextureId >= 0) {
-                    this._renderBatch(renderData, count);
+                    this._renderBatch(count);
+                    count = 0;
                 }
 
-                count = 0;
-                renderData = [];
                 texture.bind();
-                lastTextureId = texture.getUID();
+                lastTextureId = texture.getUID()
             }
 
+            this._processSprite(this._sprites[i]);
             count++;
-            for (let j = i * 24; j < (i * 24) + (24); j++) {
-                renderData.push(this._spriteData[j]);
-            }
 
-            // flush?
-            if (i === this._sprites.length - 1 || count >= this._maxBatchLength) {
-                this._renderBatch(renderData, count);
-
+            if (count >= this._maxSpritesPerBatch || i === this._sprites.length - 1) {
+                this._renderBatch(count);
                 count = 0;
-                renderData = [];
             }
         }
     }

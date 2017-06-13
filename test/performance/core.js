@@ -19,10 +19,7 @@ let gameCamera;
 
 ContentLoader.load({
     images: [
-        {
-            "path": "64x64.png",
-            "alias": "sprite1"
-        }, {
+       {
             "path": "logo-white-bd-small.png",
             "alias": "sprite2"
         }
@@ -40,11 +37,11 @@ gameScene.initialize = function () {
     gameCamera.x = (DISPLAY_WIDTH / 2);
     gameCamera.y = (DISPLAY_HEIGHT / 2);
 
-    spriteTex = new Texture2D(ContentLoader.getImage("sprite1"));
+    //spriteTex = new Texture2D(ContentLoader.getImage("sprite1"));
     spriteTex2 = new Texture2D(ContentLoader.getImage("sprite2"));
 
-    for (let i = 0; i < 1000; i++) {
-        let sprite = new Sprite({texture: i > 500 == 0 ? spriteTex : spriteTex2 });
+    for (let i = 0; i < 10000; i++) {
+        let sprite = new Sprite({texture: spriteTex2 });
         sprite.transform.setScale(Math.random());
         sprite.transform.setPosition(80 + (Math.random() * DISPLAY_WIDTH) - 80, 80 + (Math.random() * DISPLAY_HEIGHT) - 80);
         //sprite.transform.setPosition(200, 200);
@@ -52,6 +49,8 @@ gameScene.initialize = function () {
 
         sprites.push(sprite)
     }
+
+    console.log("size: " + sprites.length);
 };
 
 let zoomVal = 1;
