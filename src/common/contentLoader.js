@@ -26,6 +26,9 @@ class ContentLoaderSingleton {
     // Cached audio
     this._audioLoaded = {};
     this._audioAlias = {};
+
+    this._loadingPaths = new Set();
+    this._loadingAliases = new Set();
   }
 
   //#endregion
@@ -118,6 +121,29 @@ class ContentLoaderSingleton {
     }
   }
 
+  _filterByPathAndAlias(arr) {
+    const uniqueFlags = new Set();
+    const uniqueObj = arr.filter(obj => {
+      // if obj is invalid or path or alias is already flagged
+      if (
+        obj == null ||
+        obj.path == null ||
+        obj.alias == null ||
+        uniqueFlags.has(obj.path) ||
+        uniqueFlags.has(obj.alias)
+      ) {
+        return false;
+      }
+      uniqueFlags.add(obj.path);
+      uniqueFlags.add(obj.alias);
+      return true;
+    });
+
+    uniqueFlags.clear();
+
+    return uniqueObj;
+  }
+
   async loadAll(assets) {
     // prepare assets
     assets.images = assets.images || [];
@@ -131,8 +157,25 @@ class ContentLoaderSingleton {
     return await Promise.all([imagesPromise, filesPromise, audiosPromise]);
   }
 
+  _setupLoadingQueue(arr) {
+    // filter by path and alias; 1st layer of security
+    const filteredQueue = Array.isArray(arr)
+      ? this._filterByPathAndAlias(arr)
+      : [];
+
+    // if some file was filtered out, warn
+    if (arr.length != filteredQueue.length) {
+      console.warn(
+        "Some files have been filtered out from loading " +
+          "due to invalid/duplicate paths or aliases."
+      );
+    }
+
+    return filteredQueue;
+  }
+
   async loadAllImages(images) {
-    images = Array.isArray(images) ? images : [];
+    images = this._setupLoadingQueue(images);
 
     return await Promise.all(
       images.map(async image => {
@@ -157,6 +200,22 @@ class ContentLoaderSingleton {
     );
   }
 
+  _isLoading(path, alias) {
+    if (this._loadingPaths.has(path)) {
+      console.warn("Already loading " + path + "... Discarding.");
+      return true;
+    }
+
+    if (this._loadingAliases.has(alias)) {
+      console.warn(
+        "Alias " + alias + " is already in use. Discarding " + path + "."
+      );
+      return true;
+    }
+
+    return false;
+  }
+
   async loadImage(path, alias) {
     [path, alias] = this._assertPathAliasValidity(path, alias);
 
@@ -165,13 +224,19 @@ class ContentLoaderSingleton {
 
     // no need to go further if already in cache
     if (this.isImageCached(newPath)) {
+      console.warn("Image " + newPath + " is already in cache. Reusing.");
       return this._imgLoaded[newPath];
     }
 
     // otherwise, try to load it
-    const image = await this._tryToLoadImage(newPath);
+    const image = await this._tryToLoadImage(newPath, alias);
 
-    // and cache image based on the determined path and alias
+    // make sure image was loaded correctly
+    if (image == null) {
+      return false;
+    }
+
+    // otherwise, cache image based on the determined path and alias
     this._cacheImage(newPath, alias, image);
 
     return image;
@@ -305,15 +370,29 @@ class ContentLoaderSingleton {
   /**
    * Attempts to load an image, returning it if successful
    * @param {string} path 
-   * @returns {Promise<HTMLImageElement>}
+   * @returns {Promise<HTMLImageElement>|null}
    */
-  async _tryToLoadImage(path) {
+  async _tryToLoadImage(path, alias) {
+    // discard if loading the same image or alias
+    // 2nd (and last) layer of security
+    if (this._isLoading(path, alias)) {
+      return null;
+    }
+
+    this._loadingPaths.add(path);
+    this._loadingAliases.add(alias);
+
     try {
+      // try to load
       return await this._loadImage(path);
     } catch (error) {
-      // log and rethrow
-      console.error(error);
-      throw error;
+      // log and return invalid
+      console.error(error.name, error.message);
+      return null;
+    } finally {
+      // make sure loading is updated either way
+      this._loadingPaths.delete(path);
+      this._loadingAliases.delete(alias);
     }
   }
 

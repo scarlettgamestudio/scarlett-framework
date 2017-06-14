@@ -1,15 +1,20 @@
 import { ContentLoader } from "common/contentLoader";
 import GameManager from "core/gameManager";
 
-let consoleSpy;
+let consoleErrorSpy;
+let consoleWarnSpy;
 
 beforeEach(() => {
   // make sure to clear content loader before each test
   //ContentLoader.clear();
   GameManager.activeProjectPath = undefined;
 
-  if (typeof consoleSpy === "function") {
-    consoleSpy.mockRestore();
+  if (typeof consoleErrorSpy === "function") {
+    consoleErrorSpy.mockRestore();
+  }
+
+  if (typeof consoleWarnSpy === "function") {
+    consoleWarnSpy.mockRestore();
   }
 });
 
@@ -95,12 +100,16 @@ describe("Unable to load inexistent resources", async () => {
   const invalidPath = null;
   const invalidAlias = undefined;
   let validitySpy;
+  let enrichPathSpy;
 
   beforeEach(() => {
     validitySpy = jest.spyOn(ContentLoader, "_assertPathAliasValidity");
+    enrichPathSpy = jest.spyOn(ContentLoader, "_enrichRelativePath");
   });
 
   afterEach(() => {
+    enrichPathSpy.mockReset();
+    enrichPathSpy.mockRestore();
     validitySpy.mockReset();
     validitySpy.mockRestore();
   });
@@ -118,30 +127,51 @@ describe("Unable to load inexistent resources", async () => {
   });
 
   test("Unable to load inexistent image", async () => {
-    expect.assertions(4);
+    expect.assertions(10);
 
-    consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    // store loading result before spying on it
+    const loadingResult = ContentLoader._isLoading(invalidPath, invalidAlias);
+    expect(loadingResult).toBeFalsy();
 
-    try {
-      await ContentLoader.loadImage(invalidPath, invalidAlias);
-    } catch (e) {
-      expect(e.message).toMatch("Image is not defined");
-      expect(consoleSpy).toHaveBeenCalled();
-      expect(validitySpy).toHaveBeenCalledTimes(1);
-      expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
-    }
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    const loadingSpy = jest.spyOn(ContentLoader, "_isLoading");
+
+    // store try load result
+    const tryToLoadResult = await ContentLoader._tryToLoadImage(
+      invalidPath,
+      invalidAlias
+    );
+    expect(tryToLoadResult).toBeNull();
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    expect(loadingSpy).toHaveBeenCalledTimes(1);
+    expect(loadingSpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
+
+    const trySpy = jest.spyOn(ContentLoader, "_tryToLoadImage");
+
+    const loadResult = await ContentLoader.loadImage(invalidPath, invalidAlias);
+
+    expect(trySpy).toHaveBeenCalled();
+    expect(loadResult).toBeFalsy();
+    expect(validitySpy).toHaveBeenCalledTimes(1);
+    expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
+    expect(enrichPathSpy).toHaveBeenCalledTimes(1);
+
+    loadingSpy.mockReset();
+    loadingSpy.mockRestore();
+    trySpy.mockReset();
+    trySpy.mockRestore();
   });
 
   test("Unable to load inexistent audio", async () => {
     expect.assertions(4);
 
-    consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
 
     try {
       await ContentLoader.loadAudio(invalidPath, invalidAlias);
     } catch (e) {
       expect(e.message).toMatch("Audio is not defined");
-      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalled();
       expect(validitySpy).toHaveBeenCalledTimes(1);
       expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
     }
@@ -150,13 +180,13 @@ describe("Unable to load inexistent resources", async () => {
   test("Unable to load inexistent file", async () => {
     expect.assertions(4);
 
-    consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
 
     try {
       await ContentLoader.loadFile(invalidPath, invalidAlias);
     } catch (e) {
       expect(e.message).toMatch("XMLHttpRequest is not defined");
-      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalled();
       expect(validitySpy).toHaveBeenCalledTimes(1);
       expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
     }
@@ -223,7 +253,9 @@ describe("Able to load, cache and clean mock resources", () => {
   });
 
   test("Able to use cached mock image", async () => {
-    expect.assertions(3);
+    expect.assertions(4);
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
     // make sure to know the result of the function before spying
     const cachedResult = ContentLoader.isImageCached(resourcePath);
@@ -234,6 +266,7 @@ describe("Able to load, cache and clean mock resources", () => {
     const image = await ContentLoader.loadImage(resourcePath, resourceAlias);
     // also make sure to use the same arguments!
     expect(cacheSpy).toHaveBeenCalledWith(resourcePath);
+    expect(consoleWarnSpy).toHaveBeenCalled();
     expect(image).toBe(mockResult);
 
     cacheSpy.mockReset();
