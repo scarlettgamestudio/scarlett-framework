@@ -1,22 +1,4 @@
 /**
- * Created by Luis on 08/02/2017.
- */
-
-// TODO: replace for extensions.js array insert? supports multiple arguments...
-Array.prototype.insert = function(index) {
-  this.splice.apply(this, [index, 0].concat(this.slice.call(arguments, 1)));
-};
-
-// TODO: place in another file?
-String.prototype.insert = function(index, string) {
-  if (index > 0)
-    return (
-      this.substring(0, index) + string + this.substring(index, this.length)
-    );
-  else return string + this;
-};
-
-/**
  * TextUtils Class
  */
 export default class TextUtils {
@@ -440,9 +422,9 @@ export default class TextUtils {
         ).join("\n");
         // always insert a break at the end
         // since the split gets rid of the user defined breaks...
-        wrappedLine = wrappedLine.insert(wrappedLine.length, "\n");
+        wrappedLine += "\n";
         // concatenate to resulting wrapping text
-        wrappedText = wrappedText.concat(wrappedLine);
+        wrappedText += wrappedLine;
       }
 
       // assign useText to resulting wrapping text

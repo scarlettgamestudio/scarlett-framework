@@ -111,7 +111,7 @@ function initializeTextDependencies(fontDescription, textTexture) {
   text = new Text({
     font: fontDescription,
     texture: textTexture,
-    text: "Lorem ipsum\r\ndolore"
+    text: "Lorem\r\nipsum\r\ndolore"
   });
   text.transform.setPosition(-300, -180);
   text.setColor(Color.fromRGBA(232, 78, 64, 1.0));
