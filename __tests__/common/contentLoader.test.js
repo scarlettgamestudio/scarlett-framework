@@ -85,11 +85,11 @@ describe("Unable to retrieve inexistent resources", () => {
   });
 });
 
-describe("Load All Resources with invalid arguments", () => {
+describe("Unable to Load All Resources with invalid arguments", () => {
   const invalidArgs = [undefined, null, []];
   const output = [];
 
-  test("Setup Loading Queue when called with invalid arguments", () => {
+  test("Setup Loading Queue", () => {
     expect.assertions(invalidArgs.length + 1);
 
     invalidArgs.map(invalidArg => {
@@ -101,7 +101,7 @@ describe("Load All Resources with invalid arguments", () => {
     expect(emptyResult).toEqual(output);
   });
 
-  test("Load All invalid Images", async () => {
+  test("Unable to Load All Images", async () => {
     expect.assertions(invalidArgs.length * 2 + 1);
 
     const setupSpy = jest.spyOn(ContentLoader, "_setupLoadingQueue");
@@ -120,7 +120,7 @@ describe("Load All Resources with invalid arguments", () => {
     setupSpy.mockRestore();
   });
 
-  test("Load All invalid Audios", async () => {
+  test("Unable to Load All Audios", async () => {
     expect.assertions(invalidArgs.length * 2 + 1);
 
     const setupSpy = jest.spyOn(ContentLoader, "_setupLoadingQueue");
@@ -139,7 +139,7 @@ describe("Load All Resources with invalid arguments", () => {
     setupSpy.mockRestore();
   });
 
-  test("Load All invalid Files", async () => {
+  test("Unable to Load All Files", async () => {
     expect.assertions(invalidArgs.length * 2 + 1);
 
     const setupSpy = jest.spyOn(ContentLoader, "_setupLoadingQueue");
@@ -156,6 +156,42 @@ describe("Load All Resources with invalid arguments", () => {
 
     setupSpy.mockReset();
     setupSpy.mockRestore();
+  });
+
+  test("Unable to Load All resources", async () => {
+    expect.assertions(3);
+
+    const output = [[], [], []];
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+    let invalidArgResources = {
+      images: [],
+      files: [],
+      audios: []
+    };
+
+    for (let i = 0; i < invalidArgs.length; i++) {
+      invalidArgResources.images.push({
+        path: invalidArgs[i],
+        alias: invalidArgs[i]
+      });
+      invalidArgResources.files.push({
+        path: invalidArgs[i],
+        alias: invalidArgs[i]
+      });
+      invalidArgResources.audios.push({
+        path: invalidArgs[i],
+        alias: invalidArgs[i]
+      });
+    }
+
+    const result = await ContentLoader.loadAll(invalidArgResources);
+
+    const result2 = await ContentLoader.loadAll();
+    expect(result).toEqual(output);
+    expect(result2).toEqual(output);
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(3);
   });
 });
 
@@ -297,34 +333,6 @@ describe("Unable to load inexistent resources", async () => {
     trySpy.mockRestore();
   });
 });
-
-/*
-
-describe("Unable to load multiple inexistent resources", () => {
-  //console.error.mockReset();
-  console.error("######3est");
-  const inexistentResources = [
-    {
-      path: "some",
-      alias: "some"
-    },
-    {
-      path: "some",
-      alias: "some"
-    }
-  ];
-
-  test("Unable to load multiple inexistent images", async () => {
-    expect.assertions(1);
-    try {
-      await ContentLoader.loadAllImages(inexistentResources);
-    } catch (e) {
-      expect(e.message).not.toMatch("Image is not defined");
-    }
-  });
-});
-
-*/
 
 describe("Able to load, cache and clean mock resources", () => {
   beforeAll(() => {

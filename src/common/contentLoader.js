@@ -126,9 +126,8 @@ class ContentLoaderSingleton {
     const uniqueObj = arr.filter(obj => {
       // if obj is invalid or path or alias is already flagged
       if (
-        obj == null ||
-        obj.path == null ||
-        obj.alias == null ||
+        typeof obj.path != "string" ||
+        typeof obj.alias != "string" ||
         uniqueFlags.has(obj.path) ||
         uniqueFlags.has(obj.alias)
       ) {
@@ -181,6 +180,7 @@ class ContentLoaderSingleton {
 
   async loadAll(assets) {
     // prepare assets
+    assets = assets || {};
     assets.images = assets.images || [];
     assets.files = assets.files || [];
     assets.audios = assets.audios || [];
@@ -342,9 +342,9 @@ class ContentLoaderSingleton {
    * @returns {[string,string]} valid versions of the given path and alias
    */
   _assertPathAliasValidity(path, alias) {
-    const newPath = path == null ? "" : path;
+    const newPath = typeof path != "string" ? "" : path;
     // fallback to path if invalid
-    const newAlias = alias == null ? newPath : alias;
+    const newAlias = typeof alias != "string" ? newPath : alias;
 
     return [newPath, newAlias];
   }
