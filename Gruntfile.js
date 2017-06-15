@@ -25,7 +25,7 @@ module.exports = function(grunt) {
     },
     watch: {
       scripts: {
-        files: ["src/**/*.ts"],
+        files: ["src/**/*.js"],
         tasks: ["copy-to"],
         options: {
           interrupt: true
