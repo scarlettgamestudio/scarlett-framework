@@ -457,3 +457,117 @@ describe("Able to load, cache and clean mock resources", () => {
     expect(ContentLoader.getFile(resourceAlias)).toBeUndefined();
   });
 });
+
+describe("Able to load, cache and clean multiple mock resources", () => {
+  beforeAll(() => {
+    jest.setMock(
+      "common/contentLoader",
+      require("../../__mocks__/happyContentLoader")
+    );
+  });
+
+  const mockResources = {
+    images: [
+      { path: "assets/player.png", alias: "player" },
+      { path: "assets/player2.png", alias: "player2" }
+    ],
+    audios: [
+      { path: "assets/audio1", alias: "audio1" },
+      { path: "assets/audio2", alias: "audio2" }
+    ],
+    files: [
+      { path: "assets/file1", alias: "file1" },
+      { path: "assets/file2", alias: "file2" }
+    ]
+  };
+
+  // "Success" is the hardcoded result of the happy mock
+  const mockResult = [
+    ["Success", "Success"],
+    ["Success", "Success"],
+    ["Success", "Success"]
+  ];
+
+  test("Able to load multiple mock resources", async () => {
+    expect.assertions(1);
+
+    await expect(ContentLoader.loadAll(mockResources)).resolves.toEqual(
+      mockResult
+    );
+  });
+
+  test("Able to use cached multiple image resources", async () => {
+    expect.assertions(mockResources.images.length + 3);
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+    for (let i = 0; i < mockResources.images.length; i++) {
+      // make sure to know the result of the function before spying
+      let cachedResult = ContentLoader.isImageCached(
+        mockResources.images[i].path
+      );
+      expect(cachedResult).toBeTruthy();
+    }
+
+    const cacheSpy = jest.spyOn(ContentLoader, "isImageCached");
+
+    const images = await ContentLoader.loadAll(mockResources);
+
+    expect(images).toEqual(mockResult);
+    expect(cacheSpy).toHaveBeenCalled();
+    expect(consoleWarnSpy).toHaveBeenCalled();
+
+    cacheSpy.mockReset();
+    cacheSpy.mockRestore();
+  });
+
+  test("Able to use cached multiple audio resources", async () => {
+    expect.assertions(mockResources.audios.length + 3);
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+    for (let i = 0; i < mockResources.audios.length; i++) {
+      // make sure to know the result of the function before spying
+      let cachedResult = ContentLoader.isAudioCached(
+        mockResources.audios[i].path
+      );
+      expect(cachedResult).toBeTruthy();
+    }
+
+    const cacheSpy = jest.spyOn(ContentLoader, "isAudioCached");
+
+    const audios = await ContentLoader.loadAll(mockResources);
+
+    expect(audios).toEqual(mockResult);
+    expect(cacheSpy).toHaveBeenCalled();
+    expect(consoleWarnSpy).toHaveBeenCalled();
+
+    cacheSpy.mockReset();
+    cacheSpy.mockRestore();
+  });
+
+  test("Able to use cached multiple File resources", async () => {
+    expect.assertions(mockResources.files.length + 3);
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+    for (let i = 0; i < mockResources.files.length; i++) {
+      // make sure to know the result of the function before spying
+      let cachedResult = ContentLoader.isFileCached(
+        mockResources.files[i].path
+      );
+      expect(cachedResult).toBeTruthy();
+    }
+
+    const cacheSpy = jest.spyOn(ContentLoader, "isFileCached");
+
+    const files = await ContentLoader.loadAll(mockResources);
+
+    expect(files).toEqual(mockResult);
+    expect(cacheSpy).toHaveBeenCalled();
+    expect(consoleWarnSpy).toHaveBeenCalled();
+
+    cacheSpy.mockReset();
+    cacheSpy.mockRestore();
+  });
+});
