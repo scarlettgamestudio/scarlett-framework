@@ -144,62 +144,6 @@ class ContentLoaderSingleton {
     return uniqueObj;
   }
 
-  async loadAll(assets) {
-    // prepare assets
-    assets.images = assets.images || [];
-    assets.files = assets.files || [];
-    assets.audios = assets.audios || [];
-
-    const imagesPromise = this.loadAllImages(assets.images);
-    const filesPromise = this.loadAllFiles(assets.files);
-    const audiosPromise = this.loadAllAudios(assets.audios);
-
-    return await Promise.all([imagesPromise, filesPromise, audiosPromise]);
-  }
-
-  _setupLoadingQueue(arr) {
-    // filter by path and alias; 1st layer of security
-    const filteredQueue = Array.isArray(arr)
-      ? this._filterByPathAndAlias(arr)
-      : [];
-
-    // if some file was filtered out, warn
-    if (arr.length != filteredQueue.length) {
-      console.warn(
-        "Some files have been filtered out from loading " +
-          "due to invalid/duplicate paths or aliases."
-      );
-    }
-
-    return filteredQueue;
-  }
-
-  async loadAllImages(images) {
-    images = this._setupLoadingQueue(images);
-
-    return await Promise.all(
-      images.map(async image => {
-        return await this.loadImage(image.path, image.alias);
-      })
-    );
-  }
-
-  async loadAllFiles(files) {
-    return await Promise.all(
-      files.map(async file => {
-        return await this.loadFile(file.path, file.alias);
-      })
-    );
-  }
-
-  async loadAllAudios(audios) {
-    return await Promise.all(
-      audios.map(async audio => {
-        return await this.loadAudio(audio.path, audio.alias);
-      })
-    );
-  }
-
   _isLoading(path, alias) {
     if (this._loadingPaths.has(path)) {
       console.warn("Already loading " + path + "... Discarding.");
@@ -214,6 +158,68 @@ class ContentLoaderSingleton {
     }
 
     return false;
+  }
+
+  _setupLoadingQueue(arr) {
+    if (!Array.isArray(arr)) {
+      return [];
+    }
+
+    // filter by path and alias; 1st layer of security
+    const filteredQueue = this._filterByPathAndAlias(arr);
+
+    // if some file was filtered out, warn
+    if (arr.length != filteredQueue.length) {
+      console.warn(
+        "Some files have been filtered out from loading " +
+          "due to invalid/duplicate paths or aliases."
+      );
+    }
+
+    return filteredQueue;
+  }
+
+  async loadAll(assets) {
+    // prepare assets
+    assets.images = assets.images || [];
+    assets.files = assets.files || [];
+    assets.audios = assets.audios || [];
+
+    const imagesPromise = this.loadAllImages(assets.images);
+    const filesPromise = this.loadAllFiles(assets.files);
+    const audiosPromise = this.loadAllAudios(assets.audios);
+
+    return await Promise.all([imagesPromise, filesPromise, audiosPromise]);
+  }
+
+  async loadAllImages(images) {
+    images = this._setupLoadingQueue(images);
+
+    return await Promise.all(
+      images.map(async image => {
+        return await this.loadImage(image.path, image.alias);
+      })
+    );
+  }
+
+  async loadAllFiles(files) {
+    files = this._setupLoadingQueue(files);
+
+    return await Promise.all(
+      files.map(async file => {
+        return await this.loadFile(file.path, file.alias);
+      })
+    );
+  }
+
+  async loadAllAudios(audios) {
+    audios = this._setupLoadingQueue(audios);
+
+    return await Promise.all(
+      audios.map(async audio => {
+        return await this.loadAudio(audio.path, audio.alias);
+      })
+    );
   }
 
   async loadImage(path, alias) {
@@ -256,11 +262,17 @@ class ContentLoaderSingleton {
 
     // no need to go further if already in cache
     if (this.isAudioCached(newPath)) {
-      return this._imgLoaded[newPath];
+      console.warn("Audio " + newPath + " is already in cache. Reusing.");
+      return this._audioLoaded[newPath];
     }
 
     // otherwise, try to load it
-    const audio = await this._tryToLoadAudio(newPath);
+    const audio = await this._tryToLoadAudio(newPath, alias);
+
+    // make sure audio was loaded correctly
+    if (audio == null) {
+      return false;
+    }
 
     // and cache audio based on the determined path and alias
     this._cacheAudio(newPath, alias, audio);
@@ -282,11 +294,17 @@ class ContentLoaderSingleton {
 
     // no need to go further if already in cache
     if (this.isFileCached(newPath)) {
+      console.warn("File " + newPath + " is already in cache. Reusing.");
       return this._fileLoaded[newPath];
     }
 
     // otherwise, try to load it
-    const fileContext = await this._tryToLoadFile(newPath);
+    const fileContext = await this._tryToLoadFile(newPath, alias);
+
+    // make sure file was loaded correctly
+    if (fileContext == null) {
+      return false;
+    }
 
     // and cache file based on the determined path and alias
     this._cacheFile(newPath, alias, fileContext);
@@ -401,13 +419,27 @@ class ContentLoaderSingleton {
    * @param {string} path 
    * @returns {Promise<HTMLAudioElement>}
    */
-  async _tryToLoadAudio(path) {
+  async _tryToLoadAudio(path, alias) {
+    // discard if loading the same audio or alias
+    // 2nd (and last) layer of security
+    if (this._isLoading(path, alias)) {
+      return null;
+    }
+
+    this._loadingPaths.add(path);
+    this._loadingAliases.add(alias);
+
     try {
+      // try to load
       return await this._loadAudio(path);
     } catch (error) {
-      // log and rethrow
+      // log and return invalid
       console.error(error);
-      throw error;
+      return null;
+    } finally {
+      // make sure loading is updated either way
+      this._loadingPaths.delete(path);
+      this._loadingAliases.delete(alias);
     }
   }
 
@@ -416,13 +448,27 @@ class ContentLoaderSingleton {
    * @param {string} path 
    * @returns {Promise<FileContext>}
    */
-  async _tryToLoadFile(path) {
+  async _tryToLoadFile(path, alias) {
+    // discard if loading the same audio or alias
+    // 2nd (and last) layer of security
+    if (this._isLoading(path, alias)) {
+      return null;
+    }
+
+    this._loadingPaths.add(path);
+    this._loadingAliases.add(alias);
+
     try {
+      // try to load
       return await this._loadFile(path);
     } catch (error) {
-      // log and rethrow
+      // log and return invalid
       console.error(error);
-      throw error;
+      return null;
+    } finally {
+      // make sure loading is updated either way
+      this._loadingPaths.delete(path);
+      this._loadingAliases.delete(alias);
     }
   }
 

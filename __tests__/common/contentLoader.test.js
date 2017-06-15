@@ -85,16 +85,79 @@ describe("Unable to retrieve inexistent resources", () => {
   });
 });
 
-/*
-  test("Load All invalid images", async () => {
-    expect.assertions(1);
+describe("Load All Resources with invalid arguments", () => {
+  const invalidArgs = [undefined, null, []];
+  const output = [];
 
-    // null, undefined, empty, []
-    const result = await ContentLoader.loadAllImages([]);
+  test("Setup Loading Queue when called with invalid arguments", () => {
+    expect.assertions(invalidArgs.length + 1);
 
-    expect(result).toEqual([]);
+    invalidArgs.map(invalidArg => {
+      expect(ContentLoader._setupLoadingQueue(invalidArg)).toEqual(output);
+    });
+
+    const emptyResult = ContentLoader._setupLoadingQueue();
+
+    expect(emptyResult).toEqual(output);
   });
-*/
+
+  test("Load All invalid Images", async () => {
+    expect.assertions(invalidArgs.length * 2 + 1);
+
+    const setupSpy = jest.spyOn(ContentLoader, "_setupLoadingQueue");
+
+    invalidArgs.map(async invalidArg => {
+      const result = await ContentLoader.loadAllImages(invalidArg);
+
+      expect(result).toEqual(output);
+      expect(setupSpy).toHaveBeenCalledWith(invalidArg);
+    });
+
+    const emptyResult = await ContentLoader.loadAllImages();
+    expect(emptyResult).toEqual(output);
+
+    setupSpy.mockReset();
+    setupSpy.mockRestore();
+  });
+
+  test("Load All invalid Audios", async () => {
+    expect.assertions(invalidArgs.length * 2 + 1);
+
+    const setupSpy = jest.spyOn(ContentLoader, "_setupLoadingQueue");
+
+    invalidArgs.map(async invalidArg => {
+      const result = await ContentLoader.loadAllAudios(invalidArg);
+
+      expect(result).toEqual(output);
+      expect(setupSpy).toHaveBeenCalledWith(invalidArg);
+    });
+
+    const emptyResult = await ContentLoader.loadAllAudios();
+    expect(emptyResult).toEqual(output);
+
+    setupSpy.mockReset();
+    setupSpy.mockRestore();
+  });
+
+  test("Load All invalid Files", async () => {
+    expect.assertions(invalidArgs.length * 2 + 1);
+
+    const setupSpy = jest.spyOn(ContentLoader, "_setupLoadingQueue");
+
+    invalidArgs.map(async invalidArg => {
+      const result = await ContentLoader.loadAllFiles(invalidArg);
+
+      expect(result).toEqual(output);
+      expect(setupSpy).toHaveBeenCalledWith(invalidArg);
+    });
+
+    const emptyResult = await ContentLoader.loadAllFiles();
+    expect(emptyResult).toEqual(output);
+
+    setupSpy.mockReset();
+    setupSpy.mockRestore();
+  });
+});
 
 describe("Unable to load inexistent resources", async () => {
   const invalidPath = null;
@@ -163,33 +226,75 @@ describe("Unable to load inexistent resources", async () => {
   });
 
   test("Unable to load inexistent audio", async () => {
-    expect.assertions(4);
+    expect.assertions(10);
+
+    // store loading result before spying on it
+    const loadingResult = ContentLoader._isLoading(invalidPath, invalidAlias);
+    expect(loadingResult).toBeFalsy();
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    const loadingSpy = jest.spyOn(ContentLoader, "_isLoading");
 
-    try {
-      await ContentLoader.loadAudio(invalidPath, invalidAlias);
-    } catch (e) {
-      expect(e.message).toMatch("Audio is not defined");
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      expect(validitySpy).toHaveBeenCalledTimes(1);
-      expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
-    }
+    // store try load result
+    const tryToLoadResult = await ContentLoader._tryToLoadAudio(
+      invalidPath,
+      invalidAlias
+    );
+    expect(tryToLoadResult).toBeNull();
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    expect(loadingSpy).toHaveBeenCalledTimes(1);
+    expect(loadingSpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
+
+    const trySpy = jest.spyOn(ContentLoader, "_tryToLoadAudio");
+
+    const loadResult = await ContentLoader.loadAudio(invalidPath, invalidAlias);
+
+    expect(trySpy).toHaveBeenCalled();
+    expect(loadResult).toBeFalsy();
+    expect(validitySpy).toHaveBeenCalledTimes(1);
+    expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
+    expect(enrichPathSpy).toHaveBeenCalledTimes(1);
+
+    loadingSpy.mockReset();
+    loadingSpy.mockRestore();
+    trySpy.mockReset();
+    trySpy.mockRestore();
   });
 
   test("Unable to load inexistent file", async () => {
-    expect.assertions(4);
+    expect.assertions(10);
+
+    // store loading result before spying on it
+    const loadingResult = ContentLoader._isLoading(invalidPath, invalidAlias);
+    expect(loadingResult).toBeFalsy();
 
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    const loadingSpy = jest.spyOn(ContentLoader, "_isLoading");
 
-    try {
-      await ContentLoader.loadFile(invalidPath, invalidAlias);
-    } catch (e) {
-      expect(e.message).toMatch("XMLHttpRequest is not defined");
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      expect(validitySpy).toHaveBeenCalledTimes(1);
-      expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
-    }
+    // store try load result
+    const tryToLoadResult = await ContentLoader._tryToLoadFile(
+      invalidPath,
+      invalidAlias
+    );
+    expect(tryToLoadResult).toBeNull();
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    expect(loadingSpy).toHaveBeenCalledTimes(1);
+    expect(loadingSpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
+
+    const trySpy = jest.spyOn(ContentLoader, "_tryToLoadFile");
+
+    const loadResult = await ContentLoader.loadFile(invalidPath, invalidAlias);
+
+    expect(trySpy).toHaveBeenCalled();
+    expect(loadResult).toBeFalsy();
+    expect(validitySpy).toHaveBeenCalledTimes(1);
+    expect(validitySpy).toHaveBeenCalledWith(invalidPath, invalidAlias);
+    expect(enrichPathSpy).toHaveBeenCalledTimes(1);
+
+    loadingSpy.mockReset();
+    loadingSpy.mockRestore();
+    trySpy.mockReset();
+    trySpy.mockRestore();
   });
 });
 
@@ -274,7 +379,9 @@ describe("Able to load, cache and clean mock resources", () => {
   });
 
   test("Able to use cached mock audio", async () => {
-    expect.assertions(3);
+    expect.assertions(4);
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
     // make sure to know the result of the function before spying
     const cachedResult = ContentLoader.isAudioCached(resourcePath);
@@ -285,6 +392,7 @@ describe("Able to load, cache and clean mock resources", () => {
     const audio = await ContentLoader.loadAudio(resourcePath, resourceAlias);
     // also make sure to use the same arguments!
     expect(cacheSpy).toHaveBeenCalledWith(resourcePath);
+    expect(consoleWarnSpy).toHaveBeenCalled();
     expect(audio).toBe(mockResult);
 
     cacheSpy.mockReset();
@@ -292,7 +400,9 @@ describe("Able to load, cache and clean mock resources", () => {
   });
 
   test("Able to use cached mock file", async () => {
-    expect.assertions(3);
+    expect.assertions(4);
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
     // make sure to know the result of the function before spying
     const cachedResult = ContentLoader.isFileCached(resourcePath);
@@ -306,6 +416,7 @@ describe("Able to load, cache and clean mock resources", () => {
     );
     // also make sure to use the same arguments!
     expect(cacheSpy).toHaveBeenCalledWith(resourcePath);
+    expect(consoleWarnSpy).toHaveBeenCalled();
     expect(fileContext).toBe(mockResult);
 
     cacheSpy.mockReset();
