@@ -7,16 +7,7 @@ import ShaderManager from "shaders/shaderManager";
 import Keys from "input/keys";
 import { Keyboard } from "input/keyboard";
 import { isString, isObjectAssigned, isFunction } from "common/utils";
-import { isGameScene } from "core/gameScene";
-
-/**
- * Validates if the given object is a game object
- * @param obj
- * @returns {boolean}
- */
-export function isGame(obj) {
-  return obj instanceof Game;
-}
+import Utils from "utility/utils";
 
 /**
  * GameScene Class
@@ -121,10 +112,7 @@ export default class Game {
 
     // context initialization
     if (!isObjectAssigned(this._canvas)) {
-      this._logger.warn(
-        "Cannot initialize game, " +
-          "the render display target was not provided or is invalid."
-      );
+      this._logger.warn("Cannot initialize game, " + "the render display target was not provided or is invalid.");
       return;
     }
 
@@ -163,17 +151,11 @@ export default class Game {
   }
 
   refreshVirtualResolution() {
-    this._renderContext.setVirtualResolution(
-      this._virtualResolution.width,
-      this._virtualResolution.height
-    );
+    this._renderContext.setVirtualResolution(this._virtualResolution.width, this._virtualResolution.height);
 
     let camera = this.getActiveCamera();
     if (camera) {
-      camera.setViewSize(
-        this._virtualResolution.width,
-        this._virtualResolution.height
-      );
+      camera.setViewSize(this._virtualResolution.width, this._virtualResolution.height);
     }
   }
 
@@ -204,7 +186,7 @@ export default class Game {
   }
 
   changeScene(scene) {
-    if (!isGameScene(scene)) {
+    if (!Utils.isGameScene(scene)) {
       return;
     }
 
@@ -267,11 +249,7 @@ export default class Game {
      */
   _unbindInputHandlers() {
     window.removeEventListener("keyup", this._keyUpListener.bind(this), false);
-    window.removeEventListener(
-      "keydown",
-      this._keyDownListener.bind(this),
-      false
-    );
+    window.removeEventListener("keydown", this._keyDownListener.bind(this), false);
     this._inputHandlersBinded = false;
   }
 
@@ -337,11 +315,7 @@ export default class Game {
     let self = this;
     this._totalElapsedTime = timestamp;
 
-    if (
-      !this._paused &&
-      isGameScene(this._gameScene) &&
-      !this._swappingScenes
-    ) {
+    if (!this._paused && Utils.isGameScene(this._gameScene) && !this._swappingScenes) {
       // handle the active game scene interactions here:
 
       // TODO: before release, add the try here..
