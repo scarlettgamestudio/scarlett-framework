@@ -392,8 +392,13 @@ class ContentLoaderSingleton {
    */
   async _tryToLoadImage(path, alias) {
     // discard if loading the same image or alias
+    // or if image is already cached
     // 2nd (and last) layer of security
-    if (this._isLoading(path, alias)) {
+    if (
+      this._isLoading(path, alias) ||
+      this.isImageAliasCached(alias) ||
+      this.isImageCached(path)
+    ) {
       return null;
     }
 
@@ -421,8 +426,13 @@ class ContentLoaderSingleton {
    */
   async _tryToLoadAudio(path, alias) {
     // discard if loading the same audio or alias
+    // or if audio is already cached
     // 2nd (and last) layer of security
-    if (this._isLoading(path, alias)) {
+    if (
+      this._isLoading(path, alias) ||
+      this.isAudioAliasCached(alias) ||
+      this.isAudioCached(path)
+    ) {
       return null;
     }
 
@@ -450,8 +460,13 @@ class ContentLoaderSingleton {
    */
   async _tryToLoadFile(path, alias) {
     // discard if loading the same audio or alias
+    // or if file is already cached
     // 2nd (and last) layer of security
-    if (this._isLoading(path, alias)) {
+    if (
+      this._isLoading(path, alias) ||
+      this.isFileAliasCached(alias) ||
+      this.isFileCached(path)
+    ) {
       return null;
     }
 

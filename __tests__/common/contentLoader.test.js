@@ -460,6 +460,7 @@ describe("Able to load, cache and clean mock resources", () => {
 
 describe("Able to load, cache and clean multiple mock resources", () => {
   beforeAll(() => {
+    ContentLoader.clear();
     jest.setMock(
       "common/contentLoader",
       require("../../__mocks__/happyContentLoader")
@@ -569,5 +570,83 @@ describe("Able to load, cache and clean multiple mock resources", () => {
 
     cacheSpy.mockReset();
     cacheSpy.mockRestore();
+  });
+});
+
+describe("Discard already loading files", () => {
+  beforeAll(() => {
+    jest.setMock(
+      "common/contentLoader",
+      require("../../__mocks__/happyContentLoader")
+    );
+  });
+
+  beforeEach(() => {
+    ContentLoader.clear();
+  });
+
+  // "Success" is the hardcoded result of the happy mock
+  const mockResult = [["Success"], [], []];
+
+  test("Able to filter repeated resource", async () => {
+    expect.assertions(2);
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+    const mockResources = {
+      images: [
+        { path: "assets/player.png", alias: "player" },
+        { path: "assets/player.png", alias: "player2" }
+      ]
+    };
+
+    await expect(ContentLoader.loadAll(mockResources)).resolves.toEqual(
+      mockResult
+    );
+    expect(consoleWarnSpy).toHaveBeenCalled();
+  });
+
+  test("Able to detect already loading resource by path", async () => {
+    expect.assertions(4);
+
+    const mockResourcePath = "path";
+    const mockResourceAlias = "alias";
+    const mockResult = "Success";
+
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+    const result1 = await ContentLoader.loadImage(
+      mockResourcePath,
+      mockResourceAlias
+    );
+    const result2 = await ContentLoader.loadImage(
+      mockResourcePath,
+      mockResourceAlias
+    );
+
+    const loadedCount = Object.keys(ContentLoader._imgLoaded).length;
+
+    expect(result1).toBe(mockResult);
+    // cached result (check console)
+    expect(result2).toBe(mockResult);
+    expect(loadedCount).toBe(1);
+    expect(consoleWarnSpy).toHaveBeenCalled();
+  });
+
+  test("Able to discard already loaded resource by alias", async () => {
+    expect.assertions(3);
+
+    const mockResourceAlias = "alias";
+    const mockResult = "Success";
+
+    const result1 = await ContentLoader.loadImage("path1", mockResourceAlias);
+    const result2 = await ContentLoader.loadImage("path2", mockResourceAlias);
+
+    const loadedCount = Object.keys(ContentLoader._imgLoaded).length;
+
+    expect(result1).toBe(mockResult);
+    // cached result (check console)
+    expect(result2).toBeFalsy();
+    expect(loadedCount).toBe(1);
   });
 });
