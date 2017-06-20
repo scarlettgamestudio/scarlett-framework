@@ -13,15 +13,6 @@ AttributeDictionary.addRule("gameScene", "_camera", { visible: false });
 AttributeDictionary.addRule("gameScene", "_spriteBatch", { visible: false });
 
 /**
- * Validates if the given object is a game scene
- * @param obj
- * @returns {boolean}
- */
-export function isGameScene(obj) {
-  return obj instanceof GameScene;
-}
-
-/**
  * GameScene class
  */
 export default class GameScene {
@@ -50,12 +41,7 @@ export default class GameScene {
     // the default scene camera
     this._camera =
       params.camera ||
-      new Camera2D(
-        0,
-        0,
-        this._game.getVirtualResolution().width,
-        this._game.getVirtualResolution().height
-      );
+      new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height);
     this._spriteBatch = new SpriteBatch(params.game);
   }
 
@@ -151,12 +137,7 @@ export default class GameScene {
     let gl = this._game.getRenderContext().getContext();
 
     // set clear color and clear the screen:
-    gl.clearColor(
-      this._backgroundColor.r,
-      this._backgroundColor.g,
-      this._backgroundColor.b,
-      this._backgroundColor.a
-    );
+    gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
     gl.clear(gl.COLOR_BUFFER_BIT);
   }
 

@@ -106,7 +106,7 @@
       "no-console": 0,
       "max-len": [
         "error",
-        80
+        120
       ]
     },
     "settings": {

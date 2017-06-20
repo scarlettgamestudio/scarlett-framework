@@ -8,10 +8,7 @@ export default class Matrix4 {
      * @param {Array|Float32Array=} array
      */
   constructor(array) {
-    if (
-      (array instanceof Array || array instanceof Float32Array) &&
-      array.length === 16
-    ) {
+    if ((array instanceof Array || array instanceof Float32Array) && array.length === 16) {
       this._matrix = new Float32Array(array);
     } else {
       this._matrix = new Float32Array(16);
@@ -33,10 +30,7 @@ export default class Matrix4 {
      * @param {Array|Float32Array} array
      */
   setFromArray(array) {
-    if (
-      (array instanceof Array || array instanceof Float32Array) &&
-      array.length === 16
-    ) {
+    if ((array instanceof Array || array instanceof Float32Array) && array.length === 16) {
       this._matrix = new Float32Array(array);
     }
   }
@@ -90,30 +84,22 @@ export default class Matrix4 {
       tmp_0 * this._matrix[1 * 4 + 1] +
       tmp_3 * this._matrix[2 * 4 + 1] +
       tmp_4 * this._matrix[3 * 4 + 1] -
-      (tmp_1 * this._matrix[1 * 4 + 1] +
-        tmp_2 * this._matrix[2 * 4 + 1] +
-        tmp_5 * this._matrix[3 * 4 + 1]);
+      (tmp_1 * this._matrix[1 * 4 + 1] + tmp_2 * this._matrix[2 * 4 + 1] + tmp_5 * this._matrix[3 * 4 + 1]);
     let t1 =
       tmp_1 * this._matrix[0 * 4 + 1] +
       tmp_6 * this._matrix[2 * 4 + 1] +
       tmp_9 * this._matrix[3 * 4 + 1] -
-      (tmp_0 * this._matrix[0 * 4 + 1] +
-        tmp_7 * this._matrix[2 * 4 + 1] +
-        tmp_8 * this._matrix[3 * 4 + 1]);
+      (tmp_0 * this._matrix[0 * 4 + 1] + tmp_7 * this._matrix[2 * 4 + 1] + tmp_8 * this._matrix[3 * 4 + 1]);
     let t2 =
       tmp_2 * this._matrix[0 * 4 + 1] +
       tmp_7 * this._matrix[1 * 4 + 1] +
       tmp_10 * this._matrix[3 * 4 + 1] -
-      (tmp_3 * this._matrix[0 * 4 + 1] +
-        tmp_6 * this._matrix[1 * 4 + 1] +
-        tmp_11 * this._matrix[3 * 4 + 1]);
+      (tmp_3 * this._matrix[0 * 4 + 1] + tmp_6 * this._matrix[1 * 4 + 1] + tmp_11 * this._matrix[3 * 4 + 1]);
     let t3 =
       tmp_5 * this._matrix[0 * 4 + 1] +
       tmp_8 * this._matrix[1 * 4 + 1] +
       tmp_11 * this._matrix[2 * 4 + 1] -
-      (tmp_4 * this._matrix[0 * 4 + 1] +
-        tmp_9 * this._matrix[1 * 4 + 1] +
-        tmp_10 * this._matrix[2 * 4 + 1]);
+      (tmp_4 * this._matrix[0 * 4 + 1] + tmp_9 * this._matrix[1 * 4 + 1] + tmp_10 * this._matrix[2 * 4 + 1]);
 
     let d =
       1.0 /
@@ -132,97 +118,73 @@ export default class Matrix4 {
       (tmp_1 * this._matrix[1 * 4 + 0] +
         tmp_2 * this._matrix[2 * 4 + 0] +
         tmp_5 * this._matrix[3 * 4 + 0] -
-        (tmp_0 * this._matrix[1 * 4 + 0] +
-          tmp_3 * this._matrix[2 * 4 + 0] +
-          tmp_4 * this._matrix[3 * 4 + 0]));
+        (tmp_0 * this._matrix[1 * 4 + 0] + tmp_3 * this._matrix[2 * 4 + 0] + tmp_4 * this._matrix[3 * 4 + 0]));
     newMatrix[5] =
       d *
       (tmp_0 * this._matrix[0 * 4 + 0] +
         tmp_7 * this._matrix[2 * 4 + 0] +
         tmp_8 * this._matrix[3 * 4 + 0] -
-        (tmp_1 * this._matrix[0 * 4 + 0] +
-          tmp_6 * this._matrix[2 * 4 + 0] +
-          tmp_9 * this._matrix[3 * 4 + 0]));
+        (tmp_1 * this._matrix[0 * 4 + 0] + tmp_6 * this._matrix[2 * 4 + 0] + tmp_9 * this._matrix[3 * 4 + 0]));
     newMatrix[6] =
       d *
       (tmp_3 * this._matrix[0 * 4 + 0] +
         tmp_6 * this._matrix[1 * 4 + 0] +
         tmp_11 * this._matrix[3 * 4 + 0] -
-        (tmp_2 * this._matrix[0 * 4 + 0] +
-          tmp_7 * this._matrix[1 * 4 + 0] +
-          tmp_10 * this._matrix[3 * 4 + 0]));
+        (tmp_2 * this._matrix[0 * 4 + 0] + tmp_7 * this._matrix[1 * 4 + 0] + tmp_10 * this._matrix[3 * 4 + 0]));
     newMatrix[7] =
       d *
       (tmp_4 * this._matrix[0 * 4 + 0] +
         tmp_9 * this._matrix[1 * 4 + 0] +
         tmp_10 * this._matrix[2 * 4 + 0] -
-        (tmp_5 * this._matrix[0 * 4 + 0] +
-          tmp_8 * this._matrix[1 * 4 + 0] +
-          tmp_11 * this._matrix[2 * 4 + 0]));
+        (tmp_5 * this._matrix[0 * 4 + 0] + tmp_8 * this._matrix[1 * 4 + 0] + tmp_11 * this._matrix[2 * 4 + 0]));
     newMatrix[8] =
       d *
       (tmp_12 * this._matrix[1 * 4 + 3] +
         tmp_15 * this._matrix[2 * 4 + 3] +
         tmp_16 * this._matrix[3 * 4 + 3] -
-        (tmp_13 * this._matrix[1 * 4 + 3] +
-          tmp_14 * this._matrix[2 * 4 + 3] +
-          tmp_17 * this._matrix[3 * 4 + 3]));
+        (tmp_13 * this._matrix[1 * 4 + 3] + tmp_14 * this._matrix[2 * 4 + 3] + tmp_17 * this._matrix[3 * 4 + 3]));
     newMatrix[9] =
       d *
       (tmp_13 * this._matrix[0 * 4 + 3] +
         tmp_18 * this._matrix[2 * 4 + 3] +
         tmp_21 * this._matrix[3 * 4 + 3] -
-        (tmp_12 * this._matrix[0 * 4 + 3] +
-          tmp_19 * this._matrix[2 * 4 + 3] +
-          tmp_20 * this._matrix[3 * 4 + 3]));
+        (tmp_12 * this._matrix[0 * 4 + 3] + tmp_19 * this._matrix[2 * 4 + 3] + tmp_20 * this._matrix[3 * 4 + 3]));
     newMatrix[10] =
       d *
       (tmp_14 * this._matrix[0 * 4 + 3] +
         tmp_19 * this._matrix[1 * 4 + 3] +
         tmp_22 * this._matrix[3 * 4 + 3] -
-        (tmp_15 * this._matrix[0 * 4 + 3] +
-          tmp_18 * this._matrix[1 * 4 + 3] +
-          tmp_23 * this._matrix[3 * 4 + 3]));
+        (tmp_15 * this._matrix[0 * 4 + 3] + tmp_18 * this._matrix[1 * 4 + 3] + tmp_23 * this._matrix[3 * 4 + 3]));
     newMatrix[11] =
       d *
       (tmp_17 * this._matrix[0 * 4 + 3] +
         tmp_20 * this._matrix[1 * 4 + 3] +
         tmp_23 * this._matrix[2 * 4 + 3] -
-        (tmp_16 * this._matrix[0 * 4 + 3] +
-          tmp_21 * this._matrix[1 * 4 + 3] +
-          tmp_22 * this._matrix[2 * 4 + 3]));
+        (tmp_16 * this._matrix[0 * 4 + 3] + tmp_21 * this._matrix[1 * 4 + 3] + tmp_22 * this._matrix[2 * 4 + 3]));
     newMatrix[12] =
       d *
       (tmp_14 * this._matrix[2 * 4 + 2] +
         tmp_17 * this._matrix[3 * 4 + 2] +
         tmp_13 * this._matrix[1 * 4 + 2] -
-        (tmp_16 * this._matrix[3 * 4 + 2] +
-          tmp_12 * this._matrix[1 * 4 + 2] +
-          tmp_15 * this._matrix[2 * 4 + 2]));
+        (tmp_16 * this._matrix[3 * 4 + 2] + tmp_12 * this._matrix[1 * 4 + 2] + tmp_15 * this._matrix[2 * 4 + 2]));
     newMatrix[13] =
       d *
       (tmp_20 * this._matrix[3 * 4 + 2] +
         tmp_12 * this._matrix[0 * 4 + 2] +
         tmp_19 * this._matrix[2 * 4 + 2] -
-        (tmp_18 * this._matrix[2 * 4 + 2] +
-          tmp_21 * this._matrix[3 * 4 + 2] +
-          tmp_13 * this._matrix[0 * 4 + 2]));
+        (tmp_18 * this._matrix[2 * 4 + 2] + tmp_21 * this._matrix[3 * 4 + 2] + tmp_13 * this._matrix[0 * 4 + 2]));
     newMatrix[14] =
       d *
       (tmp_18 * this._matrix[1 * 4 + 2] +
         tmp_23 * this._matrix[3 * 4 + 2] +
         tmp_15 * this._matrix[0 * 4 + 2] -
-        (tmp_22 * this._matrix[3 * 4 + 2] +
-          tmp_14 * this._matrix[0 * 4 + 2] +
-          tmp_19 * this._matrix[1 * 4 + 2]));
+        (tmp_22 * this._matrix[3 * 4 + 2] + tmp_14 * this._matrix[0 * 4 + 2] + tmp_19 * this._matrix[1 * 4 + 2]));
     newMatrix[15] =
       d *
       (tmp_22 * this._matrix[2 * 4 + 2] +
         tmp_16 * this._matrix[0 * 4 + 2] +
         tmp_21 * this._matrix[1 * 4 + 2] -
-        (tmp_20 * this._matrix[1 * 4 + 2] +
-          tmp_23 * this._matrix[2 * 4 + 2] +
-          tmp_17 * this._matrix[0 * 4 + 2]));
+        (tmp_20 * this._matrix[1 * 4 + 2] + tmp_23 * this._matrix[2 * 4 + 2] + tmp_17 * this._matrix[0 * 4 + 2]));
 
     this._matrix = newMatrix;
 
