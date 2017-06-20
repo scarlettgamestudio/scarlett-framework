@@ -10,10 +10,14 @@ const TO_ES6 = process.env.NODE_ENV === "es6";
 // deploying? (for complete games)
 const DEPLOYING = process.env.NODE_ENV === "production";
 
-// the variable name from which the library should be accessed from
-const globalLibraryName = "SC";
 // the entry filename of the library (inside src)
 const entryFilenames = ["matter-js", "index.js"];
+
+// the variable name from which the library should be accessed from
+// when using a global var (ES5)
+const globalLibraryName = "SC";
+// default target library (global variable)
+let target = "var";
 
 // default package name (ES5)
 let finalPackageName = packageName + ".browser.js";
@@ -42,6 +46,8 @@ if (TO_ES6) {
       plugins: ["lodash"]
     }
   };
+  // change library target to commonjs2 since that's easier to use with node
+  target = "commonjs2";
   // update output path
   relativeOutputPath = "build/build-es6";
   // update package name
@@ -65,10 +71,12 @@ const config = {
   output: {
     filename: finalPackageName,
     path: path.resolve(relativeOutputPath),
+
     // export itself to a global var
-    libraryTarget: "var",
+    libraryTarget: target,
     // name of the global var
     library: globalLibraryName,
+
     // webpack dev server hot reload path
     publicPath: relativeOutputPath
   },
