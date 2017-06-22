@@ -1,9 +1,10 @@
 import Game from "core/game";
 import GameScene from "core/gameScene";
 import Sprite from "core/sprite";
+import Texture2D from "core/texture2D";
 
 /**
- * IO Path utility class
+ * Utility class
  */
 export default class Utils {
   //#region Static Properties
@@ -32,5 +33,14 @@ export default class Utils {
  */
   static isSprite(obj) {
     return obj instanceof Sprite;
+  }
+
+  /**
+ * Validates if the given object is a texture2d
+ * @param obj
+ * @returns {boolean}
+ */
+  static isTexture2D(obj) {
+    return obj instanceof Texture2D;
   }
 }

@@ -3,15 +3,6 @@ import GameManager from "core/gameManager";
 import { isObjectAssigned, generateUID } from "common/utils";
 
 /**
- * Validates if the given object is a texture2d
- * @param obj
- * @returns {boolean}
- */
-export function isTexture2D(obj) {
-  return obj instanceof Texture2D;
-}
-
-/**
  * Texture2D class
  */
 export default class Texture2D {

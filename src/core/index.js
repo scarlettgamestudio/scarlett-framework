@@ -23,6 +23,6 @@ export { default as Sprite } from "./sprite";
 export { default as SpriteBatch } from "./spriteBatch";
 export { default as Stroke } from "./stroke";
 export { default as Text } from "./text";
-export { default as Texture2D, isTexture2D } from "./texture2D";
+export { default as Texture2D } from "./texture2D";
 export { default as Transform } from "./transform";
 export { WrapMode } from "./wrapMode";

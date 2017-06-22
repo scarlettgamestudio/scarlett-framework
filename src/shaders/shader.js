@@ -2,7 +2,7 @@ import GameManager from "core/gameManager";
 import { Debug } from "common/logger";
 import { GLU } from "webgl/webGLUtils";
 import { isObjectAssigned, generateUID } from "common/utils";
-import { isTexture2D } from "core/texture2D";
+import Utils from "utility/utils";
 
 /**
  * Shader Class
@@ -193,7 +193,7 @@ export default class Shader {
         break;
       }
       case "tex": {
-        if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
+        if (!Utils.isTexture2D(uniform.value) || !uniform.value.isReady()) {
           Debug.warn("Could not assign texture uniform because the texture isn't ready.");
           break;
         }
@@ -221,7 +221,7 @@ export default class Shader {
   }
 
   initSampler2D(uniform) {
-    if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
+    if (!Utils.isTexture2D(uniform.value) || !uniform.value.isReady()) {
       Debug.warn("Could not initialize sampler2D because the texture isn't ready.");
       return;
     }
