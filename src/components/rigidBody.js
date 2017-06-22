@@ -5,7 +5,7 @@
 import Matter from "matter-js";
 import GameManager from "core/gameManager";
 import { isObjectAssigned } from "common/utils";
-import { isSprite } from "core/sprite";
+import Utils from "utility/utils";
 
 export default class RigidBody {
   //#region Constructors
@@ -95,7 +95,7 @@ export default class RigidBody {
       let width = 1;
       let height = 1;
 
-      if (isSprite(this.gameObject)) {
+      if (Utils.isSprite(this.gameObject)) {
         width = this.gameObject.getTexture().getWidth();
         height = this.gameObject.getTexture().getHeight();
       }

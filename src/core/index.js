@@ -19,7 +19,7 @@ const assignScript = Scripts.assign.bind(Scripts);
 export { Scripts, addScript, assignScript };
 
 export { default as Sound } from "./sound";
-export { default as Sprite, isSprite } from "./sprite";
+export { default as Sprite } from "./sprite";
 export { default as SpriteBatch } from "./spriteBatch";
 export { default as Stroke } from "./stroke";
 export { default as Text } from "./text";
