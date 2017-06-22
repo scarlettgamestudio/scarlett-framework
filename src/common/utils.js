@@ -51,7 +51,7 @@ function isNumber(obj) {
  * @returns {boolean}
  */
 function isFunction(obj) {
-  return _.isFunction(obj);
+  return typeof obj === "function";
 }
 
 /**
@@ -109,5 +109,9 @@ function getType(object) {
  * @param b
  */
 function isEqual(a, b) {
-  return _.isEqual(a, b);
+  if (isFunction(a.equals)) {
+    return a.equals(b);
+  }
+
+  return a === b;
 }
