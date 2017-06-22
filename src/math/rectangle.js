@@ -69,12 +69,7 @@ export default class Rectangle {
   }
 
   equals(obj) {
-    return (
-      obj.x === this.x &&
-      obj.y === this.y &&
-      obj.width === this.width &&
-      obj.height === this.height
-    );
+    return obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height;
   }
 
   unload() {}

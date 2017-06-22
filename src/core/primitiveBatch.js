@@ -14,7 +14,7 @@ export default class PrimitiveBatch {
      */
   constructor(game) {
     if (!Utils.isGame(game)) {
-      throw new Error("Cannot create primitive render, the Game object is missing from the parameters");
+      throw new Error("Cannot create primitive render the Game object is missing from the parameters");
     }
 
     // public properties:
@@ -109,7 +109,8 @@ export default class PrimitiveBatch {
 
     let gl = this._gl;
 
-    // TODO: not all implementations support this, to check again in a near future..
+    // TODO: not all implementations support this,
+    // to check again in a near future..
     // gl.lineWidth(thickness);
 
     this._game.getShaderManager().useShader(this._primitiveShader);
@@ -133,7 +134,9 @@ export default class PrimitiveBatch {
       this._game.getActiveCamera().getMatrix()
     );
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    //gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+    // gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
+    // color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.LINES, 0, this._lineArrayCount);
   }
@@ -145,7 +148,8 @@ export default class PrimitiveBatch {
   }
 
   storeLine(vectorA, vectorB, color) {
-    // Note: DO NOT use any kind of javascript concatenation mechanism here! it slows down things considerably
+    // Note: DO NOT use any kind of javascript concatenation mechanism here!
+    // it slows down things considerably
     this._lineVertexData.push(vectorA.x);
     this._lineVertexData.push(vectorA.y);
     this._lineVertexData.push(color.r);

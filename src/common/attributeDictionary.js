@@ -27,9 +27,7 @@ class AttributeDictionarySingleton {
 
   static get instance() {
     if (!this[_attributeDictionarySingleton]) {
-      this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(
-        _attributeDictionarySingleton
-      );
+      this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
     }
 
     return this[_attributeDictionarySingleton];

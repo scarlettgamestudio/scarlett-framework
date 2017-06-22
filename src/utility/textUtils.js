@@ -35,8 +35,7 @@ export default class TextUtils {
     // calculate character 'width'
     // xadvance is based not only on the width but also
     // on the padding, thus being used instead of width (?)
-    let charWidth =
-      fontStyle.getFontDescription().chars[charID].xadvance * scale;
+    let charWidth = fontStyle.getFontDescription().chars[charID].xadvance * scale;
 
     return charWidth;
   }
@@ -181,9 +180,7 @@ export default class TextUtils {
         whitespace = " ";
         // letter spacing also affects the whitespace width
         // when there is at least 1 word
-        whitespaceWidth =
-          TextUtils.measureCharacterWidth(fontStyle, whitespace) +
-          fontStyle.getLetterSpacing();
+        whitespaceWidth = TextUtils.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
         // make sure we only enter this condition once (per line)
         revertedToOriginalValue = true;
       }
@@ -197,18 +194,11 @@ export default class TextUtils {
       if (characterWrap && wordWidth > maxLineWidth) {
         let tempLine = currentLine + whitespace + word;
 
-        let characterWrappedLines = TextUtils.wrapTextByCharacter(
-          fontStyle,
-          tempLine,
-          maxLineWidth
-        );
+        let characterWrappedLines = TextUtils.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
 
         // currentLine is the last line so maybe next word also fits
         currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
-        currentLineWordWidth = TextUtils.measureTextWidth(
-          fontStyle,
-          currentLine
-        );
+        currentLineWordWidth = TextUtils.measureTextWidth(fontStyle, currentLine);
         // reset whitespace values as currentLineWordWidth can be 0...
         // and would consider whitespace in the beginning of a new line
         // which we are trying to avoid (the reason of all this mess!)
@@ -305,8 +295,7 @@ export default class TextUtils {
 
       // current width + char width + letter spacing
       // if there is at least 1 character
-      let tempWidth =
-        lines[currentLine].width + charWidth + currentLetterSpacing;
+      let tempWidth = lines[currentLine].width + charWidth + currentLetterSpacing;
 
       // if current line width + the current character width
       // is > than the max width
@@ -377,13 +366,7 @@ export default class TextUtils {
      * @returns {Array} text split into lines
      * @public
      */
-  static measureText(
-    fontStyle,
-    textStr,
-    maxLineWidth,
-    wordWrap,
-    characterWrap
-  ) {
+  static measureText(fontStyle, textStr, maxLineWidth, wordWrap, characterWrap) {
     // create empty array
     let resultLines = [];
 
@@ -443,15 +426,9 @@ export default class TextUtils {
       // only perform character wrap
       // if word wrap isn't enabled in the first place
       if (!wordWrap && characterWrap) {
-        preparedLines = TextUtils.wrapTextByCharacter(
-          fontStyle,
-          userDefinedLine,
-          maxLineWidth
-        );
+        preparedLines = TextUtils.wrapTextByCharacter(fontStyle, userDefinedLine, maxLineWidth);
       } else {
-        preparedLines.push(
-          TextUtils.convertTextStringToLineFormat(fontStyle, userDefinedLine)
-        );
+        preparedLines.push(TextUtils.convertTextStringToLineFormat(fontStyle, userDefinedLine));
       }
 
       // extended result array (does not create a new array such as concat)

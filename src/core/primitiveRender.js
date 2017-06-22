@@ -15,7 +15,7 @@ export default class PrimitiveRender {
      */
   constructor(game) {
     if (!Utils.isGame(game)) {
-      throw new Error("Cannot create primitive render, " + "the Game object is missing from the parameters");
+      throw new Error("Cannot create primitive render, as the Game object is missing from the parameters");
     }
 
     // private properties:

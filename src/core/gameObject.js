@@ -96,11 +96,7 @@ export default class GameObject {
      */
   getMatrix() {
     this._transformMatrix.identity();
-    this._transformMatrix.translate([
-      this.transform.getPosition().x,
-      this.transform.getPosition().y,
-      0
-    ]);
+    this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
 
     return this._transformMatrix.asArray();
   }
@@ -278,39 +274,17 @@ export default class GameObject {
     let vertices = this.getBoundary(bulk);
 
     // find the min and max width to form the rectangle boundary
-    let minX = Math.min(
-      vertices.topLeft.x,
-      vertices.topRight.x,
-      vertices.bottomLeft.x,
-      vertices.bottomRight.x
-    );
-    let maxX = Math.max(
-      vertices.topLeft.x,
-      vertices.topRight.x,
-      vertices.bottomLeft.x,
-      vertices.bottomRight.x
-    );
-    let minY = Math.min(
-      vertices.topLeft.y,
-      vertices.topRight.y,
-      vertices.bottomLeft.y,
-      vertices.bottomRight.y
-    );
-    let maxY = Math.max(
-      vertices.topLeft.y,
-      vertices.topRight.y,
-      vertices.bottomLeft.y,
-      vertices.bottomRight.y
-    );
+    let minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    let maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    let minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    let maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
 
     // return the generated rectangle:
     return new Rectangle(minX, minY, maxX - minX, maxY - minY);
   }
 
   collidesWith(gameObject, bulk, bulkOther) {
-    return this.getBoundary(bulk).overlapsWith(
-      gameObject.getBoundary(bulkOther)
-    );
+    return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
   }
 
   collidesWithPoint(point, bulk) {

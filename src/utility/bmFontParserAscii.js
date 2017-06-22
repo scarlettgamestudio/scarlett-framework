@@ -39,15 +39,11 @@ export default class BMFontParserAscii {
 
       if (lineData.key === "page") {
         if (typeof lineData.data.id !== "number") {
-          throw new Error(
-            "Malformed file at line " + i + " -- needs page id=N"
-          );
+          throw new Error("Malformed file at line " + i + " -- needs page id=N");
         }
 
         if (typeof lineData.data.file !== "string") {
-          throw new Error(
-            "Malformed file at line " + i + ' -- needs page file="path"'
-          );
+          throw new Error("Malformed file at line " + i + ' -- needs page file="path"');
         }
 
         output.pages[lineData.data.id] = lineData.data.file;

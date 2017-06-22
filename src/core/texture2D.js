@@ -39,36 +39,13 @@ export default class Texture2D {
     this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
 
     // Set the parameters so we can render any size image.
-    this._gl.texParameteri(
-      this._gl.TEXTURE_2D,
-      this._gl.TEXTURE_WRAP_S,
-      this._gl.CLAMP_TO_EDGE
-    );
-    this._gl.texParameteri(
-      this._gl.TEXTURE_2D,
-      this._gl.TEXTURE_WRAP_T,
-      this._gl.CLAMP_TO_EDGE
-    );
-    this._gl.texParameteri(
-      this._gl.TEXTURE_2D,
-      this._gl.TEXTURE_MIN_FILTER,
-      this._gl.NEAREST
-    );
-    this._gl.texParameteri(
-      this._gl.TEXTURE_2D,
-      this._gl.TEXTURE_MAG_FILTER,
-      this._gl.NEAREST
-    );
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
 
     // Upload the image into the texture.
-    this._gl.texImage2D(
-      this._gl.TEXTURE_2D,
-      0,
-      this._gl.RGBA,
-      this._gl.RGBA,
-      this._gl.UNSIGNED_BYTE,
-      this._source
-    );
+    this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._source);
 
     //this._gl.bindTexture(gl.TEXTURE_2D, null);
 

@@ -15,8 +15,7 @@ export default class PrimitiveShader extends Shader {
 
         "void main(void) {",
         "   gl_PointSize = uPointSize;",
-        "   gl_Position = " +
-          "uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);",
+        "   gl_Position = " + "uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);",
         "}"
       ].join("\n"),
       fragment: [
@@ -43,11 +42,6 @@ export default class PrimitiveShader extends Shader {
   constructor() {
     let content = PrimitiveShader.shaderContent;
 
-    super(
-      content.vertex,
-      content.fragment,
-      content.uniforms,
-      content.attributes
-    );
+    super(content.vertex, content.fragment, content.uniforms, content.attributes);
   }
 }

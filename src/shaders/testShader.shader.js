@@ -42,11 +42,6 @@ export default class TestShader extends Shader {
   constructor() {
     let content = TestShader.shaderContent;
 
-    super(
-      content.vertex,
-      content.fragment,
-      content.uniforms,
-      content.attributes
-    );
+    super(content.vertex, content.fragment, content.uniforms, content.attributes);
   }
 }

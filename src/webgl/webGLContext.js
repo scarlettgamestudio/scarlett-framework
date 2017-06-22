@@ -50,9 +50,7 @@ export default class WebGLContext {
       canvas.getContext("moz-webgl", { alpha: false }));
 
     if (!isObjectAssigned(this._gl)) {
-      this._logger.warn(
-        "WebGL not supported, find a container that does (eg. Chrome, Firefox)"
-      );
+      this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
       return;
     }
 

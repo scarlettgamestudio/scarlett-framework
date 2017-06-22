@@ -38,10 +38,7 @@ export default class Path {
      * @returns {string}
      */
   static wrapDirectoryPath(path) {
-    return (
-      path +
-      (path.endsWith("/") || path.endsWith("\\") ? "" : Path.TRAILING_SLASH)
-    );
+    return path + (path.endsWith("/") || path.endsWith("\\") ? "" : Path.TRAILING_SLASH);
   }
 
   /**
@@ -73,10 +70,7 @@ export default class Path {
      */
   static getFilename(path) {
     let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-    return path.substring(
-      index >= 0 && index < path.length - 1 ? index + 1 : 0,
-      path.length
-    );
+    return path.substring(index >= 0 && index < path.length - 1 ? index + 1 : 0, path.length);
   }
 
   /**
@@ -93,9 +87,7 @@ export default class Path {
      * @param pathB
      */
   static relativeTo(pathA, pathB) {
-    return (
-      Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0
-    );
+    return Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0;
   }
 
   /**

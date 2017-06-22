@@ -39,9 +39,7 @@ class ContentLoaderSingleton {
 
   static get instance() {
     if (!this[_contentLoaderSingleton]) {
-      this[_contentLoaderSingleton] = new ContentLoaderSingleton(
-        _contentLoaderSingleton
-      );
+      this[_contentLoaderSingleton] = new ContentLoaderSingleton(_contentLoaderSingleton);
     }
 
     return this[_contentLoaderSingleton];
@@ -150,9 +148,7 @@ class ContentLoaderSingleton {
     }
 
     if (this._loadingAliases.has(alias)) {
-      console.warn(
-        "Alias " + alias + " is already in use. Discarding " + path + "."
-      );
+      console.warn("Alias " + alias + " is already in use. Discarding " + path + ".");
       return true;
     }
 
@@ -169,10 +165,7 @@ class ContentLoaderSingleton {
 
     // if some file was filtered out, warn
     if (arr.length != filteredQueue.length) {
-      console.warn(
-        "Some files have been filtered out from loading " +
-          "due to invalid/duplicate paths or aliases."
-      );
+      console.warn("Some files have been filtered out from loading due to invalid/duplicate paths or aliases.");
     }
 
     return filteredQueue;
@@ -324,10 +317,7 @@ class ContentLoaderSingleton {
    */
   _enrichRelativePath(path) {
     // is this a relative path?
-    if (
-      GameManager.activeProjectPath &&
-      path.indexOf(GameManager.activeProjectPath) < 0
-    ) {
+    if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
       path = GameManager.activeProjectPath + path;
     }
 
@@ -394,11 +384,7 @@ class ContentLoaderSingleton {
     // discard if loading the same image or alias
     // or if image is already cached
     // 2nd (and last) layer of security
-    if (
-      this._isLoading(path, alias) ||
-      this.isImageAliasCached(alias) ||
-      this.isImageCached(path)
-    ) {
+    if (this._isLoading(path, alias) || this.isImageAliasCached(alias) || this.isImageCached(path)) {
       return null;
     }
 
@@ -428,11 +414,7 @@ class ContentLoaderSingleton {
     // discard if loading the same audio or alias
     // or if audio is already cached
     // 2nd (and last) layer of security
-    if (
-      this._isLoading(path, alias) ||
-      this.isAudioAliasCached(alias) ||
-      this.isAudioCached(path)
-    ) {
+    if (this._isLoading(path, alias) || this.isAudioAliasCached(alias) || this.isAudioCached(path)) {
       return null;
     }
 
@@ -462,11 +444,7 @@ class ContentLoaderSingleton {
     // discard if loading the same audio or alias
     // or if file is already cached
     // 2nd (and last) layer of security
-    if (
-      this._isLoading(path, alias) ||
-      this.isFileAliasCached(alias) ||
-      this.isFileCached(path)
-    ) {
+    if (this._isLoading(path, alias) || this.isFileAliasCached(alias) || this.isFileCached(path)) {
       return null;
     }
 
@@ -496,8 +474,7 @@ class ContentLoaderSingleton {
       let image = new Image();
       image.src = path;
       image.onload = () => resolve(image);
-      image.onerror = () =>
-        reject(new Error("Image is not defined. Unable to load it."));
+      image.onerror = () => reject(new Error("Image is not defined. Unable to load it."));
     });
   }
 
@@ -522,8 +499,7 @@ class ContentLoaderSingleton {
       let audio = new Audio();
       audio.src = path;
       audio.oncanplaythrough = () => resolve(audio);
-      audio.onerror = () =>
-        reject(new Error("Audio is not defined. Unable to load it."));
+      audio.onerror = () => reject(new Error("Audio is not defined. Unable to load it."));
     });
   }
 

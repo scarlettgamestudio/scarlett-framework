@@ -52,10 +52,7 @@ export default class Text extends GameObject {
 
     super(params);
 
-    this._fontStyle = new FontStyle(
-      params.font || {},
-      params.fontFilePath || ""
-    );
+    this._fontStyle = new FontStyle(params.font || {}, params.fontFilePath || "");
     this._fontStyle.setFontSize(params.fontSize || 70.0);
     this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
     this._fontStyle.setSpread(params.spread || 4);
@@ -122,9 +119,7 @@ export default class Text extends GameObject {
     text.setStroke(Stroke.restore(data.stroke));
     text.setDropShadowEnabled(data.dropShadowEnabled);
     text.setDropShadow(Stroke.restore(data.dropShadow));
-    text.setRawMaxDropShadowOffset(
-      Vector2.restore(data.rawMaxDropShadowOffset)
-    );
+    text.setRawMaxDropShadowOffset(Vector2.restore(data.rawMaxDropShadowOffset));
     text.setDropShadowOffset(Vector2.restore(data.dropShadowOffset));
     text.setDebug(data.debug);
 
@@ -163,16 +158,8 @@ export default class Text extends GameObject {
 
     let cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
 
-    gl.uniformMatrix4fv(
-      this._textShader.uniforms.uMatrix._location,
-      false,
-      cameraMatrix
-    );
-    gl.uniformMatrix4fv(
-      this._textShader.uniforms.uTransform._location,
-      false,
-      this.getMatrix()
-    );
+    gl.uniformMatrix4fv(this._textShader.uniforms.uMatrix._location, false, cameraMatrix);
+    gl.uniformMatrix4fv(this._textShader.uniforms.uTransform._location, false, this.getMatrix());
 
     // bind to texture unit 0
     gl.activeTexture(gl.TEXTURE0);
@@ -184,35 +171,15 @@ export default class Text extends GameObject {
     // debug
     gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
     // stroke outline
-    gl.uniform1f(
-      this._textShader.uniforms.uOutline._location,
-      this._strokeEnabled
-    );
+    gl.uniform1f(this._textShader.uniforms.uOutline._location, this._strokeEnabled);
     // drop shadow
-    gl.uniform1f(
-      this._textShader.uniforms.uDropShadow._location,
-      this._dropShadowEnabled
-    );
+    gl.uniform1f(this._textShader.uniforms.uDropShadow._location, this._dropShadowEnabled);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.vertexAttribPointer(
-      this._textShader.attributes.aPos,
-      2,
-      gl.FLOAT,
-      false,
-      0,
-      0
-    );
+    gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.vertexAttribPointer(
-      this._textShader.attributes.aTexCoord,
-      2,
-      gl.FLOAT,
-      false,
-      0,
-      0
-    );
+    gl.vertexAttribPointer(this._textShader.attributes.aTexCoord, 2, gl.FLOAT, false, 0, 0);
 
     // stroke color
     let strokeColor = this.getStroke().getColor();
@@ -223,10 +190,7 @@ export default class Text extends GameObject {
       strokeColor.a
     ]);
     // stroke size
-    gl.uniform1f(
-      this._textShader.uniforms.uOutlineDistance._location,
-      this.getNormalizedStrokeSize()
-    );
+    gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, this.getNormalizedStrokeSize());
 
     // drop shadow color
     let dropShadowColor = this.getDropShadow().getColor();
@@ -237,42 +201,23 @@ export default class Text extends GameObject {
       dropShadowColor.a
     ]);
     // drop shadow stroke smoothing
-    gl.uniform1f(
-      this._textShader.uniforms.uDropShadowSmoothing._location,
-      this.getNormalizedDropShadowSmoothing()
-    );
+    gl.uniform1f(this._textShader.uniforms.uDropShadowSmoothing._location, this.getNormalizedDropShadowSmoothing());
     // drop shadow offset (direction)
     let normalizedOffset = this.getNormalizedDropShadowOffset();
-    gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [
-      normalizedOffset.x,
-      normalizedOffset.y
-    ]);
+    gl.uniform2fv(this._textShader.uniforms.uDropShadowOffset._location, [normalizedOffset.x, normalizedOffset.y]);
 
     let color = this.getColor();
     // font color (tint)
-    gl.uniform4fv(this._textShader.uniforms.uColor._location, [
-      color.r,
-      color.g,
-      color.b,
-      color.a
-    ]);
+    gl.uniform4fv(this._textShader.uniforms.uColor._location, [color.r, color.g, color.b, color.a]);
     // // 192 / 255
     //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50);
 
     // gamma (smoothing) value (how sharp is the text in the edges)
-    gl.uniform1f(
-      this._textShader.uniforms.uGamma._location,
-      this.getGamma() * 1.4142 / this.getFontSize()
-    );
+    gl.uniform1f(this._textShader.uniforms.uGamma._location, this.getGamma() * 1.4142 / this.getFontSize());
 
     // draw the glyphs
     //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
-    gl.drawElements(
-      gl.TRIANGLES,
-      this._vertexIndicesBuffer.numItems,
-      gl.UNSIGNED_SHORT,
-      0
-    );
+    gl.drawElements(gl.TRIANGLES, this._vertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
     // parent render function
     super.render(delta, spriteBatch);
@@ -368,11 +313,7 @@ export default class Text extends GameObject {
     this._vertexIndicesBuffer = this._gl.createBuffer();
     this._textShader = new TextShader();
 
-    this._gl.uniform2f(
-      this._textShader.uniforms.uTexSize._location,
-      this._textureWidth,
-      this._textureHeight
-    );
+    this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._textureWidth, this._textureHeight);
   }
 
   setColor(color) {
@@ -458,13 +399,7 @@ export default class Text extends GameObject {
     // max shader value is 0.5
     // in terms of raw values, we go from 0 to stroke's max size,
     // so we calculate the scaled value between 0 and max shader value
-    let scaledValue = MathHelper.normalize(
-      this.getStroke().getSize(),
-      0,
-      this.getStroke().getMaxSize(),
-      0,
-      0.5
-    );
+    let scaledValue = MathHelper.normalize(this.getStroke().getSize(), 0, this.getStroke().getMaxSize(), 0, 0.5);
 
     // revert the value, so 0 represents less stroke
     scaledValue = 0.5 - scaledValue;
@@ -476,13 +411,7 @@ export default class Text extends GameObject {
     // drop shadow stroke (smoothing) size
     // eslint-disable-next-line
     // (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
-    return MathHelper.normalize(
-      this.getDropShadow().getSize(),
-      0,
-      this.getDropShadow().getMaxSize(),
-      0,
-      0.5
-    );
+    return MathHelper.normalize(this.getDropShadow().getSize(), 0, this.getDropShadow().getMaxSize(), 0, 0.5);
   }
 
   get maxDropShadowOffsetX() {
@@ -672,11 +601,7 @@ export default class Text extends GameObject {
     let fontDescription = fontStyle.getFontDescription();
 
     // don't go further if font description isn't valid either
-    if (
-      !fontDescription ||
-      !fontDescription.common ||
-      !fontDescription.common.lineHeight
-    ) {
+    if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight) {
       return;
     }
 
@@ -692,13 +617,7 @@ export default class Text extends GameObject {
     }
 
     // create the lines to draw onto the screen
-    let lines = TextUtils.measureText(
-      fontStyle,
-      this.getText(),
-      maxWidth,
-      this.getWordWrap(),
-      this.getCharacterWrap()
-    );
+    let lines = TextUtils.measureText(fontStyle, this.getText(), maxWidth, this.getWordWrap(), this.getCharacterWrap());
 
     // draws lines
     this._drawLines(lines, scale, lineHeight);
@@ -773,14 +692,7 @@ export default class Text extends GameObject {
       let line = lines[i].chars;
 
       // prepare to draw line
-      this._prepareLineToBeDrawn(
-        line,
-        scale,
-        pen,
-        vertexElements,
-        textureElements,
-        vertexIndices
-      );
+      this._prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices);
 
       // update Y before drawing another line
       // TODO: no need to recalculate this value every time...
@@ -788,27 +700,15 @@ export default class Text extends GameObject {
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(vertexElements),
-      gl.STATIC_DRAW
-    );
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexElements), gl.STATIC_DRAW);
     this._vertexBuffer.numItems = vertexElements.length / 2;
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._vertexIndicesBuffer);
-    gl.bufferData(
-      gl.ELEMENT_ARRAY_BUFFER,
-      new Uint16Array(vertexIndices),
-      gl.STATIC_DRAW
-    );
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
     this._vertexIndicesBuffer.numItems = vertexIndices.length;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._textureBuffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(textureElements),
-      gl.STATIC_DRAW
-    );
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureElements), gl.STATIC_DRAW);
     this._textureBuffer.numItems = textureElements.length / 2;
   }
 
@@ -823,14 +723,7 @@ export default class Text extends GameObject {
      * @param {Array} vertexIndices array to store the vertices indices
      * @private
      */
-  _prepareLineToBeDrawn(
-    line,
-    scale,
-    pen,
-    vertexElements,
-    textureElements,
-    vertexIndices
-  ) {
+  _prepareLineToBeDrawn(line, scale, pen, vertexElements, textureElements, vertexIndices) {
     let lastGlyphCode = 0;
 
     // iterate through line characters
@@ -866,15 +759,7 @@ export default class Text extends GameObject {
      * @returns {number} drawn glyph ascii code or 0 if invalid
      * @private
      */
-  _createGlyph(
-    char,
-    scale,
-    pen,
-    lastGlyphCode,
-    outVertexElements,
-    outTextureElements,
-    outVertexIndices
-  ) {
+  _createGlyph(char, scale, pen, lastGlyphCode, outVertexElements, outTextureElements, outVertexIndices) {
     let fontStyle = this.getFontStyle();
 
     if (!fontStyle) {
@@ -935,14 +820,7 @@ export default class Text extends GameObject {
       // TODO: isn't there a way to reuse the indices?
       let factor = outVertexIndices.length / 6 * 4;
 
-      outVertexIndices.push(
-        0 + factor,
-        1 + factor,
-        2 + factor,
-        1 + factor,
-        2 + factor,
-        3 + factor
-      );
+      outVertexIndices.push(0 + factor, 1 + factor, 2 + factor, 1 + factor, 2 + factor, 3 + factor);
 
       // Add a quad (= two triangles) per glyph.
       outVertexElements.push(
@@ -975,16 +853,7 @@ export default class Text extends GameObject {
              bottomLeftX + width, bottomLeftY + height // top right
              );*/
 
-      outTextureElements.push(
-        posX,
-        posY,
-        posX + width,
-        posY,
-        posX,
-        posY + height,
-        posX + width,
-        posY + height
-      );
+      outTextureElements.push(posX, posY, posX + width, posY, posX, posY + height, posX + width, posY + height);
     }
 
     // TODO: not sure kern should actually be

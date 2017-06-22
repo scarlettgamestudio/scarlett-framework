@@ -26,7 +26,7 @@ export default class GameScene {
     params = params || {};
 
     if (!params.game) {
-      throw "cannot create a game scene without the game parameter";
+      throw new Error("Cannot create a game scene without the game parameter");
     }
 
     // public properties:

@@ -36,10 +36,7 @@ export default class FontStyle {
   //#region Static Methods
 
   static restore(data) {
-    let fontStyle = new FontStyle(
-      data.fontDescription,
-      data.fontDescriptionFilePath
-    );
+    let fontStyle = new FontStyle(data.fontDescription, data.fontDescriptionFilePath);
 
     fontStyle.setSpread(data.spread);
     fontStyle.setFontSize(data.fontSize);

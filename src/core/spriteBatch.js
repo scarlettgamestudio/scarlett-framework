@@ -10,7 +10,7 @@ export default class SpriteBatch {
 
   constructor(game) {
     if (!Utils.isGame(game)) {
-      throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
+      throw new Error("Cannot create sprite render, the Game object " + "is missing from the parameters");
     }
 
     // private properties:

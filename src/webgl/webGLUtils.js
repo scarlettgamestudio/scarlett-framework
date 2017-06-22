@@ -42,9 +42,7 @@ export default class WebGLUtils {
       // Something went wrong during compilation; get the error
       let lastError = gl.getShaderInfoLog(shader);
 
-      this._logger.error(
-        "Error compiling shader '" + shader + "':" + lastError
-      );
+      this._logger.error("Error compiling shader '" + shader + "':" + lastError);
 
       gl.deleteShader(shader);
 
@@ -76,9 +74,7 @@ export default class WebGLUtils {
     let success = gl.getProgramParameter(program, gl.LINK_STATUS);
     if (!success) {
       // something went wrong with the link
-      this._logger.error(
-        "Program filed to link:" + gl.getProgramInfoLog(program)
-      );
+      this._logger.error("Program filed to link:" + gl.getProgramInfoLog(program));
       // TEST: gl.getError() has more info?
     }
 
@@ -139,10 +135,7 @@ export default class WebGLUtils {
     if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
       return this.createProgram(gl, vshader, fshader);
     } else {
-      this._logger.warn(
-        "Could not create program because" +
-          " scripts could not be compiled, discarding.."
-      );
+      this._logger.warn("Could not create program because" + " scripts could not be compiled, discarding..");
     }
 
     // clean up shaders
@@ -165,10 +158,7 @@ export default class WebGLUtils {
     if (isObjectAssigned(vshader) && isObjectAssigned(fshader)) {
       return this.createProgram(gl, vshader, fshader);
     } else {
-      this._logger.warn(
-        "Could not create program because" +
-          " scripts could not be compiled, discarding.."
-      );
+      this._logger.warn("Could not create program because" + " scripts could not be compiled, discarding..");
     }
 
     // clean up shaders

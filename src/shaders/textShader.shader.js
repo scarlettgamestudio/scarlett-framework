@@ -55,27 +55,22 @@ export default class TextShader extends Shader {
         "   }",
         // outline effect
         "   if (uOutline > 0.0) {",
-        "       float outlineFactor = " +
-          "smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);",
+        "       float outlineFactor = " + "smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);",
         "       vec4 color = mix(uOutlineColor, uColor, outlineFactor);",
-        "       float alpha = smoothstep(uOutlineDistance - uGamma, " +
-          "uOutlineDistance + uGamma, distance);",
+        "       float alpha = smoothstep(uOutlineDistance - uGamma, " + "uOutlineDistance + uGamma, distance);",
         "       finalColor = vec4(color.rgb, color.a * alpha);",
         "   } else {",
-        "       float alpha = " +
-          "smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);",
+        "       float alpha = " + "smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);",
         "       finalColor = vec4(uColor.rgb, uColor.a * alpha);",
         "   }",
         // drop shadow effect
         //'float alpha = smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);',
         //'     vec4 text = vec4(uColor.rgb, uColor.a * alpha);',
         "   if (uDropShadow > 0.0) {",
-        "       float shadowDistance = " +
-          "texture2D(uTexture, vTexCoord - uDropShadowOffset).a;",
+        "       float shadowDistance = " + "texture2D(uTexture, vTexCoord - uDropShadowOffset).a;",
         "       float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, " +
           "0.5 + uDropShadowSmoothing, shadowDistance);",
-        "       vec4 shadow = " +
-          "vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);",
+        "       vec4 shadow = " + "vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);",
         //      inner effect is the other way around... text, shadow
         "       gl_FragColor = mix(shadow, finalColor, finalColor.a);",
         "       return;",
@@ -109,11 +104,6 @@ export default class TextShader extends Shader {
   constructor() {
     let content = TextShader.shaderContent;
 
-    super(
-      content.vertex,
-      content.fragment,
-      content.uniforms,
-      content.attributes
-    );
+    super(content.vertex, content.fragment, content.uniforms, content.attributes);
   }
 }

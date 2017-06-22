@@ -125,12 +125,7 @@ export default class Color {
      */
   static fromRGBA(red, green, blue, alpha) {
     // no need to go further if arguments are invalid
-    if (
-      !isNumber(red) ||
-      !isNumber(green) ||
-      !isNumber(blue) ||
-      !isNumber(alpha)
-    ) {
+    if (!isNumber(red) || !isNumber(green) || !isNumber(blue) || !isNumber(alpha)) {
       return null;
     }
 
@@ -164,12 +159,7 @@ export default class Color {
 
   static random(alpha) {
     alpha = !isNumber(alpha) ? 1.0 : alpha;
-    return Color.fromRGBA(
-      Math.random() * 255,
-      Math.random() * 255,
-      Math.random() * 255,
-      alpha
-    );
+    return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
   }
 
   /*
@@ -213,9 +203,7 @@ export default class Color {
     });
 
     // the last 2 digits (referent to alpha) are optional
-    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(
-      hex
-    );
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
     return result
       ? {
           r: parseInt(result[1], 16),

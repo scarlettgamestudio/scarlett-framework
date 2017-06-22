@@ -74,12 +74,7 @@ export default class Stroke {
       return;
     }
 
-    if (
-      !isNumber(color.r) ||
-      !isNumber(color.g) ||
-      !isNumber(color.b) ||
-      !isNumber(color.a)
-    ) {
+    if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)) {
       throw new Error("The given stroke color is invalid");
     }
 

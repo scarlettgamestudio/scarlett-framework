@@ -43,13 +43,7 @@ export default class Camera2D {
      * @returns {Camera2D}
      */
   static restore(data) {
-    return new Camera2D(
-      data.x,
-      data.y,
-      data.viewWidth,
-      data.viewHeight,
-      data.zoom
-    );
+    return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
   }
 
   //#endregion
@@ -111,11 +105,7 @@ export default class Camera2D {
      */
   getMatrix() {
     // needs to have a new calculation?
-    if (
-      this.x != this._lastX ||
-      this.y != this._lastY ||
-      this._lastZoom != this.zoom
-    ) {
+    if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
       return this.calculateMatrix();
     }
 
@@ -133,10 +123,7 @@ export default class Camera2D {
     let y = 1.0 - 2.0 * screenY / this.viewHeight;
 
     // then we calculate and return the world coordinates:
-    return Vector2.transformMat4(
-      new Vector2(x, y),
-      new Matrix4(this.getMatrix()).invert()
-    );
+    return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
   }
 
   /**

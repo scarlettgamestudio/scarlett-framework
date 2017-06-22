@@ -47,12 +47,7 @@ export default class Vector4 {
   }
 
   equals(obj) {
-    return (
-      obj.x === this.x &&
-      obj.y === this.y &&
-      obj.z === this.z &&
-      obj.w === this.w
-    );
+    return obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w;
   }
 
   unload() {}

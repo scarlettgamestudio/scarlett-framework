@@ -74,17 +74,11 @@ export default class Vector2 {
   }
 
   static transformMat4(vec2, mat) {
-    return new Vector2(
-      mat[0] * vec2.x + mat[4] * vec2.y + mat[12],
-      mat[1] * vec2.x + mat[5] * vec2.y + mat[13]
-    );
+    return new Vector2(mat[0] * vec2.x + mat[4] * vec2.y + mat[12], mat[1] * vec2.x + mat[5] * vec2.y + mat[13]);
   }
 
   static transformMat3(vec2, mat) {
-    return new Vector2(
-      mat[0] * vec2.x + mat[3] * vec2.y + mat[6],
-      mat[1] * vec2.x + mat[4] * vec2.y + mat[7]
-    );
+    return new Vector2(mat[0] * vec2.x + mat[3] * vec2.y + mat[6], mat[1] * vec2.x + mat[4] * vec2.y + mat[7]);
   }
 
   //#endregion

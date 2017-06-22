@@ -25,9 +25,7 @@ class SetterDictionarySingleton {
 
   static get instance() {
     if (!this[_setterDictionarySingleton]) {
-      this[_setterDictionarySingleton] = new SetterDictionarySingleton(
-        _setterDictionarySingleton
-      );
+      this[_setterDictionarySingleton] = new SetterDictionarySingleton(_setterDictionarySingleton);
     }
 
     return this[_setterDictionarySingleton];

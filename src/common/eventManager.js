@@ -22,9 +22,7 @@ class EventManagerSingleton {
 
   static get instance() {
     if (!this[_eventManagerSingleton]) {
-      this[_eventManagerSingleton] = new EventManagerSingleton(
-        _eventManagerSingleton
-      );
+      this[_eventManagerSingleton] = new EventManagerSingleton(_eventManagerSingleton);
     }
 
     return this[_eventManagerSingleton];
@@ -92,10 +90,7 @@ class EventManagerSingleton {
 
     for (i = this._handlers[topic].length - 1; i >= 0; i--) {
       if (this._handlers[topic][i].callback) {
-        this._handlers[topic][i].callback.apply(
-          this._handlers[topic][i].context,
-          args
-        );
+        this._handlers[topic][i].callback.apply(this._handlers[topic][i].context, args);
       } else {
         // this doesn't seem to exist anymore
         // let's remove it from the subscribers

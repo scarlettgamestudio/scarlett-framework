@@ -104,22 +104,10 @@ export default class Boundary {
      */
   getNormals() {
     return {
-      top: new Vector2(
-        this.topRight.x - this.topLeft.x,
-        this.topRight.y - this.topLeft.y
-      ).normalLeft(),
-      right: new Vector2(
-        this.bottomRight.x - this.topRight.x,
-        this.bottomRight.y - this.topRight.y
-      ).normalLeft(),
-      bottom: new Vector2(
-        this.bottomLeft.x - this.bottomRight.x,
-        this.bottomLeft.y - this.bottomRight.y
-      ).normalLeft(),
-      left: new Vector2(
-        this.topLeft.x - this.bottomLeft.x,
-        this.topLeft.y - this.bottomLeft.y
-      ).normalLeft()
+      top: new Vector2(this.topRight.x - this.topLeft.x, this.topRight.y - this.topLeft.y).normalLeft(),
+      right: new Vector2(this.bottomRight.x - this.topRight.x, this.bottomRight.y - this.topRight.y).normalLeft(),
+      bottom: new Vector2(this.bottomLeft.x - this.bottomRight.x, this.bottomLeft.y - this.bottomRight.y).normalLeft(),
+      left: new Vector2(this.topLeft.x - this.bottomLeft.x, this.topLeft.y - this.bottomLeft.y).normalLeft()
     };
   }
 

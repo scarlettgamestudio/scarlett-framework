@@ -13,16 +13,11 @@ export default class Shader {
 
   constructor(vertexScript, fragmentScript, uniforms, attributes) {
     if (!isObjectAssigned(vertexScript) || !isObjectAssigned(fragmentScript)) {
-      throw new Error(
-        "Vertex and Fragment scripts are required" +
-          " to create a shader, discarding..."
-      );
+      throw new Error("Vertex and Fragment scripts are required" + " to create a shader, discarding...");
     }
 
     if (!isObjectAssigned(GameManager.renderContext)) {
-      throw new Error(
-        "The WebGL render context is not yet set, can't create shader."
-      );
+      throw new Error("The WebGL render context is not yet set, can't create shader.");
     }
 
     // public properties:
@@ -69,11 +64,7 @@ export default class Shader {
      * @returns {boolean}
      */
   compile() {
-    let program = GLU.createProgramFromScripts(
-      this._gl,
-      this._vertexScript,
-      this._fragmentScript
-    );
+    let program = GLU.createProgramFromScripts(this._gl, this._vertexScript, this._fragmentScript);
 
     if (isObjectAssigned(program)) {
       this._program = program;
@@ -106,10 +97,7 @@ export default class Shader {
         continue;
       }
 
-      this.uniforms[keys[i]]._location = this._gl.getUniformLocation(
-        this._program,
-        keys[i]
-      );
+      this.uniforms[keys[i]]._location = this._gl.getUniformLocation(this._program, keys[i]);
     }
   }
 
@@ -119,10 +107,7 @@ export default class Shader {
      */
   cacheAttributeLocations(keys) {
     for (let i = 0; i < keys.length; ++i) {
-      this.attributes[keys[i]] = this._gl.getAttribLocation(
-        this._program,
-        keys[i]
-      );
+      this.attributes[keys[i]] = this._gl.getAttribLocation(this._program, keys[i]);
     }
   }
 
@@ -209,9 +194,7 @@ export default class Shader {
       }
       case "tex": {
         if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-          Debug.warn(
-            "Could not assign texture uniform because the texture isn't ready."
-          );
+          Debug.warn("Could not assign texture uniform because the texture isn't ready.");
           break;
         }
 
@@ -239,9 +222,7 @@ export default class Shader {
 
   initSampler2D(uniform) {
     if (!isTexture2D(uniform.value) || !uniform.value.isReady()) {
-      Debug.warn(
-        "Could not initialize sampler2D because the texture isn't ready."
-      );
+      Debug.warn("Could not initialize sampler2D because the texture isn't ready.");
       return;
     }
 
