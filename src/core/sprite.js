@@ -240,7 +240,7 @@ export default class Sprite extends GameObject {
   async _assignTextureFromPath(path) {
     const texture = await Texture2D.fromPath(path);
 
-    if (texture === false) {
+    if (texture == null) {
       return;
     }
 

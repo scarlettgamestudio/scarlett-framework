@@ -81,10 +81,6 @@ export default class Text extends GameObject {
 
     this._gl = GameManager.renderContext.getContext();
 
-    if (params.texture) {
-      this._setTextureParameters();
-    }
-
     this._vertexBuffer = null;
     this._textureBuffer = null;
     this._vertexIndicesBuffer = null;
@@ -277,29 +273,24 @@ export default class Text extends GameObject {
     return this._texture;
   }
 
-  setTextureSrc(path) {
-    Texture2D.fromPath(path).then(
-      texture => {
-        // set WebGL texture parameters
-        this._setTextureParameters();
-        this.setTexture(texture);
-      },
-      error => {
-        this.setTexture(null, null);
-        Debug.error(error);
-      }
-    );
+  async setTextureSrc(path) {
+    const texture = await Texture2D.fromPath(path);
+
+    // let it handle invalid textures as well (null)
+    this.setTexture(texture);
   }
 
   setTexture(texture) {
     // is this a ready texture?
-    if (!texture || !texture.isReady()) {
+    if (texture == null || !texture.isReady()) {
       this._textureSrc = "";
       this._texture = null;
       this._textureWidth = 0;
       this._textureHeight = 0;
       return;
     }
+
+    this._setTextureParameters();
 
     this._textureSrc = texture.getTextureSrc();
     this._texture = texture;

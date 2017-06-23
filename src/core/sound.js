@@ -31,19 +31,14 @@ export default class Sound {
      * @param path
      * @returns {Promise}
      */
-  static fromPath(path) {
-    return new Promise(
-      function(resolve, reject) {
-        ContentLoader.loadAudio(path).then(
-          function(audio) {
-            resolve(new Sound(audio));
-          },
-          function() {
-            reject();
-          }
-        );
-      }.bind(this)
-    );
+  static async fromPath(path) {
+    const audio = await ContentLoader.loadAudio(path);
+
+    if (audio === false) {
+      return null;
+    }
+
+    return new Sound(audio);
   }
 
   // TODO: static restore

@@ -19,8 +19,8 @@ export default class SpriteBatch {
     this._renderBuffer = this._gl.createBuffer();
     this._textureShader = new TextureShader();
 
-    this._stride = 16;
-    this._singleDataLength = 24;
+    this._stride = 32;
+    this._singleDataLength = 48;
     this._maxSpritesPerBatch = 2500;
     this._spriteData = new Float32Array(this._singleDataLength * this._maxSpritesPerBatch);
     this._spriteDataIdx = 0;
@@ -56,6 +56,13 @@ export default class SpriteBatch {
     this._sprites.push(sprite);
   }
 
+  _storeColor(r, g, b, a) {
+    this._spriteData[this._spriteDataIdx++] = r;
+    this._spriteData[this._spriteDataIdx++] = g;
+    this._spriteData[this._spriteDataIdx++] = b;
+    this._spriteData[this._spriteDataIdx++] = a;
+  }
+
   _processSprite(sprite) {
     let magnitude = 1.0;
     let spriteMatrix = sprite.getMatrix();
@@ -65,38 +72,51 @@ export default class SpriteBatch {
     let topLeft = Vector2.transformMat4(new Vector2(0, magnitude), spriteMatrix);
     let topRight = Vector2.transformMat4(new Vector2(magnitude, magnitude), spriteMatrix);
 
+    let tint = sprite.getTint();
+
+    let tintR = tint.r;
+    let tintG = tint.g;
+    let tintB = tint.b;
+    let tintA = tint.a;
+
     this._spriteData[this._spriteDataIdx++] = bottomLeft.x;
     this._spriteData[this._spriteDataIdx++] = bottomLeft.y;
     this._spriteData[this._spriteDataIdx++] = 0;
     this._spriteData[this._spriteDataIdx++] = 0;
+    this._storeColor(tintR, tintG, tintB, tintA);
 
     this._spriteData[this._spriteDataIdx++] = bottomRight.x;
     this._spriteData[this._spriteDataIdx++] = bottomRight.y;
     this._spriteData[this._spriteDataIdx++] = 1;
     this._spriteData[this._spriteDataIdx++] = 0;
+    this._storeColor(tintR, tintG, tintB, tintA);
 
     this._spriteData[this._spriteDataIdx++] = topLeft.x;
     this._spriteData[this._spriteDataIdx++] = topLeft.y;
     this._spriteData[this._spriteDataIdx++] = 0;
     this._spriteData[this._spriteDataIdx++] = 1;
+    this._storeColor(tintR, tintG, tintB, tintA);
 
     this._spriteData[this._spriteDataIdx++] = topLeft.x;
     this._spriteData[this._spriteDataIdx++] = topLeft.y;
     this._spriteData[this._spriteDataIdx++] = 0;
     this._spriteData[this._spriteDataIdx++] = 1;
+    this._storeColor(tintR, tintG, tintB, tintA);
 
     this._spriteData[this._spriteDataIdx++] = bottomRight.x;
     this._spriteData[this._spriteDataIdx++] = bottomRight.y;
     this._spriteData[this._spriteDataIdx++] = 1;
     this._spriteData[this._spriteDataIdx++] = 0;
+    this._storeColor(tintR, tintG, tintB, tintA);
 
     this._spriteData[this._spriteDataIdx++] = topRight.x;
     this._spriteData[this._spriteDataIdx++] = topRight.y;
     this._spriteData[this._spriteDataIdx++] = 1;
     this._spriteData[this._spriteDataIdx++] = 1;
+    this._storeColor(tintR, tintG, tintB, tintA);
   }
 
-  _renderBatch(count, color) {
+  _renderBatch() {
     let gl = this._gl;
 
     gl.bufferData(gl.ARRAY_BUFFER, this._spriteData, gl.STATIC_DRAW);
@@ -109,10 +129,8 @@ export default class SpriteBatch {
     gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
     gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, this._stride, 8);
 
-    // color uniform
-    if (Utils.isColor(color)) {
-      gl.uniform4f(this._textureShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-    }
+    gl.enableVertexAttribArray(this._textureShader.attributes.aColor);
+    gl.vertexAttribPointer(this._textureShader.attributes.aColor, 4, gl.FLOAT, false, this._stride, 16);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6 * (this._spriteDataIdx / this._singleDataLength));
 
@@ -129,7 +147,6 @@ export default class SpriteBatch {
     let count = 0;
     let sprite;
     let texture;
-    let color;
 
     this._game.getShaderManager().useShader(this._textureShader);
 
@@ -151,12 +168,10 @@ export default class SpriteBatch {
         continue;
       }
 
-      color = sprite.getTint();
-
       if (lastTextureId !== texture.getUID()) {
         // is this the first check?
         if (lastTextureId >= 0) {
-          this._renderBatch(count, color);
+          this._renderBatch(count);
           count = 0;
         }
 
@@ -168,7 +183,7 @@ export default class SpriteBatch {
       count++;
 
       if (count >= this._maxSpritesPerBatch || i === this._sprites.length - 1) {
-        this._renderBatch(count, color);
+        this._renderBatch(count);
         count = 0;
       }
     }
