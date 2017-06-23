@@ -66,6 +66,8 @@ export default class SpriteBatch {
     let topLeft = Vector2.transformMat4(new Vector2(0, magnitude), spriteMatrix);
     let topRight = Vector2.transformMat4(new Vector2(magnitude, magnitude), spriteMatrix);
 
+    //let tint = sprite.getTint();
+
     this._spriteData[this._spriteDataIdx++] = bottomLeft.x;
     this._spriteData[this._spriteDataIdx++] = bottomLeft.y;
     this._spriteData[this._spriteDataIdx++] = 0;
@@ -95,6 +97,11 @@ export default class SpriteBatch {
     this._spriteData[this._spriteDataIdx++] = topRight.y;
     this._spriteData[this._spriteDataIdx++] = 1;
     this._spriteData[this._spriteDataIdx++] = 1;
+
+    //this._spriteData[this._spriteDataIdx++] = tint.r;
+    //this._spriteData[this._spriteDataIdx++] = tint.g;
+    //this._spriteData[this._spriteDataIdx++] = tint.b;
+    //this._spriteData[this._spriteDataIdx++] = tint.a;
   }
 
   _renderBatch() {
@@ -110,6 +117,11 @@ export default class SpriteBatch {
     gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
     gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, this._stride, 8);
 
+    // color attribute
+    // TODO fix
+    //gl.enableVertexAttribArray(this._textureShader.attributes.aColor);
+    //gl.vertexAttribPointer(this._textureShader.attributes.aColor, 4, gl.UNSIGNED_BYTE, true, 4, 0;
+
     gl.drawArrays(gl.TRIANGLES, 0, 6 * (this._spriteDataIdx / this._singleDataLength));
 
     this._spriteDataIdx = 0;
@@ -121,8 +133,8 @@ export default class SpriteBatch {
     }
 
     let gl = this._gl;
-    let lastTextureId = -1,
-      count = 0;
+    let lastTextureId = -1;
+    let count = 0;
     let texture;
 
     this._game.getShaderManager().useShader(this._textureShader);
@@ -139,6 +151,11 @@ export default class SpriteBatch {
 
     for (let i = 0; i < this._sprites.length; i++) {
       texture = this._sprites[i].getTexture();
+
+      if (texture == null || !texture.isReady()) {
+        continue;
+      }
+
       if (lastTextureId !== texture.getUID()) {
         // is this the first check?
         if (lastTextureId >= 0) {

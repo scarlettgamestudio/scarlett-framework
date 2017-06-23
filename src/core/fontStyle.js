@@ -68,13 +68,16 @@ export default class FontStyle {
     return this._fontDescriptionFilePath;
   }
 
-  setFontDescriptionFilePath(filepath) {
-    ContentLoader.loadFile(filepath, "openSansFont").then(fileContext => {
-      let parsedBMFont = BMFontParser.parse(fileContext);
+  async setFontDescriptionFilePath(filepath) {
+    const fileContext = await ContentLoader.loadFile(filepath, "openSansFont");
 
-      this.setFontDescription(parsedBMFont);
-    });
+    if (fileContext === false) {
+      return;
+    }
 
+    let parsedBMFont = BMFontParser.parse(fileContext);
+
+    this.setFontDescription(parsedBMFont);
     this._fontDescriptionFilePath = filepath;
   }
 

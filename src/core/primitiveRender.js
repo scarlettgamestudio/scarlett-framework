@@ -97,7 +97,7 @@ export default class PrimitiveRender {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  drawCircle(position, radius, iterations, color) {
+  drawCircle(position, radius, iterations) {
     let gl = this._gl;
 
     this._game.getShaderManager().useShader(this._primitiveShader);
@@ -125,7 +125,7 @@ export default class PrimitiveRender {
       this._game.getActiveCamera().getMatrix()
     );
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+    // gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
   }
@@ -163,7 +163,7 @@ export default class PrimitiveRender {
       this._game.getActiveCamera().getMatrix()
     );
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+    // gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
@@ -187,7 +187,7 @@ export default class PrimitiveRender {
       this._game.getActiveCamera().getMatrix()
     );
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+    // gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
@@ -216,7 +216,7 @@ export default class PrimitiveRender {
       this._game.getActiveCamera().getMatrix()
     );
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+    // gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.LINES, 0, 2);
   }

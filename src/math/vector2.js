@@ -178,5 +178,9 @@ export default class Vector2 {
     return Vector2.add(this, vector);
   }
 
+  toString() {
+    return "{x: " + this.x + "; y: " + this.y + "}";
+  }
+
   //#endregion
 }

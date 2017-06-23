@@ -64,7 +64,7 @@ export default class Sprite extends GameObject {
 
   //#region Static Methods
 
-  static restore(data) {
+  static async restore(data) {
     let sprite = new Sprite({
       name: data.name,
       transform: Transform.restore(data.transform),
@@ -72,9 +72,7 @@ export default class Sprite extends GameObject {
       components: Objectify.restoreArray(data.components)
     });
 
-    sprite.setSource(data.src);
-
-    return sprite;
+    return await sprite.setSource(data.src);
   }
 
   //#endregion
@@ -97,7 +95,7 @@ export default class Sprite extends GameObject {
 
     this._transformMatrix.identity();
 
-    if (this._wrapMode != WrapMode.REPEAT) {
+    if (this._wrapMode !== WrapMode.REPEAT) {
       this._transformMatrix.translate([x - width * this._origin.x, y - height * this._origin.y, 0]);
     } else {
       this._transformMatrix.translate([-width * this._origin.x, -height * this._origin.y, 0]);
@@ -135,40 +133,43 @@ export default class Sprite extends GameObject {
     return this._tint;
   }
 
-  setSource(path) {
+  async setSource(path) {
     this._source = path;
 
-    if (path && path.length > 0) {
-      let ext = Path.getFileExtension(path);
-
-      if (ext == CONSTANTS.CONTENT_EXTENSIONS.ATLAS) {
-        ContentLoader.loadFile(path).then(
-          function(data) {
-            let atlas = Objectify.restoreFromString(data.content);
-
-            // is this a valid atlas?
-            if (atlas && isObjectAssigned(atlas.sourcePath)) {
-              // seems so!
-              this._atlas = atlas;
-              this._assignTextureFromPath(this._atlas.sourcePath);
-
-              // FIXME: change to a more appropriate event?
-              // this is currently being used so the
-              // property editor refreshes the view after the atlas
-              // is asynchronously loaded.
-              EventManager.emit(CONSTANTS.EVENTS.CONTENT_ASSET_LOADED, path);
-            }
-          }.bind(this),
-          function(err) {
-            Debug.error(err);
-          }
-        );
-      } else {
-        this._atlas = null;
-        this._assignTextureFromPath(path);
-      }
-    } else {
+    if (path == null || path.length <= 0) {
+      console.error("Invalid path");
       this.setTexture(null);
+      return;
+    }
+
+    let ext = Path.getFileExtension(path);
+
+    if (ext == CONSTANTS.CONTENT_EXTENSIONS.ATLAS) {
+      const fileContext = await ContentLoader.loadFile(path);
+
+      // if something went wrong with loading
+      if (fileContext == false) {
+        return;
+      }
+
+      let atlas = Objectify.restoreFromString(fileContext);
+
+      // is this a valid atlas?
+      if (atlas == null || !isObjectAssigned(atlas.sourcePath)) {
+        console.error("Couldn't restore atlas");
+        return;
+      }
+
+      this._atlas = atlas;
+      this._assignTextureFromPath(this._atlas.sourcePath);
+
+      // FIXME: change to a more appropriate event?
+      // this is currently being used so the property editor refreshes the view after the atlas
+      // is asynchronously loaded.
+      EventManager.emit(CONSTANTS.EVENTS.CONTENT_ASSET_LOADED, path);
+    } else {
+      this._atlas = null;
+      await this._assignTextureFromPath(path);
     }
   }
 
@@ -235,16 +236,14 @@ export default class Sprite extends GameObject {
 
   //#region Private Methods
 
-  _assignTextureFromPath(path) {
-    Texture2D.fromPath(path).then(
-      function(texture) {
-        this.setTexture(texture);
-      }.bind(this),
-      function(error) {
-        this.setTexture(null);
-        Debug.error(error);
-      }.bind(this)
-    );
+  async _assignTextureFromPath(path) {
+    const texture = await Texture2D.fromPath(path);
+
+    if (texture === false) {
+      return;
+    }
+
+    this.setTexture(texture);
   }
 
   //#endregion

@@ -54,19 +54,14 @@ export default class Texture2D {
      * @param path
      * @returns {Promise}
      */
-  static fromPath(path) {
-    return new Promise(
-      ((resolve, reject) => {
-        ContentLoader.loadImage(path).then(
-          image => {
-            resolve(new Texture2D(image));
-          },
-          function() {
-            reject();
-          }
-        );
-      }).bind(this)
-    );
+  static async fromPath(path) {
+    const image = await ContentLoader.loadImage(path);
+
+    if (image === false) {
+      return null;
+    }
+
+    return new Texture2D(image);
   }
 
   //#endregion
