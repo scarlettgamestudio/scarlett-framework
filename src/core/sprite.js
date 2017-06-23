@@ -10,7 +10,7 @@ import { AttributeDictionary } from "common/attributeDictionary";
 import { ContentLoader } from "common/contentLoader";
 import { EventManager } from "common/eventManager";
 import { CONSTANTS } from "common/constants";
-//import { Debug } from "common/logger";
+import Logger from "common/logger";
 import { isObjectAssigned } from "common/utils";
 
 AttributeDictionary.inherit("sprite", "gameobject");
@@ -54,6 +54,7 @@ export default class Sprite extends GameObject {
     this._origin = new Vector2(0.5, 0.5);
     this._wrapMode = WrapMode.CLAMP;
     this._atlas = null;
+    this._logger = new Logger("Sprite");
 
     this.setTexture(params.texture);
   }
@@ -137,7 +138,7 @@ export default class Sprite extends GameObject {
     this._source = path;
 
     if (path == null || path.length <= 0) {
-      console.error("Invalid path");
+      this._logger.error("Invalid path");
       this.setTexture(null);
       return;
     }
@@ -156,7 +157,7 @@ export default class Sprite extends GameObject {
 
       // is this a valid atlas?
       if (atlas == null || !isObjectAssigned(atlas.sourcePath)) {
-        console.error("Couldn't restore atlas");
+        this._logger.error("Couldn't restore atlas");
         return;
       }
 
