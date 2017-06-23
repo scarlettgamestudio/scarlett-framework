@@ -1,5 +1,5 @@
 import GameManager from "core/gameManager";
-import { Debug } from "common/logger";
+import Logger from "common/logger";
 import { GLU } from "webgl/webGLUtils";
 import { isObjectAssigned, generateUID } from "common/utils";
 import Utils from "utility/utils";
@@ -7,13 +7,16 @@ import Utils from "utility/utils";
 /**
  * Shader Class
  * Some cool code ideas were applied from Pixi.JS Shader class
+ * 
+ * Relevant information regarding attribute usage:
+ * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
  */
 export default class Shader {
   //#region Constructors
 
   constructor(vertexScript, fragmentScript, uniforms, attributes) {
     if (!isObjectAssigned(vertexScript) || !isObjectAssigned(fragmentScript)) {
-      throw new Error("Vertex and Fragment scripts are required" + " to create a shader, discarding...");
+      throw new Error("Vertex and Fragment scripts are required to create a shader, discarding..");
     }
 
     if (!isObjectAssigned(GameManager.renderContext)) {
@@ -31,6 +34,7 @@ export default class Shader {
     this._fragmentScript = fragmentScript;
     this._textureCount = 1;
     this._uid = generateUID();
+    this._logger = new Logger("Shader");
 
     this.setup();
   }
@@ -55,7 +59,7 @@ export default class Shader {
       this.cacheUniformLocations(Object.keys(this.uniforms));
       this.cacheAttributeLocations(Object.keys(this.attributes));
     } else {
-      Debug.error("Shader setup failed");
+      this._logger.error("Shader setup failed");
     }
   }
 
@@ -93,7 +97,7 @@ export default class Shader {
       let type = typeof this.uniforms[keys[i]];
 
       if (type !== "object") {
-        Debug.warn("Shader's uniform " + keys[i] + " is not an object.");
+        this._logger.warn("Shader's uniform " + keys[i] + " is not an object.");
         continue;
       }
 
@@ -131,8 +135,7 @@ export default class Shader {
     let value = uniform.value;
     let gl = this._gl;
 
-    // depending on the uniform type,
-    // WebGL has different ways of synchronizing values
+    // depending on the uniform type, WebGL has different ways of synchronizing values
     // the values can either be a Float32Array or JS Array object
     switch (uniform.type) {
       case "b":
@@ -194,7 +197,7 @@ export default class Shader {
       }
       case "tex": {
         if (!Utils.isTexture2D(uniform.value) || !uniform.value.isReady()) {
-          Debug.warn("Could not assign texture uniform because the texture isn't ready.");
+          this._logger.warn("Could not assign texture uniform because the texture isn't ready.");
           break;
         }
 
@@ -210,7 +213,7 @@ export default class Shader {
         break;
       }
       default: {
-        Debug.warn("Unknown uniform type: " + uniform.type);
+        this._logger.warn("Unknown uniform type: " + uniform.type);
         break;
       }
     }
@@ -222,7 +225,7 @@ export default class Shader {
 
   initSampler2D(uniform) {
     if (!Utils.isTexture2D(uniform.value) || !uniform.value.isReady()) {
-      Debug.warn("Could not initialize sampler2D because the texture isn't ready.");
+      this._logger.warn("Could not initialize sampler2D because the texture isn't ready.");
       return;
     }
 

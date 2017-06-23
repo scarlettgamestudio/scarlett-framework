@@ -13,7 +13,7 @@ export default class GridExt {
     params = params || {};
 
     if (!params.game) {
-      throw new Error("cannot create debug extension without game parameter");
+      throw new Error("Cannot create debug extension without game parameter");
     }
 
     // public properties:
@@ -67,24 +67,19 @@ export default class GridExt {
 
   /**
      *
-     * @param delta 
      */
-  // eslint-disable-next-line
-  render(delta) {
-    // eslint-disable-line
+  render() {
     // render a grid?
     if (this.enabled) {
       this._primitiveBatch.begin();
 
       // I have an idea that can be great here..
-      // create a global event for whenever the camera properties change
-      // (aka, calculate matrix is called), and store
+      // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
       // the following calculations on event:
       let zoom = this._game.getActiveCamera().zoom;
       let floorZoom = Math.floor(zoom);
 
-      // var gridSize =
-      // floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
+      //var gridSize = floorZoom > 1 ? this._gridSize * floorZoom : this._gridSize;
       let gridSize = this._gridSize;
       for (let i = 0; i < floorZoom - 1; i++) {
         if (i % this._zoomMultiplier === 0) {
