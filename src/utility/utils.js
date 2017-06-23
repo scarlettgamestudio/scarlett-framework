@@ -2,6 +2,7 @@ import Game from "core/game";
 import GameScene from "core/gameScene";
 import Sprite from "core/sprite";
 import Texture2D from "core/texture2D";
+import Color from "core/color";
 
 /**
  * Utility class
@@ -42,5 +43,14 @@ export default class Utils {
  */
   static isTexture2D(obj) {
     return obj instanceof Texture2D;
+  }
+
+  /**
+ * Validates if the given object is a Color
+ * @param obj
+ * @returns {boolean}
+ */
+  static isColor(obj) {
+    return obj instanceof Color;
   }
 }

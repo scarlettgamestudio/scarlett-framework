@@ -10,7 +10,7 @@ import { AttributeDictionary } from "common/attributeDictionary";
 import { ContentLoader } from "common/contentLoader";
 import { EventManager } from "common/eventManager";
 import { CONSTANTS } from "common/constants";
-import { Debug } from "common/logger";
+//import { Debug } from "common/logger";
 import { isObjectAssigned } from "common/utils";
 
 AttributeDictionary.inherit("sprite", "gameobject");

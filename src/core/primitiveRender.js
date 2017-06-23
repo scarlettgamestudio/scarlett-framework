@@ -61,7 +61,7 @@ export default class PrimitiveRender {
       this._game.getActiveCamera().getMatrix()
     );
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+    //gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
     gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
 
     gl.drawArrays(gl.POINTS, 0, 1);
