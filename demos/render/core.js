@@ -28,7 +28,7 @@ SC.ContentLoader
       }
     ]
   })
-  .then(() => {
+  .then(function(result) {
     game.changeScene(gameScene);
 
     primitiveBatch = new SC.PrimitiveBatch(game);
@@ -70,9 +70,10 @@ gameScene.update = function(delta) {
 };
 
 gameScene.lateRender = function(delta) {
-  sprites.forEach(sprite => {
+  for (var i = 0; i < sprites.length; i++) {
+    var sprite = sprites[i];
     this._spriteBatch.storeSprite(sprite);
-  });
+  }
 
   //primitiveBatch.begin();
   //primitiveBatch.storeLine({x: -100, y: 100}, {x: 100, y: 100}, Color.Red);
