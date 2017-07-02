@@ -164,23 +164,21 @@ export default class SpriteBatch {
       sprite = this._sprites[i];
       texture = sprite.getTexture();
 
-      if (texture == null || !texture.isReady()) {
-        continue;
-      }
+      if (texture != null && texture.isReady()) {
+        if (lastTextureId !== texture.getUID()) {
+          // is this the first check?
+          if (lastTextureId >= 0) {
+            this._renderBatch(count);
+            count = 0;
+          }
 
-      if (lastTextureId !== texture.getUID()) {
-        // is this the first check?
-        if (lastTextureId >= 0) {
-          this._renderBatch(count);
-          count = 0;
+          texture.bind();
+          lastTextureId = texture.getUID();
         }
 
-        texture.bind();
-        lastTextureId = texture.getUID();
+        this._processSprite(sprite);
+        count++;
       }
-
-      this._processSprite(sprite);
-      count++;
 
       if (count >= this._maxSpritesPerBatch || i === this._sprites.length - 1) {
         this._renderBatch(count);
