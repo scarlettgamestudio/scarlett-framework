@@ -68,7 +68,7 @@ function inheritsFrom(child, parent) {
  * @type {number}
  * @private
  */
-let _SS_UID = 0;
+var _SS_UID = 0;
 function generateUID() {
   return ++_SS_UID;
 }

@@ -1,3 +1,5 @@
+import Logger from "common/logger";
+
 // unique key
 const _scriptsSingleton = Symbol("scriptsSingleton");
 
@@ -13,6 +15,7 @@ class ScriptsSingleton {
     }
 
     this._store = {};
+    this._logger = new Logger("ScriptEngine");
   }
 
   //#endregion
@@ -42,11 +45,8 @@ class ScriptsSingleton {
      * Creates and stores a script code
      * @returns {ObjectComponent}
      */
-  addScript(name) {
-    let script = function instance() {};
+  addScript(name, script) {
     this._store[name] = script;
-    this._setupScript(script);
-    return script;
   }
 
   /**
@@ -59,10 +59,13 @@ class ScriptsSingleton {
     let component = this.generateComponent(scriptName);
 
     if (component === null) {
-      throw new Error("Could not generate script component: " + scriptName);
+      this._logger.warn("Could not generate script component: " + scriptName);
+      return;
     }
 
+    // add the script as a component of the desired game object:
     gameObject.addComponent(component);
+
     return component;
   }
 
@@ -72,49 +75,11 @@ class ScriptsSingleton {
      */
   generateComponent(scriptName) {
     if (!this._store[scriptName]) {
+      this._logger.warn("No script is available under the name: " + scriptName);
       return null;
     }
 
-    let component = Object.create(this._store[scriptName].prototype);
-    component._name = scriptName;
-
-    // now we need to assign all the instance properties defined:
-    let properties = this._store[scriptName].properties.getAll();
-    let propertyNames = Object.keys(properties);
-
-    if (propertyNames && propertyNames.length > 0) {
-      propertyNames.forEach(function(propName) {
-        // assign the default value if exists:
-        component[propName] = properties[propName].default;
-      });
-    }
-
-    return component;
-  }
-
-  //#endregion
-
-  //#region Private Methods
-
-  /**
-     * Setup a script adding event handlers and such
-     * @private
-     */
-  _setupScript(script) {
-    script.properties = {
-      _store: {},
-      _target: script,
-      add: function(name, attr) {
-        // save on the target's properties store the attributes:
-        this._store[name] = attr;
-      },
-      get: function(name) {
-        return this._store[name];
-      },
-      getAll: function() {
-        return this._store;
-      }
-    };
+    return new this._store[scriptName]();
   }
 
   //#endregion
