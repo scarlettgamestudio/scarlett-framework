@@ -1,171 +1,185 @@
-import PrimitiveShader from "shaders/primitiveShader.shader";
-import Matrix4 from "math/matrix4";
+import PrimitiveShader from "shaders/primitiveShader";
 import Utils from "utility/utils";
 
-/**
- * PrimitiveBatch class for on demand direct drawing
- */
 export default class PrimitiveBatch {
-  //#region Constructors
-
   /**
-     *
-     * @param game
-     */
+   * 
+   * @param {Game} game 
+   */
   constructor(game) {
     if (!Utils.isGame(game)) {
       throw new Error("Cannot create primitive render the Game object is missing from the parameters");
     }
 
-    // public properties:
-
-    // private properties:
     this._game = game;
     this._gl = game.getRenderContext().getContext();
-    this._primitiveShader = new PrimitiveShader();
-    this._vbo = this._gl.createBuffer();
+    this._shader = new PrimitiveShader();
 
-    this._rectangleVertexData = [];
-    this._rectangleColorData = [];
-    this._rectangleCount = 0;
+    this._renderBuffer = this._gl.createBuffer();
 
-    this._lineArrayCount = 0;
-    this._lineVertexData = [];
+    this._lineMaxPerBatch = 2048;
+    this._lineSingleDataLength = 12;
+    this._lineStride = 24;
+    this._lineData = new Float32Array(this._lineMaxPerBatch * this._lineSingleDataLength);
+    this._lineDataIdx = 0;
 
-    this._transformMatrix = new Matrix4();
-    this._rectangleData = new Float32Array([0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]);
+    this._rectangleMaxPerBatch = 2048;
+    this._rectangleSingleDataLength = 36;
+    this._rectangleStride = 24;
+    this._rectangleData = new Float32Array(this._rectangleMaxPerBatch * this._rectangleSingleDataLength);
+    this._rectangleDataIdx = 0;
   }
 
-  //#endregion
-
-  //#region Methods
-
   unload() {
-    this._gl.deleteBuffer(this._vbo);
+    // delete buffers and unload shaders:
+    this._gl.deleteBuffer(this._renderBuffer);
 
-    this._primitiveShader.unload();
+    this._shader.unload();
   }
 
   begin() {
-    this.clear();
+    this._clear();
   }
 
-  clear() {
-    // rectangle data
-    this._rectangleVertexData = [];
-    this._rectangleColorData = [];
-    this._rectangleCount = 0;
-
-    // lines data
-    this._lineVertexData = [];
-    this._lineArrayCount = 0;
-  }
-
-  flushRectangles() {
-    if (this._rectangleCount === 0) {
-      // nothing to do..
-      return;
-    }
-
-    let gl = this._gl;
-    let cameraMatrix = this._game.getActiveCamera().getMatrix();
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // TODO: review this.. not batched at all!
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);
-
-    for (let i = 0; i < this._rectangleCount; i++) {
-      this._transformMatrix.identity();
-      this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
-      this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0]);
-
-      gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-      gl.uniform4f(
-        this._primitiveShader.uniforms.uColor._location,
-        this._rectangleColorData[i].r,
-        this._rectangleColorData[i].g,
-        this._rectangleColorData[i].b,
-        this._rectangleColorData[i].a
-      );
-
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-    }
-  }
-
-  flushLines() {
-    if (this._lineVertexData.length === 0) {
-      // nothing to do..
-      return;
-    }
-
-    let gl = this._gl;
-
-    // TODO: not all implementations support this,
-    // to check again in a near future..
-    // gl.lineWidth(thickness);
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // vbo buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._lineVertexData), gl.STATIC_DRAW);
-
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 24, 0);
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexColorPosition, 4, this._gl.FLOAT, false, 24, 8);
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexColorPosition);
-
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(
-      this._primitiveShader.uniforms.uMatrix._location,
-      false,
-      this._game.getActiveCamera().getMatrix()
-    );
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-
-    // gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
-    // color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.LINES, 0, this._lineArrayCount);
+  _clear() {
+    this._lineDataIdx = 0;
+    this._rectangleDataIdx = 0;
   }
 
   storeRectangle(rectangle, color) {
-    this._rectangleColorData.push(color);
-    this._rectangleVertexData.push(rectangle);
-    this._rectangleCount++;
+    let topLeftX = rectangle.x;
+    let topLeftY = rectangle.y;
+    let topRightX = rectangle.x + rectangle.width;
+    let topRightY = rectangle.y;
+    let bottomLeftX = rectangle.x;
+    let bottomLeftY = rectangle.y + rectangle.height;
+    let bottomRightX = rectangle.x + rectangle.width;
+    let bottomRightY = rectangle.y + rectangle.height;
+
+    this._rectangleData[this._rectangleDataIdx++] = bottomLeftX;
+    this._rectangleData[this._rectangleDataIdx++] = bottomLeftY;
+    this._rectangleData[this._rectangleDataIdx++] = color.r;
+    this._rectangleData[this._rectangleDataIdx++] = color.g;
+    this._rectangleData[this._rectangleDataIdx++] = color.b;
+    this._rectangleData[this._rectangleDataIdx++] = color.a;
+
+    this._rectangleData[this._rectangleDataIdx++] = bottomRightX;
+    this._rectangleData[this._rectangleDataIdx++] = bottomRightY;
+    this._rectangleData[this._rectangleDataIdx++] = color.r;
+    this._rectangleData[this._rectangleDataIdx++] = color.g;
+    this._rectangleData[this._rectangleDataIdx++] = color.b;
+    this._rectangleData[this._rectangleDataIdx++] = color.a;
+
+    this._rectangleData[this._rectangleDataIdx++] = topLeftX;
+    this._rectangleData[this._rectangleDataIdx++] = topLeftY;
+    this._rectangleData[this._rectangleDataIdx++] = color.r;
+    this._rectangleData[this._rectangleDataIdx++] = color.g;
+    this._rectangleData[this._rectangleDataIdx++] = color.b;
+    this._rectangleData[this._rectangleDataIdx++] = color.a;
+
+    this._rectangleData[this._rectangleDataIdx++] = topLeftX;
+    this._rectangleData[this._rectangleDataIdx++] = topLeftY;
+    this._rectangleData[this._rectangleDataIdx++] = color.r;
+    this._rectangleData[this._rectangleDataIdx++] = color.g;
+    this._rectangleData[this._rectangleDataIdx++] = color.b;
+    this._rectangleData[this._rectangleDataIdx++] = color.a;
+
+    this._rectangleData[this._rectangleDataIdx++] = bottomRightX;
+    this._rectangleData[this._rectangleDataIdx++] = bottomRightY;
+    this._rectangleData[this._rectangleDataIdx++] = color.r;
+    this._rectangleData[this._rectangleDataIdx++] = color.g;
+    this._rectangleData[this._rectangleDataIdx++] = color.b;
+    this._rectangleData[this._rectangleDataIdx++] = color.a;
+
+    this._rectangleData[this._rectangleDataIdx++] = topRightX;
+    this._rectangleData[this._rectangleDataIdx++] = topRightY;
+    this._rectangleData[this._rectangleDataIdx++] = color.r;
+    this._rectangleData[this._rectangleDataIdx++] = color.g;
+    this._rectangleData[this._rectangleDataIdx++] = color.b;
+    this._rectangleData[this._rectangleDataIdx++] = color.a;
+
+    if (this._rectangleDataIdx >= this._rectangleData.length) {
+      this._flushRectangles();
+    }
   }
 
-  storeLine(vectorA, vectorB, color) {
-    // Note: DO NOT use any kind of javascript concatenation mechanism here!
-    // it slows down things considerably
-    this._lineVertexData.push(vectorA.x);
-    this._lineVertexData.push(vectorA.y);
-    this._lineVertexData.push(color.r);
-    this._lineVertexData.push(color.g);
-    this._lineVertexData.push(color.b);
-    this._lineVertexData.push(color.a);
+  _flushRectangles() {
+    if (this._rectangleDataIdx === 0) {
+      // nothing to do..
+      return;
+    }
 
-    this._lineVertexData.push(vectorB.x);
-    this._lineVertexData.push(vectorB.y);
-    this._lineVertexData.push(color.r);
-    this._lineVertexData.push(color.g);
-    this._lineVertexData.push(color.b);
-    this._lineVertexData.push(color.a);
+    let gl = this._gl;
+    let vertexCount = this._rectangleDataIdx / this._rectangleSingleDataLength;
 
-    this._lineArrayCount += 2;
+    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this._shader.attributes.aVertexPosition);
+    gl.vertexAttribPointer(this._shader.attributes.aVertexPosition, 2, gl.FLOAT, false, this._rectangleStride, 0);
+
+    gl.enableVertexAttribArray(this._shader.attributes.aVertexColorPosition);
+    gl.vertexAttribPointer(this._shader.attributes.aVertexColorPosition, 4, gl.FLOAT, true, this._rectangleStride, 8);
+
+    gl.drawArrays(gl.TRIANGLES, 0, vertexCount * 6);
+
+    this._rectangleDataIdx = 0;
   }
 
-  //#endregion
+  storeLine(vectorA, vectorB, colorA, colorB) {
+    // first point..
+    this._lineData[this._lineDataIdx++] = vectorA.x;
+    this._lineData[this._lineDataIdx++] = vectorA.y;
+    this._lineData[this._lineDataIdx++] = colorA.r;
+    this._lineData[this._lineDataIdx++] = colorA.g;
+    this._lineData[this._lineDataIdx++] = colorA.b;
+    this._lineData[this._lineDataIdx++] = colorA.a;
+
+    // second point..
+    this._lineData[this._lineDataIdx++] = vectorB.x;
+    this._lineData[this._lineDataIdx++] = vectorB.y;
+    this._lineData[this._lineDataIdx++] = colorB.r;
+    this._lineData[this._lineDataIdx++] = colorB.g;
+    this._lineData[this._lineDataIdx++] = colorB.b;
+    this._lineData[this._lineDataIdx++] = colorB.a;
+
+    if (this._lineDataIdx >= this._lineData.length) {
+      this._flushLines();
+    }
+  }
+
+  _flushLines() {
+    if (this._lineDataIdx === 0) {
+      // nothing to do..
+      return;
+    }
+
+    let gl = this._gl;
+    let vertexCount = this._lineDataIdx / this._lineSingleDataLength;
+
+    gl.bufferData(gl.ARRAY_BUFFER, this._lineData, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this._shader.attributes.aVertexPosition);
+    gl.vertexAttribPointer(this._shader.attributes.aVertexPosition, 2, gl.FLOAT, false, this._lineStride, 0);
+
+    gl.enableVertexAttribArray(this._shader.attributes.aVertexColorPosition);
+    gl.vertexAttribPointer(this._shader.attributes.aVertexColorPosition, 4, gl.FLOAT, true, this._lineStride, 8);
+
+    gl.drawArrays(gl.LINES, 0, vertexCount * 2);
+
+    this._lineDataIdx = 0;
+  }
+
+  flush() {
+    let gl = this._gl;
+
+    this._game.getShaderManager().useShader(this._shader);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._renderBuffer);
+
+    // camera matrix uniform
+    gl.uniformMatrix4fv(this._shader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+
+    this._flushLines();
+    this._flushRectangles();
+  }
 }

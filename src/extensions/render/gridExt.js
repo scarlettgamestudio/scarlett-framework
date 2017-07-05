@@ -1,5 +1,4 @@
 import Color from "core/color";
-import PrimitiveRender from "core/primitiveRender";
 import PrimitiveBatch from "core/primitiveBatch";
 import Rectangle from "math/rectangle";
 
@@ -26,7 +25,6 @@ export default class GridExt {
     this._originLines = true;
     this._zoomMultiplier = 2;
     this._primitiveBatch = new PrimitiveBatch(params.game);
-    this._primitiveRender = new PrimitiveRender(params.game);
     this._useDynamicColor = params.dynamicColor || true;
   }
 
@@ -124,6 +122,7 @@ export default class GridExt {
             x: x * gridSize + left - left % gridSize + offsetX,
             y: top - gridSize + offsetY
           },
+          color,
           color
         );
       }
@@ -144,26 +143,27 @@ export default class GridExt {
             x: left - gridSize + offsetX,
             y: y * gridSize + top - top % gridSize + offsetY
           },
+          color,
           color
         );
       }
 
-      this._primitiveBatch.flushLines();
-
       // main "lines" (origin)
       if (this._originLines) {
         // vertical
-        this._primitiveRender.drawRectangle(
+        this._primitiveBatch.storeRectangle(
           new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
           this._gridColor
         );
 
         // horizontal
-        this._primitiveRender.drawRectangle(
+        this._primitiveBatch.storeRectangle(
           new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
           this._gridColor
         );
       }
+
+      this._primitiveBatch.flush();
     }
   }
 

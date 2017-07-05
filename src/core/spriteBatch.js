@@ -1,4 +1,4 @@
-import TextureShader from "shaders/textureShader.shader";
+import TextureShader from "shaders/textureShader";
 import Utils from "utility/utils";
 import Vector2 from "math/vector2";
 
@@ -21,7 +21,7 @@ export default class SpriteBatch {
 
     this._stride = 32;
     this._singleDataLength = 48;
-    this._maxSpritesPerBatch = 2500;
+    this._maxSpritesPerBatch = 2048;
     this._spriteData = new Float32Array(this._singleDataLength * this._maxSpritesPerBatch);
     this._spriteDataIdx = 0;
     this._sprites = [];
@@ -117,6 +117,11 @@ export default class SpriteBatch {
   }
 
   _renderBatch() {
+    if (this._spriteDataIdx === 0) {
+      // nothing to do..
+      return;
+    }
+
     let gl = this._gl;
 
     gl.bufferData(gl.ARRAY_BUFFER, this._spriteData, gl.STATIC_DRAW);

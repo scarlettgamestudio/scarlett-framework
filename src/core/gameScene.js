@@ -133,14 +133,21 @@ export default class GameScene {
     return result;
   }
 
-  prepareRender() {
+  onBeginFrameRender() {
     let gl = this._game.getRenderContext().getContext();
 
     // set clear color and clear the screen:
     gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
     gl.clear(gl.COLOR_BUFFER_BIT);
+  }
 
+  prepareRender() {
     this._spriteBatch.begin();
+  }
+
+  flushRender() {
+    // all draw data was stored. let's actually render stuff into the screen!
+    this._spriteBatch.flush();
   }
 
   // eslint-disable-next-line
@@ -160,11 +167,6 @@ export default class GameScene {
     for (let i = 0; i < this._gameObjects.length; i++) {
       this._gameObjects[i].render(delta, this._spriteBatch);
     }
-  }
-
-  flushRender() {
-    // all draw data was stored. let's actually render stuff into the screen!
-    this._spriteBatch.flush();
   }
 
   objectify() {

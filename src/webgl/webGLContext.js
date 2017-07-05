@@ -43,11 +43,12 @@ export default class WebGLContext {
     // alpha is set to false to avoid webgl picking up the canvas color
     // and place it on the alpha channel
     // see: http://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
+    let options = { alpha: false, antialias: true };
     let gl = (this._gl =
-      canvas.getContext("experimental-webgl", { alpha: false }) ||
-      canvas.getContext("webgl", { alpha: false }) ||
-      canvas.getContext("webkit-3d", { alpha: false }) ||
-      canvas.getContext("moz-webgl", { alpha: false }));
+      canvas.getContext("experimental-webgl", options) ||
+      canvas.getContext("webgl", options) ||
+      canvas.getContext("webkit-3d", options) ||
+      canvas.getContext("moz-webgl", options));
 
     if (!isObjectAssigned(this._gl)) {
       this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");

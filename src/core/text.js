@@ -2,7 +2,7 @@ import Vector2 from "math/vector2";
 import MathHelper from "math/mathHelper";
 import Objectify from "utility/objectify";
 import TextUtils from "utility/textUtils";
-import TextShader from "shaders/textShader.shader";
+import TextShader from "shaders/textShader";
 import GameObject from "core/gameObject";
 import Color from "core/color";
 import Stroke from "core/stroke";
@@ -10,7 +10,6 @@ import FontStyle from "core/fontStyle";
 import GameManager from "core/gameManager";
 import Texture2D from "core/texture2D";
 import { AttributeDictionary } from "common/attributeDictionary";
-import { Debug } from "common/logger";
 import { isObjectAssigned } from "common/utils";
 
 AttributeDictionary.inherit("text", "gameobject");

@@ -28,6 +28,10 @@ export default class Rectangle {
     return new Rectangle(data.x, data.y, data.width, data.height);
   }
 
+  static fromBulk(position, bulk) {
+    return new Rectangle(position.x - bulk / 2, position.y - bulk / 2, bulk, bulk);
+  }
+
   static fromVectors(vectorA, vectorB) {
     let x, y, width, height;
 

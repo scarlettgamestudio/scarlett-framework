@@ -11,7 +11,6 @@ export default class PrimitiveShader extends Shader {
         "attribute vec4 aVertexColorPosition;",
 
         "uniform mat4 uMatrix;",
-        "uniform mat4 uTransform;",
         "uniform float uPointSize;",
 
         "varying vec4 vColor;",
@@ -19,7 +18,7 @@ export default class PrimitiveShader extends Shader {
         "void main(void) {",
         "   vColor = aVertexColorPosition;",
         "   gl_PointSize = uPointSize;",
-        "   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);",
+        "   gl_Position = uMatrix * vec4(aVertexPosition, 0.0, 1.0);",
         "}"
       ].join("\n"),
       fragment: [
@@ -33,7 +32,6 @@ export default class PrimitiveShader extends Shader {
       ].join("\n"),
       uniforms: {
         uMatrix: { type: "mat4", value: new Float32Array(16) },
-        uTransform: { type: "mat4", value: new Float32Array(16) },
         uPointSize: { type: "1i", value: 2 }
       },
       attributes: {

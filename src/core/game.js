@@ -338,6 +338,7 @@ export default class Game {
       this._gameScene.sceneLateUpdate(delta);
 
       // prepare the webgl context for rendering:
+      this._gameScene.onBeginFrameRender();
       this._gameScene.prepareRender();
 
       // render extensions?
@@ -361,6 +362,8 @@ export default class Game {
       // the user defined the game scene pre-render function?
       if (isFunction(this._gameScene.lateRender)) {
         this._executionPhase = CONSTANTS.EXECUTION_PHASES.LATE_RENDER;
+
+        this._gameScene.prepareRender();
         this._gameScene.lateRender(delta);
         this._gameScene.flushRender();
       }
