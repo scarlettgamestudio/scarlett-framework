@@ -1,7 +1,7 @@
 {
   "name": "@scarlett-game-studio/scarlett-framework",
   "shortName": "scarlett-framework",
-  "version": "0.0.0-development",
+  "version": "0.0.1-alpha",
   "description": "Scarlett WebGL Graphics Framework",
   "main": "build/dist/scarlett-framework.browser.min.js",
   "dependencies": {
