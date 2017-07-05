@@ -23,7 +23,7 @@
     "test": "jest --coverage",
     "watch:test": "cross-env CI=true jest --watch",
     "report-coverage": "codecov",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "semantic-release pre && npm publish --access=public && semantic-release post",
     "commit": "git-cz",
     "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
     "precommit": "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\"",
@@ -68,20 +68,14 @@
     "webpack-dev-server": "2.4.5",
     "webpack-notifier": "1.5.0"
   },
-  "files": [
-    "build",
-    "README.md"
-  ],
+  "files": ["build", "README.md"],
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
   },
   "lint-staged": {
-    "*.js": [
-      "prettier-eslint --write",
-      "git add"
-    ]
+    "*.js": ["prettier-eslint --write", "git add"]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -99,15 +93,10 @@
       "plugin:import/errors",
       "plugin:import/warnings"
     ],
-    "plugins": [
-      "jest"
-    ],
+    "plugins": ["jest"],
     "rules": {
       "no-console": 0,
-      "max-len": [
-        "error",
-        120
-      ]
+      "max-len": ["error", 120]
     },
     "settings": {
       "import/resolver": {
@@ -123,19 +112,10 @@
       "^.+\\.js$": "babel-jest"
     },
     "mapCoverage": true,
-    "moduleDirectories": [
-      "node_modules",
-      "src"
-    ],
+    "moduleDirectories": ["node_modules", "src"],
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$",
-    "moduleFileExtensions": [
-      "js",
-      "json"
-    ],
-    "collectCoverageFrom": [
-      "!src/**/index.js",
-      "src/**/*.js"
-    ],
+    "moduleFileExtensions": ["js", "json"],
+    "collectCoverageFrom": ["!src/**/index.js", "src/**/*.js"],
     "coverageThreshold": {
       "global": {
         "branches": 0,
