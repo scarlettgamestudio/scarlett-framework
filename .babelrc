@@ -1,15 +1,10 @@
 {
   "env": {
-    // jest needs 'modules' option set to true (unline the normal webpack config), 
-    // thus the need of being specific in a babelrc
+    "comment-1": "jest needs 'modules' option set to true (unlike the normal webpack config), ",
+    "comment-2": "thus the need of being specific in a babelrc",
     "test": {
-      "plugins": [
-        "transform-runtime"
-      ],
-      "presets": [
-        "es2015",
-        "stage-3"
-      ]
+      "plugins": ["transform-runtime", "lodash"],
+      "presets": ["env", "stage-3"]
     }
   }
 }

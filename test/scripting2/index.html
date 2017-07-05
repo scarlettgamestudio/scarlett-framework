@@ -1,29 +1,31 @@
 <html>
-<head>
-    <script type="text/javascript" src="../../build/scarlett-framework.js"></script>
-</head>
-<body>
-<script type="text/javascript">
 
+<head>
+  <script src="../../build/browser/scarlett-framework.browser.js"></script>
+
+</head>
+
+<body>
+  <script type="text/javascript">
     let _store = {};
 
     class BaseInput extends Script {
-        constructor() {
-            super();
-            this.customVar = "abc";
-        }
+      constructor() {
+        super();
+        this.customVar = "abc";
+      }
     }
 
     class PlayerInput extends BaseInput {
 
-        constructor() {
-            super();
-            this.strength = 200
-        }
+      constructor() {
+        super();
+        this.strength = 200
+      }
 
-        update(delta) {
-            //debug.log("received delta: " + delta);
-        }
+      update(delta) {
+        //debug.log("received delta: " + delta);
+      }
     }
 
     _store["playerInput"] = PlayerInput;
@@ -34,6 +36,7 @@
     debug.log(getType(playerInputCmp));
     debug.log(JSON.stringify(playerInputCmp));
 
-</script>
+  </script>
 </body>
+
 </html>
