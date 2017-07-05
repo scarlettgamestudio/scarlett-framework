@@ -5,8 +5,8 @@ const path = require("path");
 const WebpackNotifierPlugin = require("webpack-notifier");
 const packageName = require("../package.json").shortName;
 
-// transpiling to ES6? (for editor and for some browsers)
-const TO_ES6 = process.env.NODE_ENV === "es6";
+// transpiling to Editor ES6? (for editor)
+const TO_EDITOR_ES6 = process.env.NODE_ENV === "editor";
 // deploying? (for complete games)
 const DEPLOYING = process.env.NODE_ENV === "production";
 
@@ -14,31 +14,42 @@ const DEPLOYING = process.env.NODE_ENV === "production";
 const entryFilenames = ["matter-js", "index.js"];
 
 // the variable name from which the library should be accessed from
-// when using a global var (ES5)
+// when using a global var (ES6)
 const globalLibraryName = "SC";
 // default target library (global variable)
 let target = "var";
 
-// default package name (ES5)
+// default package name (ES6)
 let finalPackageName = packageName + ".browser.js";
 // default relative output path
-// it changes depending on the target (i.e., ES6, production or ES5 by default)
-let relativeOutputPath = "build/build-es5";
-// default loaders when transpiling to ES5 (for running on every browser
-// .ts(x) files should first pass through the Typescript loader, and then through babel
+// it changes depending on the target (i.e., Editor ES6, production or Browser ES6 by default)
+let relativeOutputPath = "build/browser";
+
+// default loaders when transpiling to Browser ES6
 let loadersSetup = [
   {
     loader: "babel-loader",
     options: {
       plugins: ["transform-runtime", "lodash"],
-      presets: [["es2015", { modules: false }], "stage-3"]
+      presets: [
+        [
+          "env",
+          {
+            targets: {
+              browsers: ["last 2 versions"]
+            },
+            modules: false
+          }
+        ],
+        "stage-3"
+      ]
     }
   }
 ];
 
-// if transpiling to ES6
-if (TO_ES6) {
-  // remove presets from babel loader that would otherwise transpile to ES5
+// if transpiling to Editor ES6
+if (TO_EDITOR_ES6) {
+  // remove presets from babel loader that would otherwise transpile to Browser ES6
   // it's important to have lodash plugin, as it will only import the used functions
   loadersSetup = {
     loader: "babel-loader",
@@ -49,13 +60,13 @@ if (TO_ES6) {
   // change library target to commonjs2 since that's easier to use with node
   target = "commonjs2";
   // update output path
-  relativeOutputPath = "build/build-es6";
+  relativeOutputPath = "build/commonjs";
   // update package name
   finalPackageName = packageName + ".js";
 } else if (DEPLOYING) {
   // update output path
   relativeOutputPath = "build/dist";
-  // update package name to an ES5 minified version
+  // update package name to an ES6 minified version
   finalPackageName = packageName + ".browser.min.js";
 }
 
