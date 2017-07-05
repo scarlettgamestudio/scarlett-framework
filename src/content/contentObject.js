@@ -1,22 +1,19 @@
 /**
  * Content Object Class
  */
-class ContentObject {
+export default class ContentObject {
+  //#region Constructors
 
-    //#region Constructors
+  /**
+  * @param params
+  * @constructor
+  */
+  // eslint-disable-next-line
+  constructor(params) {}
 
-    /**
-     * @param params
-     * @constructor
-     */
-    constructor(params) {
+  //#endregion
 
-    }
+  //#region Methods
 
-    //#endregion
-
-    //#region Methods
-
-    //#endregion
-
+  //#endregion
 }

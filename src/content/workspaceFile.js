@@ -1,38 +1,36 @@
 /**
  * Workspace File class
  */
-class WorkspaceFile {
+export default class WorkspaceFile {
+  //#region Constructors
 
-    //#region Constructors
-
-    /**
+  /**
      *
      * @param params
      * @constructor
      */
-    constructor(params) {
-        params = params || {};
+  constructor(params) {
+    params = params || {};
 
-        this.activeLayout = params.activeLayout || {};
-    }
+    this.activeLayout = params.activeLayout || {};
+  }
 
-    //#endregion
+  //#endregion
 
-    //#region Methods
+  //#region Methods
 
-    //#region Static Methods
+  //#region Static Methods
 
-    /**
+  /**
      *
      * @param data
      * @returns {WorkspaceFile}
      */
-    static restore(data) {
-        return new WorkspaceFile(data);
-    }
+  static restore(data) {
+    return new WorkspaceFile(data);
+  }
 
-    //#endregion
+  //#endregion
 
-    //#endregion
-
+  //#endregion
 }

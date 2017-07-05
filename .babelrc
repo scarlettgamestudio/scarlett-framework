@@ -1,4 +1,15 @@
 {
-  "presets": ["es2015"],
-  "compact": false
+  "env": {
+    // jest needs 'modules' option set to true (unline the normal webpack config), 
+    // thus the need of being specific in a babelrc
+    "test": {
+      "plugins": [
+        "transform-runtime"
+      ],
+      "presets": [
+        "es2015",
+        "stage-3"
+      ]
+    }
+  }
 }

@@ -1,52 +1,54 @@
 <!doctype html>
 <html>
+
 <head>
-    <title>Sandbox</title>
-    <!--
+  <title>Sandbox</title>
+  <!--
         to start a simple python http server:
         \> python -m SimpleHTTPServer  (unix systems)
         \> python -m http.server 8080  (python3+)
     -->
-    <script src="../../test/common/fpsmeter.js"></script>
-    <style>
+  <script src="../../test/common/fpsmeter.js"></script>
+  <style>
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+    }
 
-        html, body {
-            padding: 0;
-            margin: 0;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-    </style>
+    canvas {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 </head>
+
 <body>
-<script>
+  <script>
     var meter = new FPSMeter({
-        theme: 'dark',
-        heat:  1,
-        graph:   1, // Whether to show history graph.
-        history: 20 // How many history states to show in a graph.
+      theme: 'dark',
+      heat: 1,
+      graph: 1, // Whether to show history graph.
+      history: 20 // How many history states to show in a graph.
     });
-</script>
+  </script>
 
-<!-- canvas -->
-<canvas id="canvas"></canvas>
+  <!-- canvas -->
+  <canvas id="canvas"></canvas>
 
-<!-- imports -->
-<script src="../../build/scarlett-framework.js"></script>
+  <!-- imports -->
+  <script src="../../build/build-es5/scarlett-framework.browser.js"></script>
 
-<!-- browserify -->
-<script src="core.js"></script>
+  <!-- make sure to place the script components before core!! -->
+  <script src="components/playerInput.js"></script>
+  <script src="components/backgroundAgent.js"></script>
+  <script src="components/enemyAgent.js"></script>
 
-<script src="components/playerInput.js"></script>
-<script src="components/backgroundAgent.js"></script>
-<script src="components/enemyAgent.js"></script>
+  <script src="core.js"></script>
 
 </body>
+
 </html>

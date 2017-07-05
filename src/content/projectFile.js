@@ -1,42 +1,54 @@
 /**
  * Project File class
  */
-class ProjectFile {
+export default class ProjectFile {
+  //#region Constructors
 
-    //#region Constructors
-
-    /**
+  /**
      *
      * @param params
      * @constructor
      */
-    constructor(params) {
-        params = params || {};
+  constructor(params) {
+    params = params || {};
 
-        this.name = params.name || "New Project";
-        this.settings = params.settings || {};
-        this.content = params.content || {
-                scripts: []
-            };
+    this.name = params.name || "New Project";
+    this.settings = params.settings || {};
+    this.content = params.content || {
+      scripts: []
+    };
+
+    this.ensureContentStructure();
+  }
+
+  //#endregion
+
+  //#region Methods
+
+  //#region Methods
+
+  ensureContentStructure() {
+    this.content = this.content || {};
+
+    if (!this.content.hasOwnProperty("scripts")) {
+      this.content.scripts = [];
     }
+  }
 
-    //#endregion
+  //#endregion
 
-    //#region Methods
+  //#region Static Methods
 
-    //#region Static Methods
-
-    /**
+  /**
      *
      * @param data
      * @returns {ProjectFile}
      */
-    static restore(data) {
-        return new ProjectFile(data);
-    }
+  static restore(data) {
+    return new ProjectFile(data);
+  }
 
-    //#endregion
+  //#endregion
 
-    //#endregion
-
+  //#endregion
 }

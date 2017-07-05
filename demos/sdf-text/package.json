@@ -1,5 +1,5 @@
 {
-  "name": "space",
+  "name": "sdf-text",
   "version": "1.0.0",
   "description": "",
   "main": "core.js",
@@ -11,6 +11,5 @@
   "dependencies": {
     "load-bmfont": "^1.2.4"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

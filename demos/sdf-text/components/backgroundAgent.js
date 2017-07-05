@@ -1,5 +1,5 @@
-var script = sc.addScript("backgroundAgent");
+var script = SC.addScript("backgroundAgent");
 
-script.prototype.update = function (delta) {
-    this.gameObject.transform.translate(-10 * delta, 0);
+script.prototype.update = function(delta) {
+  this.gameObject.transform.translate(-10 * delta, 0);
 };

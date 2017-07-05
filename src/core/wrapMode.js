@@ -1,4 +1,4 @@
-let WrapMode = {
-    CLAMP: 0,
-    REPEAT: 1
+export const WrapMode = {
+  CLAMP: 0,
+  REPEAT: 1
 };

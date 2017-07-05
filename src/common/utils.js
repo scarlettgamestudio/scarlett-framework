@@ -1,15 +1,30 @@
 /**
  * Scarlett @ DevTeam
- * This javascript file will include global utility functions that can be called from any context
+ * Includes global utility functions that can be called from any context
  */
 
+import _ from "lodash";
+
+export {
+  isObjectAssigned,
+  isString,
+  isNumber,
+  isFunction,
+  inheritsFrom,
+  generateUID,
+  splitCamelCase,
+  capitalize,
+  getType,
+  isEqual
+};
+
 /**
- * This function will return true if there is something assigned to the given object and false if it isn't
+ * Returns true if there is something assigned to the given object
  * @param obj
  * @returns {boolean}
  */
 function isObjectAssigned(obj) {
-    return (typeof obj !== "undefined" && obj !== null);
+  return typeof obj !== "undefined" && obj !== null;
 }
 
 /**
@@ -18,7 +33,7 @@ function isObjectAssigned(obj) {
  * @returns {boolean}
  */
 function isString(obj) {
-    return typeof obj === "string";
+  return _.isString(obj);
 }
 
 /**
@@ -27,34 +42,7 @@ function isString(obj) {
  * @returns {boolean}
  */
 function isNumber(obj) {
-    return typeof obj === "number";
-}
-
-/**
- * Validates if the given object is a game object
- * @param obj
- * @returns {boolean}
- */
-function isGame(obj) {
-    return obj instanceof Game;
-}
-
-/**
- * Validates if the given object is a game scene
- * @param obj
- * @returns {boolean}
- */
-function isGameScene(obj) {
-    return obj instanceof GameScene;
-}
-
-/**
- * Validates if the given object is a texture2d
- * @param obj
- * @returns {boolean}
- */
-function isTexture2D(obj) {
-    return obj instanceof Texture2D;
+  return _.isNumber(obj);
 }
 
 /**
@@ -63,16 +51,7 @@ function isTexture2D(obj) {
  * @returns {boolean}
  */
 function isFunction(obj) {
-    return typeof obj === "function";
-}
-
-/**
- * Validates if the given object is a sprite
- * @param obj
- * @returns {boolean}
- */
-function isSprite(obj) {
-    return obj instanceof Sprite;
+  return typeof obj === "function";
 }
 
 /**
@@ -81,7 +60,7 @@ function isSprite(obj) {
  * @param parent
  */
 function inheritsFrom(child, parent) {
-    child.prototype = Object.create(parent.prototype);
+  child.prototype = Object.create(parent.prototype);
 }
 
 /**
@@ -89,9 +68,9 @@ function inheritsFrom(child, parent) {
  * @type {number}
  * @private
  */
-var _SS_UID = 0;
+let _SS_UID = 0;
 function generateUID() {
-    return ++_SS_UID;
+  return ++_SS_UID;
 }
 
 /**
@@ -100,21 +79,17 @@ function generateUID() {
  * @returns {*}
  */
 function capitalize(string) {
-    if (string.length >= 2) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    } else if (string.length == 1) {
-        return string.charAt(0).toUpperCase();
-    }
-    return string;
+  return _.capitalize(string);
 }
 
 /**
  * Split camel case
+ * TODO: change to lodash startCase?
  * @param string
  * @returns {string}
  */
 function splitCamelCase(string) {
-    return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
+  return _.startCase(string);
 }
 
 /**
@@ -123,20 +98,20 @@ function splitCamelCase(string) {
  * @returns {*}
  */
 function getType(object) {
-    if (object === null) return "[object Null]"; // special case
-    if (object.getType) return object.getType();
-    return object.constructor.name || Object.prototype.toString.call(object);
+  if (object === null) return "[object Null]"; // special case
+  if (object.getType) return object.getType();
+  return object.constructor.name || Object.prototype.toString.call(object);
 }
 
 /**
- * The following function compares both given objects applying the 'equal' function if it exist in the first
+ * Compares by applying the 'equal' function if it exists in the first object
  * @param a
  * @param b
  */
 function isEqual(a, b) {
-    if (isFunction(a.equals)) {
-        return a.equals(b);
-    }
+  if (isFunction(a.equals)) {
+    return a.equals(b);
+  }
 
-    return a === b;
+  return a === b;
 }

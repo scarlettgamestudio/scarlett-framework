@@ -7,8 +7,9 @@
 
     let _store = {};
 
-    class BaseInput {
+    class BaseInput extends Script {
         constructor() {
+            super();
             this.customVar = "abc";
         }
     }

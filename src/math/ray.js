@@ -1,51 +1,49 @@
+import { SetterDictionary } from "common/setterDictionary";
+
 SetterDictionary.addRule("ray", ["origin", "direction"]);
 
 /**
  * Ray Class (TODO: this class is not yet working!)
  */
-class Ray {
+export default class Ray {
+  //#region Constructors
 
-    //#region Constructors
+  constructor(origin, direction) {
+    this.origin = 0;
+    this.direction = 0;
 
-    constructor(origin, direction) {
-        this.origin = 0;
-        this.direction = 0;
+    this.set(origin, direction);
+  }
 
-        this.set(origin, direction);
-    }
+  //#endregion
 
-    //#endregion
+  //#region Methods
 
-    //#region Methods
+  //#region Static Methods
 
-    //#region Static Methods
+  static restore(data) {
+    return new Ray(data.origin, data.direction);
+  }
 
-    static restore(data) {
-        return new Ray(data.origin, data.direction);
-    }
+  //#endregion
 
-    //#endregion
+  set(origin, direction) {
+    this.origin = origin || 0;
+    this.direction = direction || 0;
+  }
 
-    set(origin, direction) {
-        this.origin = origin || 0;
-        this.direction = direction || 0;
-    }
+  objectify() {
+    return {
+      origin: this.origin,
+      direction: this.direction
+    };
+  }
 
-    objectify() {
-        return {
-            origin: this.origin,
-            direction: this.direction
-        };
-    }
+  equals(obj) {
+    return obj.origin === this.origin && obj.direction === this.direction;
+  }
 
-    equals(obj) {
-        return (obj.origin === this.origin && obj.direction === this.direction);
-    }
+  unload() {}
 
-    unload() {
-
-    }
-
-    //#endregion
-
+  //#endregion
 }

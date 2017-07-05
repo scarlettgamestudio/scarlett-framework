@@ -1,126 +1,122 @@
-/**
- * Created by Luis on 23/12/2016.
- */
+import { isNumber } from "common/utils";
+import Color from "core/color";
+import MathHelper from "math/mathHelper";
 
 /**
  * Stroke Class
  * Stroke is a combination of a color and its size
  */
-class Stroke {
+export default class Stroke {
+  //#region Static Properties
 
-    //#region Static Properties
-
-    /**
+  /**
      *
      * @returns {number}
      */
-    getMaxSize() {
-        return this._maxSize;
-    }
+  getMaxSize() {
+    return this._maxSize;
+  }
 
-    /**
+  /**
      *
      * @param {number} size
      */
-    setMaxSize(size) {
-        if (!isNumber(size)) {
-            throw new Error("The given raw size is invalid");
-        }
-        this._maxSize = size;
+  setMaxSize(size) {
+    if (!isNumber(size)) {
+      throw new Error("The given raw size is invalid");
     }
+    this._maxSize = size;
+  }
 
-    //#endregion
+  //#endregion
 
-    //#region Constructors
+  //#region Constructors
 
-    /**
+  /**
      * Stroke is a combination of a color and its size
      * @param {Color=} color stroke color
      * @param {number=} size size of the stroke
      * @constructor
      */
-    constructor(color, size) {
-        // stroke color
-        this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
-        // stroke size
-        this._size = size || 0.0;
-        this._maxSize = 10;
-    }
+  constructor(color, size) {
+    // stroke color
+    this._color = color || Color.fromRGBA(0.0, 0.0, 0.0, 1.0);
+    // stroke size
+    this._size = size || 0.0;
+    this._maxSize = 10;
+  }
 
-    //#endregion
+  //#endregion
 
-    //#region Methods
+  //#region Methods
 
-    //#region Static Methods
+  //#region Static Methods
 
-    static restore(data) {
-        return new Stroke(Color.restore(data.color), data.size);
-    }
+  static restore(data) {
+    return new Stroke(Color.restore(data.color), data.size);
+  }
 
-    //#endregion
+  //#endregion
 
-    //#region Public Methods
+  //#region Public Methods
 
-    getColor() {
-        return this._color;
-    }
+  getColor() {
+    return this._color;
+  }
 
-    /**
+  /**
      * Sets stroke's color
      * @param {Color} color
      */
-    setColor(color) {
-
-        if (color instanceof Color) {
-            this._color = color.clone();
-            return;
-        }
-
-        if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)) {
-            throw new Error("The given stroke color is invalid");
-        }
-
-        this._color.set(color.r, color.g, color.b, color.a);
+  setColor(color) {
+    if (color instanceof Color) {
+      this._color = color.clone();
+      return;
     }
 
-    setOpacity(alpha) {
-
-        if (!isNumber(alpha)) {
-            throw new Error("The given alpha is invalid");
-        }
-
-        let currentColor = this.getColor();
-
-        this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
+    if (!isNumber(color.r) || !isNumber(color.g) || !isNumber(color.b) || !isNumber(color.a)) {
+      throw new Error("The given stroke color is invalid");
     }
 
-    getOpacity() {
-        return this.getColor().a;
+    this._color.set(color.r, color.g, color.b, color.a);
+  }
+
+  setOpacity(alpha) {
+    if (!isNumber(alpha)) {
+      throw new Error("The given alpha is invalid");
     }
 
-    getSize() {
-        return this._size;
+    let currentColor = this.getColor();
+
+    this._color.set(currentColor.r, currentColor.g, currentColor.b, alpha);
+  }
+
+  getOpacity() {
+    return this.getColor().a;
+  }
+
+  getSize() {
+    return this._size;
+  }
+
+  setSize(size) {
+    if (!isNumber(size)) {
+      throw new Error("The given size is invalid");
     }
 
-    setSize(size) {
+    size = MathHelper.clamp(size, 0, this.getMaxSize());
 
-        if (!isNumber(size)) {
-            throw new Error("The given size is invalid");
-        }
+    this._size = size;
+  }
 
-        size = MathHelper.clamp(size, 0, this.getMaxSize());
+  objectify() {
+    return {
+      color: this._color.objectify(),
+      size: this.getSize()
+    };
+  }
 
-        this._size = size;
-    }
+  //#endregion
 
-    objectify() {
-        return {
-            color: this._color.objectify(),
-            size: this.getSize()
-        };
-    }
-
-    //#endregion
-
-    //#endregion
+  //#endregion
 }
