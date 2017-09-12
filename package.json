@@ -39,9 +39,9 @@
     "babel-loader": "7.0.0",
     "babel-plugin-lodash": "3.2.11",
     "babel-plugin-transform-runtime": "6.23.0",
+    "babel-preset-env": "1.6.0",
     "babel-preset-es2015": "6.24.1",
     "babel-preset-stage-3": "6.24.1",
-    "babel-preset-env": "1.6.0",
     "circular-dependency-plugin": "3.0.0",
     "codecov": "2.2.0",
     "commitizen": "2.9.6",
@@ -51,9 +51,6 @@
     "eslint-import-resolver-webpack": "0.8.1",
     "eslint-plugin-import": "2.5.0",
     "eslint-plugin-jest": "20.0.3",
-    "grunt": "1.0.1",
-    "grunt-contrib-copy": "1.0.0",
-    "grunt-contrib-watch": "1.0.0",
     "http-server": "0.10.0",
     "husky": "0.13.4",
     "jest": "20.0.4",
@@ -69,14 +66,20 @@
     "webpack-dev-server": "2.4.5",
     "webpack-notifier": "1.5.0"
   },
-  "files": ["build", "README.md"],
+  "files": [
+    "build",
+    "README.md"
+  ],
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
   },
   "lint-staged": {
-    "*.js": ["prettier-eslint --write", "git add"]
+    "*.js": [
+      "prettier-eslint --write",
+      "git add"
+    ]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -94,10 +97,15 @@
       "plugin:import/errors",
       "plugin:import/warnings"
     ],
-    "plugins": ["jest"],
+    "plugins": [
+      "jest"
+    ],
     "rules": {
       "no-console": 0,
-      "max-len": ["error", 120]
+      "max-len": [
+        "error",
+        120
+      ]
     },
     "settings": {
       "import/resolver": {
@@ -113,10 +121,19 @@
       "^.+\\.js$": "babel-jest"
     },
     "mapCoverage": true,
-    "moduleDirectories": ["node_modules", "src"],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$",
-    "moduleFileExtensions": ["js", "json"],
-    "collectCoverageFrom": ["!src/**/index.js", "src/**/*.js"],
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "collectCoverageFrom": [
+      "!src/**/index.js",
+      "src/**/*.js"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 0,
