@@ -16,8 +16,6 @@ const entryFilenames = ["matter-js", "index.js"];
 // the variable name from which the library should be accessed from
 // when using a global var (ES6)
 const globalLibraryName = "SC";
-// default target library (global variable)
-let target = "var";
 
 // default package name (ES6)
 let finalPackageName = packageName + ".browser.js";
@@ -57,10 +55,8 @@ if (TO_EDITOR_ES6) {
       plugins: ["lodash"]
     }
   };
-  // change library target to commonjs2 since that's easier to use with node
-  target = "commonjs2";
   // update output path
-  relativeOutputPath = "build/commonjs";
+  relativeOutputPath = "build/umd";
   // update package name
   finalPackageName = packageName + ".js";
 } else if (DEPLOYING) {
@@ -82,25 +78,24 @@ const config = {
   output: {
     filename: finalPackageName,
     path: path.resolve(relativeOutputPath),
-
-    // export itself to a global var
-    libraryTarget: target,
+    // export itself to UMD format
+    libraryTarget: "umd",
     // name of the global var
     library: globalLibraryName,
-
+    umdNamedDefine: true,
     // webpack dev server hot reload path
     publicPath: relativeOutputPath
   },
   resolve: {
-    // Look for modules in .js(x) files first, then .js(x)
-    extensions: [".js", ".jsx"],
+    // Look for modules in .js files first
+    extensions: [".js"],
     // Add 'src' to our modules, as all our app code will live in there, so Webpack should look in there for modules
     modules: ["src", "node_modules"]
   },
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.js$/,
         // Skip any files outside of `src` directory
         include: /src/,
         exclude: /node_modules/,
