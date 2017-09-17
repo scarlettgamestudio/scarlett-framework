@@ -13,11 +13,9 @@
     "start": "http-server -a localhost -p 8080 -c-1",
     "build": "webpack -d --config config/webpack.config.js",
     "build:editor": "cross-env NODE_ENV=editor npm run build",
-    "build:deploy":
-      "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
+    "build:deploy": "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
     "build:all": "rimraf build && run-p build build:editor build:deploy",
-    "live-server":
-      "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
+    "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
     "live-server:editor": "cross-env NODE_ENV=editor npm run live-server",
     "live-server:deploy": "cross-env NODE_ENV=production npm run live-server",
     "watch": "npm run build -- -w",
@@ -25,12 +23,10 @@
     "test": "jest --coverage",
     "watch:test": "cross-env CI=true jest --watch",
     "report-coverage": "codecov",
-    "semantic-release":
-      "semantic-release pre && npm publish --access=public && semantic-release post",
+    "semantic-release": "semantic-release pre && npm publish --access=public && semantic-release post",
     "commit": "git-cz",
     "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
-    "precommit":
-      "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\"",
+    "precommit": "lint-staged && opt --in pre-commit --exec \"npm run test && npm run build\"",
     "format": "prettier-eslint --write \"src/**/*.js\"",
     "lint": "eslint .",
     "validate": "run-p lint test build:all"
@@ -40,7 +36,7 @@
     "babel-cli": "6.24.1",
     "babel-eslint": "7.2.3",
     "babel-jest": "20.0.3",
-    "babel-loader": "7.0.0",
+    "babel-loader": "7.1.2",
     "babel-plugin-lodash": "3.2.11",
     "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-env": "1.6.0",
@@ -51,10 +47,10 @@
     "commitizen": "2.9.6",
     "cross-env": "5.0.0",
     "cz-conventional-changelog": "2.0.0",
-    "eslint": "3.6.1",
-    "eslint-import-resolver-webpack": "0.8.1",
-    "eslint-plugin-import": "2.5.0",
-    "eslint-plugin-jest": "20.0.3",
+    "eslint": "4.7.0",
+    "eslint-import-resolver-webpack": "0.8.3",
+    "eslint-plugin-import": "2.7.0",
+    "eslint-plugin-jest": "21.1.0",
     "http-server": "0.10.0",
     "husky": "0.13.4",
     "jest": "20.0.4",
@@ -66,18 +62,25 @@
     "rimraf": "2.6.1",
     "semantic-release": "6.3.6",
     "validate-commit-msg": "2.12.1",
-    "webpack": "2.6.1",
-    "webpack-dev-server": "2.4.5",
+    "webpack": "3.6.0",
+    "webpack-bundle-analyzer": "2.9.0",
+    "webpack-dev-server": "2.8.2",
     "webpack-notifier": "1.5.0"
   },
-  "files": ["build", "README.md"],
+  "files": [
+    "build",
+    "README.md"
+  ],
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
   },
   "lint-staged": {
-    "*.js": ["prettier-eslint --write", "git add"]
+    "*.js": [
+      "prettier-eslint --write",
+      "git add"
+    ]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -95,10 +98,15 @@
       "plugin:import/errors",
       "plugin:import/warnings"
     ],
-    "plugins": ["jest"],
+    "plugins": [
+      "jest"
+    ],
     "rules": {
       "no-console": 0,
-      "max-len": ["error", 120]
+      "max-len": [
+        "error",
+        120
+      ]
     },
     "settings": {
       "import/resolver": {
@@ -114,10 +122,19 @@
       "^.+\\.js$": "babel-jest"
     },
     "mapCoverage": true,
-    "moduleDirectories": ["node_modules", "src"],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$",
-    "moduleFileExtensions": ["js", "json"],
-    "collectCoverageFrom": ["!src/**/index.js", "src/**/*.js"],
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "collectCoverageFrom": [
+      "!src/**/index.js",
+      "src/**/*.js"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 0,
@@ -131,8 +148,7 @@
     "type": "git",
     "url": "https://github.com/scarlettgamestudio/scarlett-framework.git"
   },
-  "author":
-    "João Alves <joao.cpp.sca@gmail.com> and Luís Fernandes aka Apidcloud <luisapidcloud@hotmail.com>",
+  "author": "João Alves <joao.cpp.sca@gmail.com> and Luís Fernandes aka Apidcloud <luisapidcloud@hotmail.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/scarlettgamestudio/scarlett-framework/issues"
