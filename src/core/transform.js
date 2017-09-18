@@ -101,7 +101,9 @@ export default class Transform {
      * @param position
      */
   lookAt(position) {
-    let direction = this.getPosition().subtract(position).normalize();
+    let direction = this.getPosition()
+      .subtract(position)
+      .normalize();
     this.setRotation(Math.atan2(direction.y, direction.x));
   }
 
