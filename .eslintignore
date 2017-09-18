@@ -4,5 +4,4 @@ coverage
 config
 test
 demos
-Gruntfile.js
 prefix.js
