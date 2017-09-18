@@ -77,6 +77,7 @@ export default class BMFontParserAscii {
     line = line.substring(space + 1);
     //clear "letter" field as it is non-standard and
     //requires additional complexity to parse " / = symbols
+    // eslint-disable-next-line
     line = line.replace(/letter=[\'\"]\S+[\'\"]/gi, "");
     line = line.split("=");
     line = line.map(function(str) {

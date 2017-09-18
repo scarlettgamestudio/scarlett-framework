@@ -11,7 +11,6 @@ Scarlett WebGL Graphics Framework repository
 [![Semantic-release][semantic-release-badge]][semantic-release]
 [![styled with prettier][prettier-badge]][prettier]
 
-[![typescript][typescript-version-badge]][typescript]
 [![node-version][node-version-badge]][node]
 <!--[![Apache-2.0][license-badge]][LICENSE]-->
 <!--[![npm-version][npm-version-badge]][package]-->
@@ -19,27 +18,37 @@ Scarlett WebGL Graphics Framework repository
 
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running. 
-
 ### What is this repository for? ###
 
 This repository contains the Scarlett Framework Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
 
-### How do I get set up? ###
+### Setup ###
 
-* Install NodeJS (6.x or higher is recommended)
-* Install GruntJS by running "npm install -g grunt-cli" in your computer terminal
-* Open a terminal in the root folder and execute "npm install" for dependency resolution
+1. Install NodeJS (6.x or higher is recommended)
+2. Fork and clone the repo
+3. `$ npm install` to install dependencies
+4. `$ npm run validate` to validate you've got it working
 
-### Optional Setup ###
+### Optional Setup - Scarlett-Editor ###
 
-* To activate automatic project build on code change simply run "grunt dev" on the root folder. 
-* To change the directory output of the build file, change the 'copyToDirectory' target in Gruntfile.js.
+If also working on scarlett-editor (or any other project that depends on this framework), you might want to test it against a new and unreleased version of the framework. You can avoid manually copying the framework into the editor folder by referencing it instead. One good way is to use [symlinks](https://docs.npmjs.com/cli/link):
+1. `$ cd ~/projects/scarlett-framework` go into the package directory
+2. `$ npm link` create a global link of the framework package
+3. `$ cd ~/projects/scarlett-editor` go into the consumer directory
+4. `$ npm link @scarlett-game-studio/scarlett-framework` link install the framework
+
+`scarlett-editor/node_modules` should now have the framework within. Rebuilding the framework with:
+
+`$ npm run build:editor` or `$ npm run build:all` and refreshing/restarting the editor should be enough to update the framework version within the editor.
 
 ### Build & Distribution ###
 
-* To create a distribution ES6 file run "grunt dev-concat" (concatenates all source files into one). The ES6 files are located under the './build/' folder.
-* To generate a ES5 file run "grunt dist" to execute babelJS and convert the framework from ES6. The ES5 files are located under the  './build-es5/' folder.
+There are 3 different builds:
+1. `$ npm run build` - Browser (ES6) - should support the latest 2 versions. Handy when developing and testing on the browser.
+2. `$ npm run build:editor` - CommonJS - version used when requiring the package (e.g., within scarlett-editor). Handy within node projects.
+3. `$ npm run build:deploy` - Browser Minified (ES6) - should support the latest 2 versions. Handy when a browser project is ready to deploy.
+
+You can also run all of the above with `$ npm run build:all`
 
 ### Recommended Code Editors ###
 
@@ -79,8 +88,6 @@ To allow Ecma6 syntax make sure to change the Javascript Version in the settings
 [LICENSE]: https://github.com/scarlettgamestudio/scarlett-framework/blob/master/LICENSE.md
 [dependencyci-badge]: https://dependencyci.com/github/scarlettgamestudio/scarlett-framework/badge
 [dependencyci]: https://dependencyci.com/github/scarlettgamestudio/scarlett-framework
-[typescript-version-badge]: https://img.shields.io/badge/typescript-2.3.4-blue.svg
-[typescript]: https://www.typescriptlang.org/
 [semantic-release-badge]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
 [semantic-release]: https://github.com/semantic-release/semantic-release
 [prettier-badge]: https://img.shields.io/badge/styled_with-prettier-ff69b4.svg

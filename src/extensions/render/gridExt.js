@@ -103,7 +103,7 @@ export default class GridExt {
       let color = null;
 
       if (zoom > 1 && this._useDynamicColor) {
-        dynColor.a = 1 - zoom % this._zoomMultiplier / this._zoomMultiplier;
+        dynColor.a = 1 - (zoom % this._zoomMultiplier) / this._zoomMultiplier;
       }
 
       // horizontal shift ||||||||
