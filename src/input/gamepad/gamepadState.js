@@ -1,6 +1,3 @@
-import { EventManager } from "common/eventManager";
-import { CONSTANTS } from "common/constants";
-
 export default class GamepadState {
   constructor(gamepadInfo) {
     this.gamepadInfo = gamepadInfo;
