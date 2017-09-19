@@ -17,6 +17,7 @@ AttributeDictionary.addRule("text", "_textureSrc", {
   displayName: "Font Image Src",
   editor: "filepath"
 });
+
 AttributeDictionary.addRule("text", "_color", { displayName: "Color" });
 AttributeDictionary.addRule("text", "_text", { displayName: "Text" });
 AttributeDictionary.addRule("text", "_texture", { visible: false });
@@ -99,7 +100,7 @@ export default class Text extends GameObject {
 
   //#region Static Methods
 
-  static restore(data) {
+  static async restore(data) {
     let superRestore = super.restore(data);
 
     let text = new Text();
@@ -118,9 +119,7 @@ export default class Text extends GameObject {
     text.setDropShadowOffset(Vector2.restore(data.dropShadowOffset));
     text.setDebug(data.debug);
 
-    text.setTextureSrc(data.textureSrc);
-
-    return Objectify.extend(text, superRestore);
+    return Objectify.extend(await text.setTextureSrc(data.textureSrc), superRestore);
   }
 
   //#endregion
