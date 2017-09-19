@@ -4,8 +4,8 @@ import Logger from "common/logger";
 import GameManager from "./gameManager";
 import WebGLContext from "webgl/webGLContext";
 import ShaderManager from "shaders/shaderManager";
-import Keys from "input/keys";
-import { Keyboard } from "input/keyboard";
+import Keys from "input/keyboard/keys";
+import { Keyboard } from "input/keyboard/keyboard";
 import { isString, isObjectAssigned, isFunction } from "common/utils";
 import Utils from "utility/utils";
 

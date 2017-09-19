@@ -1,0 +1,38 @@
+<html>
+
+<head>
+  <script src="../../build/browser/scarlett-framework.browser.js"></script>
+
+</head>
+
+<body>
+<script type="text/javascript">
+  
+  
+  let _animframe = () => {
+  
+      let gamepad1 = SC.Gamepad.getGamepadState(0);
+      
+      if (gamepad1 === null) {
+          console.log("gamepad not found");
+          
+      } else {
+          console.log("IsButtonPressed0: " + gamepad1.isButtonPressed(7));
+          console.log("ButtonValue0: " + gamepad1.getButtonValue(7));
+          console.log("Axis: " + gamepad1.getAxisValue(0));
+      }
+      
+      //console.log("IsButtonPressed0: " + SC.Gamepad.isButtonPressed(0, 0));
+      //console.log("IsButtonPressed1: " + SC.Gamepad.isButtonPressed(0, 1));
+      
+      requestAnimationFrame(_animframe);
+  };
+  
+  _animframe();
+  
+  
+
+</script>
+</body>
+
+</html>
