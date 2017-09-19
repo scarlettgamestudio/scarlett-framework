@@ -79,7 +79,7 @@ function generateUID() {
  * @returns {*}
  */
 function capitalize(string) {
-  return _.capitalize(string);
+  return _.upperFirst(string);
 }
 
 /**
