@@ -1,4 +1,5 @@
-# Scarlett Framework
+![alt tag](https://scarlett.cothesia.com/attachments/images/scarlett_logo.png)
+
 Scarlett WebGL Graphics Framework repository
 
 ![alt tag](http://scarlett.anlagehub.com/public/images/framework-banner.png)
