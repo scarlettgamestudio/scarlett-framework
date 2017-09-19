@@ -119,7 +119,9 @@ export default class Text extends GameObject {
     text.setDropShadowOffset(Vector2.restore(data.dropShadowOffset));
     text.setDebug(data.debug);
 
-    return Objectify.extend(await text.setTextureSrc(data.textureSrc), superRestore);
+    await text.setTextureSrc(data.textureSrc);
+
+    return Objectify.extend(text, superRestore);
   }
 
   //#endregion

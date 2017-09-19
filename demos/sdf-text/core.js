@@ -89,14 +89,14 @@ gameScene.initialize = function() {
 
   var background = new Sprite({ texture: backgroundTex });
   background.setWrapMode(WrapMode.REPEAT);
-  SC.assignScript("backgroundAgent", background);
+  //SC.assignScript("backgroundAgent", background);
   //gameScene.addGameObject(background);
 
   player = new Sprite({ texture: playerTex });
   player.transform.setPosition(-300, 0);
   player.transform.setScale(0.5);
   player.transform.setRotation(MathHelper.PI);
-  SC.assignScript("playerInput", player);
+  //SC.assignScript("playerInput", player);
   //gameScene.addGameObject(player);
   //gameScene.addGameObject(text);
 };
@@ -122,42 +122,30 @@ function initializeTextDependencies(fontDescription, textTexture) {
 
   text.unload();
 
-  newText = Text.restore(data);
+  Text.restore(data).then(restoredText => {
+    newText = restoredText;
+    // set initial text area value
+    document.getElementById("str").value = newText.getText();
+    document.getElementById("stroke").value = newText.getStroke().getSize();
+    document.getElementById("dropShadow").value = newText.getDropShadow().getSize();
+    document.getElementById("dropShadowOffsetX").value = newText.getDropShadowOffset().x;
+    document.getElementById("dropShadowOffsetY").value = newText.getDropShadowOffset().y;
 
-  // set initial text area value
-  document.getElementById("str").value = newText.getText();
-  document.getElementById("stroke").value = newText.getStroke().getSize();
-  document.getElementById(
-    "dropShadow"
-  ).value = newText.getDropShadow().getSize();
-  document.getElementById(
-    "dropShadowOffsetX"
-  ).value = newText.getDropShadowOffset().x;
-  document.getElementById(
-    "dropShadowOffsetY"
-  ).value = newText.getDropShadowOffset().y;
+    document.getElementById("scale").value = newText.getFontSize();
+    document.getElementById("gamma").value = newText.getGamma();
 
-  document.getElementById("scale").value = newText.getFontSize();
-  document.getElementById("gamma").value = newText.getGamma();
+    document.getElementById("letterSpacing").value = newText.getLetterSpacing();
 
-  document.getElementById("letterSpacing").value = newText.getLetterSpacing();
+    document.getElementById("wordwrap").checked = newText.getWordWrap();
+    document.getElementById("charwrap").checked = newText.getCharacterWrap();
+    document.getElementById("debug").checked = newText.getDebug();
+    document.getElementById("dropShadowEnabled").checked = newText.getDropShadowEnabled();
+    document.getElementById("outlineEnabled").checked = newText.getStrokeEnabled();
 
-  document.getElementById("wordwrap").checked = newText.getWordWrap();
-  document.getElementById("charwrap").checked = newText.getCharacterWrap();
-  document.getElementById("debug").checked = newText.getDebug();
-  document.getElementById(
-    "dropShadowEnabled"
-  ).checked = newText.getDropShadowEnabled();
-  document.getElementById(
-    "outlineEnabled"
-  ).checked = newText.getStrokeEnabled();
-
-  document.getElementById("alignLeft").checked =
-    newText.getAlign() == Text.AlignType.LEFT;
-  document.getElementById("alignCenter").checked =
-    newText.getAlign() == Text.AlignType.CENTER;
-  document.getElementById("alignRight").checked =
-    newText.getAlign() == Text.AlignType.RIGHT;
+    document.getElementById("alignLeft").checked = newText.getAlign() == Text.AlignType.LEFT;
+    document.getElementById("alignCenter").checked = newText.getAlign() == Text.AlignType.CENTER;
+    document.getElementById("alignRight").checked = newText.getAlign() == Text.AlignType.RIGHT;
+  });
 }
 
 document.getElementById("str").oninput = updateValues;
@@ -200,17 +188,13 @@ function updateValues() {
 
   var align = +document.getElementById("alignLeft").checked
     ? Text.AlignType.LEFT
-    : +document.getElementById("alignCenter").checked
-      ? Text.AlignType.CENTER
-      : Text.AlignType.RIGHT;
+    : +document.getElementById("alignCenter").checked ? Text.AlignType.CENTER : Text.AlignType.RIGHT;
 
   newText.setText(str);
   newText.setGamma(gamma);
   newText.setFontSize(scale);
   newText.getStroke().setSize(stroke);
-  newText.setDropShadowOffset(
-    new Vector2(dropshadowOffsetX, dropshadowOffsetY)
-  );
+  newText.setDropShadowOffset(new Vector2(dropshadowOffsetX, dropshadowOffsetY));
   newText.getDropShadow().setSize(dropShadowSmoothing);
   newText.setWordWrap(wordWrap);
   newText.setCharacterWrap(charWrap);
@@ -267,7 +251,7 @@ gameScene.dispatchEnemies = function() {
     enemy.transform.setScale(0.6);
     enemy.transform.lookAt(player.transform.getPosition());
     //enemy.transform.setRotation(-MathHelper.PIo2);
-    sc.assignScript("enemyAgent", enemy);
+    //sc.assignScript("enemyAgent", enemy);
 
     enemies.push(enemy);
   }
