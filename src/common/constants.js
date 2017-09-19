@@ -14,7 +14,14 @@ export const CONSTANTS = {
     ATLAS: ".atl"
   },
   EVENTS: {
-    CONTENT_ASSET_LOADED: "editor_updatePropertyEditorView"
+    // general:
+    CONTENT_ASSET_LOADED: "editor_updatePropertyEditorView",
+
+    // input:
+    INPUT: {
+      GAMEPAD_CONNECTED: "input_gamepadConnected",
+      GAMEPAD_DISCONNECTED: "input_gamepadDisconnected"
+    }
   }
 };
 
