@@ -1,5 +1,6 @@
 import { isString } from "common/utils";
-import BMFontParserAscii from "./bmFontParserAscii";
+import BMFontParseASCII from "parse-bmfont-ascii";
+import BMFontParseXML from "parse-bmfont-xml";
 
 /**
  * BM Font Parser Utility Class
@@ -27,12 +28,17 @@ export default class BMFontParser {
       return null;
     }
 
-    if (/json/.test(contentType) || content.charAt(0) === "{") {
-      result = JSON.parse(content);
-    } else if (/xml/.test(contentType) || content.charAt(0) === "<") {
-      // TODO: parse xml bm font
-    } else {
-      result = BMFontParserAscii.parseASCII(content);
+    try {
+      if (/json/.test(contentType) || content.charAt(0) === "{") {
+        result = JSON.parse(content);
+      } else if (/xml/.test(contentType) || content.charAt(0) === "<") {
+        result = BMFontParseXML(content);
+      } else {
+        result = BMFontParseASCII(content);
+      }
+    } catch (error) {
+      console.error("Something went wrong while attempting to parse bmfont file.\n" + error);
+      result = null;
     }
 
     return result;
