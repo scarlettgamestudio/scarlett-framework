@@ -199,8 +199,9 @@ export default class GameObject {
       component.setGameObject(this);
     }
 
-    // set the related component game object:
+    // assert the related component game object and transform references:
     component.gameObject = this;
+    component.transform = this.transform;
 
     this._components.push(component);
   }
