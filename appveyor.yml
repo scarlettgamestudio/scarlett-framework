@@ -4,14 +4,14 @@ environment:
 
 cache:
   - node_modules # local npm modules
-  - '%APPDATA%\npm-cache' # npm cache
+  - "%LOCALAPPDATA%\\Yarn"
 
 # Install scripts. (runs after repo cloning)
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   # install modules
-  - npm install
+  - yarn install
 
 branches:
   only:
@@ -22,9 +22,9 @@ branches:
 test_script:
   # Output useful info for debugging.
   - node --version
-  - npm --version
+  - yarn --version
   # run tests
-  - npm run test
+  - yarn run test
 
 # Don't actually build.
 build: off
