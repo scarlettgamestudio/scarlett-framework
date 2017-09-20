@@ -12,6 +12,8 @@ script:
   - yarn run validate
 after_success:
   - yarn run report-coverage
+# use a bash script to determine 
+# if we are at master when running semantic-release
 #- yarn run semantic-release
 branches:
   only:
