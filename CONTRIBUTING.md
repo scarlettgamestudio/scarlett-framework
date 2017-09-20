@@ -8,8 +8,8 @@ Thanks for being willing to contribute!
 ## Project setup
 
 1. Fork and clone the repo
-2. `$ npm install` to install dependencies
-3. `$ npm run validate` to validate you've got it working
+2. `$ yarn` to install dependencies
+3. `$ yarn run validate` to validate you've got it working
 4. Create a branch for your PR
 
 ## Committing and Pushing changes
@@ -23,7 +23,7 @@ You can use `commitizen` to help you to follow [the convention][convention]
 Once you are ready to commit the changes, please use the below commands
 
 1. `git add <files to be committed>`
-2. `$ npm run commit`
+2. `$ yarn run commit`
 
 ... and follow the instruction of the interactive prompt.
 
