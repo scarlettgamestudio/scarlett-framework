@@ -6,18 +6,21 @@ export default class FileContext {
      *
      * @param {*} headers
      * @param {String} content
+     * @param {String} filepath
      */
-  constructor(headers, content) {
+  constructor(headers, content, filepath) {
     this.headers = headers;
     this.content = content;
+    this.filepath = filepath;
   }
 
   /**
      * Creates a file context from a XHR object
      * @param {XMLHttpRequest} xhr
+     * @param {path} filepath
      * @returns {FileContext}
      */
-  static fromXHR(xhr) {
+  static fromXHR(xhr, filepath) {
     let headers = {};
 
     // iterate through every header line
@@ -42,6 +45,6 @@ export default class FileContext {
         headers[key] = value;
       });
 
-    return new FileContext(headers, xhr.responseText);
+    return new FileContext(headers, xhr.responseText, filepath);
   }
 }

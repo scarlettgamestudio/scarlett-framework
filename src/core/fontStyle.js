@@ -56,12 +56,11 @@ export default class FontStyle {
   setFontDescription(fontInfo) {
     // don't go further if fontInfo is invalid
     if (!isObjectAssigned(fontInfo)) {
-      throw new Error("fontInfo needs to be valid.");
+      console.error("font description (fontInfo) argument needs to be valid");
+      return;
     }
 
-    // TODO: make sure fontInfo follows bmfont format!
-
-    return (this._fontDescription = fontInfo);
+    this._fontDescription = fontInfo;
   }
 
   getFontDescriptionFilePath() {
@@ -69,14 +68,21 @@ export default class FontStyle {
   }
 
   async setFontDescriptionFilePath(filepath) {
-    const fileContext = await ContentLoader.loadFile(filepath, "openSansFont");
+    const fileContext = await ContentLoader.loadFile(filepath);
 
     if (fileContext === false) {
+      console.error("Unable to load the desired font file");
       return;
     }
 
     let parsedBMFont = BMFontParser.parse(fileContext);
 
+    // make sure parsing was successful
+    if (parsedBMFont == null) {
+      return;
+    }
+
+    // it should now be safe to set both description and filepath
     this.setFontDescription(parsedBMFont);
     this._fontDescriptionFilePath = filepath;
   }

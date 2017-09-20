@@ -484,7 +484,7 @@ class ContentLoaderSingleton {
       rawFile.open("GET", path, true);
       rawFile.onreadystatechange = () => {
         if (rawFile.readyState === 4 && rawFile.status === 200) {
-          const fileContext = FileContext.fromXHR(rawFile);
+          const fileContext = FileContext.fromXHR(rawFile, path);
           resolve(fileContext);
         } else if (rawFile.readyState === 4 && rawFile.status != 200) {
           reject(new Error("Could not load file."));

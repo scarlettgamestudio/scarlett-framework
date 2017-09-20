@@ -1,6 +1,7 @@
 import { isString } from "common/utils";
 import BMFontParseASCII from "parse-bmfont-ascii";
 import BMFontParseXML from "parse-bmfont-xml";
+import Utils from "utility/utils";
 
 /**
  * BM Font Parser Utility Class
@@ -13,18 +14,24 @@ export default class BMFontParser {
      * @param {FileContext} fileContext
      */
   static parse(fileContext) {
+    if (!Utils.isFileContext(fileContext)) {
+      console.error("Expected FileContext argument");
+      return null;
+    }
+
     let result;
     let contentType = fileContext.headers["content-type"];
 
-    // no need to go further if content type isn't a string
+    // if content type isn't valid,
     if (!isString(contentType)) {
-      // TODO: throw new error
-      //return null;
+      // make it an empty string and try to parse without it (fallback to ASCII)
+      contentType = "";
     }
 
     let content = fileContext.content;
 
     if (!isString(content) || content.trim().length === 0) {
+      console.error("Invalid file context content");
       return null;
     }
 

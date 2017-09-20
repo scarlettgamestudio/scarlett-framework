@@ -150,7 +150,9 @@ export default class Text extends GameObject {
     gl.enableVertexAttribArray(this._textShader.attributes.aTexCoord);
 
     // draw text
-    this._drawText();
+    if (this._drawText() === null) {
+      return;
+    }
 
     let cameraMatrix = GameManager.activeGame.getActiveCamera().getMatrix();
 
@@ -586,14 +588,14 @@ export default class Text extends GameObject {
     let fontStyle = this.getFontStyle();
 
     if (!fontStyle) {
-      return;
+      return null;
     }
 
     let fontDescription = fontStyle.getFontDescription();
 
     // don't go further if font description isn't valid either
     if (!fontDescription || !fontDescription.common || !fontDescription.common.lineHeight) {
-      return;
+      return null;
     }
 
     // line height; falls back to font size
@@ -604,7 +606,7 @@ export default class Text extends GameObject {
 
     // don't go further if scale is invalid
     if (!scale) {
-      return;
+      return null;
     }
 
     // create the lines to draw onto the screen

@@ -3,6 +3,7 @@ import GameScene from "core/gameScene";
 import Sprite from "core/sprite";
 import Texture2D from "core/texture2D";
 import Color from "core/color";
+import FileContext from "common/fileContext";
 
 /**
  * Utility class
@@ -52,5 +53,9 @@ export default class Utils {
  */
   static isColor(obj) {
     return obj instanceof Color;
+  }
+
+  static isFileContext(obj) {
+    return obj instanceof FileContext;
   }
 }
