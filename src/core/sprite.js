@@ -162,7 +162,7 @@ export default class Sprite extends GameObject {
       }
 
       this._atlas = atlas;
-      this._assignTextureFromPath(this._atlas.sourcePath);
+      await this._assignTextureFromPath(this._atlas.sourcePath);
 
       // FIXME: change to a more appropriate event?
       // this is currently being used so the property editor refreshes the view after the atlas
