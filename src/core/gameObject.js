@@ -6,7 +6,7 @@ import Boundary from "math/boundary";
 import Rectangle from "math/rectangle";
 import Objectify from "utility/objectify";
 import { AttributeDictionary } from "common/attributeDictionary";
-import { generateUID, isFunction, isObjectAssigned } from "common/utils";
+import { generateUID, isFunction, isObjectAssigned, indexOfArray } from "common/utils";
 
 AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
 AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
@@ -18,8 +18,8 @@ export default class GameObject {
   //#region Constructors
 
   /**
-     * @param {Object} params
-     */
+   * @param {Object} params
+   */
   constructor(params) {
     params = params || {};
 
@@ -74,6 +74,18 @@ export default class GameObject {
     return 1;
   }
 
+  /**
+   * Returns the index of the current object in the parent hierarchy
+   * @returns {*}
+   */
+  getIndex() {
+    if (isObjectAssigned(this._parent)) {
+      return indexOfArray(this._parent.getChildren(), this);
+    } else {
+      return indexOfArray(GameManager.activeScene.getGameObjects(), this);
+    }
+  }
+
   getType() {
     return "GameObject";
   }
@@ -91,9 +103,9 @@ export default class GameObject {
   }
 
   /**
-     * Resolves the GameObject transformation Matrix4
-     * @returns {Float32Array}
-     */
+   * Resolves the GameObject transformation Matrix4
+   * @returns {Float32Array}
+   */
   getMatrix() {
     this._transformMatrix.identity();
     this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
@@ -125,7 +137,7 @@ export default class GameObject {
       }
     } else {
       // does the object has a parent?
-      if (this.getParent() != null) {
+      if (this.getParent() !== null) {
         this.getParent().removeChild(this);
       } else {
         // maybe is part of a game scene root hierarchy?
@@ -141,7 +153,7 @@ export default class GameObject {
 
   removeChild(gameObject) {
     for (let i = this._children.length - 1; i >= 0; i--) {
-      if (this._children[i].getUID() == gameObject.getUID()) {
+      if (this._children[i].getUID() === gameObject.getUID()) {
         return this._children.splice(i, 1);
       }
     }
@@ -160,7 +172,7 @@ export default class GameObject {
 
     // add this to our children array
     if (isObjectAssigned(index)) {
-      this._children.insert(index, gameObject);
+      this._children.splice(index, 0, gameObject);
     } else {
       this._children.push(gameObject);
     }
@@ -170,6 +182,7 @@ export default class GameObject {
     if (this._parent) {
       return this._parent.getHierarchyHash() + "." + this._uid;
     }
+
     return this._uid + "";
   }
 
@@ -179,19 +192,20 @@ export default class GameObject {
     let hierarchyHash = gameObject.getHierarchyHash().split(".");
     let thisIndex = hierarchyHash.indexOf(this._uid + ""),
       otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
+
     return otherIndex > thisIndex && thisIndex >= 0;
 
     // this way takes away more resources:
     /*for (var i = 0; i < this._children.length; ++i) {
-         if (this._children[i].equals(gameObject)) {
-         return true;
-         } else {
-         if (this._children[i].isChild(gameObject)) {
-         return true;
-         }
-         }
-         }
-         return false;*/
+     if (this._children[i].equals(gameObject)) {
+     return true;
+     } else {
+     if (this._children[i].isChild(gameObject)) {
+     return true;
+     }
+     }
+     }
+     return false;*/
   }
 
   addComponent(component) {
