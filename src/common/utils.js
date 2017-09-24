@@ -84,12 +84,12 @@ function generateUID() {
  * @returns {*}
  */
 function capitalize(string) {
-  return _.capitalize(string);
+  return _.upperFirst(string);
 }
 
 /**
  * Split camel case
- * TODO: change to lodash startCase?
+ * TODO: change to loadash startCase?
  * @param string
  * @returns {string}
  */

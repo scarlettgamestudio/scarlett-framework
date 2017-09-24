@@ -31,11 +31,11 @@ class EventManagerSingleton {
   //#endregion
 
   /**
-     *
-     * @param topic
-     * @param callback
-     * @param context (optional)
-     */
+   *
+   * @param topic
+   * @param callback
+   * @param context (optional)
+   */
   subscribe(topic, callback, context) {
     if (!this._handlers.hasOwnProperty(topic)) {
       this._handlers[topic] = [];
@@ -48,10 +48,10 @@ class EventManagerSingleton {
   }
 
   /**
-     * Removes the subscription of a topic
-     * @param topic
-     * @param callback (for reference)
-     */
+   * Removes the subscription of a topic
+   * @param topic
+   * @param callback (for reference)
+   */
   removeSubscription(topic, callback) {
     if (!this._handlers[topic]) {
       return;
@@ -71,9 +71,9 @@ class EventManagerSingleton {
   }
 
   /**
-     *
-     * @param topic
-     */
+   *
+   * @param topic
+   */
   emit(topic) {
     // get the remaining arguments (if exist)
     let args = [],
@@ -100,8 +100,8 @@ class EventManagerSingleton {
   }
 
   /**
-     * Clears all subscriptions
-     */
+   * Clears all subscriptions
+   */
   clear() {
     this._handlers = {};
   }
