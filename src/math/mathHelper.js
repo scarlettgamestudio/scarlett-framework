@@ -103,7 +103,8 @@ export default class MathHelper {
     let denominator = maxX - minX;
 
     if (denominator === 0) {
-      throw new Error("Division by 0 not allowed");
+      console.error("Division by 0 not allowed. Returning 0.");
+      return 0;
     }
 
     let numerator = x - minX;

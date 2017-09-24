@@ -6,6 +6,7 @@ import TextShader from "shaders/textShader";
 import GameObject from "core/gameObject";
 import Color from "core/color";
 import Stroke from "core/stroke";
+import DropShadow from "core/dropshadow";
 import FontStyle from "core/fontStyle";
 import GameManager from "core/gameManager";
 import Texture2D from "core/texture2D";
@@ -18,12 +19,24 @@ AttributeDictionary.addRule("text", "_textureSrc", {
   editor: "filepath"
 });
 
-AttributeDictionary.addRule("text", "_color", { displayName: "Color" });
+AttributeDictionary.addRule("text", "_color", {
+  displayName: "Color"
+});
 AttributeDictionary.addRule("text", "_text", { displayName: "Text" });
 AttributeDictionary.addRule("text", "_texture", { visible: false });
 AttributeDictionary.addRule("text", "_fontStyle", { ownContainer: true });
-AttributeDictionary.addRule("text", "_stroke", { ownContainer: true });
-AttributeDictionary.addRule("text", "_dropShadow", { ownContainer: true });
+AttributeDictionary.addRule("text", "_stroke", {
+  ownContainer: true,
+  available: function() {
+    return this.getStrokeEnabled() ? true : false;
+  }
+});
+AttributeDictionary.addRule("text", "_dropShadow", {
+  ownContainer: true,
+  available: function() {
+    return this.getDropShadowEnabled() ? true : false;
+  }
+});
 
 // TODO: remove this... use game object boundary?
 const maxWidth = 500;
@@ -66,18 +79,14 @@ export default class Text extends GameObject {
 
     this._gamma = params.gamma || 2.0;
 
-    this._strokeEnabled = 1;
+    this._strokeEnabled = true;
     this._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
 
-    this._dropShadowEnabled = 1;
-    this._dropShadow = new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
-    // raw max offset
-    this._rawMaxDropShadowOffset = new Vector2(10, 10);
-    // raw offset from -raw offset to +raw offset
-    this._dropShadowOffset = new Vector2(7, 7);
+    this._dropShadowEnabled = true;
+    this._dropShadow = new DropShadow();
 
     // either 0 or 1
-    this._debug = 0;
+    this._debug = false;
 
     this._gl = GameManager.renderContext.getContext();
 
@@ -90,6 +99,7 @@ export default class Text extends GameObject {
     this._texture = null;
     this._textureWidth = 0;
     this._textureHeight = 0;
+
     // set text texture if defined
     this.setTexture(params.texture, "");
   }
@@ -114,9 +124,7 @@ export default class Text extends GameObject {
     text.setStrokeEnabled(data.strokeEnabled);
     text.setStroke(Stroke.restore(data.stroke));
     text.setDropShadowEnabled(data.dropShadowEnabled);
-    text.setDropShadow(Stroke.restore(data.dropShadow));
-    text.setRawMaxDropShadowOffset(Vector2.restore(data.rawMaxDropShadowOffset));
-    text.setDropShadowOffset(Vector2.restore(data.dropShadowOffset));
+    text.setDropShadow(DropShadow.restore(data.dropShadow));
     text.setDebug(data.debug);
 
     await text.setTextureSrc(data.textureSrc);
@@ -167,11 +175,11 @@ export default class Text extends GameObject {
     gl.uniform1i(this._textShader.uniforms.uTexture._location, 0);
 
     // debug
-    gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug);
+    gl.uniform1f(this._textShader.uniforms.uDebug._location, this._debug ? 1 : 0);
     // stroke outline
-    gl.uniform1f(this._textShader.uniforms.uOutline._location, this._strokeEnabled);
+    gl.uniform1f(this._textShader.uniforms.uOutline._location, this._strokeEnabled ? 1 : 0);
     // drop shadow
-    gl.uniform1f(this._textShader.uniforms.uDropShadow._location, this._dropShadowEnabled);
+    gl.uniform1f(this._textShader.uniforms.uDropShadow._location, this._dropShadowEnabled ? 1 : 0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
     gl.vertexAttribPointer(this._textShader.attributes.aPos, 2, gl.FLOAT, false, 0, 0);
@@ -191,7 +199,9 @@ export default class Text extends GameObject {
     gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, this.getNormalizedStrokeSize());
 
     // drop shadow color
-    let dropShadowColor = this.getDropShadow().getColor();
+    let dropShadowColor = this.getDropShadow()
+      .getStroke()
+      .getColor();
     gl.uniform4fv(this._textShader.uniforms.uDropShadowColor._location, [
       dropShadowColor.r,
       dropShadowColor.g,
@@ -247,6 +257,9 @@ export default class Text extends GameObject {
   // probably similar to sprite... think carefully about scaling?
   getMatrix() {
     let x, y;
+
+    // generated with 32px by default
+    // we can consider the original transform as 32px (100%) and do the math from there
 
     x = this.transform.getPosition().x;
     y = this.transform.getPosition().y;
@@ -335,7 +348,7 @@ export default class Text extends GameObject {
 
   /**
      * Sets the drop shadow effect of the text
-     * @param {Stroke} shadow drop shadow effect of the text
+     * @param {DropShadow} shadow drop shadow effect of the text
      */
   setDropShadow(shadow) {
     this._dropShadow = shadow;
@@ -361,32 +374,6 @@ export default class Text extends GameObject {
     this._fontStyle = fontStyle;
   }
 
-  getDropShadowOffset() {
-    return this._dropShadowOffset;
-  }
-
-  /**
-     *
-     * @param {Vector2} offset the shadow offset vector
-     */
-  setDropShadowOffset(offset) {
-    if (!(offset instanceof Vector2)) {
-      throw new Error("The given raw max drop shadow offset is invalid");
-    }
-    this._dropShadowOffset = offset;
-  }
-
-  getRawMaxDropShadowOffset() {
-    return this._rawMaxDropShadowOffset;
-  }
-
-  setRawMaxDropShadowOffset(offset) {
-    if (!(offset instanceof Vector2)) {
-      throw new Error("The given raw max drop shadow offset is invalid");
-    }
-    this._rawMaxDropShadowOffset = offset;
-  }
-
   getNormalizedStrokeSize() {
     // stroke size
     // max shader value is 0.5
@@ -403,8 +390,10 @@ export default class Text extends GameObject {
   getNormalizedDropShadowSmoothing() {
     // drop shadow stroke (smoothing) size
     // eslint-disable-next-line
+    const stroke = this.getDropShadow().getStroke();
+
     // (raw value = between 0 and 10) * (actual shader max value = 0.5) / (max raw value = 10)
-    return MathHelper.normalize(this.getDropShadow().getSize(), 0, this.getDropShadow().getMaxSize(), 0, 0.5);
+    return MathHelper.normalize(stroke.getSize(), 0, stroke.getMaxSize(), 0, 0.5);
   }
 
   get maxDropShadowOffsetX() {
@@ -427,20 +416,21 @@ export default class Text extends GameObject {
     // e.g., 4 / 512
     // need to normalize between those values
 
-    let dropShadowOffset = this.getDropShadowOffset();
+    let dropShadowOffset = this.getDropShadow().getOffset();
+    let maxDropShadowOffset = this.getDropShadow().getRawMaxOffset();
 
     let normalizedX = MathHelper.normalize(
       dropShadowOffset.x,
-      -1 * this.getRawMaxDropShadowOffset().x,
-      this.getRawMaxDropShadowOffset().x,
+      -1 * maxDropShadowOffset.x,
+      maxDropShadowOffset.x,
       -1 * this.maxDropShadowOffsetX,
       this.maxDropShadowOffsetX
     );
 
     let normalizedY = MathHelper.normalize(
       dropShadowOffset.y,
-      -1 * this.getRawMaxDropShadowOffset().y,
-      this.getRawMaxDropShadowOffset().y,
+      -1 * maxDropShadowOffset.y,
+      maxDropShadowOffset.y,
       -1 * this.maxDropShadowOffsetY,
       this.maxDropShadowOffsetY
     );
@@ -481,9 +471,7 @@ export default class Text extends GameObject {
   }
 
   setDebug(value) {
-    value = MathHelper.clamp(value, 0, 1);
-
-    this._debug = value;
+    this._debug = value ? true : false;
   }
 
   getDebug() {
@@ -491,9 +479,7 @@ export default class Text extends GameObject {
   }
 
   setDropShadowEnabled(value) {
-    value = MathHelper.clamp(value, 0, 1);
-
-    this._dropShadowEnabled = value;
+    this._dropShadowEnabled = value ? true : false;
   }
 
   getDropShadowEnabled() {
@@ -501,9 +487,7 @@ export default class Text extends GameObject {
   }
 
   setStrokeEnabled(value) {
-    value = MathHelper.clamp(value, 0, 1);
-
-    this._strokeEnabled = value;
+    this._strokeEnabled = value ? true : false;
   }
 
   getStrokeEnabled() {
@@ -556,8 +540,6 @@ export default class Text extends GameObject {
       stroke: this.getStroke().objectify(),
       dropShadowEnabled: this.getDropShadowEnabled(),
       dropShadow: this.getDropShadow().objectify(),
-      rawMaxDropShadowOffset: this.getRawMaxDropShadowOffset().objectify(),
-      dropShadowOffset: this.getDropShadowOffset().objectify(),
       debug: this.getDebug(),
       textureSrc: this.getTextureSrc()
     });

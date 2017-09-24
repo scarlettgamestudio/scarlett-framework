@@ -127,9 +127,12 @@ function initializeTextDependencies(fontDescription, textTexture) {
     // set initial text area value
     document.getElementById("str").value = newText.getText();
     document.getElementById("stroke").value = newText.getStroke().getSize();
-    document.getElementById("dropShadow").value = newText.getDropShadow().getSize();
-    document.getElementById("dropShadowOffsetX").value = newText.getDropShadowOffset().x;
-    document.getElementById("dropShadowOffsetY").value = newText.getDropShadowOffset().y;
+    document.getElementById("dropShadow").value = newText
+      .getDropShadow()
+      .getStroke()
+      .getSize();
+    document.getElementById("dropShadowOffsetX").value = newText.getDropShadow().getOffset().x;
+    document.getElementById("dropShadowOffsetY").value = newText.getDropShadow().getOffset().y;
 
     document.getElementById("scale").value = newText.getFontSize();
     document.getElementById("gamma").value = newText.getGamma();
@@ -194,8 +197,11 @@ function updateValues() {
   newText.setGamma(gamma);
   newText.setFontSize(scale);
   newText.getStroke().setSize(stroke);
-  newText.setDropShadowOffset(new Vector2(dropshadowOffsetX, dropshadowOffsetY));
-  newText.getDropShadow().setSize(dropShadowSmoothing);
+  newText.getDropShadow().setOffset(new Vector2(dropshadowOffsetX, dropshadowOffsetY));
+  newText
+    .getDropShadow()
+    .getStroke()
+    .setSize(dropShadowSmoothing);
   newText.setWordWrap(wordWrap);
   newText.setCharacterWrap(charWrap);
   newText.setDebug(debug);
