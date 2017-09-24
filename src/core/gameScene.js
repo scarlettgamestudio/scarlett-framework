@@ -95,7 +95,7 @@ export default class GameScene {
     gameObject.removeParent();
 
     if (isObjectAssigned(index)) {
-      this._gameObjects.insert(index, gameObject);
+      this._gameObjects.splice(index, 0, gameObject);
     } else {
       this._gameObjects.push(gameObject);
     }
@@ -107,7 +107,7 @@ export default class GameScene {
 
   removeGameObject(gameObject) {
     for (let i = this._gameObjects.length - 1; i >= 0; i--) {
-      if (this._gameObjects[i].getUID() == gameObject.getUID()) {
+      if (this._gameObjects[i].getUID() === gameObject.getUID()) {
         return this._gameObjects.splice(i, 1);
       }
     }

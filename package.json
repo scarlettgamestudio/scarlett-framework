@@ -19,7 +19,7 @@
     "live-server:editor": "cross-env NODE_ENV=editor npm run live-server",
     "live-server:deploy": "cross-env NODE_ENV=production npm run live-server",
     "watch": "npm run build -- -w",
-    "dev": "cross-env NODE_ENV=es6 npm run build -- -w",
+    "dev": "cross-env NODE_ENV=editor npm run build -- -w",
     "test": "jest --coverage",
     "watch:test": "cross-env CI=true jest --watch",
     "report-coverage": "codecov",

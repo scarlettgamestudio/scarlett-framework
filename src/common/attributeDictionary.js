@@ -88,7 +88,7 @@ class AttributeDictionarySingleton {
 
   /**
      *
-     * @param typeName
+     * @param context
      * @param parent
      */
   inherit(context, parent) {

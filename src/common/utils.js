@@ -15,8 +15,13 @@ export {
   splitCamelCase,
   capitalize,
   getType,
-  isEqual
+  isEqual,
+  indexOfArray
 };
+
+function indexOfArray(array, value) {
+  return _.indexOf(array, value);
+}
 
 /**
  * Returns true if there is something assigned to the given object
@@ -64,13 +69,13 @@ function inheritsFrom(child, parent) {
 }
 
 /**
- * Generates a unique natural number
+ * Generates a unique string id
  * @type {number}
  * @private
  */
-var _SS_UID = 0;
+let _SS_UID = 0;
 function generateUID() {
-  return ++_SS_UID;
+  return (++_SS_UID).toString();
 }
 
 /**
@@ -84,7 +89,7 @@ function capitalize(string) {
 
 /**
  * Split camel case
- * TODO: change to lodash startCase?
+ * TODO: change to loadash startCase?
  * @param string
  * @returns {string}
  */
