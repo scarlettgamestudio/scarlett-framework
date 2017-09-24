@@ -18,20 +18,12 @@
     "build:deploy":
       "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
     "build:all": "rimraf build && run-p build build:editor build:deploy",
-<<<<<<< HEAD
-    "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
-    "live-server:editor": "cross-env NODE_ENV=editor npm run live-server",
-    "live-server:deploy": "cross-env NODE_ENV=production npm run live-server",
-    "watch": "npm run build -- -w",
-    "dev": "cross-env NODE_ENV=editor npm run build -- -w",
-=======
     "live-server":
       "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
     "live-server:editor": "cross-env NODE_ENV=editor yarn run live-server",
     "live-server:deploy": "cross-env NODE_ENV=production yarn run live-server",
     "watch": "yarn run build -- -w",
     "dev": "cross-env NODE_ENV=editor yarn run build -- -w",
->>>>>>> chore: change package manager to yarn
     "test": "jest --coverage",
     "watch:test": "cross-env CI=true jest --watch",
     "report-coverage": "codecov",
