@@ -1,9 +1,6 @@
 import Color from "core/color";
 import Stroke from "core/stroke";
 import Vector2 from "math/vector2";
-import { AttributeDictionary } from "common/attributeDictionary";
-
-AttributeDictionary.addRule("dropshadow", "_stroke", { ownContainer: true });
 
 /**
  * DropShadow Class
@@ -20,7 +17,7 @@ export default class DropShadow {
      * @constructor
      */
   constructor(stroke, offset, maxOffset) {
-    this._stroke = stroke instanceof Stroke ? stroke : new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
+    this.stroke = stroke instanceof Stroke ? stroke : new Stroke(Color.fromRGBA(0, 0, 0, 1.0), 5.0);
     // raw max offset
     this._rawMaxOffset = offset instanceof Vector2 ? offset : new Vector2(10, 10);
     // raw offset from -raw offset to +raw offset
@@ -46,7 +43,7 @@ export default class DropShadow {
   //#region Public Methods
 
   getStroke() {
-    return this._stroke;
+    return this.stroke;
   }
 
   /**
@@ -55,7 +52,7 @@ export default class DropShadow {
      */
   setStroke(stroke) {
     if (stroke instanceof Stroke) {
-      this._stroke = stroke;
+      this.stroke = stroke;
     }
   }
 
