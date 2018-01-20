@@ -101,7 +101,7 @@ export default class FontStyle {
      * @returns {number|null} font style scale or null if invalid
      */
   getScale() {
-    let metricsSize = this.getFontDescription().info.size;
+    let metricsSize = 72; //this.getFontDescription().info.size;
 
     // TODO: possibly validated in setFontInfo instead?
     if (!metricsSize) {

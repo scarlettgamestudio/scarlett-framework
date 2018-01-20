@@ -66,7 +66,7 @@ export default class Text extends GameObject {
     super(params);
 
     this._fontStyle = new FontStyle(params.font || {}, params.fontFilePath || "");
-    this._fontStyle.setFontSize(params.fontSize || 70.0);
+    this._fontStyle.setFontSize(params.fontSize || 72.0);
     this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
     this._fontStyle.setSpread(params.spread || 4);
 
@@ -833,7 +833,7 @@ export default class Text extends GameObject {
 
     // TODO: not sure kern should actually be
     // added to the pen or just help with the offset when drawing.
-    pen.x = pen.x + fontStyle.getLetterSpacing() + (xAdvance + kern) * scale;
+    pen.x = pen.x + fontStyle.getLetterSpacing() + (xAdvance + kern - 10) * scale;
 
     // return the last glyph ascii code
     return asciiCode;

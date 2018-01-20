@@ -26,6 +26,10 @@ export default class TextShader extends Shader {
         "}"
       ].join("\n"),
       fragment: [
+        "#ifdef GL_OES_standard_derivatives",
+        "#extension GL_OES_standard_derivatives : enable",
+        "#endif",
+
         "#ifdef GL_ES",
         "   precision mediump float;",
         "#endif",
@@ -46,6 +50,15 @@ export default class TextShader extends Shader {
 
         "varying vec2 vTexCoord;",
 
+        "float aastep(float value) {",
+        "  #ifdef GL_OES_standard_derivatives",
+        "    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;",
+        "  #else",
+        "    float afwidth = (1.0 / 72.0) * (1.4142135623730951 / (2.0 * gl_FragCoord.w));",
+        "  #endif",
+        "  return smoothstep(0.5 - afwidth, 0.5 + afwidth, value);",
+        "}",
+
         "void main() {",
         "   float distance = texture2D(uTexture, vTexCoord).a;",
         "   vec4 finalColor = uColor;",
@@ -60,7 +73,7 @@ export default class TextShader extends Shader {
         "       float alpha = smoothstep(uOutlineDistance - uGamma, " + "uOutlineDistance + uGamma, distance);",
         "       finalColor = vec4(color.rgb, color.a * alpha);",
         "   } else {",
-        "       float alpha = " + "smoothstep(0.5 - uGamma, 0.5 + uGamma, distance);",
+        "       float alpha = aastep(distance);",
         "       finalColor = vec4(uColor.rgb, uColor.a * alpha);",
         "   }",
         // drop shadow effect

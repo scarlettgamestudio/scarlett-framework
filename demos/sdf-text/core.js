@@ -4,6 +4,9 @@ var DISPLAY_HEIGHT = 720,
   HALF_DISPLAY_HEIGHT = DISPLAY_HEIGHT / 2;
 var ENEMY_BURST_DELAY = 5;
 
+const OpenTypeBmFont = require("opentype-bmfont");
+let BmFont = new OpenTypeBmFont();
+
 var Game = SC.Game;
 var GameScene = SC.GameScene;
 var ContentLoader = SC.ContentLoader;
@@ -49,7 +52,7 @@ ContentLoader.loadAll({
     { path: "assets/background.jpg", alias: "background" }
   ],
   files: [{ path: "assets/fnt/open-sans-sdf.fnt", alias: "openSansFont" }]
-}).then(function(result) {
+}).then(async function(result) {
   var images = result[0];
   var files = result[1];
   var audios = result[2];
@@ -74,9 +77,22 @@ ContentLoader.loadAll({
 
   // either BMFontParser.parse(files[0]);
   // or BMFontParser.parse(ContentLoader.getFile("openSansFont"))
-  var parsedBMFont = BMFontParser.parse(ContentLoader.getFile("openSansFont"));
 
-  initializeTextDependencies(parsedBMFont, textTexture);
+  await BmFont.createBitmap("assets/fnt/OpenSans-Regular.ttf", {}, function(err, result) {
+    if (err != null) {
+      return;
+    }
+
+    let textTexture = new Texture2D(result.JSON.pages[0]);
+
+    //var font = new Sprite({ texture: textTexture });
+    //font.transform.setPosition(0, 200);
+    //gameScene.addGameObject(font);
+
+    var parsedBMFont = result.JSON; //BMFontParser.parse(filecontextobj);
+
+    initializeTextDependencies(parsedBMFont, textTexture);
+  });
 });
 
 gameScene.initialize = function() {
@@ -116,39 +132,39 @@ function initializeTextDependencies(fontDescription, textTexture) {
   text.transform.setPosition(-300, -180);
   text.setColor(Color.fromRGBA(232, 78, 64, 1.0));
 
-  var data = text.objectify();
+  //var data = text.objectify();
 
-  console.log(data);
+  //console.log(data);
 
-  text.unload();
+  //text.unload();
 
-  Text.restore(data).then(restoredText => {
-    newText = restoredText;
-    // set initial text area value
-    document.getElementById("str").value = newText.getText();
-    document.getElementById("stroke").value = newText.getStroke().getSize();
-    document.getElementById("dropShadow").value = newText
-      .getDropShadow()
-      .getStroke()
-      .getSize();
-    document.getElementById("dropShadowOffsetX").value = newText.getDropShadow().getOffset().x;
-    document.getElementById("dropShadowOffsetY").value = newText.getDropShadow().getOffset().y;
+  //Text.restore(data).then(restoredText => {
+  newText = text;
+  // set initial text area value
+  document.getElementById("str").value = newText.getText();
+  document.getElementById("stroke").value = newText.getStroke().getSize();
+  document.getElementById("dropShadow").value = newText
+    .getDropShadow()
+    .getStroke()
+    .getSize();
+  document.getElementById("dropShadowOffsetX").value = newText.getDropShadow().getOffset().x;
+  document.getElementById("dropShadowOffsetY").value = newText.getDropShadow().getOffset().y;
 
-    document.getElementById("scale").value = newText.getFontSize();
-    document.getElementById("gamma").value = newText.getGamma();
+  document.getElementById("scale").value = newText.getFontSize();
+  document.getElementById("gamma").value = newText.getGamma();
 
-    document.getElementById("letterSpacing").value = newText.getLetterSpacing();
+  document.getElementById("letterSpacing").value = newText.getLetterSpacing();
 
-    document.getElementById("wordwrap").checked = newText.getWordWrap();
-    document.getElementById("charwrap").checked = newText.getCharacterWrap();
-    document.getElementById("debug").checked = newText.getDebug();
-    document.getElementById("dropShadowEnabled").checked = newText.getDropShadowEnabled();
-    document.getElementById("outlineEnabled").checked = newText.getStrokeEnabled();
+  document.getElementById("wordwrap").checked = newText.getWordWrap();
+  document.getElementById("charwrap").checked = newText.getCharacterWrap();
+  document.getElementById("debug").checked = newText.getDebug();
+  document.getElementById("dropShadowEnabled").checked = newText.getDropShadowEnabled();
+  document.getElementById("outlineEnabled").checked = newText.getStrokeEnabled();
 
-    document.getElementById("alignLeft").checked = newText.getAlign() == Text.AlignType.LEFT;
-    document.getElementById("alignCenter").checked = newText.getAlign() == Text.AlignType.CENTER;
-    document.getElementById("alignRight").checked = newText.getAlign() == Text.AlignType.RIGHT;
-  });
+  document.getElementById("alignLeft").checked = newText.getAlign() == Text.AlignType.LEFT;
+  document.getElementById("alignCenter").checked = newText.getAlign() == Text.AlignType.CENTER;
+  document.getElementById("alignRight").checked = newText.getAlign() == Text.AlignType.RIGHT;
+  //});
 }
 
 document.getElementById("str").oninput = updateValues;
