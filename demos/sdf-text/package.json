@@ -1,15 +1,15 @@
 {
-  "name": "sdf-text",
+  "name": "sdf-text-scarlett-demo",
   "version": "1.0.0",
   "description": "",
   "main": "core.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Luís Fernandes aka Apidcloud <luisapidcloud@hotmail.com>",
+  "license": "MIT",
   "dependencies": {
-    "load-bmfont": "^1.2.4"
+    "msdf-bmfont-xml": "2.3.1"
   },
   "devDependencies": {}
 }
