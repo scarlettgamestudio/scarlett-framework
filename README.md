@@ -27,8 +27,9 @@ This repository contains the Scarlett Framework Module and associated libraries.
 
 1. Install NodeJS (6.x or higher is recommended)
 2. Fork and clone the repo
-3. `$ yarn` in the repo directory to install dependencies
-4. `$ yarn run validate` to validate you've got it working
+3. Install Yarn globally with `$ npm i -g yarn`
+4. `$ yarn` in the repo directory to install dependencies
+5. `$ yarn run validate` to validate you've got it working
 
 ### Optional Setup - Scarlett-Editor
 
