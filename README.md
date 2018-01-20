@@ -1,4 +1,5 @@
 # Scarlett Framework
+
 Scarlett WebGL Graphics Framework repository
 
 ![alt tag](http://scarlett.anlagehub.com/public/images/framework-banner.png)
@@ -13,24 +14,26 @@ Scarlett WebGL Graphics Framework repository
 
 [![node-version][node-version-badge]][node]
 [![yarn-version][yarn-version-badge]][yarn]
+
 <!--[![Apache-2.0][license-badge]][LICENSE]-->
 
-# README #
+# README
 
-### What is this repository for? ###
+### What is this repository for?
 
 This repository contains the Scarlett Framework Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
 
-### Setup ###
+### Setup
 
 1. Install NodeJS (6.x or higher is recommended)
 2. Fork and clone the repo
 3. `$ yarn` in the repo directory to install dependencies
 4. `$ yarn run validate` to validate you've got it working
 
-### Optional Setup - Scarlett-Editor ###
+### Optional Setup - Scarlett-Editor
 
 If also working on scarlett-editor (or any other project that depends on this framework), you might want to test it against a new and unreleased version of the framework. You can avoid manually copying the framework into the editor folder by referencing it instead. One good way is to use [symlinks](https://yarnpkg.com/lang/en/docs/cli/link/):
+
 1. `$ cd ~/projects/scarlett-framework` go into the package directory
 2. `$ yarn link` create a global link of the framework package
 3. `$ cd ~/projects/scarlett-editor` go into the consumer directory
@@ -38,35 +41,36 @@ If also working on scarlett-editor (or any other project that depends on this fr
 
 `scarlett-editor/node_modules` should now have the framework within. Rebuilding the framework with:
 
-`$ yarn run build:editor` or `$ yarn run dev` and refreshing/restarting the editor should be enough to update the framework version within the editor.
+`$ yarn run build:editor` or `$ yarn run watch:build:editor` and refreshing/restarting the editor should be enough to update the framework version within the editor.
 
-### Build & Distribution ###
+### Build & Distribution
 
 There are 3 different builds:
+
 1. `$ yarn run build` - Browser (ES6) - should support the latest 2 versions. Handy when developing and testing on the browser.
 2. `$ yarn run build:editor` - CommonJS - version used when requiring the package (e.g., within scarlett-editor). Handy within node projects.
 3. `$ yarn run build:deploy` - Browser Minified (ES6) - should support the latest 2 versions. Handy when a browser project is ready to deploy.
 
 You can also run all of the above with `$ yarn run build:all`
 
-### Recommended Code Editors ###
+### Recommended Code Editors
 
 * Webstorm
 * Visual Studio Code
 * Atom
 
-### IntelliJ/Webstorm Users ###
+### IntelliJ/Webstorm Users
 
 This project uses the latest Ecma6 Javascript features and therefore if you are using an IDE such as IntelliJ or Webstorm it might detect code errors when using the default settings.
 
 To allow Ecma6 syntax make sure to change the Javascript Version in the settings menu (Settings -> Languages & Frameworks -> Javascript).
 
-### Development Hints ###
+### Development Hints
 
 * All main source code can be found in the /src folder
 * Altough this project can be associated to the Scarlett-Editor, it can be used for standalone development (see /demos folder)
 
-### Who do I talk to? ###
+### Who do I talk to?
 
 * Repo owner or admin
 * Other community or team contact
@@ -85,7 +89,7 @@ To allow Ecma6 syntax make sure to change the Javascript Version in the settings
 [node]: https://nodejs.org
 [node-version-badge]: https://img.shields.io/badge/node-%3E%3D%206.0-orange.svg
 [license-badge]: https://img.shields.io/npm/l/scarlett-framework.svg
-[LICENSE]: https://github.com/scarlettgamestudio/scarlett-framework/blob/master/LICENSE.md
+[license]: https://github.com/scarlettgamestudio/scarlett-framework/blob/master/LICENSE.md
 [dependencyci-badge]: https://dependencyci.com/github/scarlettgamestudio/scarlett-framework/badge
 [dependencyci]: https://dependencyci.com/github/scarlettgamestudio/scarlett-framework
 [semantic-release-badge]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
