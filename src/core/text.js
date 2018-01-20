@@ -1,7 +1,7 @@
 import Vector2 from "math/vector2";
 import MathHelper from "math/mathHelper";
 import Objectify from "utility/objectify";
-import TextUtils from "utility/textUtils";
+import TextMetrics from "utility/textMetrics";
 import TextShader from "shaders/textShader";
 import GameObject from "core/gameObject";
 import Color from "core/color";
@@ -592,7 +592,13 @@ export default class Text extends GameObject {
     }
 
     // create the lines to draw onto the screen
-    let lines = TextUtils.measureText(fontStyle, this.getText(), maxWidth, this.getWordWrap(), this.getCharacterWrap());
+    let lines = TextMetrics.measureText(
+      fontStyle,
+      this.getText(),
+      maxWidth,
+      this.getWordWrap(),
+      this.getCharacterWrap()
+    );
 
     // draws lines
     this._drawLines(lines, scale, lineHeight);

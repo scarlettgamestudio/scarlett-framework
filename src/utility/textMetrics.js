@@ -1,7 +1,7 @@
 /**
- * TextUtils Class
+ * TextMetrics Class
  */
-export default class TextUtils {
+export default class TextMetrics {
   //#region Static Methods
 
   /**
@@ -76,7 +76,7 @@ export default class TextUtils {
       }
 
       // store character's width temporarily
-      let tempWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+      let tempWidth = TextMetrics.measureCharacterWidth(fontStyle, char);
 
       // if valid
       if (tempWidth > 0) {
@@ -117,7 +117,7 @@ export default class TextUtils {
       // simulate line width with the current word and whitespaces in between
       let tempLine = currentLine + whitespace + word;
 
-      let tempWidth = TextUtils.measureTextWidth(fontStyle, tempLine);
+      let tempWidth = TextMetrics.measureTextWidth(fontStyle, tempLine);
 
       if (tempWidth > maxLineWidth) {
         result.push(currentLine);
@@ -157,12 +157,12 @@ export default class TextUtils {
     //words.shift();
     let currentLine = "";
     // store its width
-    //TextUtils.measureTextWidth(currentLine, scale);
+    //TextMetrics.measureTextWidth(currentLine, scale);
     let currentLineWordWidth = 0;
 
     // " ";
     let whitespace = "";
-    //TextUtils.measureCharacterWidth(whitespace, scale);
+    //TextMetrics.measureCharacterWidth(whitespace, scale);
     let whitespaceWidth = 0;
     // just to keep track of reverting whitespace to its original value
     // (its real width)
@@ -180,25 +180,25 @@ export default class TextUtils {
         whitespace = " ";
         // letter spacing also affects the whitespace width
         // when there is at least 1 word
-        whitespaceWidth = TextUtils.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
+        whitespaceWidth = TextMetrics.measureCharacterWidth(fontStyle, whitespace) + fontStyle.getLetterSpacing();
         // make sure we only enter this condition once (per line)
         revertedToOriginalValue = true;
       }
 
       // calculate word width according to the text scale
       // (not characters length!)
-      let wordWidth = TextUtils.measureTextWidth(fontStyle, word);
+      let wordWidth = TextMetrics.measureTextWidth(fontStyle, word);
 
       // TODO: think of a cleaner way of doing this?
       // maybe wrapTextByCharacter shouldn't return line objects?
       if (characterWrap && wordWidth > maxLineWidth) {
         let tempLine = currentLine + whitespace + word;
 
-        let characterWrappedLines = TextUtils.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
+        let characterWrappedLines = TextMetrics.wrapTextByCharacter(fontStyle, tempLine, maxLineWidth);
 
         // currentLine is the last line so maybe next word also fits
         currentLine = characterWrappedLines.splice(-1, 1)[0].chars.join("");
-        currentLineWordWidth = TextUtils.measureTextWidth(fontStyle, currentLine);
+        currentLineWordWidth = TextMetrics.measureTextWidth(fontStyle, currentLine);
         // reset whitespace values as currentLineWordWidth can be 0...
         // and would consider whitespace in the beginning of a new line
         // which we are trying to avoid (the reason of all this mess!)
@@ -291,7 +291,7 @@ export default class TextUtils {
       }
 
       // retrieve character width
-      let charWidth = TextUtils.measureCharacterWidth(fontStyle, char);
+      let charWidth = TextMetrics.measureCharacterWidth(fontStyle, char);
 
       // current width + char width + letter spacing
       // if there is at least 1 character
@@ -351,7 +351,7 @@ export default class TextUtils {
 
     // set line characters and width
     line.chars = textStr.split("");
-    line.width = TextUtils.measureTextWidth(fontStyle, textStr);
+    line.width = TextMetrics.measureTextWidth(fontStyle, textStr);
 
     return line;
   }
@@ -397,7 +397,7 @@ export default class TextUtils {
       // iterate through lines
       for (let l = 0; l < userDefinedLines.length; l++) {
         // wrap line
-        let wrappedLine = TextUtils.wrapWordsLongVersion(
+        let wrappedLine = TextMetrics.wrapWordsLongVersion(
           fontStyle,
           userDefinedLines[l],
           maxLineWidth,
@@ -426,9 +426,9 @@ export default class TextUtils {
       // only perform character wrap
       // if word wrap isn't enabled in the first place
       if (!wordWrap && characterWrap) {
-        preparedLines = TextUtils.wrapTextByCharacter(fontStyle, userDefinedLine, maxLineWidth);
+        preparedLines = TextMetrics.wrapTextByCharacter(fontStyle, userDefinedLine, maxLineWidth);
       } else {
-        preparedLines.push(TextUtils.convertTextStringToLineFormat(fontStyle, userDefinedLine));
+        preparedLines.push(TextMetrics.convertTextStringToLineFormat(fontStyle, userDefinedLine));
       }
 
       // extended result array (does not create a new array such as concat)
