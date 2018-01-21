@@ -1,5 +1,4 @@
-let ContentLoader = require.requireActual("../src/common/contentLoader")
-  .ContentLoader;
+let ContentLoader = require.requireActual("../src/common/contentLoader").ContentLoader;
 
 const successMessage = "Success";
 

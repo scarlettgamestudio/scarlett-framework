@@ -55,6 +55,43 @@ test("Able to enrich path in known project", () => {
   expect(enrichResult).toBe(projectPath + inputPath);
 });
 
+describe("File existance check", () => {
+  test("File doesn't exist", async () => {
+    expect.assertions(2);
+    const expected = false;
+
+    const mockedFetchResponse = {
+      bodyUsed: false,
+      ok: false,
+      status: 404,
+      url: "someInvalidPath",
+      statusText: "Not Found"
+    };
+    fetch.mockResponseOnce({}, mockedFetchResponse);
+    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+
+    const result = await ContentLoader.fileExists(mockedFetchResponse.url);
+    expect(result).toBe(expected);
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
+  });
+  test("File exists", async () => {
+    expect.assertions(1);
+    const expected = true;
+
+    const mockedFetchResponse = {
+      bodyUsed: false,
+      ok: true,
+      status: 200,
+      url: "someValidPath",
+      statusText: "OK"
+    };
+    fetch.mockResponseOnce({}, mockedFetchResponse);
+
+    const result = await ContentLoader.fileExists(mockedFetchResponse.url);
+    expect(result).toBe(expected);
+  });
+});
+
 describe("Unable to retrieve inexistent resources", () => {
   const nonExistentAlias = "non-existentAlias";
 
@@ -216,10 +253,7 @@ describe("Unable to load inexistent resources", async () => {
   test("Handle invalid path and alias with fallbacks", () => {
     expect.assertions(2);
 
-    const [resultPath, resultAlias] = ContentLoader._assertPathAliasValidity(
-      invalidPath,
-      invalidAlias
-    );
+    const [resultPath, resultAlias] = ContentLoader._assertPathAliasValidity(invalidPath, invalidAlias);
 
     expect(resultPath).not.toBeNull();
     expect(resultAlias).toBe(resultPath);
@@ -236,10 +270,7 @@ describe("Unable to load inexistent resources", async () => {
     const loadingSpy = jest.spyOn(ContentLoader, "_isLoading");
 
     // store try load result
-    const tryToLoadResult = await ContentLoader._tryToLoadImage(
-      invalidPath,
-      invalidAlias
-    );
+    const tryToLoadResult = await ContentLoader._tryToLoadImage(invalidPath, invalidAlias);
     expect(tryToLoadResult).toBeNull();
     expect(consoleErrorSpy).toHaveBeenCalled();
     expect(loadingSpy).toHaveBeenCalledTimes(1);
@@ -272,10 +303,7 @@ describe("Unable to load inexistent resources", async () => {
     const loadingSpy = jest.spyOn(ContentLoader, "_isLoading");
 
     // store try load result
-    const tryToLoadResult = await ContentLoader._tryToLoadAudio(
-      invalidPath,
-      invalidAlias
-    );
+    const tryToLoadResult = await ContentLoader._tryToLoadAudio(invalidPath, invalidAlias);
     expect(tryToLoadResult).toBeNull();
     expect(consoleErrorSpy).toHaveBeenCalled();
     expect(loadingSpy).toHaveBeenCalledTimes(1);
@@ -308,10 +336,7 @@ describe("Unable to load inexistent resources", async () => {
     const loadingSpy = jest.spyOn(ContentLoader, "_isLoading");
 
     // store try load result
-    const tryToLoadResult = await ContentLoader._tryToLoadFile(
-      invalidPath,
-      invalidAlias
-    );
+    const tryToLoadResult = await ContentLoader._tryToLoadFile(invalidPath, invalidAlias);
     expect(tryToLoadResult).toBeNull();
     expect(consoleErrorSpy).toHaveBeenCalled();
     expect(loadingSpy).toHaveBeenCalledTimes(1);
@@ -336,10 +361,7 @@ describe("Unable to load inexistent resources", async () => {
 
 describe("Able to load, cache and clean mock resources", () => {
   beforeAll(() => {
-    jest.setMock(
-      "common/contentLoader",
-      require("../../__mocks__/happyContentLoader")
-    );
+    jest.setMock("common/contentLoader", require("../../__mocks__/happyContentLoader"));
   });
 
   // "Success" is the hardcoded result of the happy mock
@@ -350,18 +372,11 @@ describe("Able to load, cache and clean mock resources", () => {
   test("Able to load mock resources", async () => {
     expect.assertions(3);
 
-    await expect(
-      ContentLoader.loadImage(resourcePath, resourceAlias)
-    ).resolves.toBe(mockResult);
+    await expect(ContentLoader.loadImage(resourcePath, resourceAlias)).resolves.toBe(mockResult);
 
-    await expect(
-      ContentLoader.loadAudio(resourcePath, resourceAlias)
-    ).resolves.toBe(mockResult);
+    await expect(ContentLoader.loadAudio(resourcePath, resourceAlias)).resolves.toBe(mockResult);
 
-    const fileContext = await ContentLoader.loadFile(
-      resourcePath,
-      resourceAlias
-    );
+    const fileContext = await ContentLoader.loadFile(resourcePath, resourceAlias);
     expect(fileContext).toBe(mockResult);
   });
 
@@ -418,10 +433,7 @@ describe("Able to load, cache and clean mock resources", () => {
 
     const cacheSpy = jest.spyOn(ContentLoader, "isFileCached");
 
-    const fileContext = await ContentLoader.loadFile(
-      resourcePath,
-      resourceAlias
-    );
+    const fileContext = await ContentLoader.loadFile(resourcePath, resourceAlias);
     // also make sure to use the same arguments!
     expect(cacheSpy).toHaveBeenCalledWith(resourcePath);
     expect(consoleWarnSpy).toHaveBeenCalled();
@@ -461,40 +473,22 @@ describe("Able to load, cache and clean mock resources", () => {
 describe("Able to load, cache and clean multiple mock resources", () => {
   beforeAll(() => {
     ContentLoader.clear();
-    jest.setMock(
-      "common/contentLoader",
-      require("../../__mocks__/happyContentLoader")
-    );
+    jest.setMock("common/contentLoader", require("../../__mocks__/happyContentLoader"));
   });
 
   const mockResources = {
-    images: [
-      { path: "assets/player.png", alias: "player" },
-      { path: "assets/player2.png", alias: "player2" }
-    ],
-    audios: [
-      { path: "assets/audio1", alias: "audio1" },
-      { path: "assets/audio2", alias: "audio2" }
-    ],
-    files: [
-      { path: "assets/file1", alias: "file1" },
-      { path: "assets/file2", alias: "file2" }
-    ]
+    images: [{ path: "assets/player.png", alias: "player" }, { path: "assets/player2.png", alias: "player2" }],
+    audios: [{ path: "assets/audio1", alias: "audio1" }, { path: "assets/audio2", alias: "audio2" }],
+    files: [{ path: "assets/file1", alias: "file1" }, { path: "assets/file2", alias: "file2" }]
   };
 
   // "Success" is the hardcoded result of the happy mock
-  const mockResult = [
-    ["Success", "Success"],
-    ["Success", "Success"],
-    ["Success", "Success"]
-  ];
+  const mockResult = [["Success", "Success"], ["Success", "Success"], ["Success", "Success"]];
 
   test("Able to load multiple mock resources", async () => {
     expect.assertions(1);
 
-    await expect(ContentLoader.loadAll(mockResources)).resolves.toEqual(
-      mockResult
-    );
+    await expect(ContentLoader.loadAll(mockResources)).resolves.toEqual(mockResult);
   });
 
   test("Able to use cached multiple image resources", async () => {
@@ -504,9 +498,7 @@ describe("Able to load, cache and clean multiple mock resources", () => {
 
     for (let i = 0; i < mockResources.images.length; i++) {
       // make sure to know the result of the function before spying
-      let cachedResult = ContentLoader.isImageCached(
-        mockResources.images[i].path
-      );
+      let cachedResult = ContentLoader.isImageCached(mockResources.images[i].path);
       expect(cachedResult).toBeTruthy();
     }
 
@@ -529,9 +521,7 @@ describe("Able to load, cache and clean multiple mock resources", () => {
 
     for (let i = 0; i < mockResources.audios.length; i++) {
       // make sure to know the result of the function before spying
-      let cachedResult = ContentLoader.isAudioCached(
-        mockResources.audios[i].path
-      );
+      let cachedResult = ContentLoader.isAudioCached(mockResources.audios[i].path);
       expect(cachedResult).toBeTruthy();
     }
 
@@ -554,9 +544,7 @@ describe("Able to load, cache and clean multiple mock resources", () => {
 
     for (let i = 0; i < mockResources.files.length; i++) {
       // make sure to know the result of the function before spying
-      let cachedResult = ContentLoader.isFileCached(
-        mockResources.files[i].path
-      );
+      let cachedResult = ContentLoader.isFileCached(mockResources.files[i].path);
       expect(cachedResult).toBeTruthy();
     }
 
@@ -575,10 +563,7 @@ describe("Able to load, cache and clean multiple mock resources", () => {
 
 describe("Discard already loading files", () => {
   beforeAll(() => {
-    jest.setMock(
-      "common/contentLoader",
-      require("../../__mocks__/happyContentLoader")
-    );
+    jest.setMock("common/contentLoader", require("../../__mocks__/happyContentLoader"));
   });
 
   beforeEach(() => {
@@ -594,15 +579,10 @@ describe("Discard already loading files", () => {
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
     const mockResources = {
-      images: [
-        { path: "assets/player.png", alias: "player" },
-        { path: "assets/player.png", alias: "player2" }
-      ]
+      images: [{ path: "assets/player.png", alias: "player" }, { path: "assets/player.png", alias: "player2" }]
     };
 
-    await expect(ContentLoader.loadAll(mockResources)).resolves.toEqual(
-      mockResult
-    );
+    await expect(ContentLoader.loadAll(mockResources)).resolves.toEqual(mockResult);
     expect(consoleWarnSpy).toHaveBeenCalled();
   });
 
@@ -615,14 +595,8 @@ describe("Discard already loading files", () => {
 
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
-    const result1 = await ContentLoader.loadImage(
-      mockResourcePath,
-      mockResourceAlias
-    );
-    const result2 = await ContentLoader.loadImage(
-      mockResourcePath,
-      mockResourceAlias
-    );
+    const result1 = await ContentLoader.loadImage(mockResourcePath, mockResourceAlias);
+    const result2 = await ContentLoader.loadImage(mockResourcePath, mockResourceAlias);
 
     const loadedCount = Object.keys(ContentLoader._imgLoaded).length;
 
