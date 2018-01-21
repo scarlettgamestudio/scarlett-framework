@@ -4,12 +4,15 @@
   "description": "",
   "main": "core.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify core.js -o bundle.js"
   },
   "author": "Luís Fernandes aka Apidcloud <luisapidcloud@hotmail.com>",
   "license": "MIT",
   "dependencies": {
     "msdf-bmfont-xml": "2.3.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "browserify": "15.2.0"
+  }
 }

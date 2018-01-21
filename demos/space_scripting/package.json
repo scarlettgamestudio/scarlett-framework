@@ -1,5 +1,5 @@
 {
-  "name": "space",
+  "name": "space-scripting",
   "version": "1.0.0",
   "description": "",
   "main": "core.js",
@@ -8,7 +8,5 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "load-bmfont": "^1.2.4"
-  }
+  "dependencies": {}
 }

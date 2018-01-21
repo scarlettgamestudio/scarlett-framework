@@ -4,8 +4,8 @@ var DISPLAY_HEIGHT = 720,
   HALF_DISPLAY_HEIGHT = DISPLAY_HEIGHT / 2;
 var ENEMY_BURST_DELAY = 5;
 
-const OpenTypeBmFont = require("opentype-bmfont");
-let BmFont = new OpenTypeBmFont();
+//const OpenTypeBmFont = require("opentype-bmfont");
+//let BmFont = new OpenTypeBmFont();
 
 var Game = SC.Game;
 var GameScene = SC.GameScene;
@@ -57,7 +57,7 @@ ContentLoader.loadAll({
   var files = result[1];
   var audios = result[2];
 
-  ContentLoader.loadFile("assets/fnt/open-sans-sdf.fnt");
+  //ContentLoader.loadFile("assets/fnt/open-sans-sdf.fnt");
   // map doesn't work on internet explorer... :D
   /* 
     images.map(image => {
@@ -71,6 +71,10 @@ ContentLoader.loadAll({
     });
   */
 
+  const exists = await ContentLoader.fileExists("assets/fnt/arial-black-sdf.fnt");
+
+  console.log(exists);
+
   // needs to come before initializeTexDependencies
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -78,6 +82,7 @@ ContentLoader.loadAll({
   // either BMFontParser.parse(files[0]);
   // or BMFontParser.parse(ContentLoader.getFile("openSansFont"))
 
+  /*
   await BmFont.createBitmap("assets/fnt/OpenSans-Regular.ttf", {}, function(err, result) {
     if (err != null) {
       return;
@@ -92,7 +97,7 @@ ContentLoader.loadAll({
     var parsedBMFont = result.JSON; //BMFontParser.parse(filecontextobj);
 
     initializeTextDependencies(parsedBMFont, textTexture);
-  });
+  }); */
 });
 
 gameScene.initialize = function() {

@@ -48,8 +48,8 @@ class ContentLoaderSingleton {
   //#endregion
 
   /**
-     * Clears all loaded assets from the content loader
-     */
+   * Clears all loaded assets from the content loader
+   */
   clear() {
     this._imgLoaded = {};
     this._imgAlias = {};
@@ -57,6 +57,38 @@ class ContentLoaderSingleton {
     this._audioAlias = {};
     this._fileLoaded = {};
     this._fileAlias = {};
+  }
+
+  /**
+   * Checks if a file (e.g., images, audio, others) 
+   * exists given its path
+   * @param {string} path 
+   */
+  async fileExists(path) {
+    // enrich path if possible
+    const newPath = this._enrichRelativePath(path);
+    try {
+      const response = await fetch(newPath, {
+        method: "HEAD",
+        cache: "no-cache"
+      });
+
+      if (response.status != 200) {
+        throw new Error(
+          `Something didn't work as expected with ${response.url} file request.\n${response.statusText}. Status code: ${response.status}`
+        );
+      }
+
+      return true;
+    } catch (error) {
+      /**
+       * In spite of the catch, browsers will console an error (at least for status 404) by default
+       * source: https://stackoverflow.com/questions/44019776/fetch-api-chrome-and-404-errors
+       */
+      console.warn(error);
+
+      return false;
+    }
   }
 
   isImageAliasCached(alias) {
