@@ -4,7 +4,8 @@
     "comment-2": "thus the need of being specific in a babelrc",
     "test": {
       "plugins": ["transform-runtime", "lodash"],
-      "presets": ["env", "stage-3"]
+      "presets": ["env", "flow", "stage-3"],
+      "retainLines": true
     }
   }
 }

@@ -37,8 +37,10 @@ let loadersSetup = [
             modules: false
           }
         ],
+        "flow",
         "stage-3"
-      ]
+      ],
+      retainLines: true
     }
   }
 ];
@@ -50,7 +52,9 @@ if (TO_EDITOR_ES6) {
   loadersSetup = {
     loader: "babel-loader",
     options: {
-      plugins: ["lodash"]
+      plugins: ["lodash"],
+      presets: ["flow"],
+      retainLines: true
     }
   };
   // update output path
@@ -89,7 +93,7 @@ const config = {
   },
   resolve: {
     // Look for modules in .js files first
-    extensions: [".js"],
+    extensions: [".js", ".json"],
     // Add 'src' to our modules, as all our app code will live in there, so Webpack should look in there for modules
     modules: ["src", "node_modules"]
   },
