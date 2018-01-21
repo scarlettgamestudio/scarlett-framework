@@ -75,7 +75,8 @@ class ContentLoaderSingleton {
 
       if (response.status != 200) {
         throw new Error(
-          `Something didn't work as expected with ${response.url} file request.\n${response.statusText}. Status code: ${response.status}`
+          `Something didn't work as expected with ${response.url} file request.` +
+            `\n${response.statusText}. Status code: ${response.status}`
         );
       }
 

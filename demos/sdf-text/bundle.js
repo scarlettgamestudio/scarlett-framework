@@ -72,7 +72,7 @@ ContentLoader.loadAll({
     });
   */
 
-  const exists = await ContentLoader.fileExists("assets/fnt/arial-black-sdf.fnt");
+  const exists = await ContentLoader.fileExists("assets/fnt/arial-black-sdfqeqw.fnt");
 
   console.log(exists);
 
@@ -82,6 +82,23 @@ ContentLoader.loadAll({
 
   // either BMFontParser.parse(files[0]);
   // or BMFontParser.parse(ContentLoader.getFile("openSansFont"))
+
+  /*
+  await BmFont.createBitmap("assets/fnt/OpenSans-Regular.ttf", {}, function(err, result) {
+    if (err != null) {
+      return;
+    }
+
+    let textTexture = new Texture2D(result.JSON.pages[0]);
+
+    //var font = new Sprite({ texture: textTexture });
+    //font.transform.setPosition(0, 200);
+    //gameScene.addGameObject(font);
+
+    var parsedBMFont = result.JSON; //BMFontParser.parse(filecontextobj);
+
+    initializeTextDependencies(parsedBMFont, textTexture);
+  }); */
 });
 
 gameScene.initialize = function() {

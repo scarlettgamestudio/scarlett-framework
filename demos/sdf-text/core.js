@@ -71,7 +71,7 @@ ContentLoader.loadAll({
     });
   */
 
-  const exists = await ContentLoader.fileExists("assets/fnt/arial-black-sdf.fnt");
+  const exists = await ContentLoader.fileExists("assets/fnt/arial-black-sdfqeqw.fnt");
 
   console.log(exists);
 
