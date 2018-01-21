@@ -64,7 +64,7 @@ class ContentLoaderSingleton {
    * exists given its path
    * @param {string} path 
    */
-  async fileExists(path) {
+  async fileExistsAsync(path) {
     // enrich path if possible
     const newPath = this._enrichRelativePath(path);
     try {

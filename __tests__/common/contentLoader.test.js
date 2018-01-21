@@ -70,7 +70,7 @@ describe("File existance check", () => {
     fetch.mockResponseOnce({}, mockedFetchResponse);
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
-    const result = await ContentLoader.fileExists(mockedFetchResponse.url);
+    const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.url);
     expect(result).toBe(expected);
     expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
   });
@@ -87,7 +87,7 @@ describe("File existance check", () => {
     };
     fetch.mockResponseOnce({}, mockedFetchResponse);
 
-    const result = await ContentLoader.fileExists(mockedFetchResponse.url);
+    const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.url);
     expect(result).toBe(expected);
   });
 });
