@@ -1,3 +1,5 @@
+/* @flow */
+
 import GameManager from "core/gameManager";
 import FileContext from "common/fileContext";
 
@@ -64,7 +66,7 @@ class ContentLoaderSingleton {
    * exists given its path
    * @param {string} path 
    */
-  async fileExistsAsync(path) {
+  async fileExistsAsync(path: string): Promise<boolean> {
     // enrich path if possible
     const newPath = this._enrichRelativePath(path);
     try {
