@@ -1,3 +1,5 @@
+/* @flow */
+
 /**
  * IO Path utility class
  */
@@ -65,10 +67,11 @@ export default class Path {
   }
 
   /**
-     * Gets a filename from a given path
+     * Attempts to retrive a filename from a given path
+     * If the file path is incorrect (e.g., ends in '/'), the given path will be returned
      * @param path
      */
-  static getFilename(path) {
+  static getFilename(path: string) {
     let index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
     return path.substring(index >= 0 && index < path.length - 1 ? index + 1 : 0, path.length);
   }
