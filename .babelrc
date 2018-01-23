@@ -11,7 +11,7 @@
           {
             "assert": true,
             "warn": false,
-            "annotate": true
+            "annotate": false
           }
         ]
       ],

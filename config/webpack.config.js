@@ -34,7 +34,7 @@ let loadersSetup = [
           {
             assert: true,
             warn: false,
-            annotate: true
+            annotate: false
           }
         ]
       ],
@@ -70,7 +70,7 @@ if (TO_EDITOR_ES6) {
           {
             assert: true,
             warn: false,
-            annotate: true
+            annotate: false
           }
         ]
       ],
