@@ -3,7 +3,18 @@
     "comment-1": "jest needs 'modules' option set to true (unlike the normal webpack config), ",
     "comment-2": "thus the need of being specific in a babelrc",
     "test": {
-      "plugins": ["transform-runtime", "lodash"],
+      "plugins": [
+        "transform-runtime",
+        "lodash",
+        [
+          "flow-runtime",
+          {
+            "assert": true,
+            "warn": false,
+            "annotate": true
+          }
+        ]
+      ],
       "presets": ["env", "flow", "stage-3"],
       "retainLines": true
     }

@@ -26,7 +26,18 @@ let loadersSetup = [
   {
     loader: "babel-loader",
     options: {
-      plugins: ["transform-runtime", "lodash"],
+      plugins: [
+        "transform-runtime",
+        "lodash",
+        [
+          "flow-runtime",
+          {
+            assert: true,
+            warn: false,
+            annotate: true
+          }
+        ]
+      ],
       presets: [
         [
           "env",
@@ -52,7 +63,17 @@ if (TO_EDITOR_ES6) {
   loadersSetup = {
     loader: "babel-loader",
     options: {
-      plugins: ["lodash"],
+      plugins: [
+        "lodash",
+        [
+          "flow-runtime",
+          {
+            assert: true,
+            warn: false,
+            annotate: true
+          }
+        ]
+      ],
       presets: ["flow"],
       retainLines: true
     }
