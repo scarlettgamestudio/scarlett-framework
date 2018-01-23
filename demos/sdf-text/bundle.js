@@ -24,6 +24,7 @@ var MathHelper = SC.MathHelper;
 var BMFontParser = SC.BMFontParser;
 var FileContext = SC.FileContext;
 var FontLoader = SC.FontLoader;
+var Path = SC.Path;
 
 var game = new Game({ target: "canvas" });
 var player;
@@ -73,7 +74,7 @@ ContentLoader.loadAll({
     });
   */
 
-  const exists = await FontLoader.LoadTrueTypeAsync("assets/fnt/arial-black-sdfqwew.fnt");
+  const exists = await FontLoader.loadFontAsync("assets/fnt/arial-black-sdfqw.fnt");
 
   console.log(exists);
 
