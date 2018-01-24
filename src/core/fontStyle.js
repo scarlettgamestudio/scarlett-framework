@@ -4,8 +4,7 @@ import { isObjectAssigned } from "common/utils";
 import BMFontParser from "utility/bmFontParser";
 
 AttributeDictionary.addRule("fontStyle", "_fontDescriptionFilePath", {
-  displayName: "Font Description Source",
-  editor: "filepath"
+  visible: false
 });
 AttributeDictionary.addRule("fontStyle", "_fontDescription", {
   visible: false

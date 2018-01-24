@@ -22,7 +22,7 @@ describe("Try to load font", () => {
     const fontSpecValue = "value";
     let fontSpec = {};
     fontSpec[fontSpecKey] = fontSpecValue;
-    const textureContent = "someTextureContent";
+    const imageContent = "someTextureContent";
 
     const myMockFn = jest
       .fn(() => true)
@@ -31,12 +31,12 @@ describe("Try to load font", () => {
 
     ContentLoader.fileExistsAsync = myMockFn;
     ContentLoader.loadFile = jest.fn(() => new FileContext("someHeader", JSON.stringify(fontSpec), fontSpecPath));
-    ContentLoader.loadImage = jest.fn(() => textureContent);
+    ContentLoader.loadImage = jest.fn(() => imageContent);
 
     const fontStyle = await FontLoader.loadFontAsync(fontPath, ContentLoader);
 
     expect(fontStyle.getFontDescription()[fontSpecKey]).toBe(fontSpecValue);
-    expect(fontStyle.getFontTexture()).toBe(textureContent);
+    expect(fontStyle.getFontImage()).toBe(imageContent);
     expect(fontStyle.getFontDescriptionFilePath()).toBe(fontSpecPath);
   });
 

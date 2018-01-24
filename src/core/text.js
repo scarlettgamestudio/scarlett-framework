@@ -1,8 +1,9 @@
+/* @flow */
+
 import Vector2 from "math/vector2";
 import MathHelper from "math/mathHelper";
 import Objectify from "utility/objectify";
 import TextMetrics from "utility/textMetrics";
-import TextShader from "shaders/textShader";
 import GameObject from "core/gameObject";
 import Color from "core/color";
 import Stroke from "core/stroke";
@@ -16,8 +17,8 @@ import FontLoader from "utility/fontLoader";
 import MSDFTextShader from "shaders/msdfTextShader";
 
 AttributeDictionary.inherit("text", "gameobject");
-AttributeDictionary.addRule("text", "_textureSrc", {
-  displayName: "Font Image Src",
+AttributeDictionary.addRule("text", "_fontPathAsync", {
+  displayName: "Font Src",
   editor: "filepath"
 });
 
@@ -49,7 +50,7 @@ const maxWidth = 500;
 export default class Text extends GameObject {
   //#region Static Properties
 
-  static get AlignType() {
+  static get AlignType(): {} {
     return {
       LEFT: "LEFT",
       CENTER: "CENTER",
@@ -67,6 +68,7 @@ export default class Text extends GameObject {
 
     super(params);
 
+    this._fontPathAsync = "";
     this._wordWrap = params.wordWrap || true;
     this._characterWrap = params.characterWrap || true;
     this._alignType = params.alignType || Text.AlignType.LEFT;
@@ -77,7 +79,7 @@ export default class Text extends GameObject {
     this._gamma = params.gamma || 2.0;
 
     this._strokeEnabled = true;
-    this._stroke = new Stroke(Color.fromRGBA(186, 85, 54, 0.5), 0.0);
+    this._stroke = new Stroke(Color.fromRGBA(255, 0, 0, 1.0), 0.0);
 
     this._dropShadowEnabled = true;
     this._dropShadow = new DropShadow();
@@ -110,6 +112,7 @@ export default class Text extends GameObject {
     let superRestore = super.restore(data);
 
     let text = new Text();
+    // TODO: set font path? Probably not needed as fontStyle is restored
     text.setFontStyle(FontStyle.restore(data.fontStyle));
     text.setWordWrap(data.wordWrap);
     text.setCharacterWrap(data.characterWrap);
@@ -291,15 +294,20 @@ export default class Text extends GameObject {
     this.setTexture(texture);
   }
 
-  async setTextureAsync(fontFilePath: string): boolean {
-    const fontStyleResult = await FontLoader.loadFontAsync(fontFilePath);
+  async setFontPathAsync(fontPath: string): boolean {
+    const fontStyleResult = await FontLoader.loadFontAsync(fontPath);
     if (fontStyleResult.getFontImage() != null) {
       const texture = new Texture2D(fontStyleResult.getFontImage());
       this.setTexture(texture);
       this._fontStyle = fontStyleResult;
+      this._fontPathAsync = fontPath;
       return true;
     }
     return false;
+  }
+
+  getFontPathAsync(): string {
+    return this._fontPathAsync;
   }
 
   setTexture(texture) {

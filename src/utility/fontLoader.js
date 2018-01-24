@@ -5,7 +5,6 @@ import Path from "utility/path";
 import { FontSupportedTypes } from "utility/fontSupportedTypes";
 import FontStyle from "core/fontStyle";
 import BMFontParser from "utility/bmFontParser";
-import FileContext from "common/fileContext";
 
 /**
  * FontLoader Utility Class
