@@ -21,9 +21,10 @@ export default class FontStyle {
      * @param fontDescription
      * @constructor
      */
-  constructor(fontDescription, fontDescriptionFilePath) {
+  constructor(fontDescription, fontDescriptionFilePath, fontTexture) {
     this._fontDescriptionFilePath = fontDescriptionFilePath;
     this._fontDescription = fontDescription;
+    this._fontTexture = fontTexture;
     this._fontSize = 70;
     this._letterSpacing = 0;
     this._spread = 4;
@@ -49,8 +50,16 @@ export default class FontStyle {
 
   //#region Public Methods
 
+  getFontTexture() {
+    return this._fontTexture;
+  }
+
   getFontDescription() {
     return this._fontDescription;
+  }
+
+  setFontTexture(texture) {
+    this._fontTexture = texture;
   }
 
   setFontDescription(fontInfo) {
