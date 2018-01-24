@@ -1,7 +1,10 @@
+/* @flow */
+
 import { isString } from "common/utils";
 import BMFontParseASCII from "parse-bmfont-ascii";
 import BMFontParseXML from "parse-bmfont-xml";
 import Utils from "utility/utils";
+import FileContext from "common/fileContext";
 
 /**
  * BM Font Parser Utility Class
@@ -13,7 +16,7 @@ export default class BMFontParser {
      *
      * @param {FileContext} fileContext
      */
-  static parse(fileContext) {
+  static parse(fileContext: FileContext): {} | null {
     if (!Utils.isFileContext(fileContext)) {
       console.error("Expected FileContext argument");
       return null;

@@ -55,6 +55,17 @@ test("Able to enrich path in known project", () => {
   expect(enrichResult).toBe(projectPath + inputPath);
 });
 
+test("Able to return given path if already enriched", () => {
+  const projectPath = "../../";
+  GameManager.activeProjectPath = projectPath;
+
+  const inputPath = "../../randomPathForTheWin";
+
+  const enrichResult = ContentLoader._enrichRelativePath(inputPath);
+
+  expect(enrichResult).toBe(inputPath);
+});
+
 describe("File existance check", () => {
   test("File doesn't exist", async () => {
     expect.assertions(2);
@@ -67,7 +78,7 @@ describe("File existance check", () => {
       url: "someInvalidPath",
       statusText: "Not Found"
     };
-    fetch.mockResponseOnce({}, mockedFetchResponse);
+    fetch.mockImplementation(() => mockedFetchResponse);
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
     const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.url);
@@ -85,7 +96,7 @@ describe("File existance check", () => {
       url: "someValidPath",
       statusText: "OK"
     };
-    fetch.mockResponseOnce({}, mockedFetchResponse);
+    fetch.mockImplementation(() => mockedFetchResponse);
 
     const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.url);
     expect(result).toBe(expected);
