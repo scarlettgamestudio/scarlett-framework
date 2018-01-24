@@ -12,6 +12,8 @@ import GameManager from "core/gameManager";
 import Texture2D from "core/texture2D";
 import { AttributeDictionary } from "common/attributeDictionary";
 import { isObjectAssigned } from "common/utils";
+import FontLoader from "utility/fontLoader";
+import MSDFTextShader from "shaders/msdfTextShader";
 
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_textureSrc", {
@@ -65,11 +67,6 @@ export default class Text extends GameObject {
 
     super(params);
 
-    this._fontStyle = new FontStyle(params.font || {}, params.fontFilePath || "");
-    this._fontStyle.setFontSize(params.fontSize || 70.0);
-    this._fontStyle.setLetterSpacing(params.letterSpacing || 0);
-    this._fontStyle.setSpread(params.spread || 4);
-
     this._wordWrap = params.wordWrap || true;
     this._characterWrap = params.characterWrap || true;
     this._alignType = params.alignType || Text.AlignType.LEFT;
@@ -100,8 +97,24 @@ export default class Text extends GameObject {
     this._textureWidth = 0;
     this._textureHeight = 0;
 
-    // set text texture if defined
-    this.setTexture(params.texture, "");
+    FontLoader.loadFontAsync(params.fontFilePath).then(
+      function success(result) {
+        if (!result) {
+          return new FontStyle(params.fontDescription || {}, params.fontDescriptionPath || "", null);
+        }
+
+        if (result.getFontImage() != null) {
+          const texture = new Texture2D(result.getFontImage());
+          this.setTexture(texture);
+          this._fontStyle = result;
+        } else {
+          this.setTexture(params.texture || null);
+        }
+      }.bind(this),
+      function failure(reason) {
+        console.error(reason);
+      }
+    );
   }
 
   //#endregion
@@ -317,7 +330,7 @@ export default class Text extends GameObject {
     this._vertexBuffer = this._gl.createBuffer();
     this._textureBuffer = this._gl.createBuffer();
     this._vertexIndicesBuffer = this._gl.createBuffer();
-    this._textShader = new TextShader();
+    this._textShader = new MSDFTextShader();
 
     this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._textureWidth, this._textureHeight);
   }

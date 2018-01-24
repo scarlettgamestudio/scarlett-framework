@@ -74,13 +74,15 @@ ContentLoader.loadAll({
     });
   */
 
-  const exists = await FontLoader.loadFontAsync("assets/fnt/arial-black-sdfqw.fnt");
+  //const exists = await FontLoader.loadFontAsync("assets/fnt/OpenSans-Regular.ttf");
 
-  console.log(exists);
+  //console.log(exists);
 
   // needs to come before initializeTexDependencies
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+  initializeTextDependencies("assets/fnt/OpenSans-Regular.ttf");
 
   // either BMFontParser.parse(files[0]);
   // or BMFontParser.parse(ContentLoader.getFile("openSansFont"))
@@ -125,7 +127,7 @@ gameScene.initialize = function() {
   //gameScene.addGameObject(text);
 };
 
-function initializeTextDependencies(fontDescription, textTexture) {
+function initializeTextDependencies(fontPath) {
   //The BMFont spec in JSON form
   /*console.log(fontDescription.common.lineHeight);
      console.log(fontDescription.info);
@@ -133,8 +135,7 @@ function initializeTextDependencies(fontDescription, textTexture) {
      console.log(fontDescription.kernings);*/
 
   text = new Text({
-    font: fontDescription,
-    texture: textTexture,
+    fontFilePath: fontPath,
     text: "Lorem\r\nipsum\r\ndolore"
   });
   text.transform.setPosition(-300, -180);
@@ -148,6 +149,8 @@ function initializeTextDependencies(fontDescription, textTexture) {
 
   //Text.restore(data).then(restoredText => {
   newText = text;
+
+  /*
   // set initial text area value
   document.getElementById("str").value = newText.getText();
   document.getElementById("stroke").value = newText.getStroke().getSize();
@@ -172,6 +175,7 @@ function initializeTextDependencies(fontDescription, textTexture) {
   document.getElementById("alignLeft").checked = newText.getAlign() == Text.AlignType.LEFT;
   document.getElementById("alignCenter").checked = newText.getAlign() == Text.AlignType.CENTER;
   document.getElementById("alignRight").checked = newText.getAlign() == Text.AlignType.RIGHT;
+  */
   //});
 }
 

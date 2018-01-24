@@ -26,10 +26,10 @@ export default class FontLoader {
 
     // now that we know the path ends with a valid extension, we can replace it
     const baseFilePath = path.substring(0, path.length - extension.length);
-    const texturePath = baseFilePath + ".png";
+    const imagePath = baseFilePath + ".png";
     const specPath = baseFilePath + ".json";
 
-    const textureExists: boolean = await contentLoader.fileExistsAsync(texturePath);
+    const textureExists: boolean = await contentLoader.fileExistsAsync(imagePath);
     const specExists: boolean = await contentLoader.fileExistsAsync(specPath);
 
     // no need to go further if either texture or spec cannot be found
@@ -37,10 +37,10 @@ export default class FontLoader {
       return false;
     }
 
-    const texture = await contentLoader.loadImage(texturePath, texturePath);
+    const image = await contentLoader.loadImage(imagePath, imagePath);
     const specFileContext = await contentLoader.loadFile(specPath, specPath);
 
-    if (texture === false || specFileContext === false) {
+    if (image === false || specFileContext === false) {
       return false;
     }
 
@@ -50,6 +50,6 @@ export default class FontLoader {
       return false;
     }
 
-    return new FontStyle(spec, specPath, texture);
+    return new FontStyle(spec, specPath, image);
   }
 }
