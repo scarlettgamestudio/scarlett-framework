@@ -3,6 +3,15 @@ import { FontSupportedTypes } from "utility/fontSupportedTypes";
 import { ContentLoader } from "common/contentLoader";
 import FileContext from "common/fileContext";
 
+beforeEach(() => {
+  jest.spyOn(console, "error");
+  console.error.mockImplementation(() => {});
+});
+
+afterEach(() => {
+  console.error.mockRestore();
+});
+
 describe("Try to load font", () => {
   test("Able to load font", async () => {
     expect.assertions(3);
@@ -32,7 +41,7 @@ describe("Try to load font", () => {
   });
 
   test("Unable to load font", async () => {
-    expect.assertions(1);
+    expect.assertions(3);
 
     const fontPath = "some/path/font.ttf";
 
@@ -46,6 +55,35 @@ describe("Try to load font", () => {
     const exists = await FontLoader.loadFontAsync(fontPath, ContentLoader);
 
     expect(exists).toBe(false);
+
+    // make sure to mock spec and texture load correctly
+    const anotherMockFn = jest
+      .fn(() => true)
+      .mockImplementationOnce(() => true)
+      .mockImplementationOnce(() => true);
+    ContentLoader.fileExistsAsync = anotherMockFn;
+
+    ContentLoader.loadFile = jest.fn(() => false);
+    ContentLoader.loadImage = jest.fn(() => "textureContent");
+
+    const loading = await FontLoader.loadFontAsync(fontPath, ContentLoader);
+
+    expect(loading).toBe(false);
+
+    // make sure to mock spec and texture load correctly
+    const yetAnotherMockFn = jest
+      .fn(() => true)
+      .mockImplementationOnce(() => true)
+      .mockImplementationOnce(() => true);
+    ContentLoader.fileExistsAsync = yetAnotherMockFn;
+
+    // make sure to mock load file and image correctly as well
+    ContentLoader.loadFile = jest.fn(() => new FileContext("someHeader", "", "somePath"));
+    ContentLoader.loadImage = jest.fn(() => "textureContent");
+
+    const parsing = await FontLoader.loadFontAsync(fontPath, ContentLoader);
+
+    expect(parsing).toBe(false);
   });
 });
 
