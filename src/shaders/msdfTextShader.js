@@ -60,9 +60,9 @@ export default class MSDFTextShader extends Shader {
         " }",
 
         " if (uOutline > 0.0) {",
-        "   float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, sigDist);",
+        "   float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, median(sample.r, sample.g, sample.b));",
         "   vec4 color = mix(uOutlineColor, uColor, outlineFactor);",
-        "   float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, sigDist);",
+        "   float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, median(sample.r, sample.g, sample.b));",
         "   finalColor = vec4(color.rgb, color.a * alpha * 1.0);",
         " } else {",
 
