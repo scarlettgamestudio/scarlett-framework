@@ -18,13 +18,15 @@ describe("Filename Retrieval", () => {
     expect(filename).toBe("fileWithoutExtension");
   });
 
-  test("Return the given path when it is an invalid file path", () => {
+  /*
+  test("Return the last folder", () => {
     const invalidFilePath = "some/path/folder/";
-
+    const expected = "folder";
     const filename = Path.getFilename(invalidFilePath);
 
-    expect(filename).toBe(invalidFilePath);
+    expect(filename).toBe(expected);
   });
+  */
 
   test("Throw if given path isn't a string", () => {
     const invalidNullPath = null;
@@ -47,11 +49,42 @@ describe("Filename Retrieval", () => {
   });
 });
 
-test("Retrieve file extension correctly", () => {
-  const path = "some/path/file.xpto";
-  const expectedExtension = ".xpto";
+describe("Extension retrieval", () => {
+  test("Retrieve file extension correctly", () => {
+    expect.assertions(2);
+    let path = "some/path/file.xpto";
+    let expectedExtension = ".xpto";
 
-  const extension = Path.getFileExtension(path);
+    let extension = Path.getFileExtension(path);
 
-  expect(extension).toEqual(expectedExtension);
+    expect(extension).toEqual(expectedExtension);
+
+    path = "some/path/file.xpto.js";
+    expectedExtension = ".js";
+
+    extension = Path.getFileExtension(path);
+    expect(extension).toEqual(expectedExtension);
+  });
+
+  test("Handle invalid paths with no extension", () => {
+    expect.assertions(3);
+
+    let path = "some/path/fileWithoutExtension";
+    let expectedExtension = "";
+
+    let extension = Path.getFileExtension(path);
+    expect(extension).toEqual(expectedExtension);
+
+    path = "index.";
+    expectedExtension = ".";
+
+    extension = Path.getFileExtension(path);
+    expect(extension).toEqual(expectedExtension);
+
+    path = ".index";
+    expectedExtension = "";
+
+    extension = Path.getFileExtension(path);
+    expect(extension).toEqual(expectedExtension);
+  });
 });
