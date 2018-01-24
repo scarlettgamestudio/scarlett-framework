@@ -45,7 +45,7 @@ export default class MSDFTextShader extends Shader {
         "varying vec2 vTexCoord;",
 
         "float median(float r, float g, float b) {",
-        "return max(min(r, g), min(max(r, g), b));",
+        " return max(min(r, g), min(max(r, g), b));",
         "}",
 
         "void main() {",
@@ -67,8 +67,15 @@ export default class MSDFTextShader extends Shader {
         " } else {",
 
         "   float alpha = clamp(sigDist/fwidth(sigDist) + 0.5 + uGamma, 0.0, 1.0);",
-        //  "gl_FragColor = mix(uColor, uOutlineColor, opacity);",
         "   finalColor = vec4(uColor.xyz, alpha * 1.0);",
+        " }",
+        " if (uDropShadow > 0.0) {",
+        "   vec3 shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).rgb;",
+        "   float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, median(shadowDistance.r, shadowDistance.g, shadowDistance.b));",
+        "   vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);",
+        //  inner effect is the other way around... text, shadow
+        "   gl_FragColor = mix(shadow, finalColor, finalColor.a);",
+        "   return;",
         " }",
         " gl_FragColor = finalColor;",
         "}"
