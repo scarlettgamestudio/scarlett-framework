@@ -49,12 +49,28 @@ export default class MSDFTextShader extends Shader {
         "}",
 
         "void main() {",
-        "vec3 sample = texture2D(uTexture, vTexCoord).rgb;",
-        "float sigDist = median(sample.r, sample.g, sample.b) - 0.5;",
-        "float opacity = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);",
-        //
-        //"gl_FragColor = mix(uColor, uOutlineColor, opacity);",
-        "gl_FragColor = vec4(uColor.xyz, opacity * 1.0);",
+
+        " vec3 sample = texture2D(uTexture, vTexCoord).rgb;",
+        " float sigDist = median(sample.r, sample.g, sample.b) - 0.5 + uGamma;",
+        " vec4 finalColor = uColor;",
+
+        " if (uDebug > 0.0) {",
+        "   gl_FragColor = vec4(sigDist, sigDist, sigDist, 1);",
+        "   return;",
+        " }",
+
+        " if (uOutline > 0.0) {",
+        "   float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, sigDist);",
+        "   vec4 color = mix(uOutlineColor, uColor, outlineFactor);",
+        "   float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, sigDist);",
+        "   finalColor = vec4(color.rgb, color.a * alpha * 1.0);",
+        " } else {",
+
+        "   float alpha = clamp(sigDist/fwidth(sigDist) + 0.5 + uGamma, 0.0, 1.0);",
+        //  "gl_FragColor = mix(uColor, uOutlineColor, opacity);",
+        "   finalColor = vec4(uColor.xyz, alpha * 1.0);",
+        " }",
+        " gl_FragColor = finalColor;",
         "}"
       ].join("\n"),
       uniforms: {
