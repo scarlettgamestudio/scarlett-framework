@@ -55,6 +55,9 @@ export default class WebGLContext {
       return;
     }
 
+    //console.log(gl.getSupportedExtensions());
+    gl.getExtension("OES_standard_derivatives");
+
     this._canvas = canvas;
 
     // disable gl functions:

@@ -97,24 +97,7 @@ export default class Text extends GameObject {
     this._textureWidth = 0;
     this._textureHeight = 0;
 
-    FontLoader.loadFontAsync(params.fontFilePath).then(
-      function success(result) {
-        if (!result) {
-          return new FontStyle(params.fontDescription || {}, params.fontDescriptionPath || "", null);
-        }
-
-        if (result.getFontImage() != null) {
-          const texture = new Texture2D(result.getFontImage());
-          this.setTexture(texture);
-          this._fontStyle = result;
-        } else {
-          this.setTexture(params.texture || null);
-        }
-      }.bind(this),
-      function failure(reason) {
-        console.error(reason);
-      }
-    );
+    this.setTexture(params.texture || null);
   }
 
   //#endregion
@@ -306,6 +289,17 @@ export default class Text extends GameObject {
 
     // let it handle invalid textures as well (null)
     this.setTexture(texture);
+  }
+
+  async setTextureAsync(fontFilePath: string): boolean {
+    const fontStyleResult = await FontLoader.loadFontAsync(fontFilePath);
+    if (fontStyleResult.getFontImage() != null) {
+      const texture = new Texture2D(fontStyleResult.getFontImage());
+      this.setTexture(texture);
+      this._fontStyle = fontStyleResult;
+      return true;
+    }
+    return false;
   }
 
   setTexture(texture) {

@@ -48,21 +48,13 @@ export default class MSDFTextShader extends Shader {
         "return max(min(r, g), min(max(r, g), b));",
         "}",
 
-        "float aastep(float value) {",
-        "  #ifdef GL_OES_standard_derivatives",
-        "    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;",
-        "  #else",
-        "    float afwidth = (1.0 / 72.0) * (1.4142135623730951 / (2.0 * gl_FragCoord.w));",
-        "  #endif",
-        "  return smoothstep(0.5 - afwidth, 0.5 + afwidth, value);",
-        "}",
-
         "void main() {",
         "vec3 sample = texture2D(uTexture, vTexCoord).rgb;",
         "float sigDist = median(sample.r, sample.g, sample.b) - 0.5;",
-        //"float opacity = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);",
+        "float opacity = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);",
         //
-        "gl_FragColor = mix(uColor, uOutlineColor, 1.0);",
+        //"gl_FragColor = mix(uColor, uOutlineColor, opacity);",
+        "gl_FragColor = vec4(uColor.xyz, opacity * 1.0);",
         "}"
       ].join("\n"),
       uniforms: {

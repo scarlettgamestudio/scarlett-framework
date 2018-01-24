@@ -81,7 +81,7 @@ ContentLoader.loadAll({
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
-  initializeTextDependencies("assets/fnt/OpenSans-Regular.ttf");
+  await initializeTextDependencies("assets/fnt/OpenSans-Regular.ttf");
 
   // either BMFontParser.parse(files[0]);
   // or BMFontParser.parse(ContentLoader.getFile("openSansFont"))
@@ -126,7 +126,7 @@ gameScene.initialize = function() {
   //gameScene.addGameObject(text);
 };
 
-function initializeTextDependencies(fontPath) {
+async function initializeTextDependencies(fontPath) {
   //The BMFont spec in JSON form
   /*console.log(fontDescription.common.lineHeight);
      console.log(fontDescription.info);
@@ -137,45 +137,46 @@ function initializeTextDependencies(fontPath) {
     fontFilePath: fontPath,
     text: "Lorem\r\nipsum\r\ndolore"
   });
-  text.transform.setPosition(-300, -180);
-  text.setColor(Color.fromRGBA(232, 78, 64, 1.0));
 
-  //var data = text.objectify();
+  if (await text.setTextureAsync(fontPath)) {
+    text.transform.setPosition(-300, -180);
+    text.setColor(Color.fromRGBA(232, 78, 64, 1.0));
 
-  //console.log(data);
+    //var data = text.objectify();
 
-  //text.unload();
+    //console.log(data);
 
-  //Text.restore(data).then(restoredText => {
-  newText = text;
+    //text.unload();
 
-  /*
-  // set initial text area value
-  document.getElementById("str").value = newText.getText();
-  document.getElementById("stroke").value = newText.getStroke().getSize();
-  document.getElementById("dropShadow").value = newText
-    .getDropShadow()
-    .getStroke()
-    .getSize();
-  document.getElementById("dropShadowOffsetX").value = newText.getDropShadow().getOffset().x;
-  document.getElementById("dropShadowOffsetY").value = newText.getDropShadow().getOffset().y;
+    //Text.restore(data).then(restoredText => {
+    newText = text;
 
-  document.getElementById("scale").value = newText.getFontSize();
-  document.getElementById("gamma").value = newText.getGamma();
+    // set initial text area value
+    document.getElementById("str").value = newText.getText();
+    document.getElementById("stroke").value = newText.getStroke().getSize();
+    document.getElementById("dropShadow").value = newText
+      .getDropShadow()
+      .getStroke()
+      .getSize();
+    document.getElementById("dropShadowOffsetX").value = newText.getDropShadow().getOffset().x;
+    document.getElementById("dropShadowOffsetY").value = newText.getDropShadow().getOffset().y;
 
-  document.getElementById("letterSpacing").value = newText.getLetterSpacing();
+    document.getElementById("scale").value = newText.getFontSize();
+    document.getElementById("gamma").value = newText.getGamma();
 
-  document.getElementById("wordwrap").checked = newText.getWordWrap();
-  document.getElementById("charwrap").checked = newText.getCharacterWrap();
-  document.getElementById("debug").checked = newText.getDebug();
-  document.getElementById("dropShadowEnabled").checked = newText.getDropShadowEnabled();
-  document.getElementById("outlineEnabled").checked = newText.getStrokeEnabled();
+    document.getElementById("letterSpacing").value = newText.getLetterSpacing();
 
-  document.getElementById("alignLeft").checked = newText.getAlign() == Text.AlignType.LEFT;
-  document.getElementById("alignCenter").checked = newText.getAlign() == Text.AlignType.CENTER;
-  document.getElementById("alignRight").checked = newText.getAlign() == Text.AlignType.RIGHT;
-  */
-  //});
+    document.getElementById("wordwrap").checked = newText.getWordWrap();
+    document.getElementById("charwrap").checked = newText.getCharacterWrap();
+    document.getElementById("debug").checked = newText.getDebug();
+    document.getElementById("dropShadowEnabled").checked = newText.getDropShadowEnabled();
+    document.getElementById("outlineEnabled").checked = newText.getStrokeEnabled();
+
+    document.getElementById("alignLeft").checked = newText.getAlign() == Text.AlignType.LEFT;
+    document.getElementById("alignCenter").checked = newText.getAlign() == Text.AlignType.CENTER;
+    document.getElementById("alignRight").checked = newText.getAlign() == Text.AlignType.RIGHT;
+    //});
+  }
 }
 
 document.getElementById("str").oninput = updateValues;
