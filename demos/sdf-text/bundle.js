@@ -82,7 +82,7 @@ ContentLoader.loadAll({
   game.changeScene(gameScene);
   game.setVirtualResolution(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
-  await initializeTextDependencies("assets/fnt/OpenSans-Regular.ttf");
+  await initializeTextDependencies("assets/fnt/arialbd.ttf");
 
   // either BMFontParser.parse(files[0]);
   // or BMFontParser.parse(ContentLoader.getFile("openSansFont"))

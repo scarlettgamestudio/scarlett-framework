@@ -220,7 +220,7 @@ export default class Text extends GameObject {
     //gl.uniform1f(this._textShader.uniforms.u_buffer._location, 0.50);
 
     // gamma (smoothing) value (how sharp is the text in the edges)
-    gl.uniform1f(this._textShader.uniforms.uGamma._location, this.getGamma() * 1.4142 / this.getFontSize());
+    gl.uniform1f(this._textShader.uniforms.uGamma._location, 0.25 / (10 * this.getFontStyle().getScale()));
 
     // draw the glyphs
     //gl.drawArrays(gl.TRIANGLES, 0, this._vertexBuffer.numItems);
