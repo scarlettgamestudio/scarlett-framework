@@ -139,7 +139,7 @@ async function initializeTextDependencies(fontPath) {
     text: "Lorem\r\nipsum\r\ndolore"
   });
 
-  if (await text.setFontFilePathAsync(fontPath)) {
+  if (await text.setFontPathAsync(fontPath)) {
     text.transform.setPosition(-300, -180);
     text.setColor(Color.fromRGBA(232, 78, 64, 1.0));
 

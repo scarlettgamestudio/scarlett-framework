@@ -28,6 +28,7 @@ export default class MSDFTextShader extends Shader {
 
         "precision highp float;",
 
+        "uniform vec2 uTexSize;",
         "uniform sampler2D uTexture;",
         "uniform vec4 uColor;",
         "uniform float uGamma;",
@@ -49,9 +50,11 @@ export default class MSDFTextShader extends Shader {
         "}",
 
         "void main() {",
-
+        " vec2 msdfUnit = 4.0/uTexSize;",
         " vec3 sample = texture2D(uTexture, vTexCoord).rgb;",
-        " float sigDist = median(sample.r, sample.g, sample.b) - 0.5 + uGamma;",
+        " float sigDist = median(sample.r, sample.g, sample.b) - 0.5 - uGamma;",
+        " sigDist = uOutline > 0.0 ? sigDist + uOutlineDistance : sigDist;",
+        " sigDist *= dot(msdfUnit, 0.5/fwidth(vTexCoord));",
         " vec4 finalColor = uColor;",
 
         " if (uDebug > 0.0) {",
@@ -62,12 +65,11 @@ export default class MSDFTextShader extends Shader {
         " if (uOutline > 0.0) {",
         "   float outlineFactor = smoothstep(0.5 - uGamma, 0.5 + uGamma, median(sample.r, sample.g, sample.b));",
         "   vec4 color = mix(uOutlineColor, uColor, outlineFactor);",
-        "   float alpha = smoothstep(uOutlineDistance - uGamma, uOutlineDistance + uGamma, median(sample.r, sample.g, sample.b));",
-        "   finalColor = vec4(color.rgb, color.a * alpha * 1.0);",
+        "   float alpha = clamp(sigDist + 0.5 + uGamma - uOutlineDistance, 0.0, 1.0);",
+        "   finalColor = mix(vec4(29.0/255.0, 25.0/255.0, 35.0/255.0, 1.0), color, alpha);",
         " } else {",
-
-        "   float alpha = clamp(sigDist/fwidth(sigDist) + 0.5 + uGamma, 0.0, 1.0);",
-        "   finalColor = vec4(uColor.xyz, alpha * 1.0);",
+        "   float alpha = clamp(sigDist + 0.5 + uGamma, 0.0, 1.0);",
+        "   finalColor = mix(vec4(29.0/255.0, 25.0/255.0, 35.0/255.0, 1.0), uColor, alpha);",
         " }",
         " if (uDropShadow > 0.0) {",
         "   vec3 shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).rgb;",
