@@ -73,7 +73,8 @@ export default class MSDFTextShader extends Shader {
         " }",
         " if (uDropShadow > 0.0) {",
         "   vec3 shadowDistance = texture2D(uTexture, vTexCoord - uDropShadowOffset).rgb;",
-        "   float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + uDropShadowSmoothing, median(shadowDistance.r, shadowDistance.g, shadowDistance.b));",
+        "   float shadowAlpha = smoothstep(0.5 - uDropShadowSmoothing, 0.5 + " + 
+        "uDropShadowSmoothing, median(shadowDistance.r, shadowDistance.g, shadowDistance.b));",
         "   vec4 shadow = vec4(uDropShadowColor.rgb, uDropShadowColor.a * shadowAlpha);",
         //  inner effect is the other way around... text, shadow
         "   gl_FragColor = mix(shadow, finalColor, finalColor.a);",
