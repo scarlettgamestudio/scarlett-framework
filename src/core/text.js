@@ -112,7 +112,7 @@ export default class Text extends GameObject {
 
     let text = new Text();
     // TODO: set font path? Probably not needed as fontStyle is restored
-    await text.setFontPathAsync(data.fontPath)
+    await text.setFontPathAsync(data.fontPath);
     text.setWordWrap(data.wordWrap);
     text.setCharacterWrap(data.characterWrap);
     text.setAlign(data.alignType);
