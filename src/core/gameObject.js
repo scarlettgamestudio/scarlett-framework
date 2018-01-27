@@ -47,12 +47,12 @@ export default class GameObject {
 
   //#region Static Methods
 
-  static restore(data) {
+  static async restore(data) {
     return new GameObject({
       name: data.name,
       transform: Transform.restore(data.transform),
-      children: Objectify.restoreArray(data.children),
-      components: Objectify.restoreArray(data.components)
+      children: await Objectify.restoreArray(data.children),
+      components: await Objectify.restoreArray(data.components)
     });
   }
 

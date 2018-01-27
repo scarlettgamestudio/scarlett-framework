@@ -8,7 +8,6 @@ import GameObject from "core/gameObject";
 import Color from "core/color";
 import Stroke from "core/stroke";
 import DropShadow from "core/dropshadow";
-import FontStyle from "core/fontStyle";
 import GameManager from "core/gameManager";
 import Texture2D from "core/texture2D";
 import { AttributeDictionary } from "common/attributeDictionary";
@@ -113,7 +112,7 @@ export default class Text extends GameObject {
 
     let text = new Text();
     // TODO: set font path? Probably not needed as fontStyle is restored
-    text.setFontStyle(FontStyle.restore(data.fontStyle));
+    await text.setFontPathAsync(data.fontPath)
     text.setWordWrap(data.wordWrap);
     text.setCharacterWrap(data.characterWrap);
     text.setAlign(data.alignType);
@@ -125,8 +124,6 @@ export default class Text extends GameObject {
     text.setDropShadowEnabled(data.dropShadowEnabled);
     text.setDropShadow(DropShadow.restore(data.dropShadow));
     text.setDebug(data.debug);
-
-    await text.setTextureSrc(data.textureSrc);
 
     return Objectify.extend(text, superRestore);
   }
@@ -544,7 +541,7 @@ export default class Text extends GameObject {
   objectify() {
     let superObjectify = super.objectify();
     return Objectify.extend(superObjectify, {
-      fontStyle: this.getFontStyle().objectify(),
+      fontPath: this.getFontPathAsync(),
       wordWrap: this.getWordWrap(),
       characterWrap: this.getCharacterWrap(),
       alignType: this.getAlign(),
@@ -555,8 +552,7 @@ export default class Text extends GameObject {
       stroke: this.getStroke().objectify(),
       dropShadowEnabled: this.getDropShadowEnabled(),
       dropShadow: this.getDropShadow().objectify(),
-      debug: this.getDebug(),
-      textureSrc: this.getTextureSrc()
+      debug: this.getDebug()
     });
   }
 

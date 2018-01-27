@@ -69,11 +69,12 @@ export default class Sprite extends GameObject {
     let sprite = new Sprite({
       name: data.name,
       transform: Transform.restore(data.transform),
-      children: Objectify.restoreArray(data.children),
-      components: Objectify.restoreArray(data.components)
+      children: await Objectify.restoreArray(data.children),
+      components: await Objectify.restoreArray(data.components)
     });
+    await sprite.setSource(data.src);
 
-    return await sprite.setSource(data.src);
+    return sprite;
   }
 
   //#endregion
@@ -143,35 +144,37 @@ export default class Sprite extends GameObject {
       return;
     }
 
-    let ext = Path.getFileExtension(path);
+    const ext = Path.getFileExtension(path);
 
-    if (ext == CONSTANTS.CONTENT_EXTENSIONS.ATLAS) {
-      const fileContext = await ContentLoader.loadFile(path);
-
-      // if something went wrong with loading
-      if (fileContext == false) {
-        return;
-      }
-
-      let atlas = Objectify.restoreFromString(fileContext);
-
-      // is this a valid atlas?
-      if (atlas == null || !isObjectAssigned(atlas.sourcePath)) {
-        this._logger.error("Couldn't restore atlas");
-        return;
-      }
-
-      this._atlas = atlas;
-      await this._assignTextureFromPath(this._atlas.sourcePath);
-
-      // FIXME: change to a more appropriate event?
-      // this is currently being used so the property editor refreshes the view after the atlas
-      // is asynchronously loaded.
-      EventManager.emit(CONSTANTS.EVENTS.CONTENT_ASSET_LOADED, path);
-    } else {
+    if (ext != CONSTANTS.CONTENT_EXTENSIONS.ATLAS) {
       this._atlas = null;
-      await this._assignTextureFromPath(path);
+      return await this._assignTextureFromPath(path);
     }
+
+    // if it's not an atlas
+    const fileContext = await ContentLoader.loadFile(path);
+
+    // if something went wrong with loading
+    if (fileContext === false) {
+      return;
+    }
+
+    let atlas = Objectify.restoreFromString(fileContext);
+
+    // is this a valid atlas?
+    if (atlas == null || !isObjectAssigned(atlas.sourcePath)) {
+      this._logger.error("Couldn't restore atlas");
+      return;
+    }
+
+    this._atlas = atlas;
+
+    // FIXME: change to a more appropriate event?
+    // this is currently being used so the property editor refreshes the view after the atlas
+    // is asynchronously loaded.
+    EventManager.emit(CONSTANTS.EVENTS.CONTENT_ASSET_LOADED, path);
+
+    return await this._assignTextureFromPath(this._atlas.sourcePath);
   }
 
   getAtlasRegion() {

@@ -45,13 +45,15 @@ export default class Objectify {
      * Restores to the original state an array of objectified data
      * @param array
      */
-  static restoreArray(array) {
+  static async restoreArray(array) {
     let result = [];
-    array.forEach(function(elem) {
+
+    for (let elem of array) {
       if (elem._otype) {
-        result.push(Objectify.restore(elem, elem._otype));
+        const restored = await Objectify.restore(elem, elem._otype);
+        result.push(restored);
       }
-    });
+    }
 
     return result;
   }
@@ -104,12 +106,12 @@ export default class Objectify {
      * @param typeName (the name of the type to restore - optional 
      * if _otype is defined in data)
      */
-  static restore(data, typeName) {
+  static async restore(data, typeName) {
     try {
       let type = isObjectAssigned(typeName) ? typeName : data._otype;
       type = eval(type);
       if (type && type.restore) {
-        return type.restore(data);
+        return await type.restore(data);
       }
     } catch (ex) {
       Objectify._logger.error("Failed to restore element: " + ex);

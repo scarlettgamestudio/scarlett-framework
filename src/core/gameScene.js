@@ -51,13 +51,14 @@ export default class GameScene {
 
   //#region Static Methods
 
-  static restore(data) {
-    return new GameScene({
+  static async restore(data) {
+    let gameScene = new GameScene({
       game: GameManager.activeGame,
       backgroundColor: Color.restore(data.backgroundColor),
       camera: Camera2D.restore(data.camera),
-      gameObjects: Objectify.restoreArray(data.gameObjects)
+      gameObjects: await Objectify.restoreArray(data.gameObjects)
     });
+    return gameScene;
   }
 
   //#endregion
