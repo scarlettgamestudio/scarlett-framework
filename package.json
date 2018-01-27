@@ -5,9 +5,10 @@
   "description": "Scarlett WebGL Graphics Framework",
   "main": "build/umd/scarlett-framework.js",
   "dependencies": {
+    "axios": "0.17.1",
+    "axios-mock-adapter": "1.12.0",
     "babel-runtime": "6.26.0",
     "flow-runtime": "^0.16.0",
-    "jest-fetch-mock": "1.4.0",
     "lodash": "4.17.4",
     "matter-js": "^0.10.0",
     "parse-bmfont-ascii": "1.0.6",
@@ -128,9 +129,7 @@
     "transform": {
       "^.+\\.js$": "babel-jest"
     },
-    "setupFiles": [
-      "./config/setupJest.js"
-    ],
+    "setupFiles": [],
     "mapCoverage": true,
     "moduleDirectories": [
       "node_modules",

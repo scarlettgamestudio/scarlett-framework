@@ -2,6 +2,7 @@
 
 import GameManager from "core/gameManager";
 import FileContext from "common/fileContext";
+import axios from "axios";
 
 // unique key
 const _contentLoaderSingleton = Symbol("contentLoaderSingleton");
@@ -70,14 +71,11 @@ class ContentLoaderSingleton {
     // enrich path if possible
     const newPath = this._enrichRelativePath(path);
     try {
-      const response = await fetch(newPath, {
-        method: "HEAD",
-        cache: "no-cache"
-      });
+      const response = await axios.head(newPath);
 
       if (response.status != 200) {
         throw new Error(
-          `Something didn't work as expected with ${response.url} file request.` +
+          `Something didn't work as expected with ${response.request.responseURL} file request.` +
             `\n${response.statusText}. Status code: ${response.status}`
         );
       }

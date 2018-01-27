@@ -1,6 +1,9 @@
 import { ContentLoader } from "common/contentLoader";
 import GameManager from "core/gameManager";
+import MockAdapter from "axios-mock-adapter";
+import axios from "axios";
 
+const mockAxios = new MockAdapter(axios);
 let consoleErrorSpy;
 let consoleWarnSpy;
 
@@ -18,15 +21,9 @@ beforeEach(() => {
   }
 });
 
-/*
-test("Mock Test", () => {
-  expect.assertions(1);
-
-  expect(ContentLoader._loadImage()).not.toBe("teeehee2");
-
-  //expect(ContentLoader.testReturn()).toBe("werwerrweew");
+afterEach(() => {
+  mockAxios.reset();
 });
-*/
 
 test("Not able to enrich path in unknown project", () => {
   expect.assertions(2);
@@ -75,13 +72,16 @@ describe("File existance check", () => {
       bodyUsed: false,
       ok: false,
       status: 404,
-      url: "someInvalidPath",
+      request: {
+        responseURL: "someInvalidPath"
+      },
       statusText: "Not Found"
     };
-    fetch.mockImplementation(() => mockedFetchResponse);
+
+    mockAxios.onHead().reply(mockedFetchResponse.status, mockedFetchResponse);
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
-    const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.url);
+    const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.request.responseURL);
     expect(result).toBe(expected);
     expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
   });
@@ -93,12 +93,15 @@ describe("File existance check", () => {
       bodyUsed: false,
       ok: true,
       status: 200,
-      url: "someValidPath",
+      request: {
+        responseURL: "someValidPath"
+      },
       statusText: "OK"
     };
-    fetch.mockImplementation(() => mockedFetchResponse);
 
-    const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.url);
+    mockAxios.onHead().reply(mockedFetchResponse.status, mockedFetchResponse);
+
+    const result = await ContentLoader.fileExistsAsync(mockedFetchResponse.request.responseURL);
     expect(result).toBe(expected);
   });
 });
