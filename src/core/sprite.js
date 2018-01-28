@@ -24,7 +24,7 @@ AttributeDictionary.addRule("sprite", "_texture", { visible: false });
 AttributeDictionary.addRule("sprite", "_wrapMode", { visible: false });
 AttributeDictionary.addRule("sprite", "_atlasRegion", {
   displayName: "Region",
-  available: function() {
+  available() {
     return isObjectAssigned(this._atlas);
   }
 });
