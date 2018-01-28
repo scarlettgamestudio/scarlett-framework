@@ -54,7 +54,7 @@ describe("Try to load font", () => {
 
     const exists = await FontLoader.loadFontAsync(fontPath, ContentLoader);
 
-    expect(exists).toBe(false);
+    expect(exists).toBeNull();
 
     // make sure to mock spec and texture load correctly
     const anotherMockFn = jest
@@ -68,7 +68,7 @@ describe("Try to load font", () => {
 
     const loading = await FontLoader.loadFontAsync(fontPath, ContentLoader);
 
-    expect(loading).toBe(false);
+    expect(loading).toBeNull();
 
     // make sure to mock spec and texture load correctly
     const yetAnotherMockFn = jest
@@ -83,7 +83,7 @@ describe("Try to load font", () => {
 
     const parsing = await FontLoader.loadFontAsync(fontPath, ContentLoader);
 
-    expect(parsing).toBe(false);
+    expect(parsing).toBeNull();
   });
 });
 
@@ -93,12 +93,12 @@ test("Unable to load unsupported font file", async () => {
   let fontPath = "some/path/font.unsupportedExtension";
   const valid1 = await FontLoader.loadFontAsync(fontPath);
 
-  expect(valid1).toBe(false);
+  expect(valid1).toBeNull();
 
   fontPath = "some/path/font";
   const valid2 = await FontLoader.loadFontAsync(fontPath);
 
-  expect(valid2).toBe(false);
+  expect(valid2).toBeNull();
 });
 
 describe("Assess extensions validaty", () => {

@@ -14,11 +14,13 @@ import { AttributeDictionary } from "common/attributeDictionary";
 import { isObjectAssigned } from "common/utils";
 import FontLoader from "utility/fontLoader";
 import MSDFTextShader from "shaders/msdfTextShader";
+import FontStyle from "core/fontStyle";
 
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_fontPathAsync", {
   displayName: "Font Src",
-  editor: "filepath"
+  editor: "filepath",
+  specific: true
 });
 
 AttributeDictionary.addRule("text", "_color", {
@@ -29,13 +31,13 @@ AttributeDictionary.addRule("text", "_texture", { visible: false });
 AttributeDictionary.addRule("text", "_fontStyle", { ownContainer: true });
 AttributeDictionary.addRule("text", "_stroke", {
   ownContainer: true,
-  available: function() {
+  available() {
     return this.getStrokeEnabled() ? true : false;
   }
 });
 AttributeDictionary.addRule("text", "_dropShadow", {
   ownContainer: true,
-  available: function() {
+  available() {
     return this.getDropShadowEnabled() ? true : false;
   }
 });
@@ -291,16 +293,16 @@ export default class Text extends GameObject {
     this.setTexture(texture);
   }
 
-  async setFontPathAsync(fontPath: string): boolean {
-    const fontStyleResult = await FontLoader.loadFontAsync(fontPath);
-    if (fontStyleResult.getFontImage() != null) {
-      const texture = new Texture2D(fontStyleResult.getFontImage());
-      this.setTexture(texture);
-      this._fontStyle = fontStyleResult;
-      this._fontPathAsync = fontPath;
-      return true;
+  async setFontPathAsync(fontPath: string): Promise<boolean> {
+    const fontStyleResult: ?FontStyle = await FontLoader.loadFontAsync(fontPath);
+    if (fontStyleResult == null || fontStyleResult.getFontImage() == null) {
+      return false;
     }
-    return false;
+    const texture = new Texture2D(fontStyleResult.getFontImage());
+    this.setTexture(texture);
+    this._fontStyle = fontStyleResult;
+    this._fontPathAsync = fontPath;
+    return true;
   }
 
   getFontPathAsync(): string {

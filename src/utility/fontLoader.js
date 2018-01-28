@@ -14,13 +14,13 @@ export default class FontLoader {
     return FontSupportedTypes.includes(extension);
   }
 
-  static async loadFontAsync(path: string, contentLoader: ContentLoader = ContentLoader): Promise<boolean | FontStyle> {
+  static async loadFontAsync(path: string, contentLoader: ContentLoader = ContentLoader): Promise<?FontStyle> {
     const basename = Path.getBasename(path);
     const extension = Path.getFileExtension(basename);
 
     // no need to go further if extension is not supported
     if (basename.length <= 0 || !FontLoader.isExtensionSupported(extension)) {
-      return false;
+      return null;
     }
 
     // now that we know the path ends with a valid extension, we can replace it
@@ -33,20 +33,20 @@ export default class FontLoader {
 
     // no need to go further if either texture or spec cannot be found
     if (!textureExists || !specExists) {
-      return false;
+      return null;
     }
 
     const image = await contentLoader.loadImage(imagePath, imagePath);
     const specFileContext = await contentLoader.loadFile(specPath, specPath);
 
     if (image === false || specFileContext === false) {
-      return false;
+      return null;
     }
 
     const spec = BMFontParser.parse(specFileContext);
 
     if (spec === null) {
-      return false;
+      return null;
     }
 
     return new FontStyle(spec, specPath, image);
