@@ -17,11 +17,11 @@
   },
   "scripts": {
     "start": "http-server -a localhost -p 8080 -c-1",
-    "build": "webpack -d --config config/webpack.config.js",
+    "build": "webpack -d --config config/_webpack.config.js",
     "build:editor": "cross-env NODE_ENV=editor yarn run build",
-    "build:deploy": "cross-env NODE_ENV=production webpack -p --config config/webpack.config.js",
+    "build:deploy": "cross-env NODE_ENV=production webpack -p --config config/_webpack.config.js",
     "build:all": "rimraf build && run-p build build:editor build:deploy",
-    "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/webpack.config.js",
+    "live-server": "webpack-dev-server -d --port 8080 --progress --colors --hot --config config/_webpack.config.js",
     "live-server:editor": "cross-env NODE_ENV=editor yarn run live-server",
     "live-server:deploy": "cross-env NODE_ENV=production yarn run live-server",
     "watch": "yarn run build -- -w",
@@ -105,7 +105,7 @@
     "settings": {
       "import/resolver": {
         "webpack": {
-          "config": "config/webpack.config.js"
+          "config": "config/_webpack.config.js"
         }
       }
     }
