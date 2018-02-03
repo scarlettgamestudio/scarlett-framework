@@ -5,11 +5,14 @@ import FileContext from "common/fileContext";
 
 beforeEach(() => {
   jest.spyOn(console, "error");
+  jest.spyOn(console, "warn");
   console.error.mockImplementation(() => {});
+  console.warn.mockImplementation(() => {});
 });
 
 afterEach(() => {
   console.error.mockRestore();
+  console.warn.mockRestore();
 });
 
 describe("Try to load font", () => {

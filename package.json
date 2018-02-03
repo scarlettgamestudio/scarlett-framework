@@ -118,7 +118,9 @@
     "setupFiles": [],
     "mapCoverage": true,
     "moduleDirectories": ["node_modules", "src"],
-    "modulePathIgnorePatterns": ["<rootDir>/node_modules/msdf-bmfont-xml"],
+    "moduleNameMapper": {
+      "msdf-bmfont-xml": "<rootDir>/__mocks__/msdfMock.js"
+    },
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$",
     "moduleFileExtensions": ["js", "json"],
     "collectCoverageFrom": ["!src/**/index.js", "src/**/*.js"],
@@ -129,6 +131,9 @@
         "lines": 0,
         "statements": 0
       }
+    },
+    "globals": {
+      "window": false
     }
   },
   "repository": {
