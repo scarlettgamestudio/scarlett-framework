@@ -3,6 +3,7 @@
 import fs from "fs";
 import async from "async";
 import GameManager from "core/gameManager";
+import path from "path";
 
 /**
  * This is a node specific class
@@ -56,7 +57,7 @@ export default class GenerateBMFont {
       return null;
     }
 
-    const projectPath = GameManager._activeProjectPath + "\\" + fontPath;
+    const projectPath = path.join(GameManager._activeProjectPath, fontPath);
 
     try {
       return await GenerateBMFont._generateAsync(projectPath, options, generate);
