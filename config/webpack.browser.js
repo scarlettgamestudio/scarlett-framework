@@ -7,7 +7,7 @@ const WebpackNotifierPlugin = require("webpack-notifier");
 const packageName = require("../package.json").shortName;
 
 const relativeOutputPath = "build/browser";
-const finalPackageName = packageName + "browser.js";
+const finalPackageName = packageName + ".browser.js";
 
 const loaderSetup = [
   {
