@@ -59,7 +59,10 @@ export default class FontLoader {
   static async loadFontAsync(
     path: string,
     contentLoader: ContentLoader = ContentLoader,
-    generate: Function = msdfGenerate,
+    generate: Function = msdfGenerate ||
+      function() {
+        return true;
+      },
     options: {} = GenerateBMFont.BMFontOptions
   ): Promise<?FontStyle> {
     const validationResult = await FontLoader.validateFont(path, contentLoader, options, generate);
