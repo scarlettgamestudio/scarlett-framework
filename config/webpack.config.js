@@ -90,7 +90,7 @@ if (TO_EDITOR_ES6) {
 }
 
 // the entry filename of the library (inside src)
-const entryFilenames = ["matter-js", "index.js"];
+const entryFilenames = ["matter-js", "async", "index.js"];
 
 const config = {
   // TODO: check if targeting electron with webpack is better in some way (i.e., target: electron)
@@ -130,6 +130,7 @@ const config = {
       }
     ]
   },
+  externals: ["fs", "msdf-bmfont-xml"],
   plugins: [
     new LodashModuleReplacementPlugin(),
     //new webpack.optimize.CommonsChunkPlugin("matter"),

@@ -5,6 +5,7 @@
   "description": "Scarlett WebGL Graphics Framework",
   "main": "build/umd/scarlett-framework.js",
   "dependencies": {
+    "async": "2.6.0",
     "axios": "0.17.1",
     "axios-mock-adapter": "1.12.0",
     "babel-runtime": "6.26.0",
@@ -75,20 +76,14 @@
     "webpack-dev-server": "2.8.2",
     "webpack-notifier": "1.5.0"
   },
-  "files": [
-    "build",
-    "README.md"
-  ],
+  "files": ["build", "README.md"],
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
   },
   "lint-staged": {
-    "*.js": [
-      "prettier-eslint --write",
-      "git add"
-    ]
+    "*.js": ["prettier-eslint --write", "git add"]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -101,20 +96,11 @@
       "es6": true,
       "jest/globals": true
     },
-    "extends": [
-      "eslint:recommended",
-      "plugin:import/errors",
-      "plugin:import/warnings"
-    ],
-    "plugins": [
-      "jest"
-    ],
+    "extends": ["eslint:recommended", "plugin:import/errors", "plugin:import/warnings"],
+    "plugins": ["jest"],
     "rules": {
       "no-console": 0,
-      "max-len": [
-        "error",
-        120
-      ]
+      "max-len": ["error", 120]
     },
     "settings": {
       "import/resolver": {
@@ -131,19 +117,11 @@
     },
     "setupFiles": [],
     "mapCoverage": true,
-    "moduleDirectories": [
-      "node_modules",
-      "src"
-    ],
+    "moduleDirectories": ["node_modules", "src"],
+    "modulePathIgnorePatterns": ["<rootDir>/node_modules/msdf-bmfont-xml"],
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$",
-    "moduleFileExtensions": [
-      "js",
-      "json"
-    ],
-    "collectCoverageFrom": [
-      "!src/**/index.js",
-      "src/**/*.js"
-    ],
+    "moduleFileExtensions": ["js", "json"],
+    "collectCoverageFrom": ["!src/**/index.js", "src/**/*.js"],
     "coverageThreshold": {
       "global": {
         "branches": 0,

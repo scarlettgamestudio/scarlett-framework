@@ -6,6 +6,7 @@ import { FontSupportedTypes } from "utility/fontSupportedTypes";
 import FontStyle from "core/fontStyle";
 import BMFontParser from "utility/bmFontParser";
 import GenerateBMFont from "utility/generateBMFont";
+import msdfGenerate from "msdf-bmfont-xml";
 
 /**
  * FontLoader Utility Class
@@ -17,7 +18,9 @@ export default class FontLoader {
 
   static async validateFont(
     path: string,
-    contentLoader: ContentLoader
+    contentLoader: ContentLoader,
+    options: {},
+    generate: Function
   ): Promise<?{ imagePath: string, specPath: string }> {
     const basename = Path.getBasename(path);
     const extension = Path.getFileExtension(basename);
@@ -32,10 +35,14 @@ export default class FontLoader {
     const imagePath = baseFilePath + ".png";
     const specPath = baseFilePath + ".json";
 
-    if (!await FontLoader.textureAndSpecExist(imagePath, specPath, contentLoader)) {
+    const specExists = await FontLoader.textureAndSpecExist(imagePath, specPath, contentLoader);
+
+    // try to generate if spec or texture does not exist
+    if (specExists || (await GenerateBMFont.tryToGenerateAsync(path, options, generate))) {
+      return { imagePath, specPath };
+    } else {
       return null;
     }
-    return { imagePath, specPath };
   }
 
   static async textureAndSpecExist(
@@ -49,8 +56,13 @@ export default class FontLoader {
     return textureExists && specExists;
   }
 
-  static async loadFontAsync(path: string, contentLoader: ContentLoader = ContentLoader): Promise<?FontStyle> {
-    const validationResult = await FontLoader.validateFont(path, contentLoader);
+  static async loadFontAsync(
+    path: string,
+    contentLoader: ContentLoader = ContentLoader,
+    generate: Function = msdfGenerate,
+    options: {} = GenerateBMFont.BMFontOptions
+  ): Promise<?FontStyle> {
+    const validationResult = await FontLoader.validateFont(path, contentLoader, options, generate);
 
     if (validationResult === null || !validationResult.imagePath || !validationResult.specPath) {
       return null;

@@ -1,5 +1,9 @@
 /* @flow */
 
+import fs from "fs";
+import async from "async";
+import GameManager from "core/gameManager";
+
 /**
  * This is a node specific class
  * Calling generate function will return null otherwise
@@ -8,34 +12,57 @@ export default class GenerateBMFont {
   static get BMFontOptions(): {} {
     return {
       outputType: "json",
-      distanceRange: 4,
+      distanceRange: 10,
       smartSize: true,
-      pot: true
+      pot: true,
+      fontSize: 50,
+      texturePadding: 8
     };
   }
 
-  static generate(fontPath: string): ?boolean {
+  static _writeTextures(textures: Array<{ filename: string, texture: Uint8Array }>, callback: Function) {
+    async.every(
+      textures,
+      (texture, callback) => {
+        fs.writeFile(texture.filename + ".png", texture.texture, callback);
+      },
+      (err, result) => {
+        callback(err, result);
+      }
+    );
+  }
+
+  static _generateAsync(fontPath: string, options: {}, generate: Function): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      generate(fontPath, options, (err, textures, font) => {
+        if (err) reject(err);
+        async.parallel(
+          [async.apply(GenerateBMFont._writeTextures, textures), async.apply(fs.writeFile, font.filename, font.data)],
+          err => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(true);
+            }
+          }
+        );
+      });
+    });
+  }
+
+  static async tryToGenerateAsync(fontPath: string, options: {}, generate: Function): Promise<?boolean> {
     if (!window || !window.process || !window.process.type) {
       console.warn("This module cannot be used in the browser. Use through node instead.");
       return null;
     }
 
-    const generateBMFont = require("msdf-bmfont-xml");
-    const fs = require("fs");
+    const projectPath = GameManager._activeProjectPath + "\\" + fontPath;
 
-    return generateBMFont(fontPath, GenerateBMFont.BMFontOptions, (error, textures, font) => {
-      if (error) throw error;
-
-      textures.forEach(texture => {
-        fs.writeFile(texture.filename + ".png", texture.texture, err => {
-          if (err) throw err;
-        });
-      });
-      fs.writeFile(font.filename, font.data, err => {
-        if (err) throw err;
-      });
-
-      return true;
-    });
+    try {
+      return await GenerateBMFont._generateAsync(projectPath, options, generate);
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 }
