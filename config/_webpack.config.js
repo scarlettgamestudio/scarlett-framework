@@ -17,7 +17,7 @@ const DEPLOYING = process.env.NODE_ENV === "production";
 // when using a global var (ES6)
 const globalLibraryName = "SC";
 // the entry filename of the library (inside src)
-const entryFilenames = ["matter-js", "async", "index.js"];
+const entryFilenames = ["matter-js", "index.js"];
 // libraries that should be installed by the consumer
 const externals = ["fs", "msdf-bmfont-xml"];
 
