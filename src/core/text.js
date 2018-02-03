@@ -19,8 +19,7 @@ import FontStyle from "core/fontStyle";
 AttributeDictionary.inherit("text", "gameobject");
 AttributeDictionary.addRule("text", "_fontPathAsync", {
   displayName: "Font Src",
-  editor: "filepath",
-  specific: true
+  editor: "filepath"
 });
 
 AttributeDictionary.addRule("text", "_color", {
