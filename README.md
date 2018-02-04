@@ -2,7 +2,7 @@
 
 Scarlett WebGL Graphics Framework repository
 
-![alt tag](http://scarlett.anlagehub.com/public/images/framework-banner.png)
+![alt tag](https://scarlett.cothesia.com/public/images/framework-banner.png)
 
 [![Build Status][build-badge]][build]
 [![Build status][win-build-badge]][win-build]
