@@ -7,12 +7,7 @@ const browserConfig = require("./webpack.browser");
 const editorConfig = require("./webpack.editor");
 const deployConfig = require("./webpack.deploy");
 
-module.exports = env => {
-  // make sure to have a valid env flag
-  if (env === undefined) {
-    env = {};
-  }
-
+module.exports = (env = {}) => {
   // transpiling to Editor ES6? (for editor)
   const TO_EDITOR_ES6 = process.env.NODE_ENV === "editor";
   // deploying? (for complete games)
