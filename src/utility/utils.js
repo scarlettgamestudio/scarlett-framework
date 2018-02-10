@@ -11,6 +11,13 @@ import FileContext from "common/fileContext";
 export default class Utils {
   //#region Static Properties
 
+  /** 
+   * Determines if running under Electron
+  */
+  static isElectron() {
+    return window && window.process && window.process.type;
+  }
+
   /**
      *
      * @type {boolean}

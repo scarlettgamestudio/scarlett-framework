@@ -5,6 +5,7 @@ import path from "path";
 import msdfGenerate from "msdf-bmfont-xml";
 import fs from "fs";
 import promisify from "util.promisify";
+import Utils from "utility/utils";
 
 /**
  * This is a node specific class
@@ -67,7 +68,7 @@ export default class BMFontGenerator {
     generate: Function = msdfGenerate || (() => true),
     writeFileAsync: Function = promisify ? promisify(fs.writeFile) : () => true
   ): Promise<?boolean> {
-    if (!window || !window.process || !window.process.type) {
+    if (!Utils.isElectron()) {
       console.warn("BMFont Generator cannot be used in the browser. Use through node instead.");
       return null;
     }
