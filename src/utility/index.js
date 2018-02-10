@@ -5,4 +5,4 @@ export { default as TextMetrics } from "./textMetrics";
 export { default as BMFontParser } from "./bmFontParser";
 export { default as FontLoader } from "./fontLoader";
 export { FontSupportedTypes } from "./fontSupportedTypes";
-export { default as GenerateBMFont } from "./generateBMFont";
+export { default as BMFontGenerator } from "./bmFontGenerator";

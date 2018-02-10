@@ -1,4 +1,4 @@
-import GenerateBMFont from "utility/generateBMFont";
+import BMFontGenerator from "utility/bmFontGenerator";
 import path from "path";
 import GameManager from "core/gameManager";
 
@@ -67,7 +67,7 @@ test("Able to generate spec and textures correctly", async () => {
     expect(file.filename.content).toEqual(fontContents);
   }
 
-  const result = await GenerateBMFont.tryToGenerateAsync(fontPath, GenerateBMFont.BMFontOptions, generate);
+  const result = await BMFontGenerator.tryToGenerateAsync(fontPath, BMFontGenerator.BMFontOptions, generate);
   expect(result).toBe(true);
 
   // revert global window value (set in jest configs within package.json)
@@ -89,7 +89,16 @@ test("Able to generate spec and textures correctly", async () => {
 });
 
 test("Unable to generate", async () => {
-  const result = await GenerateBMFont.tryToGenerateAsync("somePath", GenerateBMFont.BMFontOptions, () => true);
+  expect.assertions(2);
 
-  expect(result).toBe(null);
+  const result1 = await BMFontGenerator.tryToGenerateAsync("somePath", BMFontGenerator.BMFontOptions);
+  expect(result1).toBe(null);
+
+  const result2 = await BMFontGenerator.tryToGenerateAsync(
+    "somePath",
+    BMFontGenerator.BMFontOptions,
+    () => true,
+    () => true
+  );
+  expect(result2).toBe(null);
 });

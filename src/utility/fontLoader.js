@@ -5,8 +5,10 @@ import Path from "utility/path";
 import { FontSupportedTypes } from "utility/fontSupportedTypes";
 import FontStyle from "core/fontStyle";
 import BMFontParser from "utility/bmFontParser";
-import GenerateBMFont from "utility/generateBMFont";
+import BMFontGenerator from "utility/bmFontGenerator";
 import msdfGenerate from "msdf-bmfont-xml";
+import fs from "fs";
+import promisify from "util.promisify";
 
 /**
  * FontLoader Utility Class
@@ -20,7 +22,8 @@ export default class FontLoader {
     path: string,
     contentLoader: ContentLoader,
     options: {},
-    generate: Function
+    generate: Function,
+    writeFileAsync: Function
   ): Promise<?{ imagePath: string, specPath: string }> {
     const basename = Path.getBasename(path);
     const extension = Path.getFileExtension(basename);
@@ -38,7 +41,7 @@ export default class FontLoader {
     const specExists = await FontLoader.textureAndSpecExist(imagePath, specPath, contentLoader);
 
     // try to generate if spec or texture does not exist
-    if (specExists || (await GenerateBMFont.tryToGenerateAsync(path, options, generate))) {
+    if (specExists || (await BMFontGenerator.tryToGenerateAsync(path, options, generate, writeFileAsync))) {
       return { imagePath, specPath };
     } else {
       return null;
@@ -59,13 +62,11 @@ export default class FontLoader {
   static async loadFontAsync(
     path: string,
     contentLoader: ContentLoader = ContentLoader,
-    generate: Function = msdfGenerate ||
-      function() {
-        return true;
-      },
-    options: {} = GenerateBMFont.BMFontOptions
+    generate: Function = msdfGenerate || (() => true),
+    writeFileAsync: Function = promisify ? promisify(fs.writeFile) : () => true,
+    options: {} = BMFontGenerator.BMFontOptions
   ): Promise<?FontStyle> {
-    const validationResult = await FontLoader.validateFont(path, contentLoader, options, generate);
+    const validationResult = await FontLoader.validateFont(path, contentLoader, options, generate, writeFileAsync);
 
     if (validationResult === null || !validationResult.imagePath || !validationResult.specPath) {
       return null;
