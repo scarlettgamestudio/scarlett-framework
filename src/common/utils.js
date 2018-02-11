@@ -3,6 +3,10 @@
  * Includes global utility functions that can be called from any context
  */
 
+/**
+ * babel-plugin-lodash & lodash-webpack-plugin take care of cherry picking the used lodash modules
+ * e.g., import isString from "lodash/isString"
+ */
 import _ from "lodash";
 
 export {

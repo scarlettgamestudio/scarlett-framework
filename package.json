@@ -21,7 +21,8 @@
     "build": "yarn default-build -d",
     "build:editor": "cross-env NODE_ENV=editor yarn build",
     "build:deploy": "cross-env NODE_ENV=production yarn default-build -p",
-    "debug": "cross-env NODE_ENV=production node --inspect-brk ./node_modules/webpack/bin/webpack.js --config config/_webpack.config.js -p",
+    "debug":
+      "cross-env NODE_ENV=production node --inspect-brk ./node_modules/webpack/bin/webpack.js --config config/_webpack.config.js -p",
     "build:all": "rimraf build && run-p build build:editor build:deploy",
     "build:addon:analyze": "yarn build --env.addons=bundleanalyze",
     "build:addon:circular": "yarn build --env.addons=circulardependency",
@@ -82,20 +83,14 @@
     "webpack-merge": "4.1.1",
     "webpack-notifier": "1.5.0"
   },
-  "files": [
-    "build",
-    "README.md"
-  ],
+  "files": ["build", "README.md"],
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
   },
   "lint-staged": {
-    "*.js": [
-      "prettier-eslint --write",
-      "git add"
-    ]
+    "*.js": ["prettier-eslint --write", "git add"]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -108,20 +103,11 @@
       "es6": true,
       "jest/globals": true
     },
-    "extends": [
-      "eslint:recommended",
-      "plugin:import/errors",
-      "plugin:import/warnings"
-    ],
-    "plugins": [
-      "jest"
-    ],
+    "extends": ["eslint:recommended", "plugin:import/errors", "plugin:import/warnings"],
+    "plugins": ["jest"],
     "rules": {
       "no-console": 0,
-      "max-len": [
-        "error",
-        120
-      ]
+      "max-len": ["error", 120]
     },
     "settings": {
       "import/resolver": {
@@ -138,22 +124,13 @@
     },
     "setupFiles": [],
     "mapCoverage": true,
-    "moduleDirectories": [
-      "node_modules",
-      "src"
-    ],
+    "moduleDirectories": ["node_modules", "src"],
     "moduleNameMapper": {
       "msdf-bmfont-xml": "<rootDir>/__mocks__/msdfMock.js"
     },
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$",
-    "moduleFileExtensions": [
-      "js",
-      "json"
-    ],
-    "collectCoverageFrom": [
-      "!src/**/index.js",
-      "src/**/*.js"
-    ],
+    "moduleFileExtensions": ["js", "json"],
+    "collectCoverageFrom": ["!src/**/index.js", "src/**/*.js"],
     "coverageThreshold": {
       "global": {
         "branches": 0,
