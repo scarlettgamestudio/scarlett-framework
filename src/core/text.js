@@ -42,7 +42,7 @@ AttributeDictionary.addRule("text", "_dropShadow", {
 });
 
 // TODO: remove this... use game object boundary?
-const maxWidth = 500;
+const maxWidth = 1500;
 
 /**
  * Text class
@@ -92,7 +92,7 @@ export default class Text extends GameObject {
     this._vertexBuffer = null;
     this._textureBuffer = null;
     this._vertexIndicesBuffer = null;
-    this._textShader = null;
+    this._textShader = params.shader;
 
     this._textureSrc = "";
     this._texture = null;
@@ -132,6 +132,10 @@ export default class Text extends GameObject {
   //#endregion
 
   //#region Overridden Methods
+
+  getShader() {
+    return this._textShader;
+  }
 
   render(delta, spriteBatch) {
     if (!this.enabled) {
@@ -320,6 +324,8 @@ export default class Text extends GameObject {
 
     this._setTextureParameters();
 
+    this._textShader = this._textShader || new MSDFTextShader();
+
     this._textureSrc = texture.getTextureSrc();
     this._texture = texture;
 
@@ -330,7 +336,6 @@ export default class Text extends GameObject {
     this._vertexBuffer = this._gl.createBuffer();
     this._textureBuffer = this._gl.createBuffer();
     this._vertexIndicesBuffer = this._gl.createBuffer();
-    this._textShader = new MSDFTextShader();
 
     this._gl.uniform2f(this._textShader.uniforms.uTexSize._location, this._textureWidth, this._textureHeight);
   }
