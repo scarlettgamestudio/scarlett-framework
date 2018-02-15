@@ -3,7 +3,7 @@
   "shortName": "scarlett-framework",
   "version": "0.0.3-alpha",
   "description": "Scarlett WebGL Graphics Framework",
-  "main": "build/dist/scarlett-framework.min.js",
+  "main": "build/umd/scarlett-framework.js",
   "dependencies": {
     "axios": "0.17.1",
     "axios-mock-adapter": "1.12.0",
