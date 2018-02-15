@@ -5,24 +5,31 @@ const addons = require("./addons/addons");
 const commonConfig = require("./webpack.common");
 const browserConfig = require("./webpack.browser");
 const editorConfig = require("./webpack.editor");
-const deployConfig = require("./webpack.deploy");
+const deployBrowserConfig = require("./webpack.deploy.browser");
+const deployEditorConfig = require("./webpack.deploy.editor");
 
 module.exports = (env = {}) => {
   // transpiling to Editor ES6? (for editor)
-  const TO_EDITOR_ES6 = process.env.NODE_ENV === "editor";
+  const TO_EDITOR_ES6 = env.target === "editor";
   // deploying? (for complete games)
   const DEPLOYING = process.env.NODE_ENV === "production";
 
   // use browser configuration by default
-  let config = webpackMerge(commonConfig, browserConfig);
+  let config = {};
 
-  // if transpiling to Editor ES6
   if (TO_EDITOR_ES6) {
     config = webpackMerge(commonConfig, editorConfig);
+  } else {
+    // target browser by default
+    config = webpackMerge(commonConfig, browserConfig);
+  }
+
+  if (DEPLOYING && TO_EDITOR_ES6) {
+    config = webpackMerge(config, deployEditorConfig);
   } else if (DEPLOYING) {
     // deploy ES6 (e.g., for finished games)
     // merge actual configuration (browser) and deploy config changes
-    config = webpackMerge(config, deployConfig);
+    config = webpackMerge(config, deployBrowserConfig);
   }
 
   return webpackMerge(config, ...addons(env.addons));

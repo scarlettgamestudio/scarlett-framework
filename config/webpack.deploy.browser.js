@@ -8,10 +8,7 @@ const finalPackageName = packageName + ".browser.min.js";
 const loaderSetup = {
   loader: "babel-loader",
   options: {
-    plugins: [
-      "transform-runtime",
-      "lodash"
-    ],
+    plugins: ["transform-runtime", "lodash"],
     presets: [
       [
         "env",

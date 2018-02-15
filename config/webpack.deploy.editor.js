@@ -1,22 +1,12 @@
 const path = require("path");
 const packageName = require("../package.json").shortName;
-const relativeOutputPath = "build/umd";
-const finalPackageName = packageName + ".js";
+const relativeOutputPath = "build/dist";
+const finalPackageName = packageName + ".min.js";
 
 const loaderSetup = {
   loader: "babel-loader",
   options: {
-    plugins: [
-      "lodash",
-      [
-        "flow-runtime",
-        {
-          assert: true,
-          warn: false,
-          annotate: false
-        }
-      ]
-    ],
+    plugins: ["lodash"],
     presets: ["flow"],
     retainLines: true
   }
@@ -24,7 +14,7 @@ const loaderSetup = {
 
 module.exports = {
   // TODO: check if targeting electron with webpack is better in some way
-
+  devtool: "",
   // devtool is already set with -d (debug) and removed with -p (production) flags from webpack and webpack dev server
   // devtool: 'source-map',
 
