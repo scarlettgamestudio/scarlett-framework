@@ -32,5 +32,7 @@ module.exports = (env = {}) => {
     config = webpackMerge(config, deployBrowserConfig);
   }
 
+  console.log(config);
+
   return webpackMerge(config, ...addons(env.addons));
 };
