@@ -6,6 +6,7 @@ export { default as GameManager } from "./gameManager";
 export { default as GameObject } from "./gameObject";
 export { default as GameScene } from "./gameScene";
 export { default as PrimitiveBatch } from "./primitiveBatch";
+export { default as Geometry } from "./geometry";
 export { default as Script } from "./script";
 import { Scripts } from "./scripts";
 
