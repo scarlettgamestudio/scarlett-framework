@@ -1,12 +1,3 @@
-var DISPLAY_WIDTH = 1280,
-  HALF_DISPLAY_WIDTH = DISPLAY_WIDTH / 2;
-var DISPLAY_HEIGHT = 720,
-  HALF_DISPLAY_HEIGHT = DISPLAY_HEIGHT / 2;
-var ENEMY_BURST_DELAY = 5;
-
-var OFFSET_BREAKPOINT = HALF_DISPLAY_WIDTH - 80;
-var PLAYER_SHOOT_DELAY = 0.0;
-var PLAYER_BULLET_SPEED = 580;
 var script = SC.addScript("playerInput");
 
 script.properties.add("strengthVertical", {
@@ -42,11 +33,7 @@ script.prototype.update = function(delta) {
     directionVertical = 1;
   }
 
-  if (
-    keyboard.isKeyDown(Keys.Enter) ||
-    keyboard.isKeyDown(Keys.K) ||
-    keyboard.isKeyDown(Keys.Space)
-  ) {
+  if (keyboard.isKeyDown(Keys.Enter) || keyboard.isKeyDown(Keys.K) || keyboard.isKeyDown(Keys.Space)) {
     this.shoot(delta);
   }
 
@@ -55,17 +42,11 @@ script.prototype.update = function(delta) {
     this.strengthVertical * directionVertical * delta
   );
 
-  if (
-    directionHorizontal == 0 &&
-    this.gameObject.transform.getPosition().x > -OFFSET_BREAKPOINT
-  ) {
+  if (directionHorizontal == 0 && this.gameObject.transform.getPosition().x > -OFFSET_BREAKPOINT) {
     this.gameObject.transform.translate(this.fallback * delta * -1, 0);
 
     if (this.gameObject.transform.getPosition().x < -OFFSET_BREAKPOINT) {
-      this.gameObject.transform.setPosition(
-        -OFFSET_BREAKPOINT,
-        this.gameObject.transform.getPosition().y
-      );
+      this.gameObject.transform.setPosition(-OFFSET_BREAKPOINT, this.gameObject.transform.getPosition().y);
     }
   }
 
