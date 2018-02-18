@@ -79,4 +79,16 @@ export default class Geometry extends GameObject {
     }
     super.render(delta, spritebatch);
   }
+
+  getMatrix() {
+    let x, y;
+
+    x = this.transform.getPosition().x;
+    y = this.transform.getPosition().y;
+
+    this._transformMatrix.identity();
+    this._transformMatrix.translate([x, y, 0]);
+
+    return this._transformMatrix.asArray();
+  }
 }
