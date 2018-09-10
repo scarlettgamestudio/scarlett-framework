@@ -81,12 +81,10 @@ export default class Geometry extends GameObject {
   }
 
   getMatrix() {
-    let x, y;
-
-    x = this.transform.getPosition().x;
-    y = this.transform.getPosition().y;
+    const { x, y } = this.transform.getPosition();
 
     this._transformMatrix.identity();
+
     this._transformMatrix.translate([x, y, 0]);
 
     return this._transformMatrix.asArray();
