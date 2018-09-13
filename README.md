@@ -19,6 +19,8 @@ Scarlett WebGL Graphics Framework repository
 
 # README #
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/scarlettgamestudio/scarlett-framework.svg)](https://greenkeeper.io/)
+
 ### What is this repository for? ###
 
 This repository contains the Scarlett Framework Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
