@@ -7,7 +7,7 @@ const globalLibraryName = "SC";
 // the entry filename of the library (inside src)
 const entryFilenames = ["matter-js", "index.js"];
 // libraries that should be installed by the consumer
-const externals = ["fs", "util", "util.promisify", "msdf-bmfont-xml"];
+const externals = ["fs", "util", "util.promisify", "scarlett-msdf-bmfont-xml"];
 
 module.exports = {
   entry: entryFilenames,

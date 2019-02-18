@@ -2,7 +2,7 @@
 
 import GameManager from "core/gameManager";
 import path from "path";
-import msdfGenerate from "msdf-bmfont-xml";
+import msdfGenerate from "scarlett-msdf-bmfont-xml";
 import fs from "fs";
 import promisify from "util.promisify";
 import Utils from "utility/utils";

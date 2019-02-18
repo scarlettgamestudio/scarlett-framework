@@ -10,7 +10,7 @@
   "author": "Luís Fernandes aka Apidcloud <luisapidcloud@hotmail.com>",
   "license": "MIT",
   "dependencies": {
-    "msdf-bmfont-xml": "2.3.1"
+    "scarlett-msdf-bmfont-xml": "2.3.6"
   },
   "devDependencies": {
     "browserify": "15.2.0"

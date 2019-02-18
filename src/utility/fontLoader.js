@@ -6,7 +6,7 @@ import { FontSupportedTypes } from "utility/fontSupportedTypes";
 import FontStyle from "core/fontStyle";
 import BMFontParser from "utility/bmFontParser";
 import BMFontGenerator from "utility/bmFontGenerator";
-import msdfGenerate from "msdf-bmfont-xml";
+import msdfGenerate from "scarlett-msdf-bmfont-xml";
 import fs from "fs";
 import promisify from "util.promisify";
 
